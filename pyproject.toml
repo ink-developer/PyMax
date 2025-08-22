@@ -1,0 +1,26 @@
+[project]
+name = "max_client"
+version = "0.1.0"
+description = "Python wrapper для API мессенджера Max"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "noxzion", email = "mail@gmail.com" }
+]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+dependencies = [
+    "sqlmodel>=0.0.24",
+    "websockets>=11.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
