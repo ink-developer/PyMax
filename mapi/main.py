@@ -51,6 +51,7 @@ class MaxClient:
         self._token = self._database.get_auth_token()
         self.user_agent = Constants.DEFAULT_USER_AGENT.value
         self._on_message_handler: Callable[[Message], Any] | None = None
+        self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
 
     @property
@@ -63,6 +64,12 @@ class MaxClient:
         self, handler: Callable[[Message], Any | Awaitable[Any]]
     ) -> Callable[[Message], Any | Awaitable[Any]]:
         self._on_message_handler = handler
+        return handler
+
+    def on_start(
+        self, handler: Callable[[], Any | Awaitable[Any]]
+    ) -> Callable[[], Any | Awaitable[Any]]:
+        self._on_start_handler = handler
         return handler
 
     def _check_phone(self) -> bool:
@@ -276,6 +283,7 @@ class MaxClient:
             if error := data.get("payload", {}).get("error"):
                 print("Delete message error:", error)
                 return False
+                return False3
             return True
         except Exception as e:
             print("Delete message failed:", e)
@@ -294,6 +302,35 @@ class MaxClient:
             self.is_connected = False
         except Exception as e:
             print("Error closing client:", e)
+
+    async def fetch_history(
+        self,
+        chat_id: int,
+        from_time: int | None = None,
+        forward: int = 0,
+        backward: int = 200,
+    ) -> list[Message] | None:
+        if from_time is None:
+            from_time = int(time.time() * 1000)
+
+        try:
+            payload = {
+                "chatId": chat_id,
+                "from": from_time,
+                "forward": forward,
+                "backward": backward,
+                "getMessages": True,
+            }
+            print("[debug] payload" + json.dumps(payload, indent=4))
+
+            data = await self._send_and_wait(opcode=Opcode.FETCH_HISTORY, payload=payload)
+            if error := data.get("payload", {}).get("error"):
+                print("Fetch history error:", error)
+                return None
+            return [Message.from_dict(msg) for msg in data["payload"].get("messages", [])]
+        except Exception as e:
+            print("Fetch history failed:", e)
+            return None
 
     async def _login(self) -> None:
         request_code_payload = await self._request_code(self.phone)
@@ -321,6 +358,11 @@ class MaxClient:
                 await self._login()
             else:
                 await self._sync()
+
+            if self._on_start_handler:
+                result = self._on_start_handler()
+                if asyncio.iscoroutine(result):
+                    await result
 
             if self._ws:
                 ping_task = asyncio.create_task(self._send_interactive_ping())

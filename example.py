@@ -35,5 +35,14 @@ async def handle_message(message: Message) -> None:
     print(str(message.sender) + ": " + message.text)
 
 
+@client.on_start
+async def handle_start() -> None:
+    print("Client started successfully!")
+    history = await client.fetch_history(chat_id=0)
+    if history:
+        for message in history:
+            print(f"[{message.id}] {message.sender}: {message.text}")
+
+
 if __name__ == "__main__":
     asyncio.run(client.start())

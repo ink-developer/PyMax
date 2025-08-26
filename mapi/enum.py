@@ -15,6 +15,8 @@ class Opcode(IntEnum):
     GET_CONTACTS_INFO = 32
     GET_LAST_SEEN = 35
     GET_CHATS_DATA = 48
+    FETCH_HISTORY = 49
+
     GET_HISTORY = 79
 
     SEND_MESSAGE = 64
