@@ -13,16 +13,16 @@ pip install+git https://github.com/noxzion/PyMax
 ```python
 import asyncio
 
-from mapi import MaxClient
+from mapi import MaxClient, Message
+
+phone = "+1234567890"
+
+client = MaxClient(phone=phone, work_dir="cache")
 
 
-async def main():
-    phone = ""
-
-    client = MaxClient(phone=phone, work_dir="cache")
-
+async def main() -> None:
     await client.start()
-    
+
     for chat in client.chats:
         print(chat.title)
 
@@ -43,8 +43,13 @@ async def main():
     await client.close()
 
 
+@client.on_message
+async def handle_message(message: Message) -> None:
+    print(str(message.sender) + ": " + message.text)
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(client.start())
 
 ```
 
