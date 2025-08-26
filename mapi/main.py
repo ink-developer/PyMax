@@ -55,7 +55,7 @@ class MaxClient:
 
     @property
     def ws(self) -> websockets.ClientConnection:
-        if self._ws is None or self._ws.closed:
+        if self._ws is None or not self.is_connected:
             raise WebSocketNotConnectedError
         return self._ws
 
