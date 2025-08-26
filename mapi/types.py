@@ -1,24 +1,23 @@
 from typing import Any
-from .enum import ChatType, MessageType, MessageStatus, ElementType, AccessType
+
+from .enum import AccessType, ChatType, ElementType, MessageStatus, MessageType
 
 
 class Element:
-    def __init__(
-        self,
-        type: ElementType | str,
-        length: int,
-        from_: int | None = None,
-    ) -> None:
+    def __init__(self, type: ElementType | str, length: int, from_: int | None = None) -> None:
         self.type = type
         self.length = length
         self.from_ = from_
 
     @classmethod
-    def from_dict(
-        cls,
-        data: dict[Any, Any],
-    ) -> "Element":
+    def from_dict(cls, data: dict[Any, Any]) -> "Element":
         return cls(type=data["type"], length=data["length"], from_=data.get("from"))
+
+    def __repr__(self) -> str:
+        return f"Element(type={self.type!r}, length={self.length!r}, from_={self.from_!r})"
+
+    def __str__(self) -> str:
+        return f"{self.type}({self.length})"
 
 
 class Message:
@@ -60,6 +59,15 @@ class Message:
             status=data.get("status"),
             reaction_info=data.get("reactionInfo"),
         )
+
+    def __repr__(self) -> str:
+        return (
+            f"Message(id={self.id!r}, sender={self.sender!r}, text={self.text!r}, "
+            f"type={self.type!r}, status={self.status!r}, elements={self.elements!r})"
+        )
+
+    def __str__(self) -> str:
+        return f"Message {self.id} from {self.sender}: {self.text}"
 
 
 class Dialog:
@@ -121,6 +129,12 @@ class Dialog:
             status=data["status"],
             participants=data["participants"],
         )
+
+    def __repr__(self) -> str:
+        return f"Dialog(id={self.id!r}, owner={self.owner!r}, type={self.type!r}, last_message={self.last_message!r})"
+
+    def __str__(self) -> str:
+        return f"Dialog {self.id} ({self.type})"
 
 
 class Chat:
@@ -186,12 +200,9 @@ class Chat:
     def from_dict(cls, data: dict[Any, Any]) -> "Chat":
         raw_admins = data.get("adminParticipants", {}) or {}
         admin_participants: dict[int, dict[Any, Any]] = {int(k): v for k, v in raw_admins.items()}
-
         raw_participants = data.get("participants", {}) or {}
         participants: dict[int, int] = {int(k): v for k, v in raw_participants.items()}
-
         last_msg = Message.from_dict(data["lastMessage"]) if data.get("lastMessage") else None
-
         return cls(
             participants_count=data.get("participantsCount", 0),
             access=AccessType(data.get("access", AccessType.PUBLIC.value)),
@@ -222,93 +233,95 @@ class Chat:
             cid=data.get("cid", 0),
         )
 
+    def __repr__(self) -> str:
+        return f"Chat(id={self.id!r}, title={self.title!r}, type={self.type!r})"
 
-class Channel:
-    def __init__(
-        self,
-        participants_count: int,
-        access: AccessType | str,
-        invited_by: int | None,
-        base_raw_icon_url: str | None,
-        link: str | None,
-        description: str | None,
-        channel_type: ChatType | str,
-        title: str | None,
-        last_fire_delayed_error_time: int,
-        last_delayed_update_time: int,
-        options: dict[str, bool],
-        modified: int,
-        id_: int,
-        participants: dict[int, int],
-        owner: int,
-        join_time: int,
-        created: int,
-        last_message: Message | None,
-        prev_message_id: str | None,
-        last_event_time: int,
-        messages_count: int,
-        base_icon_url: str | None,
-        status: str,
-        cid: int,
-        restrictions: int | None = None,
-    ) -> None:
-        self.participants_count = participants_count
-        self.access = access
-        self.invited_by = invited_by
-        self.base_raw_icon_url = base_raw_icon_url
-        self.link = link
-        self.description = description
-        self.type = channel_type
-        self.title = title
-        self.last_fire_delayed_error_time = last_fire_delayed_error_time
-        self.last_delayed_update_time = last_delayed_update_time
-        self.options = options
-        self.modified = modified
-        self.id = id_
-        self.participants = participants
-        self.owner = owner
-        self.join_time = join_time
-        self.created = created
-        self.last_message = last_message
-        self.prev_message_id = prev_message_id
-        self.last_event_time = last_event_time
-        self.messages_count = messages_count
-        self.base_icon_url = base_icon_url
-        self.status = status
-        self.cid = cid
-        self.restrictions = restrictions
+    def __str__(self) -> str:
+        return f"{self.title} ({self.type})"
+
+
+class Channel(Chat):
+    def __repr__(self) -> str:
+        return f"Channel(id={self.id!r}, title={self.title!r})"
+
+    def __str__(self) -> str:
+        return f"Channel: {self.title}"
+
+
+class Names:
+    def __init__(self, name: str, first_name: str, last_name: str | None, type: str) -> None:
+        self.name = name
+        self.first_name = first_name
+        self.last_name = last_name
+        self.type = type
 
     @classmethod
-    def from_dict(cls, data: dict[Any, Any]) -> "Channel":
-        raw_participants = data.get("participants", {}) or {}
-        participants: dict[int, int] = {int(k): v for k, v in raw_participants.items()}
-
-        last_msg = Message.from_dict(data["lastMessage"]) if data.get("lastMessage") else None
-
+    def from_dict(cls, data: dict[str, Any]) -> "Names":
         return cls(
-            participants_count=data.get("participantsCount", 0),
-            access=AccessType(data.get("access", AccessType.PUBLIC.value)),
-            invited_by=data.get("invitedBy"),
-            base_raw_icon_url=data.get("baseRawIconUrl"),
-            link=data.get("link"),
-            description=data.get("description"),
-            channel_type=ChatType(data.get("type", ChatType.CHANNEL.value)),
-            title=data.get("title"),
-            last_fire_delayed_error_time=data.get("lastFireDelayedErrorTime", 0),
-            last_delayed_update_time=data.get("lastDelayedUpdateTime", 0),
-            options=data.get("options", {}),
-            modified=data.get("modified", 0),
-            id_=data.get("id", 0),
-            participants=participants,
-            owner=data.get("owner", 0),
-            join_time=data.get("joinTime", 0),
-            created=data.get("created", 0),
-            last_message=last_msg,
-            prev_message_id=data.get("prevMessageId"),
-            last_event_time=data.get("lastEventTime", 0),
-            messages_count=data.get("messagesCount", 0),
-            base_icon_url=data.get("baseIconUrl"),
-            status=data.get("status", ""),
-            cid=data.get("cid", 0),
-            restrictions=data.get("restrictions"),
+            name=data["name"],
+            first_name=data["firstName"],
+            last_name=data.get("lastName"),
+            type=data["type"],
         )
+
+    def __repr__(self) -> str:
+        return f"Names(name={self.name!r}, first_name={self.first_name!r}, last_name={self.last_name!r}, type={self.type!r})"
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class User:
+    def __init__(
+        self,
+        account_status: int,
+        update_time: int,
+        id: int,
+        names: list[Names],
+        options: list[str] | None = None,
+        base_url: str | None = None,
+        base_raw_url: str | None = None,
+        photo_id: int | None = None,
+        description: str | None = None,
+        gender: int | None = None,
+        link: str | None = None,
+        web_app: str | None = None,
+        menu_button: dict[str, Any] | None = None,
+    ) -> None:
+        self.account_status = account_status
+        self.update_time = update_time
+        self.id = id
+        self.names = names
+        self.options = options or []
+        self.base_url = base_url
+        self.base_raw_url = base_raw_url
+        self.photo_id = photo_id
+        self.description = description
+        self.gender = gender
+        self.link = link
+        self.web_app = web_app
+        self.menu_button = menu_button
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "User":
+        return cls(
+            account_status=data["accountStatus"],
+            update_time=data["updateTime"],
+            id=data["id"],
+            names=[Names.from_dict(n) for n in data.get("names", [])],
+            options=data.get("options"),
+            base_url=data.get("baseUrl"),
+            base_raw_url=data.get("baseRawUrl"),
+            photo_id=data.get("photoId"),
+            description=data.get("description"),
+            gender=data.get("gender"),
+            link=data.get("link"),
+            web_app=data.get("webApp"),
+            menu_button=data.get("menuButton"),
+        )
+
+    def __repr__(self) -> str:
+        return f"User(id={self.id!r}, names={self.names!r}, status={self.account_status!r})"
+
+    def __str__(self) -> str:
+        return f"User {self.id}: {', '.join(str(n) for n in self.names)}"

@@ -4,12 +4,13 @@ import re
 import time
 from pathlib import Path
 from typing import Any, Awaitable, Callable
+from uuid import UUID
 
 import websockets
 
-from .chats import Channel, Chat, Dialog, Message
 from .crud import Database
 from .enum import AuthType, ChatType, Constants, Opcode
+from .types import Channel, Chat, Dialog, Message, User
 
 
 class InvalidPhoneError(Exception):
@@ -24,7 +25,10 @@ class WebSocketNotConnectedError(Exception):
 
 class MaxClient:
     def __init__(
-        self, phone: str, uri: str = Constants.WEBSOCKET_URI.value, work_dir: str = "."
+        self,
+        phone: str,
+        uri: str = Constants.WEBSOCKET_URI.value,
+        work_dir: str = ".",
     ) -> None:
         self.uri: str = uri
         self.is_connected: bool = False
@@ -32,15 +36,13 @@ class MaxClient:
         self.chats: list[Chat] = []
         self.dialogs: list[Dialog] = []
         self.channels: list[Channel] = []
-
+        self._users: dict[int, User] = {}
         if not self._check_phone():
             raise InvalidPhoneError(self.phone)
-
         self._work_dir: str = work_dir
         self._database_path: Path = Path(work_dir) / "session.db"
         self._database_path.parent.mkdir(parents=True, exist_ok=True)
         self._database_path.touch(exist_ok=True)
-
         self._database = Database(self._work_dir)
         self._ws: websockets.ClientConnection | None = None
         self._seq: int = 0
@@ -302,6 +304,52 @@ class MaxClient:
             self.is_connected = False
         except Exception as e:
             print("Error closing client:", e)
+
+    def get_cached_user(self, user_id: int) -> User | None:
+        return self._users.get(user_id)
+
+    async def get_users(self, user_ids: list[int]) -> list[User]:
+        cached = {uid: self._users[uid] for uid in user_ids if uid in self._users}
+        missing_ids = [uid for uid in user_ids if uid not in self._users]
+
+        if missing_ids:
+            fetched_users = await self.fetch_users(missing_ids)
+            if fetched_users:
+                for user in fetched_users:
+                    self._users[user.id] = user
+                    cached[user.id] = user
+
+        return [cached[uid] for uid in user_ids if uid in cached]
+
+    async def get_user(self, user_id: int) -> User | None:
+        if user_id in self._users:
+            return self._users[user_id]
+
+        users = await self.fetch_users([user_id])
+        if users:
+            self._users[user_id] = users[0]
+            return users[0]
+        return None
+
+    async def fetch_users(self, user_ids: list[int]) -> None | list[User]:
+        try:
+            payload = {"contactIds": user_ids}
+
+            data = await self._send_and_wait(opcode=Opcode.GET_CONTACTS_INFO, payload=payload)
+            if error := data.get("payload", {}).get("error"):
+                print("Fetch users error:", error)
+                return None
+
+            print("Fetched users raw payload:", data.get("payload", {}))
+            users = [User.from_dict(u) for u in data["payload"].get("contacts", [])]
+            for user in users:
+                self._users[user.id] = user
+
+            print("Fetched users:", users)
+            return users
+        except Exception as e:
+            print("Fetch users failed:", e)
+            return []
 
     async def fetch_history(
         self,
