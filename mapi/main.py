@@ -72,6 +72,18 @@ class MaxClient:
         self._seq += 1
         return {"ver": 11, "cmd": cmd, "seq": self._seq, "opcode": opcode, "payload": payload}
 
+    async def _send_interactive_ping(self) -> None:
+        while self.is_connected:
+            try:
+                await self._send_and_wait(
+                    opcode=1,
+                    payload={"interactive": True},
+                    cmd=0,
+                )
+            except Exception as e:
+                print("Interactive ping failed:", e)
+            await asyncio.sleep(30)
+
     async def _connect(self, user_agent: dict[str, Any]) -> dict[str, Any]:
         try:
             self._ws = await websockets.connect(self.uri)
@@ -283,31 +295,40 @@ class MaxClient:
         except Exception as e:
             print("Error closing client:", e)
 
+    async def _login(self) -> None:
+        request_code_payload = await self._request_code(self.phone)
+        temp_token = request_code_payload.get("token")
+        if not temp_token or not isinstance(temp_token, str):
+            raise ValueError("Failed to request code")
+
+        code = await asyncio.to_thread(input, "Введите код: ")
+        if len(code) != 6 or not code.isdigit():
+            raise ValueError("Invalid code format")
+
+        login_resp = await self._send_code(code, temp_token)
+        token: str | None = login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
+        if not token:
+            raise ValueError("Failed to login, token not received")
+
+        self._token = token
+        self._database.update_auth_token(self._device_id, self._token)
+        print("Login successful, token saved to database")
+
     async def start(self) -> None:
         try:
             await self._connect(self.user_agent)
             if self._token is None:
-                request_code_payload = await self._request_code(self.phone)
-                temp_token = request_code_payload.get("token")
-                if not temp_token or not isinstance(temp_token, str):
-                    raise ValueError("Failed to request code")
-
-                code = await asyncio.to_thread(input, "Введите код: ")
-                if len(code) != 6 or not code.isdigit():
-                    raise ValueError("Invalid code format")
-
-                login_resp = await self._send_code(code, temp_token)
-                token: str | None = login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
-                if not token:
-                    raise ValueError("Failed to login, token not received")
-
-                self._token = token
-                self._database.update_auth_token(self._device_id, self._token)
-                print("Login successful, token saved to database")
+                await self._login()
             else:
                 await self._sync()
 
             if self._ws:
+                ping_task = asyncio.create_task(self._send_interactive_ping())
+                self._background_tasks.add(ping_task)
+                ping_task.add_done_callback(
+                    lambda t: self._background_tasks.discard(t) or self._log_task_exception(t)
+                )
+
                 try:
                     await self._ws.wait_closed()
                 except asyncio.CancelledError:
