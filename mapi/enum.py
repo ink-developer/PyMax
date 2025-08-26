@@ -21,6 +21,8 @@ class Opcode(IntEnum):
     EDIT_MESSAGE = 67
     DELETE_MESSAGE = 68
 
+    NEW_MESSAGE = 128
+
 
 class ChatType(str, Enum):
     DIALOG = "DIALOG"
