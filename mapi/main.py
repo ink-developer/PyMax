@@ -14,16 +14,41 @@ from .types import Channel, Chat, Dialog, Message, User
 
 
 class InvalidPhoneError(Exception):
+    """
+    Исключение, вызываемое при неверном формате номера телефона.
+
+    Args:
+        phone (str): Некорректный номер телефона.
+    """
+
     def __init__(self, phone: str) -> None:
         super().__init__(f"Invalid phone number format: {phone}")
 
 
 class WebSocketNotConnectedError(Exception):
+    """
+    Исключение, вызываемое при попытке обращения к WebSocket,
+    если соединение не установлено.
+    """
+
     def __init__(self) -> None:
         super().__init__("WebSocket is not connected")
 
 
 class MaxClient:
+    """
+    Основной клиент для работы с WebSocket API сервиса Max.
+
+
+    Args:
+        phone (str): Номер телефона для авторизации.
+        uri (str, optional): URI WebSocket сервера. По умолчанию Constants.WEBSOCKET_URI.value.
+        work_dir (str, optional): Рабочая директория для хранения базы данных. По умолчанию ".".
+
+    Raises:
+        InvalidPhoneError: Если формат номера телефона неверный.
+    """
+
     def __init__(
         self,
         phone: str,
@@ -65,12 +90,30 @@ class MaxClient:
     def on_message(
         self, handler: Callable[[Message], Any | Awaitable[Any]]
     ) -> Callable[[Message], Any | Awaitable[Any]]:
+        """
+        Устанавливает обработчик входящих сообщений.
+
+        Args:
+            handler: Функция или coroutine, принимающая объект Message.
+
+        Returns:
+            Установленный обработчик.
+        """
         self._on_message_handler = handler
         return handler
 
     def on_start(
         self, handler: Callable[[], Any | Awaitable[Any]]
     ) -> Callable[[], Any | Awaitable[Any]]:
+        """
+        Устанавливает обработчик, вызываемый при старте клиента.
+
+        Args:
+            handler: Функция или coroutine без аргументов.
+
+        Returns:
+            Установленный обработчик.
+        """
         self._on_start_handler = handler
         return handler
 
@@ -242,6 +285,15 @@ class MaxClient:
             print("Sync failed:", e)
 
     async def send_message(self, text: str, chat_id: int, notify: bool) -> Message | None:
+        """
+        Устанавливает обработчик, вызываемый при старте клиента.
+
+        Args:
+            handler: Функция или coroutine без аргументов.
+
+        Returns:
+            Установленный обработчик.
+        """
         try:
             payload = {
                 "chatId": chat_id,
@@ -262,6 +314,15 @@ class MaxClient:
             return None
 
     async def edit_message(self, chat_id: int, message_id: int, text: str) -> Message | None:
+        """
+        Устанавливает обработчик, вызываемый при старте клиента.
+
+        Args:
+            handler: Функция или coroutine без аргументов.
+
+        Returns:
+            Установленный обработчик.
+        """
         try:
             payload = {
                 "chatId": chat_id,
@@ -279,6 +340,15 @@ class MaxClient:
             return None
 
     async def delete_message(self, chat_id: int, message_ids: list[int], for_me: bool) -> bool:
+        """
+        Устанавливает обработчик, вызываемый при старте клиента.
+
+        Args:
+            handler: Функция или coroutine без аргументов.
+
+        Returns:
+            Установленный обработчик.
+        """
         try:
             payload = {"chatId": chat_id, "messageIds": message_ids, "forMe": for_me}
             data = await self._send_and_wait(opcode=Opcode.DELETE_MESSAGE, payload=payload)
@@ -306,9 +376,27 @@ class MaxClient:
             print("Error closing client:", e)
 
     def get_cached_user(self, user_id: int) -> User | None:
+        """
+        Получает юзера из кеша по его ID
+
+        Args:
+            user_id (int): ID пользователя.
+
+        Returns:
+            User | None: Объект User или None при ошибке.
+        """
         return self._users.get(user_id)
 
     async def get_users(self, user_ids: list[int]) -> list[User]:
+        """
+        Получает информацию о пользователях по их ID (с кешем).
+
+        Args:
+            user_ids (list[int]): Список ID пользователей.
+
+        Returns:
+            list[User] | None: Список объектов User или None при ошибке.
+        """
         cached = {uid: self._users[uid] for uid in user_ids if uid in self._users}
         missing_ids = [uid for uid in user_ids if uid not in self._users]
 
@@ -322,6 +410,15 @@ class MaxClient:
         return [cached[uid] for uid in user_ids if uid in cached]
 
     async def get_user(self, user_id: int) -> User | None:
+        """
+        Получает информацию о пользователе по его ID (с кешем).
+
+        Args:
+            user_id (int): ID пользователя.
+
+        Returns:
+            User | None: Объект User или None при ошибке.
+        """
         if user_id in self._users:
             return self._users[user_id]
 
@@ -332,6 +429,15 @@ class MaxClient:
         return None
 
     async def fetch_users(self, user_ids: list[int]) -> None | list[User]:
+        """
+        Получает информацию о пользователях по их ID.
+
+        Args:
+            user_ids (list[int]): Список ID пользователей.
+
+        Returns:
+            list[User] | None: Список объектов User или None при ошибке.
+        """
         try:
             payload = {"contactIds": user_ids}
 
@@ -358,6 +464,18 @@ class MaxClient:
         forward: int = 0,
         backward: int = 200,
     ) -> list[Message] | None:
+        """
+        Получает историю сообщений чата.
+
+        Args:
+            chat_id (int): ID чата.
+            from_time (int | None): Время начала выборки (timestamp в мс). По умолчанию текущее.
+            forward (int): Количество сообщений вперед.
+            backward (int): Количество сообщений назад.
+
+        Returns:
+            list[Message] | None: Список сообщений или None при ошибке.
+        """
         if from_time is None:
             from_time = int(time.time() * 1000)
 
@@ -400,6 +518,10 @@ class MaxClient:
         print("Login successful, token saved to database")
 
     async def start(self) -> None:
+        """
+        Запускает клиент, подключается к WebSocket, авторизует
+        пользователя (если нужно) и запускает фоновый цикл.
+        """
         try:
             await self._connect(self.user_agent)
             if self._token is None:
