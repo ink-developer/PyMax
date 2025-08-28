@@ -9,7 +9,7 @@ from uuid import UUID
 import websockets
 
 from .crud import Database
-from .enum import AuthType, ChatType, Constants, Opcode
+from .static import AuthType, ChatType, Constants, Opcode
 from .types import Channel, Chat, Dialog, Message, User
 
 
