@@ -1,6 +1,6 @@
 from typing import Any
 
-from .enum import AccessType, ChatType, ElementType, MessageStatus, MessageType
+from .static import AccessType, ChatType, ElementType, MessageStatus, MessageType
 
 
 class Element:
