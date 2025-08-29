@@ -446,12 +446,12 @@ class MaxClient:
                 print("Fetch users error:", error)
                 return None
 
-            print("Fetched users raw payload:", data.get("payload", {}))
+           # print("Fetched users raw payload:", data.get("payload", {})) можно выводить вручную
             users = [User.from_dict(u) for u in data["payload"].get("contacts", [])]
             for user in users:
                 self._users[user.id] = user
 
-            print("Fetched users:", users)
+            # print("Fetched users:", users) можно выводить юзеров вручную
             return users
         except Exception as e:
             print("Fetch users failed:", e)
