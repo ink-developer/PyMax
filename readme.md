@@ -2,11 +2,12 @@
 
 ## Установка
 
-```bash
-pip install+git https://github.com/noxzion/PyMax
-```
+> [!IMPORTANT]
+> Нужно иметь git для установки из репозитория
 
-(нужно иметь git)
+```bash
+pip install git+https://github.com/noxzion/PyMax
+```
 
 ## Пример использования:
 
@@ -15,8 +16,8 @@ import asyncio
 
 from mapi import MaxClient, Message
 
-phone = "+1234567890"
 
+phone = "+1234567890"
 client = MaxClient(phone=phone, work_dir="cache")
 
 
@@ -63,8 +64,21 @@ async def handle_start() -> None:
 
 if __name__ == "__main__":
     asyncio.run(client.start())
-
-
 ```
 
-**Спасибо [Ink'у](https://github.com/ink-developer) за вскрытие API и за документацию!!!**
+## Разработка
+
+Сборка пакета:
+
+```bash
+python scripts/build.py
+```
+
+## Лицензия
+
+[MIT](LICENSE)
+
+## Авторы
+
+- [noxzion](https://github.com/noxzion) - исходный код пакета
+- [ink](https://github.com/ink-developer) - вскрытие API и документация

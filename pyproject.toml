@@ -1,5 +1,5 @@
 [project]
-name = "max_client"
+name = "pymax"
 version = "0.1.0"
 description = "Python wrapper для API мессенджера Max"
 readme = "README.md"
@@ -7,10 +7,11 @@ requires-python = ">=3.11"
 authors = [
     { name = "noxzion", email = "mail@gmail.com" }
 ]
-license = { text = "MIT" }
+license = "MIT"
+keywords = ["max", "messenger", "api", "wrapper", "websocket"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+
     "Operating System :: OS Independent"
 ]
 dependencies = [
@@ -19,9 +20,17 @@ dependencies = [
     "websockets>=11.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/noxzion/PyMax"
+Repository = "https://github.com/noxzion/PyMax"
+Issues = "https://github.com/noxzion/PyMax/issues"
+
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"

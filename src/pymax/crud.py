@@ -4,7 +4,7 @@ from sqlalchemy.engine.base import Engine
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from .models import Auth
-from .static import DeviceType 
+from .static import DeviceType
 
 
 class Database:

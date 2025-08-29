@@ -1,6 +1,6 @@
 import asyncio
 
-from mapi import MaxClient, Message
+from pymax import MaxClient, Message
 
 phone = "+1234567890"
 
