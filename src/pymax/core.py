@@ -518,7 +518,7 @@ class MaxClient:
                 "backward": backward,
                 "getMessages": True,
             }
-            print("[debug] payload" + json.dumps(payload, indent=4))
+            # print("[debug] payload" + json.dumps(payload, indent=4))
 
             data = await self._send_and_wait(
                 opcode=Opcode.FETCH_HISTORY, payload=payload
