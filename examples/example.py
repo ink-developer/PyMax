@@ -4,6 +4,7 @@ from pymax import MaxClient, Message
 
 phone = "+1234567890"
 
+
 client = MaxClient(phone=phone, work_dir="cache")
 
 

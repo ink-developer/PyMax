@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import re
 import time
 from collections.abc import Awaitable, Callable
@@ -13,6 +14,8 @@ from .exceptions import InvalidPhoneError, WebSocketNotConnectedError
 from .static import AuthType, ChatType, Constants, Opcode
 from .types import Channel, Chat, Dialog, Message, User
 
+logger = logging.getLogger(__name__)
+
 
 class MaxClient:
     """
@@ -23,6 +26,8 @@ class MaxClient:
         phone (str): Номер телефона для авторизации.
         uri (str, optional): URI WebSocket сервера. По умолчанию Constants.WEBSOCKET_URI.value.
         work_dir (str, optional): Рабочая директория для хранения базы данных. По умолчанию ".".
+        logger (logging.Logger | None): Пользовательский логгер. Если не передан — используется
+            логгер модуля с именем f"{__name__}.MaxClient".
 
     Raises:
         InvalidPhoneError: Если формат номера телефона неверный.
@@ -33,6 +38,7 @@ class MaxClient:
         phone: str,
         uri: str = Constants.WEBSOCKET_URI.value,
         work_dir: str = ".",
+        logger: logging.Logger | None = None,
     ) -> None:
         self.uri: str = uri
         self.is_connected: bool = False
@@ -59,10 +65,24 @@ class MaxClient:
         self._on_message_handler: Callable[[Message], Any] | None = None
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
+        self.logger = logger or logging.getLogger(f"{__name__}.MaxClient")
+        self._setup_logger()
+
+        self.logger.debug("Initialized MaxClient uri=%s work_dir=%s", self.uri, self._work_dir)
+
+    def _setup_logger(self) -> None:
+        self.logger.setLevel(logging.INFO)
+
+        if not logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
 
     @property
     def ws(self) -> websockets.ClientConnection:
         if self._ws is None or not self.is_connected:
+            self.logger.critical("WebSocket not connected when access attempted")
             raise WebSocketNotConnectedError
         return self._ws
 
@@ -79,6 +99,7 @@ class MaxClient:
             Установленный обработчик.
         """
         self._on_message_handler = handler
+        self.logger.debug("on_message handler set: %r", handler)
         return handler
 
     def on_start(
@@ -94,35 +115,20 @@ class MaxClient:
             Установленный обработчик.
         """
         self._on_start_handler = handler
+        self.logger.debug("on_start handler set: %r", handler)
         return handler
 
     def add_message_handler(
         self, handler: Callable[[Message], Any | Awaitable[Any]]
     ) -> Callable[[Message], Any | Awaitable[Any]]:
-        """
-        Устанавливает обработчик для входящих сообщений.
-
-        Args:
-            handler: Функция или coroutine, принимающая объект Message.
-
-        Returns:
-            Установленный обработчик.
-        """
+        self.logger.debug("add_message_handler (alias) used")
         self._on_message_handler = handler
         return handler
 
     def add_on_start_handler(
         self, handler: Callable[[], Any | Awaitable[Any]]
     ) -> Callable[[], Any | Awaitable[Any]]:
-        """
-        Устанавливает обработчик, вызываемый при старте клиента.
-
-        Args:
-            handler: Функция или coroutine без аргументов.
-
-        Returns:
-            Установленный обработчик.
-        """
+        self.logger.debug("add_on_start_handler (alias) used")
         self._on_start_handler = handler
         return handler
 
@@ -131,13 +137,15 @@ class MaxClient:
 
     def _make_message(self, opcode: int, payload: dict[str, Any], cmd: int = 0) -> dict[str, Any]:
         self._seq += 1
-        return {
+        msg = {
             "ver": 11,
             "cmd": cmd,
             "seq": self._seq,
             "opcode": opcode,
             "payload": payload,
         }
+        self.logger.debug("make_message opcode=%s cmd=%s seq=%s", opcode, cmd, self._seq)
+        return msg
 
     async def _send_interactive_ping(self) -> None:
         while self.is_connected:
@@ -147,65 +155,85 @@ class MaxClient:
                     payload={"interactive": True},
                     cmd=0,
                 )
-            except Exception as e:
-                print("Interactive ping failed:", e)
+                self.logger.debug("Interactive ping sent successfully")
+            except Exception:
+                self.logger.warning("Interactive ping failed", exc_info=True)
             await asyncio.sleep(30)
 
     async def _connect(self, user_agent: dict[str, Any]) -> dict[str, Any]:
         try:
+            self.logger.info("Connecting to WebSocket %s", self.uri)
             self._ws = await websockets.connect(self.uri)
             self.is_connected = True
             self._incoming = asyncio.Queue()
             self._pending = {}
             self._recv_task = asyncio.create_task(self._recv_loop())
+            self.logger.info("WebSocket connected, starting handshake")
             return await self._handshake(user_agent)
         except Exception as e:
+            self.logger.error("Failed to connect: %s", e, exc_info=True)
             raise ConnectionError(f"Failed to connect: {e}")
 
     async def _handshake(self, user_agent: dict[str, Any]) -> dict[str, Any]:
         try:
-            return await self._send_and_wait(
+            self.logger.debug("Sending handshake with user_agent keys=%s", list(user_agent.keys()))
+            resp = await self._send_and_wait(
                 opcode=Opcode.HANDSHAKE,
                 payload={"deviceId": str(self._device_id), "userAgent": user_agent},
             )
+            self.logger.info("Handshake completed")
+            return resp
         except Exception as e:
+            self.logger.error("Handshake failed: %s", e, exc_info=True)
             raise ConnectionError(f"Handshake failed: {e}")
 
     async def _request_code(self, phone: str, language: str = "ru") -> dict[str, int | str]:
         try:
+            self.logger.info("Requesting auth code")
             payload = {
                 "phone": phone,
                 "type": AuthType.START_AUTH.value,
                 "language": language,
             }
             data = await self._send_and_wait(opcode=Opcode.REQUEST_CODE, payload=payload)
+            self.logger.debug(
+                "Code request response opcode=%s seq=%s", data.get("opcode"), data.get("seq")
+            )
             return data.get("payload")
-        except Exception as e:
-            raise RuntimeError(f"Request code failed: {e}")
+        except Exception:
+            self.logger.error("Request code failed", exc_info=True)
+            raise RuntimeError("Request code failed")
 
     async def _send_code(self, code: str, token: str) -> dict[str, Any]:
         try:
+            self.logger.info("Sending verification code")
             payload = {
                 "token": token,
                 "verifyCode": code,
                 "authTokenType": AuthType.CHECK_CODE.value,
             }
             data = await self._send_and_wait(opcode=Opcode.SEND_CODE, payload=payload)
+            self.logger.debug(
+                "Send code response opcode=%s seq=%s", data.get("opcode"), data.get("seq")
+            )
             return data.get("payload")
-        except Exception as e:
-            raise RuntimeError(f"Send code failed: {e}")
+        except Exception:
+            self.logger.error("Send code failed", exc_info=True)
+            raise RuntimeError("Send code failed")
 
     async def _recv_loop(self) -> None:
         if self._ws is None:
+            self.logger.warning("Recv loop started without websocket instance")
             return
 
+        self.logger.debug("Receive loop started")
         while True:
             try:
                 raw = await self._ws.recv()
                 try:
                     data = json.loads(raw)
-                except Exception as e:
-                    print("JSON parse error:", e)
+                except Exception:
+                    self.logger.warning("JSON parse error", exc_info=True)
                     continue
 
                 seq = data.get("seq")
@@ -213,12 +241,15 @@ class MaxClient:
 
                 if fut and not fut.done():
                     fut.set_result(data)
+                    self.logger.debug("Matched response for pending seq=%s", seq)
                 else:
                     if self._incoming is not None:
                         try:
                             self._incoming.put_nowait(data)
                         except asyncio.QueueFull:
-                            pass
+                            self.logger.warning(
+                                "Incoming queue full; dropping message seq=%s", data.get("seq")
+                            )
 
                     if data.get("opcode") == Opcode.NEW_MESSAGE and self._on_message_handler:
                         try:
@@ -233,21 +264,23 @@ class MaxClient:
                                         lambda t: self._background_tasks.discard(t)
                                         or self._log_task_exception(t)
                                     )
-                        except Exception as e:
-                            print("Error in on_message_handler:", e)
+                        except Exception:
+                            self.logger.exception("Error in on_message_handler")
 
             except websockets.exceptions.ConnectionClosed:
+                self.logger.info("WebSocket connection closed; exiting recv loop")
                 break
-            except Exception as e:
-                print("Error in recv_loop:", e)
+            except Exception:
+                self.logger.exception("Error in recv_loop; backing off briefly")
                 await asyncio.sleep(0.5)
 
     def _log_task_exception(self, task: asyncio.Task[Any]) -> None:
         try:
             exc = task.exception()
             if exc:
-                print("Background task exception:", exc)
+                self.logger.exception("Background task exception: %s", exc)
         except Exception:
+            # ignore inspection failures
             pass
 
     async def _send_and_wait(
@@ -257,8 +290,8 @@ class MaxClient:
         cmd: int = 0,
         timeout: float = Constants.DEFAULT_TIMEOUT.value,
     ) -> dict[str, Any]:
-        if not self.ws:
-            raise WebSocketNotConnectedError
+        # Проверка соединения — с логированием критичности
+        ws = self.ws  # вызовет исключение и CRITICAL-лог, если не подключены
 
         msg = self._make_message(opcode, payload, cmd)
         loop = asyncio.get_running_loop()
@@ -266,16 +299,22 @@ class MaxClient:
         self._pending[msg["seq"]] = fut
 
         try:
-            await self.ws.send(json.dumps(msg))
+            self.logger.debug("Sending frame opcode=%s cmd=%s seq=%s", opcode, cmd, msg["seq"])
+            await ws.send(json.dumps(msg))
             data = await asyncio.wait_for(fut, timeout=timeout)
+            self.logger.debug(
+                "Received frame for seq=%s opcode=%s", data.get("seq"), data.get("opcode")
+            )
             return data
-        except Exception as e:
-            raise RuntimeError(f"Send and wait failed: {e}")
+        except Exception:
+            self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
+            raise RuntimeError("Send and wait failed")
         finally:
             self._pending.pop(msg["seq"], None)
 
     async def _sync(self) -> None:
         try:
+            self.logger.info("Starting initial sync")
             payload = {
                 "interactive": True,
                 "token": self._token,
@@ -287,7 +326,7 @@ class MaxClient:
             }
             data = await self._send_and_wait(opcode=19, payload=payload)
             if error := data.get("payload", {}).get("error"):
-                print("Sync error:", error)
+                self.logger.error("Sync error: %s", error)
                 return
 
             for raw_chat in data.get("payload", {}).get("chats", []):
@@ -298,22 +337,23 @@ class MaxClient:
                         self.chats.append(Chat.from_dict(raw_chat))
                     elif raw_chat.get("type") == ChatType.CHANNEL.value:
                         self.channels.append(Channel.from_dict(raw_chat))
-                except Exception as e:
-                    print("Error parsing chat:", e)
-        except Exception as e:
-            print("Sync failed:", e)
+                except Exception:
+                    self.logger.exception("Error parsing chat entry")
+            self.logger.info(
+                "Sync completed: dialogs=%d chats=%d channels=%d",
+                len(self.dialogs),
+                len(self.chats),
+                len(self.channels),
+            )
+        except Exception:
+            self.logger.exception("Sync failed")
 
     async def send_message(self, text: str, chat_id: int, notify: bool) -> Message | None:
         """
-        Устанавливает обработчик, вызываемый при старте клиента.
-
-        Args:
-            handler: Функция или coroutine без аргументов.
-
-        Returns:
-            Установленный обработчик.
+        Отправляет сообщение в чат.
         """
         try:
+            self.logger.info("Sending message to chat_id=%s notify=%s", chat_id, notify)
             payload = {
                 "chatId": chat_id,
                 "message": {
@@ -326,23 +366,20 @@ class MaxClient:
             }
             data = await self._send_and_wait(opcode=Opcode.SEND_MESSAGE, payload=payload)
             if error := data.get("payload", {}).get("error"):
-                print("Send message error:", error)
-            return Message.from_dict(data["payload"]["message"])
-        except Exception as e:
-            print("Send message failed:", e)
+                self.logger.error("Send message error: %s", error)
+            msg = Message.from_dict(data["payload"]["message"]) if data.get("payload") else None
+            self.logger.debug("send_message result: %r", msg)
+            return msg
+        except Exception:
+            self.logger.exception("Send message failed")
             return None
 
     async def edit_message(self, chat_id: int, message_id: int, text: str) -> Message | None:
         """
-        Устанавливает обработчик, вызываемый при старте клиента.
-
-        Args:
-            handler: Функция или coroutine без аргументов.
-
-        Returns:
-            Установленный обработчик.
+        Редактирует сообщение.
         """
         try:
+            self.logger.info("Editing message chat_id=%s message_id=%s", chat_id, message_id)
             payload = {
                 "chatId": chat_id,
                 "messageId": message_id,
@@ -352,46 +389,48 @@ class MaxClient:
             }
             data = await self._send_and_wait(opcode=Opcode.EDIT_MESSAGE, payload=payload)
             if error := data.get("payload", {}).get("error"):
-                print("Edit message error:", error)
-            return Message.from_dict(data["payload"]["message"])
-        except Exception as e:
-            print("Edit message failed:", e)
+                self.logger.error("Edit message error: %s", error)
+            msg = Message.from_dict(data["payload"]["message"]) if data.get("payload") else None
+            self.logger.debug("edit_message result: %r", msg)
+            return msg
+        except Exception:
+            self.logger.exception("Edit message failed")
             return None
 
     async def delete_message(self, chat_id: int, message_ids: list[int], for_me: bool) -> bool:
         """
-        Устанавливает обработчик, вызываемый при старте клиента.
-
-        Args:
-            handler: Функция или coroutine без аргументов.
-
-        Returns:
-            Установленный обработчик.
+        Удаляет сообщения.
         """
         try:
+            self.logger.info(
+                "Deleting messages chat_id=%s ids=%s for_me=%s", chat_id, message_ids, for_me
+            )
             payload = {"chatId": chat_id, "messageIds": message_ids, "forMe": for_me}
             data = await self._send_and_wait(opcode=Opcode.DELETE_MESSAGE, payload=payload)
             if error := data.get("payload", {}).get("error"):
-                print("Delete message error:", error)
+                self.logger.error("Delete message error: %s", error)
                 return False
+            self.logger.debug("delete_message success")
             return True
-        except Exception as e:
-            print("Delete message failed:", e)
+        except Exception:
+            self.logger.exception("Delete message failed")
             return False
 
     async def close(self) -> None:
         try:
+            self.logger.info("Closing client")
             if self._recv_task:
                 self._recv_task.cancel()
                 try:
                     await self._recv_task
                 except asyncio.CancelledError:
-                    pass
+                    self.logger.debug("recv_task cancelled")
             if self._ws:
                 await self._ws.close()
             self.is_connected = False
-        except Exception as e:
-            print("Error closing client:", e)
+            self.logger.info("Client closed")
+        except Exception:
+            self.logger.exception("Error closing client")
 
     def get_cached_user(self, user_id: int) -> User | None:
         """
@@ -403,40 +442,35 @@ class MaxClient:
         Returns:
             User | None: Объект User или None при ошибке.
         """
-        return self._users.get(user_id)
+        user = self._users.get(user_id)
+        self.logger.debug("get_cached_user id=%s hit=%s", user_id, bool(user))
+        return user
 
     async def get_users(self, user_ids: list[int]) -> list[User]:
         """
         Получает информацию о пользователях по их ID (с кешем).
-
-        Args:
-            user_ids (list[int]): Список ID пользователей.
-
-        Returns:
-            list[User] | None: Список объектов User или None при ошибке.
         """
+        self.logger.debug("get_users ids=%s", user_ids)
         cached = {uid: self._users[uid] for uid in user_ids if uid in self._users}
         missing_ids = [uid for uid in user_ids if uid not in self._users]
 
         if missing_ids:
+            self.logger.debug("Fetching missing users: %s", missing_ids)
             fetched_users = await self.fetch_users(missing_ids)
             if fetched_users:
                 for user in fetched_users:
                     self._users[user.id] = user
                     cached[user.id] = user
 
-        return [cached[uid] for uid in user_ids if uid in cached]
+        ordered = [cached[uid] for uid in user_ids if uid in cached]
+        self.logger.debug("get_users result_count=%d", len(ordered))
+        return ordered
 
     async def get_user(self, user_id: int) -> User | None:
         """
         Получает информацию о пользователе по его ID (с кешем).
-
-        Args:
-            user_id (int): ID пользователя.
-
-        Returns:
-            User | None: Объект User или None при ошибке.
         """
+        self.logger.debug("get_user id=%s", user_id)
         if user_id in self._users:
             return self._users[user_id]
 
@@ -449,30 +483,24 @@ class MaxClient:
     async def fetch_users(self, user_ids: list[int]) -> None | list[User]:
         """
         Получает информацию о пользователях по их ID.
-
-        Args:
-            user_ids (list[int]): Список ID пользователей.
-
-        Returns:
-            list[User] | None: Список объектов User или None при ошибке.
         """
         try:
+            self.logger.info("Fetching users count=%d", len(user_ids))
             payload = {"contactIds": user_ids}
 
             data = await self._send_and_wait(opcode=Opcode.GET_CONTACTS_INFO, payload=payload)
             if error := data.get("payload", {}).get("error"):
-                print("Fetch users error:", error)
+                self.logger.error("Fetch users error: %s", error)
                 return None
 
-            # print("Fetched users raw payload:", data.get("payload", {})) можно выводить вручную
             users = [User.from_dict(u) for u in data["payload"].get("contacts", [])]
             for user in users:
                 self._users[user.id] = user
 
-            # print("Fetched users:", users) можно выводить юзеров вручную
+            self.logger.debug("Fetched users: %d", len(users))
             return users
-        except Exception as e:
-            print("Fetch users failed:", e)
+        except Exception:
+            self.logger.exception("Fetch users failed")
             return []
 
     async def fetch_history(
@@ -484,20 +512,18 @@ class MaxClient:
     ) -> list[Message] | None:
         """
         Получает историю сообщений чата.
-
-        Args:
-            chat_id (int): ID чата.
-            from_time (int | None): Время начала выборки (timestamp в мс). По умолчанию текущее.
-            forward (int): Количество сообщений вперед.
-            backward (int): Количество сообщений назад.
-
-        Returns:
-            list[Message] | None: Список сообщений или None при ошибке.
         """
         if from_time is None:
             from_time = int(time.time() * 1000)
 
         try:
+            self.logger.info(
+                "Fetching history chat_id=%s from=%s forward=%s backward=%s",
+                chat_id,
+                from_time,
+                forward,
+                backward,
+            )
             payload = {
                 "chatId": chat_id,
                 "from": from_time,
@@ -505,35 +531,40 @@ class MaxClient:
                 "backward": backward,
                 "getMessages": True,
             }
-            # print("[debug] payload" + json.dumps(payload, indent=4))
 
             data = await self._send_and_wait(opcode=Opcode.FETCH_HISTORY, payload=payload)
             if error := data.get("payload", {}).get("error"):
-                print("Fetch history error:", error)
+                self.logger.error("Fetch history error: %s", error)
                 return None
-            return [Message.from_dict(msg) for msg in data["payload"].get("messages", [])]
-        except Exception as e:
-            print("Fetch history failed:", e)
+            messages = [Message.from_dict(msg) for msg in data["payload"].get("messages", [])]
+            self.logger.debug("History fetched: %d messages", len(messages))
+            return messages
+        except Exception:
+            self.logger.exception("Fetch history failed")
             return None
 
     async def _login(self) -> None:
+        self.logger.info("Starting login flow")
         request_code_payload = await self._request_code(self.phone)
         temp_token = request_code_payload.get("token")
         if not temp_token or not isinstance(temp_token, str):
+            self.logger.critical("Failed to request code: token missing")
             raise ValueError("Failed to request code")
 
         code = await asyncio.to_thread(input, "Введите код: ")
         if len(code) != 6 or not code.isdigit():
+            self.logger.error("Invalid code format entered")
             raise ValueError("Invalid code format")
 
         login_resp = await self._send_code(code, temp_token)
         token: str | None = login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
         if not token:
+            self.logger.critical("Failed to login, token not received")
             raise ValueError("Failed to login, token not received")
 
         self._token = token
         self._database.update_auth_token(self._device_id, self._token)
-        print("Login successful, token saved to database")
+        self.logger.info("Login successful, token saved to database")
 
     async def start(self) -> None:
         """
@@ -541,6 +572,7 @@ class MaxClient:
         пользователя (если нужно) и запускает фоновый цикл.
         """
         try:
+            self.logger.info("Client starting")
             await self._connect(self.user_agent)
             if self._token is None:
                 await self._login()
@@ -548,6 +580,7 @@ class MaxClient:
                 await self._sync()
 
             if self._on_start_handler:
+                self.logger.debug("Calling on_start handler")
                 result = self._on_start_handler()
                 if asyncio.iscoroutine(result):
                     await result
@@ -562,6 +595,6 @@ class MaxClient:
                 try:
                     await self._ws.wait_closed()
                 except asyncio.CancelledError:
-                    pass
-        except Exception as e:
-            print("Client start failed:", e)
+                    self.logger.debug("wait_closed cancelled")
+        except Exception:
+            self.logger.exception("Client start failed")
