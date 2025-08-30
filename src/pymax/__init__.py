@@ -3,17 +3,9 @@ Python wrapper для API мессенджера Max
 """
 
 from .core import (
-    MaxClient,
     InvalidPhoneError,
+    MaxClient,
     WebSocketNotConnectedError,
-)
-from .types import (
-    Channel,
-    Chat,
-    Dialog,
-    Element,
-    Message,
-    User,
 )
 from .static import (
     AccessType,
@@ -26,33 +18,38 @@ from .static import (
     MessageType,
     Opcode,
 )
+from .types import (
+    Channel,
+    Chat,
+    Dialog,
+    Element,
+    Message,
+    User,
+)
 
 __author__ = "noxzion"
 
 __all__ = [
-    # Клиент
-    "MaxClient",
-    
-    # Исключения
-    "InvalidPhoneError",
-    "WebSocketNotConnectedError",
-    
-    # Типы данных
-    "Channel",
-    "Chat", 
-    "Dialog",
-    "Element",
-    "Message",
-    "User",
-    
     # Перечисления и константы
     "AccessType",
     "AuthType",
+    # Типы данных
+    "Channel",
+    "Chat",
     "ChatType",
     "Constants",
     "DeviceType",
+    "Dialog",
+    "Element",
     "ElementType",
+    # Исключения
+    "InvalidPhoneError",
+    # Клиент
+    "MaxClient",
+    "Message",
     "MessageStatus",
     "MessageType",
     "Opcode",
+    "User",
+    "WebSocketNotConnectedError",
 ]

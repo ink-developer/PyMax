@@ -2,36 +2,16 @@ import asyncio
 import json
 import re
 import time
+from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import Any, Awaitable, Callable
+from typing import Any
 
 import websockets
 
 from .crud import Database
+from .exceptions import InvalidPhoneError, WebSocketNotConnectedError
 from .static import AuthType, ChatType, Constants, Opcode
 from .types import Channel, Chat, Dialog, Message, User
-
-
-class InvalidPhoneError(Exception):
-    """
-    Исключение, вызываемое при неверном формате номера телефона.
-
-    Args:
-        phone (str): Некорректный номер телефона.
-    """
-
-    def __init__(self, phone: str) -> None:
-        super().__init__(f"Invalid phone number format: {phone}")
-
-
-class WebSocketNotConnectedError(Exception):
-    """
-    Исключение, вызываемое при попытке обращения к WebSocket,
-    если соединение не установлено.
-    """
-
-    def __init__(self) -> None:
-        super().__init__("WebSocket is not connected")
 
 
 class MaxClient:
@@ -116,12 +96,40 @@ class MaxClient:
         self._on_start_handler = handler
         return handler
 
+    def add_message_handler(
+        self, handler: Callable[[Message], Any | Awaitable[Any]]
+    ) -> Callable[[Message], Any | Awaitable[Any]]:
+        """
+        Устанавливает обработчик для входящих сообщений.
+
+        Args:
+            handler: Функция или coroutine, принимающая объект Message.
+
+        Returns:
+            Установленный обработчик.
+        """
+        self._on_message_handler = handler
+        return handler
+
+    def add_on_start_handler(
+        self, handler: Callable[[], Any | Awaitable[Any]]
+    ) -> Callable[[], Any | Awaitable[Any]]:
+        """
+        Устанавливает обработчик, вызываемый при старте клиента.
+
+        Args:
+            handler: Функция или coroutine без аргументов.
+
+        Returns:
+            Установленный обработчик.
+        """
+        self._on_start_handler = handler
+        return handler
+
     def _check_phone(self) -> bool:
         return bool(re.match(Constants.PHONE_REGEX.value, self.phone))
 
-    def _make_message(
-        self, opcode: int, payload: dict[str, Any], cmd: int = 0
-    ) -> dict[str, Any]:
+    def _make_message(self, opcode: int, payload: dict[str, Any], cmd: int = 0) -> dict[str, Any]:
         self._seq += 1
         return {
             "ver": 11,
@@ -163,18 +171,14 @@ class MaxClient:
         except Exception as e:
             raise ConnectionError(f"Handshake failed: {e}")
 
-    async def _request_code(
-        self, phone: str, language: str = "ru"
-    ) -> dict[str, int | str]:
+    async def _request_code(self, phone: str, language: str = "ru") -> dict[str, int | str]:
         try:
             payload = {
                 "phone": phone,
                 "type": AuthType.START_AUTH.value,
                 "language": language,
             }
-            data = await self._send_and_wait(
-                opcode=Opcode.REQUEST_CODE, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.REQUEST_CODE, payload=payload)
             return data.get("payload")
         except Exception as e:
             raise RuntimeError(f"Request code failed: {e}")
@@ -216,10 +220,7 @@ class MaxClient:
                         except asyncio.QueueFull:
                             pass
 
-                    if (
-                        data.get("opcode") == Opcode.NEW_MESSAGE
-                        and self._on_message_handler
-                    ):
+                    if data.get("opcode") == Opcode.NEW_MESSAGE and self._on_message_handler:
                         try:
                             payload = data.get("payload", {})
                             msg = Message.from_dict(payload.get("message"))
@@ -302,9 +303,7 @@ class MaxClient:
         except Exception as e:
             print("Sync failed:", e)
 
-    async def send_message(
-        self, text: str, chat_id: int, notify: bool
-    ) -> Message | None:
+    async def send_message(self, text: str, chat_id: int, notify: bool) -> Message | None:
         """
         Устанавливает обработчик, вызываемый при старте клиента.
 
@@ -325,9 +324,7 @@ class MaxClient:
                 },
                 "notify": notify,
             }
-            data = await self._send_and_wait(
-                opcode=Opcode.SEND_MESSAGE, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.SEND_MESSAGE, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 print("Send message error:", error)
             return Message.from_dict(data["payload"]["message"])
@@ -335,9 +332,7 @@ class MaxClient:
             print("Send message failed:", e)
             return None
 
-    async def edit_message(
-        self, chat_id: int, message_id: int, text: str
-    ) -> Message | None:
+    async def edit_message(self, chat_id: int, message_id: int, text: str) -> Message | None:
         """
         Устанавливает обработчик, вызываемый при старте клиента.
 
@@ -355,9 +350,7 @@ class MaxClient:
                 "elements": [],
                 "attaches": [],
             }
-            data = await self._send_and_wait(
-                opcode=Opcode.EDIT_MESSAGE, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.EDIT_MESSAGE, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 print("Edit message error:", error)
             return Message.from_dict(data["payload"]["message"])
@@ -365,9 +358,7 @@ class MaxClient:
             print("Edit message failed:", e)
             return None
 
-    async def delete_message(
-        self, chat_id: int, message_ids: list[int], for_me: bool
-    ) -> bool:
+    async def delete_message(self, chat_id: int, message_ids: list[int], for_me: bool) -> bool:
         """
         Устанавливает обработчик, вызываемый при старте клиента.
 
@@ -379,9 +370,7 @@ class MaxClient:
         """
         try:
             payload = {"chatId": chat_id, "messageIds": message_ids, "forMe": for_me}
-            data = await self._send_and_wait(
-                opcode=Opcode.DELETE_MESSAGE, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.DELETE_MESSAGE, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 print("Delete message error:", error)
                 return False
@@ -470,14 +459,12 @@ class MaxClient:
         try:
             payload = {"contactIds": user_ids}
 
-            data = await self._send_and_wait(
-                opcode=Opcode.GET_CONTACTS_INFO, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.GET_CONTACTS_INFO, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 print("Fetch users error:", error)
                 return None
 
-           # print("Fetched users raw payload:", data.get("payload", {})) можно выводить вручную
+            # print("Fetched users raw payload:", data.get("payload", {})) можно выводить вручную
             users = [User.from_dict(u) for u in data["payload"].get("contacts", [])]
             for user in users:
                 self._users[user.id] = user
@@ -520,15 +507,11 @@ class MaxClient:
             }
             # print("[debug] payload" + json.dumps(payload, indent=4))
 
-            data = await self._send_and_wait(
-                opcode=Opcode.FETCH_HISTORY, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.FETCH_HISTORY, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 print("Fetch history error:", error)
                 return None
-            return [
-                Message.from_dict(msg) for msg in data["payload"].get("messages", [])
-            ]
+            return [Message.from_dict(msg) for msg in data["payload"].get("messages", [])]
         except Exception as e:
             print("Fetch history failed:", e)
             return None
@@ -544,9 +527,7 @@ class MaxClient:
             raise ValueError("Invalid code format")
 
         login_resp = await self._send_code(code, temp_token)
-        token: str | None = (
-            login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
-        )
+        token: str | None = login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
         if not token:
             raise ValueError("Failed to login, token not received")
 
@@ -575,8 +556,7 @@ class MaxClient:
                 ping_task = asyncio.create_task(self._send_interactive_ping())
                 self._background_tasks.add(ping_task)
                 ping_task.add_done_callback(
-                    lambda t: self._background_tasks.discard(t)
-                    or self._log_task_exception(t)
+                    lambda t: self._background_tasks.discard(t) or self._log_task_exception(t)
                 )
 
                 try:

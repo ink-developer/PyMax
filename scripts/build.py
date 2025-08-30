@@ -1,8 +1,9 @@
 import argparse
-from pathlib import Path
 import shutil
 import subprocess
 import sys
+from pathlib import Path
+
 
 def build_package(clean: bool = False):
     script_dir = Path(__file__).resolve().parent
@@ -25,18 +26,15 @@ def build_package(clean: bool = False):
     else:
         print("Build failed.")
 
+
 def main():
-    parser = argparse.ArgumentParser(
-        description="Build the pymax Python package"
-    )
+    parser = argparse.ArgumentParser(description="Build the pymax Python package")
     parser.add_argument(
-        "-c",
-        "--clean",
-        action="store_true",
-        help="Clean previous builds before building."
+        "-c", "--clean", action="store_true", help="Clean previous builds before building."
     )
     args = parser.parse_args()
     build_package(clean=args.clean)
+
 
 if __name__ == "__main__":
     main()
