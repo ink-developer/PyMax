@@ -9,8 +9,6 @@ client = MaxClient(phone=phone, work_dir="cache")
 
 
 async def main() -> None:
-    await client.start()
-
     for chat in client.chats:
         print(chat.title)
 

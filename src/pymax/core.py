@@ -11,6 +11,18 @@ import websockets
 
 from .crud import Database
 from .exceptions import InvalidPhoneError, WebSocketNotConnectedError
+from .payloads import (
+    BaseWebSocketMessage,
+    DeleteMessagePayload,
+    EditMessagePayload,
+    FetchContactsPayload,
+    FetchHistoryPayload,
+    RequestCodePayload,
+    SendCodePayload,
+    SendMessagePayload,
+    SendMessagePayloadMessage,
+    SyncPayload,
+)
 from .static import AuthType, ChatType, Constants, Opcode
 from .types import Channel, Chat, Dialog, Message, User
 
@@ -137,13 +149,15 @@ class MaxClient:
 
     def _make_message(self, opcode: int, payload: dict[str, Any], cmd: int = 0) -> dict[str, Any]:
         self._seq += 1
-        msg = {
-            "ver": 11,
-            "cmd": cmd,
-            "seq": self._seq,
-            "opcode": opcode,
-            "payload": payload,
-        }
+
+        msg = BaseWebSocketMessage(
+            ver=11,
+            cmd=cmd,
+            seq=self._seq,
+            opcode=opcode,
+            payload=payload,
+        ).model_dump(by_alias=True)
+
         self.logger.debug("make_message opcode=%s cmd=%s seq=%s", opcode, cmd, self._seq)
         return msg
 
@@ -190,11 +204,11 @@ class MaxClient:
     async def _request_code(self, phone: str, language: str = "ru") -> dict[str, int | str]:
         try:
             self.logger.info("Requesting auth code")
-            payload = {
-                "phone": phone,
-                "type": AuthType.START_AUTH.value,
-                "language": language,
-            }
+
+            payload = RequestCodePayload(
+                phone=phone, type=AuthType.START_AUTH, language=language
+            ).model_dump(by_alias=True)
+
             data = await self._send_and_wait(opcode=Opcode.REQUEST_CODE, payload=payload)
             self.logger.debug(
                 "Code request response opcode=%s seq=%s", data.get("opcode"), data.get("seq")
@@ -207,11 +221,11 @@ class MaxClient:
     async def _send_code(self, code: str, token: str) -> dict[str, Any]:
         try:
             self.logger.info("Sending verification code")
-            payload = {
-                "token": token,
-                "verifyCode": code,
-                "authTokenType": AuthType.CHECK_CODE.value,
-            }
+
+            payload = SendCodePayload(
+                token=token, verify_code=code, auth_token_type=AuthType.CHECK_CODE
+            ).model_dump(by_alias=True)
+
             data = await self._send_and_wait(opcode=Opcode.SEND_CODE, payload=payload)
             self.logger.debug(
                 "Send code response opcode=%s seq=%s", data.get("opcode"), data.get("seq")
@@ -280,7 +294,6 @@ class MaxClient:
             if exc:
                 self.logger.exception("Background task exception: %s", exc)
         except Exception:
-            # ignore inspection failures
             pass
 
     async def _send_and_wait(
@@ -290,8 +303,7 @@ class MaxClient:
         cmd: int = 0,
         timeout: float = Constants.DEFAULT_TIMEOUT.value,
     ) -> dict[str, Any]:
-        # Проверка соединения — с логированием критичности
-        ws = self.ws  # вызовет исключение и CRITICAL-лог, если не подключены
+        ws = self.ws
 
         msg = self._make_message(opcode, payload, cmd)
         loop = asyncio.get_running_loop()
@@ -315,15 +327,17 @@ class MaxClient:
     async def _sync(self) -> None:
         try:
             self.logger.info("Starting initial sync")
-            payload = {
-                "interactive": True,
-                "token": self._token,
-                "chatsSync": 0,
-                "contactsSync": 0,
-                "presenceSync": 0,
-                "draftsSync": 0,
-                "chatsCount": 40,
-            }
+
+            payload = SyncPayload(
+                interactive=True,
+                token=self._token,
+                chats_sync=0,
+                contacts_sync=0,
+                presence_sync=0,
+                drafts_sync=0,
+                chats_count=40,
+            ).model_dump(by_alias=True)
+
             data = await self._send_and_wait(opcode=19, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Sync error: %s", error)
@@ -354,16 +368,17 @@ class MaxClient:
         """
         try:
             self.logger.info("Sending message to chat_id=%s notify=%s", chat_id, notify)
-            payload = {
-                "chatId": chat_id,
-                "message": {
-                    "text": text,
-                    "cid": int(time.time() * 1000),
-                    "elements": [],
-                    "attaches": [],
-                },
-                "notify": notify,
-            }
+            payload = SendMessagePayload(
+                chat_id=chat_id,
+                message=SendMessagePayloadMessage(
+                    text=text,
+                    cid=int(time.time() * 1000),
+                    elements=[],
+                    attaches=[],
+                ),
+                notify=notify,
+            ).model_dump(by_alias=True)
+
             data = await self._send_and_wait(opcode=Opcode.SEND_MESSAGE, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Send message error: %s", error)
@@ -380,13 +395,13 @@ class MaxClient:
         """
         try:
             self.logger.info("Editing message chat_id=%s message_id=%s", chat_id, message_id)
-            payload = {
-                "chatId": chat_id,
-                "messageId": message_id,
-                "text": text,
-                "elements": [],
-                "attaches": [],
-            }
+            payload = EditMessagePayload(
+                chat_id=chat_id,
+                message_id=message_id,
+                text=text,
+                elements=[],
+                attaches=[],
+            ).model_dump(by_alias=True)
             data = await self._send_and_wait(opcode=Opcode.EDIT_MESSAGE, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Edit message error: %s", error)
@@ -405,7 +420,11 @@ class MaxClient:
             self.logger.info(
                 "Deleting messages chat_id=%s ids=%s for_me=%s", chat_id, message_ids, for_me
             )
-            payload = {"chatId": chat_id, "messageIds": message_ids, "forMe": for_me}
+
+            payload = DeleteMessagePayload(
+                chat_id=chat_id, message_ids=message_ids, for_me=for_me
+            ).model_dump(by_alias=True)
+
             data = await self._send_and_wait(opcode=Opcode.DELETE_MESSAGE, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Delete message error: %s", error)
@@ -486,7 +505,8 @@ class MaxClient:
         """
         try:
             self.logger.info("Fetching users count=%d", len(user_ids))
-            payload = {"contactIds": user_ids}
+
+            payload = FetchContactsPayload(contact_ids=user_ids).model_dump(by_alias=True)
 
             data = await self._send_and_wait(opcode=Opcode.GET_CONTACTS_INFO, payload=payload)
             if error := data.get("payload", {}).get("error"):
@@ -524,18 +544,25 @@ class MaxClient:
                 forward,
                 backward,
             )
-            payload = {
-                "chatId": chat_id,
-                "from": from_time,
-                "forward": forward,
-                "backward": backward,
-                "getMessages": True,
-            }
 
-            data = await self._send_and_wait(opcode=Opcode.FETCH_HISTORY, payload=payload)
+            payload = FetchHistoryPayload(
+                chat_id=chat_id,
+                from_time=from_time,  # pyright: ignore[reportCallIssue] FIXME: Pydantic Field alias
+                forward=forward,
+                backward=backward,
+            ).model_dump(by_alias=True)
+
+            print(json.dumps(payload, indent=4))
+            self.logger.debug("Payload dict keys: %s", list(payload.keys()))
+
+            data = await self._send_and_wait(
+                opcode=Opcode.FETCH_HISTORY, payload=payload, timeout=10
+            )
+
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Fetch history error: %s", error)
                 return None
+
             messages = [Message.from_dict(msg) for msg in data["payload"].get("messages", [])]
             self.logger.debug("History fetched: %d messages", len(messages))
             return messages
