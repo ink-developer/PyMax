@@ -27,11 +27,15 @@ Repository = "https://github.com/noxzion/PyMax"
 Issues = "https://github.com/noxzion/PyMax/issues"
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-dir]
 "" = "src"
+
+[tool.uv.build]
+source-includes = ["src/**/*"]
+source-excludes = ["**/*.pyc", "**/__pycache__", "**/*.egg-info"]

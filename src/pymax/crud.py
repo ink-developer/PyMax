@@ -93,7 +93,7 @@ class Database:
                 return
 
             if len(rows) > 1:
-                keeper = rows[0]
+                _ = rows[0]
                 for extra in rows[1:]:
                     session.delete(extra)
                 session.commit()

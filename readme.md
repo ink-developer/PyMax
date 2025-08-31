@@ -43,21 +43,6 @@ pip install -U maxapi-python
 uv add -U maxapi-python
 ```
 
-### GitHub
-
-> [!IMPORTANT]
-> Установка из GitHub требует наличия git в системе
-
-1. Установка пакета
-    ```bash
-    pip install git+https://github.com/noxzion/PyMax
-    ```
-
-2. Установка зависимостей
-    ```bash
-    uv sync
-    ```
-
 ## Быстрый старт
 
 ### Базовый пример использования

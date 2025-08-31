@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from .static import AuthType, Opcode
+from .static import AuthType
 
 
 def to_camel(string: str) -> str:

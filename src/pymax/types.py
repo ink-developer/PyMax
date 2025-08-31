@@ -4,7 +4,9 @@ from .static import AccessType, ChatType, ElementType, MessageStatus, MessageTyp
 
 
 class Element:
-    def __init__(self, type: ElementType | str, length: int, from_: int | None = None) -> None:
+    def __init__(
+        self, type: ElementType | str, length: int, from_: int | None = None
+    ) -> None:
         self.type = type
         self.length = length
         self.from_ = from_
@@ -14,7 +16,9 @@ class Element:
         return cls(type=data["type"], length=data["length"], from_=data.get("from"))
 
     def __repr__(self) -> str:
-        return f"Element(type={self.type!r}, length={self.length!r}, from_={self.from_!r})"
+        return (
+            f"Element(type={self.type!r}, length={self.length!r}, from_={self.from_!r})"
+        )
 
     def __str__(self) -> str:
         return f"{self.type}({self.length})"
@@ -199,10 +203,14 @@ class Chat:
     @classmethod
     def from_dict(cls, data: dict[Any, Any]) -> "Chat":
         raw_admins = data.get("adminParticipants", {}) or {}
-        admin_participants: dict[int, dict[Any, Any]] = {int(k): v for k, v in raw_admins.items()}
+        admin_participants: dict[int, dict[Any, Any]] = {
+            int(k): v for k, v in raw_admins.items()
+        }
         raw_participants = data.get("participants", {}) or {}
         participants: dict[int, int] = {int(k): v for k, v in raw_participants.items()}
-        last_msg = Message.from_dict(data["lastMessage"]) if data.get("lastMessage") else None
+        last_msg = (
+            Message.from_dict(data["lastMessage"]) if data.get("lastMessage") else None
+        )
         return cls(
             participants_count=data.get("participantsCount", 0),
             access=AccessType(data.get("access", AccessType.PUBLIC.value)),
@@ -249,7 +257,9 @@ class Channel(Chat):
 
 
 class Names:
-    def __init__(self, name: str, first_name: str, last_name: str | None, type: str) -> None:
+    def __init__(
+        self, name: str, first_name: str, last_name: str | None, type: str
+    ) -> None:
         self.name = name
         self.first_name = first_name
         self.last_name = last_name
