@@ -81,6 +81,9 @@ venv*/
 # mypy
 .mypy_cache/
 
+# ruff
+.ruff_cache/
+
 # IDEs and editors
 .vscode/
 .idea/
