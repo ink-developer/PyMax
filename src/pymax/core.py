@@ -552,7 +552,6 @@ class MaxClient:
                 backward=backward,
             ).model_dump(by_alias=True)
 
-            print(json.dumps(payload, indent=4))
             self.logger.debug("Payload dict keys: %s", list(payload.keys()))
 
             data = await self._send_and_wait(
