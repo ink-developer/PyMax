@@ -15,8 +15,6 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 dependencies = [
-    "build>=1.3.0",
-    "pydocstring>=0.2.1",
     "sqlmodel>=0.0.24",
     "websockets>=11.0",
 ]
@@ -36,6 +34,8 @@ where = ["src"]
 [tool.setuptools.package-dir]
 "" = "src"
 
-[tool.uv.build]
-source-includes = ["src/**/*"]
-source-excludes = ["**/*.pyc", "**/__pycache__", "**/*.egg-info"]
+[dependency-groups]
+dev = [
+    "mkdocs>=1.6.1",
+    "pydocstring>=0.2.1",
+]
