@@ -3,7 +3,7 @@ name = "pymax"
 version = "0.1.0"
 description = "Python wrapper для API мессенджера Max"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 authors = [
     { name = "noxzion", email = "mail@gmail.com" }
 ]
@@ -37,5 +37,7 @@ where = ["src"]
 [dependency-groups]
 dev = [
     "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.18",
+    "mkdocstrings[python]>=0.30.0",
     "pydocstring>=0.2.1",
 ]
