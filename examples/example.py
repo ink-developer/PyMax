@@ -12,10 +12,14 @@ async def main() -> None:
     for chat in client.chats:
         print(chat.title)
 
-        message = await client.send_message("Hello from MaxClient!", chat.id, notify=True)
+        message = await client.send_message(
+            "Hello from MaxClient!", chat.id, notify=True
+        )
 
         await asyncio.sleep(5)
-        message = await client.edit_message(chat.id, message.id, "Hello from MaxClient! (edited)")
+        message = await client.edit_message(
+            chat.id, message.id, "Hello from MaxClient! (edited)"
+        )
         await asyncio.sleep(5)
 
         await client.delete_message(chat.id, [message.id], for_me=False)

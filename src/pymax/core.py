@@ -80,14 +80,18 @@ class MaxClient:
         self.logger = logger or logging.getLogger(f"{__name__}.MaxClient")
         self._setup_logger()
 
-        self.logger.debug("Initialized MaxClient uri=%s work_dir=%s", self.uri, self._work_dir)
+        self.logger.debug(
+            "Initialized MaxClient uri=%s work_dir=%s", self.uri, self._work_dir
+        )
 
     def _setup_logger(self) -> None:
         self.logger.setLevel(logging.INFO)
 
         if not logger.handlers:
             handler = logging.StreamHandler()
-            formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+            formatter = logging.Formatter(
+                "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+            )
             handler.setFormatter(formatter)
             logger.addHandler(handler)
 
@@ -147,7 +151,9 @@ class MaxClient:
     def _check_phone(self) -> bool:
         return bool(re.match(Constants.PHONE_REGEX.value, self.phone))
 
-    def _make_message(self, opcode: int, payload: dict[str, Any], cmd: int = 0) -> dict[str, Any]:
+    def _make_message(
+        self, opcode: int, payload: dict[str, Any], cmd: int = 0
+    ) -> dict[str, Any]:
         self._seq += 1
 
         msg = BaseWebSocketMessage(
@@ -158,7 +164,9 @@ class MaxClient:
             payload=payload,
         ).model_dump(by_alias=True)
 
-        self.logger.debug("make_message opcode=%s cmd=%s seq=%s", opcode, cmd, self._seq)
+        self.logger.debug(
+            "make_message opcode=%s cmd=%s seq=%s", opcode, cmd, self._seq
+        )
         return msg
 
     async def _send_interactive_ping(self) -> None:
@@ -190,7 +198,9 @@ class MaxClient:
 
     async def _handshake(self, user_agent: dict[str, Any]) -> dict[str, Any]:
         try:
-            self.logger.debug("Sending handshake with user_agent keys=%s", list(user_agent.keys()))
+            self.logger.debug(
+                "Sending handshake with user_agent keys=%s", list(user_agent.keys())
+            )
             resp = await self._send_and_wait(
                 opcode=Opcode.HANDSHAKE,
                 payload={"deviceId": str(self._device_id), "userAgent": user_agent},
@@ -201,7 +211,9 @@ class MaxClient:
             self.logger.error("Handshake failed: %s", e, exc_info=True)
             raise ConnectionError(f"Handshake failed: {e}")
 
-    async def _request_code(self, phone: str, language: str = "ru") -> dict[str, int | str]:
+    async def _request_code(
+        self, phone: str, language: str = "ru"
+    ) -> dict[str, int | str]:
         try:
             self.logger.info("Requesting auth code")
 
@@ -209,9 +221,13 @@ class MaxClient:
                 phone=phone, type=AuthType.START_AUTH, language=language
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(opcode=Opcode.REQUEST_CODE, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.REQUEST_CODE, payload=payload
+            )
             self.logger.debug(
-                "Code request response opcode=%s seq=%s", data.get("opcode"), data.get("seq")
+                "Code request response opcode=%s seq=%s",
+                data.get("opcode"),
+                data.get("seq"),
             )
             return data.get("payload")
         except Exception:
@@ -228,7 +244,9 @@ class MaxClient:
 
             data = await self._send_and_wait(opcode=Opcode.SEND_CODE, payload=payload)
             self.logger.debug(
-                "Send code response opcode=%s seq=%s", data.get("opcode"), data.get("seq")
+                "Send code response opcode=%s seq=%s",
+                data.get("opcode"),
+                data.get("seq"),
             )
             return data.get("payload")
         except Exception:
@@ -262,10 +280,14 @@ class MaxClient:
                             self._incoming.put_nowait(data)
                         except asyncio.QueueFull:
                             self.logger.warning(
-                                "Incoming queue full; dropping message seq=%s", data.get("seq")
+                                "Incoming queue full; dropping message seq=%s",
+                                data.get("seq"),
                             )
 
-                    if data.get("opcode") == Opcode.NEW_MESSAGE and self._on_message_handler:
+                    if (
+                        data.get("opcode") == Opcode.NEW_MESSAGE
+                        and self._on_message_handler
+                    ):
                         try:
                             payload = data.get("payload", {})
                             msg = Message.from_dict(payload.get("message"))
@@ -311,15 +333,21 @@ class MaxClient:
         self._pending[msg["seq"]] = fut
 
         try:
-            self.logger.debug("Sending frame opcode=%s cmd=%s seq=%s", opcode, cmd, msg["seq"])
+            self.logger.debug(
+                "Sending frame opcode=%s cmd=%s seq=%s", opcode, cmd, msg["seq"]
+            )
             await ws.send(json.dumps(msg))
             data = await asyncio.wait_for(fut, timeout=timeout)
             self.logger.debug(
-                "Received frame for seq=%s opcode=%s", data.get("seq"), data.get("opcode")
+                "Received frame for seq=%s opcode=%s",
+                data.get("seq"),
+                data.get("opcode"),
             )
             return data
         except Exception:
-            self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
+            self.logger.exception(
+                "Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"]
+            )
             raise RuntimeError("Send and wait failed")
         finally:
             self._pending.pop(msg["seq"], None)
@@ -362,7 +390,9 @@ class MaxClient:
         except Exception:
             self.logger.exception("Sync failed")
 
-    async def send_message(self, text: str, chat_id: int, notify: bool) -> Message | None:
+    async def send_message(
+        self, text: str, chat_id: int, notify: bool
+    ) -> Message | None:
         """
         Отправляет сообщение в чат.
         """
@@ -379,22 +409,32 @@ class MaxClient:
                 notify=notify,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(opcode=Opcode.SEND_MESSAGE, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.SEND_MESSAGE, payload=payload
+            )
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Send message error: %s", error)
-            msg = Message.from_dict(data["payload"]["message"]) if data.get("payload") else None
+            msg = (
+                Message.from_dict(data["payload"]["message"])
+                if data.get("payload")
+                else None
+            )
             self.logger.debug("send_message result: %r", msg)
             return msg
         except Exception:
             self.logger.exception("Send message failed")
             return None
 
-    async def edit_message(self, chat_id: int, message_id: int, text: str) -> Message | None:
+    async def edit_message(
+        self, chat_id: int, message_id: int, text: str
+    ) -> Message | None:
         """
         Редактирует сообщение.
         """
         try:
-            self.logger.info("Editing message chat_id=%s message_id=%s", chat_id, message_id)
+            self.logger.info(
+                "Editing message chat_id=%s message_id=%s", chat_id, message_id
+            )
             payload = EditMessagePayload(
                 chat_id=chat_id,
                 message_id=message_id,
@@ -402,30 +442,43 @@ class MaxClient:
                 elements=[],
                 attaches=[],
             ).model_dump(by_alias=True)
-            data = await self._send_and_wait(opcode=Opcode.EDIT_MESSAGE, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.EDIT_MESSAGE, payload=payload
+            )
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Edit message error: %s", error)
-            msg = Message.from_dict(data["payload"]["message"]) if data.get("payload") else None
+            msg = (
+                Message.from_dict(data["payload"]["message"])
+                if data.get("payload")
+                else None
+            )
             self.logger.debug("edit_message result: %r", msg)
             return msg
         except Exception:
             self.logger.exception("Edit message failed")
             return None
 
-    async def delete_message(self, chat_id: int, message_ids: list[int], for_me: bool) -> bool:
+    async def delete_message(
+        self, chat_id: int, message_ids: list[int], for_me: bool
+    ) -> bool:
         """
         Удаляет сообщения.
         """
         try:
             self.logger.info(
-                "Deleting messages chat_id=%s ids=%s for_me=%s", chat_id, message_ids, for_me
+                "Deleting messages chat_id=%s ids=%s for_me=%s",
+                chat_id,
+                message_ids,
+                for_me,
             )
 
             payload = DeleteMessagePayload(
                 chat_id=chat_id, message_ids=message_ids, for_me=for_me
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(opcode=Opcode.DELETE_MESSAGE, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.DELETE_MESSAGE, payload=payload
+            )
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Delete message error: %s", error)
                 return False
@@ -506,9 +559,13 @@ class MaxClient:
         try:
             self.logger.info("Fetching users count=%d", len(user_ids))
 
-            payload = FetchContactsPayload(contact_ids=user_ids).model_dump(by_alias=True)
+            payload = FetchContactsPayload(contact_ids=user_ids).model_dump(
+                by_alias=True
+            )
 
-            data = await self._send_and_wait(opcode=Opcode.GET_CONTACTS_INFO, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.GET_CONTACTS_INFO, payload=payload
+            )
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Fetch users error: %s", error)
                 return None
@@ -562,7 +619,9 @@ class MaxClient:
                 self.logger.error("Fetch history error: %s", error)
                 return None
 
-            messages = [Message.from_dict(msg) for msg in data["payload"].get("messages", [])]
+            messages = [
+                Message.from_dict(msg) for msg in data["payload"].get("messages", [])
+            ]
             self.logger.debug("History fetched: %d messages", len(messages))
             return messages
         except Exception:
@@ -583,7 +642,9 @@ class MaxClient:
             raise ValueError("Invalid code format")
 
         login_resp = await self._send_code(code, temp_token)
-        token: str | None = login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
+        token: str | None = (
+            login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
+        )
         if not token:
             self.logger.critical("Failed to login, token not received")
             raise ValueError("Failed to login, token not received")
@@ -615,7 +676,8 @@ class MaxClient:
                 ping_task = asyncio.create_task(self._send_interactive_ping())
                 self._background_tasks.add(ping_task)
                 ping_task.add_done_callback(
-                    lambda t: self._background_tasks.discard(t) or self._log_task_exception(t)
+                    lambda t: self._background_tasks.discard(t)
+                    or self._log_task_exception(t)
                 )
 
                 try:
