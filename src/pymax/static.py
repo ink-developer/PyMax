@@ -21,7 +21,7 @@ class Opcode(IntEnum):
 
     SEND_MESSAGE = 64
     EDIT_MESSAGE = 67
-    DELETE_MESSAGE = 68
+    DELETE_MESSAGE = 66
 
     NEW_MESSAGE = 128
 
