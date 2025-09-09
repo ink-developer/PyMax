@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
 ## Документация
 
-WIP
+[WIP](noxzion.github.io/)
 
 ## Лицензия
 
