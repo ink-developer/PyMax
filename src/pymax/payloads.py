@@ -84,3 +84,9 @@ class FetchHistoryPayload(CamelModel):
     forward: int
     backward: int = 200
     get_messages: bool = True
+
+
+class ChangeProfilePayload(CamelModel):
+    first_name: str
+    last_name: str | None = None
+    description: str | None = None

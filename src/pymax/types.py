@@ -1,6 +1,70 @@
-from typing import Any
+from typing import Any, override
 
 from .static import AccessType, ChatType, ElementType, MessageStatus, MessageType
+
+
+class Names:
+    def __init__(
+        self, name: str, first_name: str, last_name: str | None, type: str
+    ) -> None:
+        self.name = name
+        self.first_name = first_name
+        self.last_name = last_name
+        self.type = type
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Names":
+        return cls(
+            name=data["name"],
+            first_name=data["firstName"],
+            last_name=data.get("lastName"),
+            type=data["type"],
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return f"Names(name={self.name!r}, first_name={self.first_name!r}, last_name={self.last_name!r}, type={self.type!r})"
+
+    @override
+    def __str__(self) -> str:
+        return self.name
+
+
+class Me:
+    def __init__(
+        self,
+        id: int,
+        account_status: int,
+        phone: str,
+        names: list[Names],
+        update_time: int,
+        options: list[str] | None = None,
+    ) -> None:
+        self.id = id
+        self.account_status = account_status
+        self.phone = phone
+        self.update_time = update_time
+        self.options = options
+        self.names = names
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Me":
+        return cls(
+            id=data["id"],
+            account_status=data["accountStatus"],
+            phone=data["phone"],
+            names=[Names.from_dict(n) for n in data["names"]],
+            update_time=data["updateTime"],
+            options=data.get("options"),
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return f"Me(id={self.id!r}, account_status={self.account_status!r}, phone={self.phone!r}, names={self.names!r}, update_time={self.update_time!r}, options={self.options!r})"
+
+    @override
+    def __str__(self) -> str:
+        return f"Me {self.id}: {', '.join(str(n) for n in self.names)}"
 
 
 class Element:
@@ -15,11 +79,13 @@ class Element:
     def from_dict(cls, data: dict[Any, Any]) -> "Element":
         return cls(type=data["type"], length=data["length"], from_=data.get("from"))
 
+    @override
     def __repr__(self) -> str:
         return (
             f"Element(type={self.type!r}, length={self.length!r}, from_={self.from_!r})"
         )
 
+    @override
     def __str__(self) -> str:
         return f"{self.type}({self.length})"
 
@@ -64,12 +130,14 @@ class Message:
             reaction_info=data.get("reactionInfo"),
         )
 
+    @override
     def __repr__(self) -> str:
         return (
             f"Message(id={self.id!r}, sender={self.sender!r}, text={self.text!r}, "
             f"type={self.type!r}, status={self.status!r}, elements={self.elements!r})"
         )
 
+    @override
     def __str__(self) -> str:
         return f"Message {self.id} from {self.sender}: {self.text}"
 
@@ -134,9 +202,11 @@ class Dialog:
             participants=data["participants"],
         )
 
+    @override
     def __repr__(self) -> str:
         return f"Dialog(id={self.id!r}, owner={self.owner!r}, type={self.type!r}, last_message={self.last_message!r})"
 
+    @override
     def __str__(self) -> str:
         return f"Dialog {self.id} ({self.type})"
 
@@ -241,44 +311,23 @@ class Chat:
             cid=data.get("cid", 0),
         )
 
+    @override
     def __repr__(self) -> str:
         return f"Chat(id={self.id!r}, title={self.title!r}, type={self.type!r})"
 
+    @override
     def __str__(self) -> str:
         return f"{self.title} ({self.type})"
 
 
 class Channel(Chat):
+    @override
     def __repr__(self) -> str:
         return f"Channel(id={self.id!r}, title={self.title!r})"
 
+    @override
     def __str__(self) -> str:
         return f"Channel: {self.title}"
-
-
-class Names:
-    def __init__(
-        self, name: str, first_name: str, last_name: str | None, type: str
-    ) -> None:
-        self.name = name
-        self.first_name = first_name
-        self.last_name = last_name
-        self.type = type
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Names":
-        return cls(
-            name=data["name"],
-            first_name=data["firstName"],
-            last_name=data.get("lastName"),
-            type=data["type"],
-        )
-
-    def __repr__(self) -> str:
-        return f"Names(name={self.name!r}, first_name={self.first_name!r}, last_name={self.last_name!r}, type={self.type!r})"
-
-    def __str__(self) -> str:
-        return self.name
 
 
 class User:
@@ -330,8 +379,10 @@ class User:
             menu_button=data.get("menuButton"),
         )
 
+    @override
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, names={self.names!r}, status={self.account_status!r})"
 
+    @override
     def __str__(self) -> str:
         return f"User {self.id}: {', '.join(str(n) for n in self.names)}"

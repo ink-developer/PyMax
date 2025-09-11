@@ -50,6 +50,8 @@ async def handle_start() -> None:
             if user:
                 print(f"{user.names[0].name}: {message.text}")
 
+    print(client.me.names[0].first_name)
+
 
 if __name__ == "__main__":
     asyncio.run(client.start())
