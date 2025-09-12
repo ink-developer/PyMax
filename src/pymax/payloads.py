@@ -90,3 +90,13 @@ class ChangeProfilePayload(CamelModel):
     first_name: str
     last_name: str | None = None
     description: str | None = None
+
+
+class ResolveLinkPayload(CamelModel):
+    link: str
+
+
+class PinMessagePayload(CamelModel):
+    chat_id: int
+    notify_pin: bool
+    pin_message_id: int

@@ -17,11 +17,14 @@ class Opcode(IntEnum):
     GET_CHATS_DATA = 48
     FETCH_HISTORY = 49
 
-    GET_HISTORY = 79
-
+    PIN_MESSAGE = 55
     SEND_MESSAGE = 64
     EDIT_MESSAGE = 67
     DELETE_MESSAGE = 66
+
+    GET_HISTORY = 79
+
+    GET_BY_LINK = 89
 
     NEW_MESSAGE = 128
 

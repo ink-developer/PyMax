@@ -18,7 +18,9 @@ from .payloads import (
     EditMessagePayload,
     FetchContactsPayload,
     FetchHistoryPayload,
+    PinMessagePayload,
     RequestCodePayload,
+    ResolveLinkPayload,
     SendCodePayload,
     SendMessagePayload,
     SendMessagePayloadMessage,
@@ -499,6 +501,37 @@ class MaxClient:
             self.logger.exception("Delete message failed")
             return False
 
+    async def pin_message(
+        self, chat_id: int, message_id: int, notify_pin: bool
+    ) -> bool:
+        """
+        Закрепляет сообщение.
+
+        Args:
+            chat_id (int): ID чата
+            message_id (int): ID сообщения
+            notify_pin (bool): Оповещать о закреплении
+
+        Returns:
+            bool: True, если сообщение закреплено
+        """
+        try:
+            payload = PinMessagePayload(
+                chat_id=chat_id,
+                notify_pin=notify_pin,
+                pin_message_id=message_id,
+            ).model_dump(by_alias=True)
+
+            data = await self._send_and_wait(opcode=Opcode.PIN_MESSAGE, payload=payload)
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Pin message error: %s", error)
+                return False
+            self.logger.debug("pin_message success")
+            return True
+        except Exception:
+            self.logger.exception("Pin message failed")
+            return False
+
     async def close(self) -> None:
         try:
             self.logger.info("Closing client")
@@ -514,6 +547,26 @@ class MaxClient:
             self.logger.info("Client closed")
         except Exception:
             self.logger.exception("Error closing client")
+
+    async def resolve_channel_by_name(self, name: str) -> bool:
+        """
+        Пытается найти канал по его имени
+
+        Args:
+            name (str): Имя канала
+
+        Returns:
+            bool: True, если канал найден
+        """
+        payload = ResolveLinkPayload(
+            link=f"https://max.ru/{name}",
+        ).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.GET_BY_LINK, payload=payload)
+        if error := data.get("payload", {}).get("error"):
+            self.logger.error("Resolve link error: %s", error)
+            return False
+        return True
 
     async def change_profile(
         self,
