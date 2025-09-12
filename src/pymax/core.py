@@ -13,12 +13,20 @@ from .crud import Database
 from .exceptions import InvalidPhoneError, WebSocketNotConnectedError
 from .payloads import (
     BaseWebSocketMessage,
+    ChangeGroupSettingsOptions,
+    ChangeGroupSettingsPayload,
     ChangeProfilePayload,
+    CreateGroupAttach,
+    CreateGroupMessage,
+    CreateGroupPayload,
     DeleteMessagePayload,
     EditMessagePayload,
     FetchContactsPayload,
     FetchHistoryPayload,
+    GetGroupMembersPayload,
+    InviteUsersPayload,
     PinMessagePayload,
+    RemoveUsersPayload,
     ReplyLink,
     RequestCodePayload,
     ResolveLinkPayload,
@@ -724,6 +732,41 @@ class MaxClient:
             self.logger.exception("Fetch history failed")
             return None
 
+    async def create_group(
+        self, name: str, participant_ids: list[int] | None = None, notify: bool = True
+    ) -> tuple[Chat, Message] | None:
+        try:
+            payload = CreateGroupPayload(
+                message=CreateGroupMessage(
+                    cid=int(time.time() * 1000),
+                    attaches=[
+                        CreateGroupAttach(
+                            _type="CONTROL",
+                            title=name,
+                            user_ids=participant_ids if participant_ids else [],
+                        )
+                    ],
+                ),
+                notify=notify,
+            ).model_dump(by_alias=True)
+
+            data = await self._send_and_wait(
+                opcode=Opcode.SEND_MESSAGE, payload=payload
+            )
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Create group error: %s", error)
+                return None
+
+            group = Chat.from_dict(data["payload"]["chat"])
+            message = Message.from_dict(data["payload"]["message"])
+
+            self.chats.append(group)
+
+            return group, message
+
+        except Exception:
+            self.logger.exception("Create group failed")
+
     async def _login(self) -> None:
         self.logger.info("Starting login flow")
         request_code_payload = await self._request_code(self.phone)
@@ -757,6 +800,7 @@ class MaxClient:
         try:
             self.logger.info("Client starting")
             await self._connect(self.user_agent)
+
             if self._token is None:
                 await self._login()
             else:

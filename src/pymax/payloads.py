@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -106,3 +106,53 @@ class PinMessagePayload(CamelModel):
     chat_id: int
     notify_pin: bool
     pin_message_id: int
+
+
+class CreateGroupAttach(CamelModel):
+    type: Literal["CONTROL"] = Field("CONTROL", alias="_type")
+    event: str = "new"
+    chat_type: str = "CHAT"
+    title: str
+    user_ids: list[int]
+
+
+class CreateGroupMessage(CamelModel):
+    cid: int
+    attaches: list[CreateGroupAttach]
+
+
+class CreateGroupPayload(CamelModel):
+    message: CreateGroupMessage
+    notify: bool = True
+
+
+class InviteUsersPayload(CamelModel):
+    chat_id: int
+    user_ids: list[int]
+    show_history: bool
+    operation: str = "add"
+
+
+class RemoveUsersPayload(CamelModel):
+    chat_id: int
+    user_ids: list[int]
+    operation: str = "remove"
+    clean_msg_period: int
+
+
+class ChangeGroupSettingsOptions(CamelModel):
+    only_owner_can_change_icon_title: bool
+    all_can_pin_message: bool
+    only_admin_can_add_member: bool
+
+
+class ChangeGroupSettingsPayload(CamelModel):
+    chat_id: int
+    options: ChangeGroupSettingsOptions
+
+
+class GetGroupMembersPayload(CamelModel):
+    type: str = "MEMBER"
+    marker: int
+    chat_id: int
+    count: int
