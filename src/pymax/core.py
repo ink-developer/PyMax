@@ -809,17 +809,14 @@ class MaxClient:
                 operation="add",
             ).model_dump(by_alias=True)
 
-            self.logger.info("Inviting users to group: %r", payload)
-
             data = await self._send_and_wait(
-                opcode=Opcode.INVITE_USERS_TO_GROUP, payload=payload
+                opcode=Opcode.ACTION_WITH_USERS_IN_GROUP, payload=payload
             )
 
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Create group error: %s", error)
                 return False
 
-            self.logger.info("Invite users to group result: %r", data)
             chat = Chat.from_dict(data["payload"]["chat"])
             if chat:
                 cached_chat = await self._get_chat(chat.id)
@@ -833,6 +830,41 @@ class MaxClient:
 
         except Exception:
             self.logger.exception("Invite users to group failed")
+            return False
+
+    async def remove_users_from_group(
+        self,
+        chat_id: int,
+        user_ids: list[int],
+        clean_msg_period: int,
+    ) -> bool:
+        try:
+            payload = RemoveUsersPayload(
+                chat_id=chat_id,
+                user_ids=user_ids,
+                clean_msg_period=clean_msg_period,
+            ).model_dump(by_alias=True)
+
+            data = await self._send_and_wait(
+                opcode=Opcode.ACTION_WITH_USERS_IN_GROUP, payload=payload
+            )
+
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Remove users from group error: %s", error)
+                return False
+
+            chat = Chat.from_dict(data["payload"]["chat"])
+            if chat:
+                cached_chat = await self._get_chat(chat.id)
+                if cached_chat is None:
+                    self.chats.append(chat)
+                else:
+                    idx = self.chats.index(cached_chat)
+                    self.chats[idx] = chat
+
+            return True
+        except Exception:
+            self.logger.exception("Remove users from group failed")
             return False
 
     async def _get_chat(self, chat_id: int) -> Chat | None:
