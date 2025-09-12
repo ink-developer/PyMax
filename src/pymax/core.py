@@ -735,6 +735,17 @@ class MaxClient:
     async def create_group(
         self, name: str, participant_ids: list[int] | None = None, notify: bool = True
     ) -> tuple[Chat, Message] | None:
+        """
+        Создает группу
+
+        Args:
+            name (str): Название группы.
+            participant_ids (list[int] | None, optional): Список идентификаторов участников. Defaults to None.
+            notify (bool, optional): Флаг оповещения. Defaults to True.
+
+        Returns:
+            tuple[Chat, Message] | None: Объект Chat и Message или None при ошибке.
+        """
         try:
             payload = CreateGroupPayload(
                 message=CreateGroupMessage(
@@ -757,15 +768,78 @@ class MaxClient:
                 self.logger.error("Create group error: %s", error)
                 return None
 
-            group = Chat.from_dict(data["payload"]["chat"])
+            chat = Chat.from_dict(data["payload"]["chat"])
             message = Message.from_dict(data["payload"]["message"])
 
-            self.chats.append(group)
+            if chat:
+                cached_chat = await self._get_chat(chat.id)
+                if cached_chat is None:
+                    self.chats.append(chat)
+                else:
+                    idx = self.chats.index(cached_chat)
+                    self.chats[idx] = chat
 
-            return group, message
+            return chat, message
 
         except Exception:
             self.logger.exception("Create group failed")
+
+    async def invite_users_to_group(
+        self,
+        chat_id: int,
+        user_ids: list[int],
+        show_history: bool = True,
+    ) -> bool:
+        """
+        Приглашает пользователей в группу
+
+        Args:
+            chat_id (int): ID группы.
+            user_ids (list[int]): Список идентификаторов пользователей.
+            show_history (bool, optional): Флаг оповещения. Defaults to True.
+
+        Returns:
+            bool: True, если пользователи успешно приглашены
+        """
+        try:
+            payload = InviteUsersPayload(
+                chat_id=chat_id,
+                user_ids=user_ids,
+                show_history=show_history,
+                operation="add",
+            ).model_dump(by_alias=True)
+
+            self.logger.info("Inviting users to group: %r", payload)
+
+            data = await self._send_and_wait(
+                opcode=Opcode.INVITE_USERS_TO_GROUP, payload=payload
+            )
+
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Create group error: %s", error)
+                return False
+
+            self.logger.info("Invite users to group result: %r", data)
+            chat = Chat.from_dict(data["payload"]["chat"])
+            if chat:
+                cached_chat = await self._get_chat(chat.id)
+                if cached_chat is None:
+                    self.chats.append(chat)
+                else:
+                    idx = self.chats.index(cached_chat)
+                    self.chats[idx] = chat
+
+            return True
+
+        except Exception:
+            self.logger.exception("Invite users to group failed")
+            return False
+
+    async def _get_chat(self, chat_id: int) -> Chat | None:
+        for chat in self.chats:
+            if chat.id == chat_id:
+                return chat
+        return None
 
     async def _login(self) -> None:
         self.logger.info("Starting login flow")

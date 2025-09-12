@@ -22,6 +22,7 @@ class Opcode(IntEnum):
     EDIT_MESSAGE = 67
     DELETE_MESSAGE = 66
 
+    INVITE_USERS_TO_GROUP = 77
     GET_HISTORY = 79
 
     GET_BY_LINK = 89
