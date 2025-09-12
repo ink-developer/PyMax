@@ -19,6 +19,7 @@ from .payloads import (
     FetchContactsPayload,
     FetchHistoryPayload,
     PinMessagePayload,
+    ReplyLink,
     RequestCodePayload,
     ResolveLinkPayload,
     SendCodePayload,
@@ -404,7 +405,7 @@ class MaxClient:
             self.logger.exception("Sync failed")
 
     async def send_message(
-        self, text: str, chat_id: int, notify: bool
+        self, text: str, chat_id: int, notify: bool, reply_to: int | None = None
     ) -> Message | None:
         """
         Отправляет сообщение в чат.
@@ -418,6 +419,7 @@ class MaxClient:
                     cid=int(time.time() * 1000),
                     elements=[],
                     attaches=[],
+                    link=ReplyLink(message_id=str(reply_to)) if reply_to else None,
                 ),
                 notify=notify,
             ).model_dump(by_alias=True)

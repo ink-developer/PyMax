@@ -47,11 +47,17 @@ class SyncPayload(CamelModel):
     chats_count: int = 40
 
 
+class ReplyLink(CamelModel):
+    type: str = "REPLY"
+    message_id: str
+
+
 class SendMessagePayloadMessage(CamelModel):
     text: str
     cid: int
     elements: list[Any]
     attaches: list[Any]
+    link: ReplyLink | None = None
 
 
 class SendMessagePayload(CamelModel):
