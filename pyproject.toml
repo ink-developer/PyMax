@@ -17,6 +17,8 @@ classifiers = [
 dependencies = [
     "sqlmodel>=0.0.24",
     "websockets>=11.0",
+    "msgpack>=1.1.1",
+    "lz4>=4.4.4"
 ]
 
 [project.urls]
