@@ -11,7 +11,7 @@ import websockets
 
 from .crud import Database
 from .exceptions import InvalidPhoneError, WebSocketNotConnectedError
-from .mixins import ApiMixin, AuthMixin, WebSocketMixin
+from .mixins import ApiMixin, WebSocketMixin
 from .payloads import (
     BaseWebSocketMessage,
     SyncPayload,
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class MaxClient(ApiMixin, AuthMixin, WebSocketMixin):
+class MaxClient(ApiMixin, WebSocketMixin):
     """
     Основной клиент для работы с WebSocket API сервиса Max.
 
