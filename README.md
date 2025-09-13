@@ -121,6 +121,10 @@ if __name__ == "__main__":
 
 Этот проект распространяется под лицензией MIT. См. файл [LICENSE](LICENSE) для получения информации.
 
+## Новости
+
+[Telegram](https://t.me/pymax_news)
+
 ## Авторы
 
 - **[noxzion](https://github.com/noxzion)** — оригинальный автор проекта
