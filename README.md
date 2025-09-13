@@ -56,7 +56,7 @@ phone = "+1234567890"
 client = MaxClient(phone=phone, work_dir="cache")
 
 # Обработчик входящих сообщений
-@client.on_message
+@client.on_message()
 async def handle_message(message: Message) -> None:
     print(f"{message.sender}: {message.text}")
 
