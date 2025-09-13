@@ -1,6 +1,7 @@
 import asyncio
 
 from pymax import MaxClient, Message
+from pymax.filters import Filter
 
 phone = "+1234567890"
 
@@ -33,7 +34,7 @@ async def main() -> None:
     await client.close()
 
 
-@client.on_message
+@client.on_message(filter=Filter(text=["Привет"]))
 async def handle_message(message: Message) -> None:
     print(str(message.sender) + ": " + message.text)
 
@@ -51,6 +52,9 @@ async def handle_start() -> None:
                 print(f"{user.names[0].name}: {message.text}")
 
     print(client.me.names[0].first_name)
+    user = await client.get_user(client.me.id)
+
+    print(user.names[0].first_name)
 
 
 if __name__ == "__main__":

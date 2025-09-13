@@ -140,15 +140,23 @@ class RemoveUsersPayload(CamelModel):
     clean_msg_period: int
 
 
-class ChangeGroupSettingsOptions(CamelModel):
-    only_owner_can_change_icon_title: bool
-    all_can_pin_message: bool
-    only_admin_can_add_member: bool
+class ChangeGroupSettingsOptions(BaseModel):
+    ONLY_OWNER_CAN_CHANGE_ICON_TITLE: bool | None
+    ALL_CAN_PIN_MESSAGE: bool | None
+    ONLY_ADMIN_CAN_ADD_MEMBER: bool | None
+    ONLY_ADMIN_CAN_CALL: bool | None
+    MEMBERS_CAN_SEE_PRIVATE_LINK: bool | None
 
 
 class ChangeGroupSettingsPayload(CamelModel):
     chat_id: int
     options: ChangeGroupSettingsOptions
+
+
+class ChangeGroupProfilePayload(CamelModel):
+    chat_id: int
+    theme: str | None
+    description: str | None
 
 
 class GetGroupMembersPayload(CamelModel):
