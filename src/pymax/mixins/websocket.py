@@ -70,7 +70,7 @@ class WebSocketMixin(ClientProtocol):
                 "Sending handshake with user_agent keys=%s", list(user_agent.keys())
             )
             resp = await self._send_and_wait(
-                opcode=Opcode.HANDSHAKE,
+                opcode=Opcode.SESSION_INIT,
                 payload={"deviceId": str(self._device_id), "userAgent": user_agent},
             )
             self.logger.info("Handshake completed")
@@ -111,7 +111,7 @@ class WebSocketMixin(ClientProtocol):
                             )
 
                     if (
-                        data.get("opcode") == Opcode.NEW_MESSAGE
+                        data.get("opcode") == Opcode.NOTIF_MESSAGE
                         and self._on_message_handlers
                     ):
                         try:

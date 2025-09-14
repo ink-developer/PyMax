@@ -45,9 +45,7 @@ class GroupMixin(ClientProtocol):
                 notify=notify,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.SEND_MESSAGE, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.MSG_SEND, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Create group error: %s", error)
                 return None
@@ -94,7 +92,7 @@ class GroupMixin(ClientProtocol):
             ).model_dump(by_alias=True)
 
             data = await self._send_and_wait(
-                opcode=Opcode.ACTION_WITH_USERS_IN_GROUP, payload=payload
+                opcode=Opcode.CHAT_MEMBERS_UPDATE, payload=payload
             )
 
             if error := data.get("payload", {}).get("error"):
@@ -130,7 +128,7 @@ class GroupMixin(ClientProtocol):
             ).model_dump(by_alias=True)
 
             data = await self._send_and_wait(
-                opcode=Opcode.ACTION_WITH_USERS_IN_GROUP, payload=payload
+                opcode=Opcode.CHAT_MEMBERS_UPDATE, payload=payload
             )
 
             if error := data.get("payload", {}).get("error"):
@@ -172,9 +170,7 @@ class GroupMixin(ClientProtocol):
                 ),
             ).model_dump(by_alias=True, exclude_none=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.GROUP_ACTION, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.CHAT_UPDATE, payload=payload)
 
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Change group settings error: %s", error)
@@ -205,9 +201,7 @@ class GroupMixin(ClientProtocol):
                 description=description,
             ).model_dump(by_alias=True, exclude_none=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.GROUP_ACTION, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.CHAT_UPDATE, payload=payload)
 
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Change group profile error: %s", error)

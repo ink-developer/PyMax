@@ -35,9 +35,7 @@ class MessageMixin(ClientProtocol):
                 notify=notify,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.SEND_MESSAGE, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.MSG_SEND, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Send message error: %s", error)
             msg = (
@@ -68,9 +66,7 @@ class MessageMixin(ClientProtocol):
                 elements=[],
                 attaches=[],
             ).model_dump(by_alias=True)
-            data = await self._send_and_wait(
-                opcode=Opcode.EDIT_MESSAGE, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.MSG_EDIT, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Edit message error: %s", error)
             msg = (
@@ -102,9 +98,7 @@ class MessageMixin(ClientProtocol):
                 chat_id=chat_id, message_ids=message_ids, for_me=for_me
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.DELETE_MESSAGE, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.MSG_DELETE, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Delete message error: %s", error)
                 return False
@@ -135,9 +129,7 @@ class MessageMixin(ClientProtocol):
                 pin_message_id=message_id,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.GROUP_ACTION, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.CHAT_UPDATE, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Pin message error: %s", error)
                 return False
@@ -179,7 +171,7 @@ class MessageMixin(ClientProtocol):
             self.logger.debug("Payload dict keys: %s", list(payload.keys()))
 
             data = await self._send_and_wait(
-                opcode=Opcode.FETCH_HISTORY, payload=payload, timeout=10
+                opcode=Opcode.CHAT_HISTORY, payload=payload, timeout=10
             )
 
             if error := data.get("payload", {}).get("error"):

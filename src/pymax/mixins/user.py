@@ -65,7 +65,7 @@ class UserMixin(ClientProtocol):
             )
 
             data = await self._send_and_wait(
-                opcode=Opcode.GET_CONTACTS_INFO, payload=payload
+                opcode=Opcode.CONTACT_INFO, payload=payload
             )
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Fetch users error: %s", error)

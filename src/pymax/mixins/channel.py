@@ -18,7 +18,7 @@ class ChannelMixin(ClientProtocol):
             link=f"https://max.ru/{name}",
         ).model_dump(by_alias=True)
 
-        data = await self._send_and_wait(opcode=Opcode.GET_BY_LINK, payload=payload)
+        data = await self._send_and_wait(opcode=Opcode.LINK_INFO, payload=payload)
         if error := data.get("payload", {}).get("error"):
             self.logger.error("Resolve link error: %s", error)
             return False

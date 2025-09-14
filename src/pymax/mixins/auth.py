@@ -22,7 +22,7 @@ class AuthMixin(ClientProtocol):
             ).model_dump(by_alias=True)
 
             data = await self._send_and_wait(
-                opcode=Opcode.REQUEST_CODE, payload=payload
+                opcode=Opcode.AUTH_REQUEST, payload=payload
             )
             self.logger.debug(
                 "Code request response opcode=%s seq=%s",
@@ -44,7 +44,7 @@ class AuthMixin(ClientProtocol):
                 auth_token_type=AuthType.CHECK_CODE,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(opcode=Opcode.SEND_CODE, payload=payload)
+            data = await self._send_and_wait(opcode=Opcode.AUTH, payload=payload)
             self.logger.debug(
                 "Send code response opcode=%s seq=%s",
                 data.get("opcode"),
