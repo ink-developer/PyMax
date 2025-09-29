@@ -186,6 +186,13 @@ class DeviceType(str, Enum):
     IOS = "IOS"
 
 
+class AttachType(str, Enum):
+    PHOTO = "PHOTO"
+    VIDEO = "VIDEO"
+    FILE = "FILE"
+    STICKER = "STICKER"
+
+
 class Constants(Enum):
     PHONE_REGEX = r"^\+?\d{10,15}$"
     WEBSOCKET_URI = "wss://ws-api.oneme.ru/websocket"

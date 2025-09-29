@@ -1,7 +1,12 @@
 import time
 
+import aiohttp
+from aiohttp import ClientSession
+
+from pymax.files import File, Photo, Video
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import (
+    AttachPhotoPayload,
     DeleteMessagePayload,
     EditMessagePayload,
     FetchHistoryPayload,
@@ -9,27 +14,125 @@ from pymax.payloads import (
     ReplyLink,
     SendMessagePayload,
     SendMessagePayloadMessage,
+    UploadPhotoPayload,
 )
-from pymax.static import Opcode
-from pymax.types import Message
+from pymax.static import AttachType, Opcode
+from pymax.types import Attach, Message
 
 
 class MessageMixin(ClientProtocol):
+    async def _upload_photo(self, photo: Photo) -> None | Attach:
+        try:
+            self.logger.info("Uploading photo")
+            payload = UploadPhotoPayload().model_dump(by_alias=True)
+
+            data = await self._send_and_wait(
+                opcode=Opcode.PHOTO_UPLOAD,
+                payload=payload,
+            )
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Upload photo error: %s", error)
+                return None
+
+            url = data.get("payload", {}).get("url")
+            if not url:
+                self.logger.error("No upload URL received")
+                return None
+
+            photo_data = photo.validate_photo()
+            if not photo_data:
+                self.logger.error("Photo validation failed")
+                return None
+
+            form = aiohttp.FormData()
+            form.add_field(
+                name="file",
+                value=await photo.read(),
+                filename=f"image.{photo_data[0]}",
+                content_type=photo_data[1],
+            )
+
+            async with (
+                ClientSession() as session,
+                session.post(
+                    url=url,
+                    data=form,
+                ) as response,
+            ):
+                if response.status != 200:
+                    self.logger.error(f"Upload failed with status {response.status}")
+                    return None
+
+                result = await response.json()
+
+                if not result.get("photos"):
+                    self.logger.error("No photos in response")
+                    return None
+
+                photo_data = next(iter(result["photos"].values()), None)
+                if not photo_data or "token" not in photo_data:
+                    self.logger.error("No token in response")
+                    return None
+
+                return Attach(
+                    _type=AttachType.PHOTO,
+                    photo_token=photo_data["token"],
+                )
+
+        except Exception as e:
+            self.logger.exception("Upload photo failed: %s", str(e))
+            return None
+
     async def send_message(
-        self, text: str, chat_id: int, notify: bool, reply_to: int | None = None
+        self,
+        text: str,
+        chat_id: int,
+        notify: bool,
+        photo: Photo | None = None,
+        photos: list[Photo] | None = None,
+        reply_to: int | None = None,
     ) -> Message | None:
         """
         Отправляет сообщение в чат.
         """
         try:
             self.logger.info("Sending message to chat_id=%s notify=%s", chat_id, notify)
+            if photos and photo:
+                self.logger.warning("Both photo and photos provided; using photos")
+                photo = None
+            attaches = []
+            if photo:
+                self.logger.info("Uploading photo for message")
+                attach = await self._upload_photo(photo)
+                if not attach or not attach.photo_token:
+                    self.logger.error("Photo upload failed, message not sent")
+                    return None
+                attaches = [
+                    AttachPhotoPayload(photo_token=attach.photo_token).model_dump(
+                        by_alias=True
+                    )
+                ]
+            elif photos:
+                self.logger.info("Uploading multiple photos for message")
+                for p in photos:
+                    attach = await self._upload_photo(p)
+                    if attach and attach.photo_token:
+                        attaches.append(
+                            AttachPhotoPayload(
+                                photo_token=attach.photo_token
+                            ).model_dump(by_alias=True)
+                        )
+                if not attaches:
+                    self.logger.error("All photo uploads failed, message not sent")
+                    return None
+
             payload = SendMessagePayload(
                 chat_id=chat_id,
                 message=SendMessagePayloadMessage(
                     text=text,
                     cid=int(time.time() * 1000),
                     elements=[],
-                    attaches=[],
+                    attaches=attaches,
                     link=ReplyLink(message_id=str(reply_to)) if reply_to else None,
                 ),
                 notify=notify,
@@ -38,6 +141,8 @@ class MessageMixin(ClientProtocol):
             data = await self._send_and_wait(opcode=Opcode.MSG_SEND, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Send message error: %s", error)
+                print(data)
+                return None
             msg = (
                 Message.from_dict(data["payload"]["message"])
                 if data.get("payload")

@@ -2,7 +2,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-from .static import AuthType
+from pymax.static import AttachType, AuthType
 
 
 def to_camel(string: str) -> str:
@@ -52,11 +52,20 @@ class ReplyLink(CamelModel):
     message_id: str
 
 
+class UploadPhotoPayload(CamelModel):
+    count: int = 1
+
+
+class AttachPhotoPayload(CamelModel):
+    type: AttachType = Field(AttachType.PHOTO, alias="_type")
+    photo_token: str
+
+
 class SendMessagePayloadMessage(CamelModel):
     text: str
     cid: int
     elements: list[Any]
-    attaches: list[Any]
+    attaches: list[dict[str, Any]]
     link: ReplyLink | None = None
 
 

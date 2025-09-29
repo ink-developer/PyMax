@@ -1,6 +1,13 @@
 from typing import Any, override
 
-from .static import AccessType, ChatType, ElementType, MessageStatus, MessageType
+from .static import (
+    AccessType,
+    AttachType,
+    ChatType,
+    ElementType,
+    MessageStatus,
+    MessageType,
+)
 
 
 class Names:
@@ -386,3 +393,40 @@ class User:
     @override
     def __str__(self) -> str:
         return f"User {self.id}: {', '.join(str(n) for n in self.names)}"
+
+
+class Attach:
+    def __init__(
+        self,
+        _type: AttachType,
+        video_id: int | None = None,
+        photo_token: str | None = None,
+        file_id: int | None = None,
+        token: str | None = None,
+    ) -> None:
+        self.type = _type
+        self.video_id = video_id
+        self.photo_token = photo_token
+        self.file_id = file_id
+        self.token = token
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Attach":
+        return cls(
+            _type=AttachType(data["type"]),
+            video_id=data.get("videoId"),
+            photo_token=data.get("photoToken"),
+            file_id=data.get("fileId"),
+            token=data.get("token"),
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return (
+            f"Attach(type={self.type!r}, video_id={self.video_id!r}, "
+            f"photo_token={self.photo_token!r}, file_id={self.file_id!r}, token={self.token!r})"
+        )
+
+    @override
+    def __str__(self) -> str:
+        return f"Attach: {self.type}"
