@@ -45,6 +45,8 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self,
         phone: str,
         uri: str = Constants.WEBSOCKET_URI.value,
+        headers: dict[str, Any] | None = Constants.DEFAULT_USER_AGENT.value,
+        token: str | None = None,
         work_dir: str = ".",
         logger: logging.Logger | None = None,
     ) -> None:
@@ -69,8 +71,8 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
         self._device_id = self._database.get_device_id()
-        self._token = self._database.get_auth_token()
-        self.user_agent = Constants.DEFAULT_USER_AGENT.value
+        self._token = self._database.get_auth_token() or token
+        self.user_agent = headers
         self._on_message_handlers: list[
             tuple[Callable[[Message], Any], Filter | None]
         ] = []
@@ -119,6 +121,9 @@ class MaxClient(ApiMixin, WebSocketMixin):
             self.logger.info("Client starting")
             await self._connect(self.user_agent)
 
+            if self._token and self._database.get_auth_token() is None:
+                self._database.update_auth_token(self._device_id, self._token)
+
             if self._token is None:
                 await self._login()
             else:
@@ -144,3 +149,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
                     self.logger.debug("wait_closed cancelled")
         except Exception:
             self.logger.exception("Client start failed")
+
+
+class SocketMaxClient:
+    pass  # нокс займись
