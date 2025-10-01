@@ -5,6 +5,7 @@ Python wrapper для API мессенджера Max
 from .core import (
     InvalidPhoneError,
     MaxClient,
+    SocketMaxClient,
     WebSocketNotConnectedError,
 )
 from .static import (
@@ -50,6 +51,7 @@ __all__ = [
     "MessageStatus",
     "MessageType",
     "Opcode",
+    "SocketMaxClient",
     "User",
     "WebSocketNotConnectedError",
 ]

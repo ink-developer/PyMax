@@ -1,8 +1,7 @@
 import asyncio
-import json
 import logging
-import re
-import time
+import socket
+import ssl
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -11,13 +10,9 @@ import websockets
 
 from .crud import Database
 from .exceptions import InvalidPhoneError, WebSocketNotConnectedError
-from .mixins import ApiMixin, WebSocketMixin
-from .payloads import (
-    BaseWebSocketMessage,
-    SyncPayload,
-)
-from .static import ChatType, Constants, Opcode
-from .types import Channel, Chat, Dialog, Me, Message, User, override
+from .mixins import ApiMixin, SocketMixin, WebSocketMixin
+from .static import Constants
+from .types import Channel, Chat, Dialog, Me, Message, User
 
 if TYPE_CHECKING:
     from .filters import Filter
@@ -36,6 +31,12 @@ class MaxClient(ApiMixin, WebSocketMixin):
         work_dir (str, optional): Рабочая директория для хранения базы данных. По умолчанию ".".
         logger (logging.Logger | None): Пользовательский логгер. Если не передан — используется
             логгер модуля с именем f"{__name__}.MaxClient".
+        headers (dict[str, Any] | None): Заголовки для подключения к WebSocket. По умолчанию
+            Constants.DEFAULT_USER_AGENT.value.
+        token (str | None, optional): Токен авторизации. Если не передан, будет выполнен
+            процесс логина по номеру телефона.
+        host (str, optional): Хост API сервера. По умолчанию Constants.HOST.value.
+        port (int, optional): Порт API сервера. По умолчанию Constants.PORT.value.
 
     Raises:
         InvalidPhoneError: Если формат номера телефона неверный.
@@ -47,6 +48,8 @@ class MaxClient(ApiMixin, WebSocketMixin):
         uri: str = Constants.WEBSOCKET_URI.value,
         headers: dict[str, Any] | None = Constants.DEFAULT_USER_AGENT.value,
         token: str | None = None,
+        host: str = Constants.HOST.value,
+        port: int = Constants.PORT.value,
         work_dir: str = ".",
         logger: logging.Logger | None = None,
     ) -> None:
@@ -60,6 +63,8 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._users: dict[int, User] = {}
         if not self._check_phone():
             raise InvalidPhoneError(self.phone)
+        self.host: str = host
+        self.port: int = port
         self._work_dir: str = work_dir
         self._database_path: Path = Path(work_dir) / "session.db"
         self._database_path.parent.mkdir(parents=True, exist_ok=True)
@@ -78,6 +83,8 @@ class MaxClient(ApiMixin, WebSocketMixin):
         ] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
+        self._ssl_context = ssl.create_default_context()
+        self._socket: socket.socket | None = None
         self.logger = logger or logging.getLogger(f"{__name__}.MaxClient")
         self._setup_logger()
 
@@ -86,7 +93,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         )
 
     def _setup_logger(self) -> None:
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
 
         if not logger.handlers:
             handler = logging.StreamHandler()
@@ -151,5 +158,5 @@ class MaxClient(ApiMixin, WebSocketMixin):
             self.logger.exception("Client start failed")
 
 
-class SocketMaxClient:
-    pass  # нокс займись
+class SocketMaxClient(SocketMixin, MaxClient):
+    pass

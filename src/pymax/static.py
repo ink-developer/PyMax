@@ -196,6 +196,8 @@ class AttachType(str, Enum):
 class Constants(Enum):
     PHONE_REGEX = r"^\+?\d{10,15}$"
     WEBSOCKET_URI = "wss://ws-api.oneme.ru/websocket"
+    HOST = "api.oneme.ru"
+    PORT = 443
     DEFAULT_TIMEOUT = 10.0
     DEFAULT_USER_AGENT = {
         "deviceType": "WEB",

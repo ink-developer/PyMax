@@ -1,13 +1,14 @@
 import asyncio
+import logging
 
-from pymax import MaxClient, Message
+from pymax import MaxClient, Message, SocketMaxClient
 from pymax.files import Photo
 from pymax.filters import Filter
 
 phone = "+1234567890"
 
 
-client = MaxClient(phone=phone, work_dir="cache")
+client = SocketMaxClient(phone=phone, work_dir="cache")
 
 
 async def main() -> None:
