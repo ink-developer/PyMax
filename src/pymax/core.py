@@ -153,3 +153,4 @@ class MaxClient(ApiMixin, WebSocketMixin):
 
 class SocketMaxClient:
     pass  # нокс займись
+    # нет не займусь 
