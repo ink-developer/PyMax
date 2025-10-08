@@ -1,8 +1,9 @@
 import asyncio
 import json
-from typing import Any, override
+from typing import Any
 
 import websockets
+from typing_extensions import override
 
 from pymax.exceptions import WebSocketNotConnectedError
 from pymax.interfaces import ClientProtocol

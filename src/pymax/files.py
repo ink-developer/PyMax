@@ -1,10 +1,11 @@
 import mimetypes
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import ClassVar, override
+from typing import ClassVar
 
 from aiofiles import open as aio_open
 from aiohttp import ClientSession
+from typing_extensions import override
 
 
 class BaseFile(ABC):

@@ -1,4 +1,6 @@
-from typing import Any, override
+from typing import Any
+
+from typing_extensions import override
 
 from .static import (
     AccessType,
