@@ -1,5 +1,5 @@
 [project]
-name = "pymax"
+name = "maxapi-python"
 version = "0.1.0"
 description = "Python wrapper для API мессенджера Max"
 readme = "README.md"
