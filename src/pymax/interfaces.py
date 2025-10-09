@@ -31,6 +31,7 @@ class ClientProtocol(ABC):
             tuple[Callable[[Message], Any], Filter | None]
         ] = []
         self.uri: str
+
         self.is_connected: bool = False
         self.phone: str
         self.chats: list[Chat] = []
@@ -46,6 +47,11 @@ class ClientProtocol(ABC):
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
         self.user_agent = Constants.DEFAULT_USER_AGENT.value
+
+        self._session_id: int
+        self._action_id: int = 0
+        self._current_screen: str = "chats_list_tab"
+
         self._on_message_handlers: list[
             tuple[Callable[[Message], Any], Filter | None]
         ] = []

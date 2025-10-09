@@ -5,7 +5,7 @@ from typing import Any
 import websockets
 from typing_extensions import override
 
-from pymax.exceptions import WebSocketNotConnectedError
+from pymax.exceptions import LoginError, WebSocketNotConnectedError
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import BaseWebSocketMessage, SyncPayload
 from pymax.static import ChatType, Constants, Opcode
@@ -190,24 +190,35 @@ class WebSocketMixin(ClientProtocol):
             self._pending.pop(msg["seq"], None)
 
     async def _sync(self) -> None:
+        self.logger.info("Starting initial sync")
+
+        payload = SyncPayload(
+            interactive=True,
+            token=self._token,
+            chats_sync=0,
+            contacts_sync=0,
+            presence_sync=0,
+            drafts_sync=0,
+            chats_count=40,
+        ).model_dump(by_alias=True)
+
         try:
-            self.logger.info("Starting initial sync")
-
-            payload = SyncPayload(
-                interactive=True,
-                token=self._token,
-                chats_sync=0,
-                contacts_sync=0,
-                presence_sync=0,
-                drafts_sync=0,
-                chats_count=40,
-            ).model_dump(by_alias=True)
-
             data = await self._send_and_wait(opcode=19, payload=payload)
             raw_payload = data.get("payload", {})
 
             if error := raw_payload.get("error"):
                 self.logger.error("Sync error: %s", error)
+
+                if error == "login.token":
+                    if self._ws:
+                        await self._ws.close()
+                    self.is_connected = False
+                    self._ws = None
+                    self._recv_task = None
+                    raise LoginError(
+                        raw_payload.get("localizedMessage", "Unknown error")
+                    )
+
                 return
 
             for raw_chat in raw_payload.get("chats", []):
@@ -232,8 +243,16 @@ class WebSocketMixin(ClientProtocol):
                 len(self.chats),
                 len(self.channels),
             )
+
+        except LoginError:
+            raise
         except Exception:
             self.logger.exception("Sync failed")
+            self.is_connected = False
+            if self._ws:
+                await self._ws.close()
+            self._ws = None
+            raise
 
     @override
     async def _get_chat(self, chat_id: int) -> Chat | None:

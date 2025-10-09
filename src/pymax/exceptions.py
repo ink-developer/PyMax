@@ -18,3 +18,12 @@ class WebSocketNotConnectedError(Exception):
 
     def __init__(self) -> None:
         super().__init__("WebSocket is not connected")
+
+
+class LoginError(Exception):
+    """
+    Исключение, вызываемое при ошибке авторизации.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(f"Login error: {message}")

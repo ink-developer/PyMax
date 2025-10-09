@@ -173,3 +173,23 @@ class GetGroupMembersPayload(CamelModel):
     marker: int
     chat_id: int
     count: int
+
+
+class NavigationEventParams(BaseModel):
+    action_id: int
+    screen_to: int
+    screen_from: int | None = None
+    source_id: int
+    session_id: int
+
+
+class NavigationEventPayload(CamelModel):
+    event: str
+    time: int
+    type: str = "NAV"
+    user_id: int
+    params: NavigationEventParams
+
+
+class NavigationPayload(CamelModel):
+    events: list[NavigationEventPayload]

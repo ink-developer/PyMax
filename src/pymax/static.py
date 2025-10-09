@@ -197,7 +197,7 @@ class Constants(Enum):
     PHONE_REGEX = r"^\+?\d{10,15}$"
     WEBSOCKET_URI = "wss://ws-api.oneme.ru/websocket"
     DEFAULT_TIMEOUT = 10.0
-    DEFAULT_USER_AGENT = {
+    DEFAULT_USER_AGENT = {  # noqa: RUF012
         "deviceType": "WEB",
         "locale": "ru",
         "deviceLocale": "ru",

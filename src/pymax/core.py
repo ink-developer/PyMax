@@ -47,6 +47,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         uri: str = Constants.WEBSOCKET_URI.value,
         headers: dict[str, Any] | None = Constants.DEFAULT_USER_AGENT.value,
         token: str | None = None,
+        send_fake_telemetry: bool = True,
         work_dir: str = ".",
         logger: logging.Logger | None = None,
     ) -> None:
@@ -73,6 +74,12 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._device_id = self._database.get_device_id()
         self._token = self._database.get_auth_token() or token
         self.user_agent = headers
+
+        self._send_fake_telemetry: bool = send_fake_telemetry
+        self._session_id: int = int(time.time() * 1000)
+        self._action_id: int = 1
+        self._current_screen: str = "chats_list_tab"
+
         self._on_message_handlers: list[
             tuple[Callable[[Message], Any], Filter | None]
         ] = []
@@ -137,6 +144,13 @@ class MaxClient(ApiMixin, WebSocketMixin):
 
             if self._ws:
                 ping_task = asyncio.create_task(self._send_interactive_ping())
+                if self._send_fake_telemetry:
+                    telemetry_task = asyncio.create_task(self._start())
+                    self._background_tasks.add(telemetry_task)
+                    telemetry_task.add_done_callback(
+                        lambda t: self._background_tasks.discard(t)
+                        or self._log_task_exception(t)
+                    )
                 self._background_tasks.add(ping_task)
                 ping_task.add_done_callback(
                     lambda t: self._background_tasks.discard(t)
@@ -153,4 +167,4 @@ class MaxClient(ApiMixin, WebSocketMixin):
 
 class SocketMaxClient:
     pass  # нокс займись
-    # нет не займусь 
+    # нет не займусь

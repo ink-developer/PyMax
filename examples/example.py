@@ -7,7 +7,10 @@ from pymax.filters import Filter
 phone = "+1234567890"
 
 
-client = MaxClient(phone=phone, work_dir="cache")
+client = MaxClient(
+    phone=phone,
+    work_dir="cache",
+)
 
 
 async def main() -> None:
@@ -56,12 +59,12 @@ async def handle_start() -> None:
     # user = await client.get_user(client.me.id)
 
     # print(user.names[0].first_name)
-    photo1 = Photo(path="tests/test.jpeg")
-    photo2 = Photo(path="tests/test.jpg")
+    # photo1 = Photo(path="tests/test.jpeg")
+    # photo2 = Photo(path="tests/test.jpg")
 
-    await client.send_message(
-        "Hello with photo!", chat_id=0, photos=[photo1, photo2], notify=True
-    )
+    # await client.send_message(
+    #     "Hello with photo!", chat_id=0, photos=[photo1, photo2], notify=True
+    # )
 
 
 if __name__ == "__main__":
