@@ -230,6 +230,7 @@ class Element:
 class Message:
     def __init__(
         self,
+        chat_id: int | None,
         sender: int | None,
         elements: list[Element] | None,
         reaction_info: dict[str, Any] | None,
@@ -241,6 +242,7 @@ class Message:
         type: MessageType | str,
         attaches: list[PhotoAttach | VideoAttach | FileAttach],
     ) -> None:
+        self.chat_id = chat_id
         self.sender = sender
         self.elements = elements
         self.options = options
@@ -254,8 +256,9 @@ class Message:
 
     @classmethod
     def from_dict(cls, data: dict[Any, Any]) -> "Message":
+        message = data["message"] if data.get("message") else data
         attaches = []
-        for a in data.get("attaches", []):
+        for a in message.get("attaches", []):
             if a["_type"] == AttachType.PHOTO:
                 attaches.append(PhotoAttach.from_dict(a))
             elif a["_type"] == AttachType.VIDEO:
@@ -263,16 +266,17 @@ class Message:
             elif a["_type"] == AttachType.FILE:
                 attaches.append(FileAttach.from_dict(a))
         return cls(
-            sender=data.get("sender"),
-            elements=[Element.from_dict(e) for e in data.get("elements", [])],
-            options=data.get("options"),
-            id=data["id"],
-            time=data["time"],
-            text=data["text"],
-            type=data["type"],
+            chat_id=data.get("chatId"),
+            sender=message.get("sender"),
+            elements=[Element.from_dict(e) for e in message.get("elements", [])],
+            options=message.get("options"),
+            id=message["id"],
+            time=message["time"],
+            text=message["text"],
+            type=message["type"],
             attaches=attaches,
-            status=data.get("status"),
-            reaction_info=data.get("reactionInfo"),
+            status=message.get("status"),
+            reaction_info=message.get("reactionInfo"),
         )
 
     @override
@@ -280,6 +284,7 @@ class Message:
         return (
             f"Message(id={self.id!r}, sender={self.sender!r}, text={self.text!r}, "
             f"type={self.type!r}, status={self.status!r}, elements={self.elements!r})"
+            f"attaches={self.attaches!r}, chat_id={self.chat_id!r}, time={self.time!r}, options={self.options!r}, reactionInfo={self.reactionInfo!r})"
         )
 
     @override

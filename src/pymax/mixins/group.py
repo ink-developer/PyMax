@@ -51,7 +51,7 @@ class GroupMixin(ClientProtocol):
                 return None
 
             chat = Chat.from_dict(data["payload"]["chat"])
-            message = Message.from_dict(data["payload"]["message"])
+            message = Message.from_dict(data["payload"])
 
             if chat:
                 cached_chat = await self._get_chat(chat.id)

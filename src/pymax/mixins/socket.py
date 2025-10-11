@@ -214,9 +214,7 @@ Socket connections may be unstable, SSL issues are possible.
                                 for handler, filter in self._on_message_handlers:
                                     payload = data_item.get("payload", {})
                                     msg_dict = (
-                                        payload.get("message")
-                                        if isinstance(payload, dict)
-                                        else None
+                                        payload if isinstance(payload, dict) else None
                                     )
                                     msg = (
                                         Message.from_dict(msg_dict)

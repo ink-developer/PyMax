@@ -9,8 +9,8 @@ from pymax.static import AttachType
 phone = "+1234567890"
 
 
-# client = MaxClient(phone=phone, work_dir="cache")
-client = SocketMaxClient(phone=phone, work_dir="cache")
+client = MaxClient(phone=phone, work_dir="cache")
+# client = SocketMaxClient(phone=phone, work_dir="cache")
 
 
 async def main() -> None:
@@ -38,7 +38,7 @@ async def main() -> None:
     await client.close()
 
 
-@client.on_message(filter=Filter(text=["Привет"]))
+@client.on_message(filter=Filter(chat_id=0))
 async def handle_message(message: Message) -> None:
     print(str(message.sender) + ": " + message.text)
 
@@ -50,22 +50,24 @@ async def handle_start() -> None:
     if history:
         for message in history:
             user_id = message.sender
+            chat_id = message.chat_id
+            print(chat_id)
             user = await client.get_user(user_id)
 
             if user:
                 print(f"{user.names[0].name}: {message.text}")
 
-    print(client.me.names[0].first_name)
-    user = await client.get_user(client.me.id)
+    # print(client.me.names[0].first_name)
+    # user = await client.get_user(client.me.id)
 
-    print(user.names[0].first_name)
+    # print(user.names[0].first_name)
 
-    photo1 = Photo(path="tests/test.jpeg")
-    photo2 = Photo(path="tests/test.jpg")
+    # photo1 = Photo(path="tests/test.jpeg")
+    # photo2 = Photo(path="tests/test.jpg")
 
-    await client.send_message(
-        "Hello with photo!", chat_id=0, photos=[photo1, photo2], notify=True
-    )
+    # await client.send_message(
+    #     "Hello with photo!", chat_id=0, photos=[photo1, photo2], notify=True
+    # )
 
 
 if __name__ == "__main__":

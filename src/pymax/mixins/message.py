@@ -143,11 +143,7 @@ class MessageMixin(ClientProtocol):
                 self.logger.error("Send message error: %s", error)
                 print(data)
                 return None
-            msg = (
-                Message.from_dict(data["payload"]["message"])
-                if data.get("payload")
-                else None
-            )
+            msg = Message.from_dict(data["payload"]) if data.get("payload") else None
             self.logger.debug("send_message result: %r", msg)
             return msg
         except Exception:
@@ -174,11 +170,7 @@ class MessageMixin(ClientProtocol):
             data = await self._send_and_wait(opcode=Opcode.MSG_EDIT, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Edit message error: %s", error)
-            msg = (
-                Message.from_dict(data["payload"]["message"])
-                if data.get("payload")
-                else None
-            )
+            msg = Message.from_dict(data["payload"]) if data.get("payload") else None
             self.logger.debug("edit_message result: %r", msg)
             return msg
         except Exception:

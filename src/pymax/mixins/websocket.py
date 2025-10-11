@@ -118,7 +118,7 @@ class WebSocketMixin(ClientProtocol):
                         try:
                             for handler, filter in self._on_message_handlers:
                                 payload = data.get("payload", {})
-                                msg = Message.from_dict(payload.get("message"))
+                                msg = Message.from_dict(payload)
                                 if msg:
                                     if msg.status:
                                         continue  # TODO: заглушка! сделать отдельный хендлер

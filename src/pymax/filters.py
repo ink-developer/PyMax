@@ -5,6 +5,7 @@ from .types import Message
 class Filter:
     def __init__(
         self,
+        chat_id: int | None = None,
         user_id: int | None = None,
         text: list[str] | None = None,
         status: MessageStatus | str | None = None,
@@ -12,6 +13,7 @@ class Filter:
         text_contains: str | None = None,
         reaction_info: bool | None = None,
     ) -> None:
+        self.chat_id = chat_id
         self.user_id = user_id
         self.text = text
         self.status = status
@@ -20,6 +22,8 @@ class Filter:
         self.text_contains = text_contains
 
     def match(self, message: Message) -> bool:
+        if self.chat_id is not None and message.chat_id != self.chat_id:
+            return False
         if self.user_id is not None and message.sender != self.user_id:
             return False
         if self.text is not None and any(
