@@ -4,9 +4,10 @@ import socket
 import ssl
 from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any
 
 import websockets
+from typing_extensions import override
 
 from pymax.mixins import self
 

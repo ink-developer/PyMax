@@ -1,9 +1,10 @@
 import asyncio
 import socket
-from typing import Any, override
+from typing import Any
 
 import lz4.block
 import msgpack
+from typing_extensions import override
 
 from pymax.filters import Message
 from pymax.interfaces import ClientProtocol
@@ -117,7 +118,6 @@ class SocketMixin(ClientProtocol):
             while len(buf) < n:
                 chunk = sock.recv(n - len(buf))
                 if not chunk:
-                    # соединение закрыто
                     return bytes(buf)
                 buf.extend(chunk)
             return bytes(buf)
@@ -125,7 +125,6 @@ class SocketMixin(ClientProtocol):
         try:
             while True:
                 try:
-                    # Читаем заголовок
                     header = await loop.run_in_executor(None, lambda: _recv_exactly(10))
                     if not header or len(header) < 10:
                         self.logger.info("Socket connection closed; exiting recv loop")
@@ -141,7 +140,6 @@ class SocketMixin(ClientProtocol):
                     remaining = payload_length
                     payload = bytearray()
 
-                    # Читаем тело пакета
                     while remaining > 0:
                         chunk = await loop.run_in_executor(
                             None, lambda r=remaining: _recv_exactly(min(r, 8192))
@@ -168,13 +166,11 @@ class SocketMixin(ClientProtocol):
                         await asyncio.sleep(0.5)
                         continue
 
-                    # Распаковка пакета
                     data = self._unpack_packet(raw)
                     if not data:
                         self.logger.warning("Failed to unpack packet, skipping")
                         continue
 
-                    # Разбираем payload (может быть список)
                     payload_objs = data.get("payload")
                     datas = (
                         [{**data, "payload": obj} for obj in payload_objs]
@@ -182,7 +178,6 @@ class SocketMixin(ClientProtocol):
                         else [data]
                     )
 
-                    # Обработка каждого сообщения
                     for data_item in datas:
                         seq = data_item.get("seq")
                         fut = self._pending.get(seq) if isinstance(seq, int) else None
