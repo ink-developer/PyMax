@@ -9,8 +9,8 @@ from pymax.static import AttachType
 phone = "+1234567890"
 
 
-client = MaxClient(phone=phone, work_dir="cache")
-# client = SocketMaxClient(phone=phone, work_dir="cache") Можно и так, но пока лучше юзать MaxClient
+# client = MaxClient(phone=phone, work_dir="cache")
+client = SocketMaxClient(phone=phone, work_dir="cache", send_fake_telemetry=False)
 
 
 async def main() -> None:
