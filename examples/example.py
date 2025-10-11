@@ -56,16 +56,16 @@ async def handle_start() -> None:
                 print(f"{user.names[0].name}: {message.text}")
 
     print(client.me.names[0].first_name)
-    # user = await client.get_user(client.me.id)
+    user = await client.get_user(client.me.id)
 
-    # print(user.names[0].first_name)
+    print(user.names[0].first_name)
 
-    # photo1 = Photo(path="tests/test.jpeg")
-    # photo2 = Photo(path="tests/test.jpg")
+    photo1 = Photo(path="tests/test.jpeg")
+    photo2 = Photo(path="tests/test.jpg")
 
-    # await client.send_message(
-    #     "Hello with photo!", chat_id=0, photos=[photo1, photo2], notify=True
-    # )
+    await client.send_message(
+        "Hello with photo!", chat_id=0, photos=[photo1, photo2], notify=True
+    )
 
 
 if __name__ == "__main__":
