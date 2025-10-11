@@ -47,7 +47,7 @@ class PhotoAttach:
         width: int,
         photo_id: int,
         photo_token: str,
-        preview_data: str,
+        preview_data: str | None,
         type: AttachType,
     ) -> None:
         self.base_url = base_url
@@ -66,7 +66,7 @@ class PhotoAttach:
             width=data["width"],
             photo_id=data["photoId"],
             photo_token=data["photoToken"],
-            preview_data=data["previewData"],
+            preview_data=data.get("previewData"),
             type=AttachType(data["_type"]),
         )
 
