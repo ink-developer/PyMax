@@ -4,11 +4,13 @@ import logging
 from pymax import MaxClient, Message, SocketMaxClient
 from pymax.files import Photo
 from pymax.filters import Filter
+from pymax.static import AttachType
 
 phone = "+1234567890"
 
 
-client = SocketMaxClient(phone=phone, work_dir="cache")
+client = MaxClient(phone=phone, work_dir="cache")
+# client = SocketMaxClient(phone=phone, work_dir="cache") Можно и так, но пока лучше юзать MaxClient
 
 
 async def main() -> None:
@@ -57,6 +59,7 @@ async def handle_start() -> None:
     # user = await client.get_user(client.me.id)
 
     # print(user.names[0].first_name)
+
     # photo1 = Photo(path="tests/test.jpeg")
     # photo2 = Photo(path="tests/test.jpg")
 

@@ -54,7 +54,7 @@ class WebSocketMixin(ClientProtocol):
     async def _connect(self, user_agent: dict[str, Any]) -> dict[str, Any]:
         try:
             self.logger.info("Connecting to WebSocket %s", self.uri)
-            self._ws = await websockets.connect(self.uri, origin="https://web.max.ru")
+            self._ws = await websockets.connect(self.uri, origin="https://web.max.ru")  # type: ignore[]
             self.is_connected = True
             self._incoming = asyncio.Queue()
             self._pending = {}

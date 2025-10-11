@@ -39,6 +39,134 @@ class Names:
         return self.name
 
 
+class PhotoAttach:
+    def __init__(
+        self,
+        base_url: str,
+        height: int,
+        width: int,
+        photo_id: int,
+        photo_token: str,
+        preview_data: str,
+        type: AttachType,
+    ) -> None:
+        self.base_url = base_url
+        self.height = height
+        self.width = width
+        self.photo_id = photo_id
+        self.photo_token = photo_token
+        self.preview_data = preview_data
+        self.type = type
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "PhotoAttach":
+        return cls(
+            base_url=data["baseUrl"],
+            height=data["height"],
+            width=data["width"],
+            photo_id=data["photoId"],
+            photo_token=data["photoToken"],
+            preview_data=data["previewData"],
+            type=AttachType(data["_type"]),
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return (
+            f"PhotoAttach(photo_id={self.photo_id!r}, base_url={self.base_url!r}, "
+            f"height={self.height!r}, width={self.width!r}, photo_token={self.photo_token!r}, "
+            f"preview_data={self.preview_data!r}, type={self.type!r})"
+        )
+
+    @override
+    def __str__(self) -> str:
+        return f"PhotoAttach: {self.photo_id}"
+
+
+class VideoAttach:
+    def __init__(
+        self,
+        height: int,
+        width: int,
+        video_id: int,
+        duration: int,
+        preview_data: str,
+        type: AttachType,
+        thumbnail: str,
+        token: str,
+        video_type: int,
+    ) -> None:
+        self.height = height
+        self.width = width
+        self.video_id = video_id
+        self.duration = duration
+        self.preview_data = preview_data
+        self.type = type
+        self.thumbnail = thumbnail
+        self.token = token
+        self.video_type = video_type
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "VideoAttach":
+        return cls(
+            height=data["height"],
+            width=data["width"],
+            video_id=data["videoId"],
+            duration=data["duration"],
+            preview_data=data["previewData"],
+            type=AttachType(data["_type"]),
+            thumbnail=data["thumbnail"],
+            token=data["token"],
+            video_type=data["videoType"],
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return (
+            f"VideoAttach(video_id={self.video_id!r}, height={self.height!r}, "
+            f"width={self.width!r}, duration={self.duration!r}, "
+            f"preview_data={self.preview_data!r}, type={self.type!r}, "
+            f"thumbnail={self.thumbnail!r}, token={self.token!r}, "
+            f"video_type={self.video_type!r})"
+        )
+
+    @override
+    def __str__(self) -> str:
+        return f"VideoAttach: {self.video_id}"
+
+
+class FileAttach:
+    def __init__(
+        self, file_id: int, name: str, size: int, token: str, type: AttachType
+    ) -> None:
+        self.file_id = file_id
+        self.name = name
+        self.size = size
+        self.token = token
+        self.type = type
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "FileAttach":
+        return cls(
+            file_id=data["fileId"],
+            name=data["name"],
+            size=data["size"],
+            token=data["token"],
+            type=AttachType(data["_type"]),
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return (
+            f"FileAttach(file_id={self.file_id!r}, name={self.name!r}, "
+            f"size={self.size!r}, token={self.token!r}, type={self.type!r})"
+        )
+
+    @override
+    def __str__(self) -> str:
+        return f"FileAttach: {self.file_id}"
+
+
 class Me:
     def __init__(
         self,
@@ -111,7 +239,7 @@ class Message:
         text: str,
         status: MessageStatus | str | None,
         type: MessageType | str,
-        attaches: list[Any],
+        attaches: list[PhotoAttach | VideoAttach | FileAttach],
     ) -> None:
         self.sender = sender
         self.elements = elements
@@ -126,6 +254,14 @@ class Message:
 
     @classmethod
     def from_dict(cls, data: dict[Any, Any]) -> "Message":
+        attaches = []
+        for a in data.get("attaches", []):
+            if a["_type"] == AttachType.PHOTO:
+                attaches.append(PhotoAttach.from_dict(a))
+            elif a["_type"] == AttachType.VIDEO:
+                attaches.append(VideoAttach.from_dict(a))
+            elif a["_type"] == AttachType.FILE:
+                attaches.append(FileAttach.from_dict(a))
         return cls(
             sender=data.get("sender"),
             elements=[Element.from_dict(e) for e in data.get("elements", [])],
@@ -134,7 +270,7 @@ class Message:
             time=data["time"],
             text=data["text"],
             type=data["type"],
-            attaches=data.get("attaches", []),
+            attaches=attaches,
             status=data.get("status"),
             reaction_info=data.get("reactionInfo"),
         )
@@ -397,7 +533,7 @@ class User:
         return f"User {self.id}: {', '.join(str(n) for n in self.names)}"
 
 
-class Attach:
+class Attach:  # УБРАТЬ ГАДА!!!
     def __init__(
         self,
         _type: AttachType,
