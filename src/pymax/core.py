@@ -7,18 +7,17 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import websockets
 from typing_extensions import override
 
-from pymax.mixins import self
-
 from .crud import Database
-from .exceptions import InvalidPhoneError, WebSocketNotConnectedError
+from .exceptions import InvalidPhoneError
 from .mixins import ApiMixin, SocketMixin, WebSocketMixin
 from .static import Constants
 from .types import Channel, Chat, Dialog, Me, Message, User
 
 if TYPE_CHECKING:
+    import websockets
+
     from .filters import Filter
 
 logger = logging.getLogger(__name__)
@@ -95,6 +94,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._ssl_context = ssl.create_default_context()
+        self._ssl_context.set_ciphers("DEFAULT")
+        self._ssl_context.check_hostname = True
+        self._ssl_context.verify_mode = ssl.CERT_REQUIRED
+        self._ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+        self._ssl_context.load_default_certs()
         self._socket: socket.socket | None = None
         self.logger = logger or logging.getLogger(f"{__name__}.MaxClient")
         self._setup_logger()

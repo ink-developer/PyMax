@@ -1,5 +1,7 @@
 import asyncio
 import socket
+import ssl
+import sys
 from typing import Any
 
 import lz4.block
@@ -8,7 +10,6 @@ from typing_extensions import override
 
 from pymax.filters import Message
 from pymax.interfaces import ClientProtocol
-from pymax.mixins import self
 from pymax.payloads import BaseWebSocketMessage, SyncPayload
 from pymax.static import Opcode
 from pymax.types import Channel, Chat, Dialog, Me
@@ -69,6 +70,15 @@ class SocketMixin(ClientProtocol):
 
     async def _connect(self, user_agent: dict[str, Any]) -> dict[str, Any]:
         try:
+            if sys.version_info[:2] == (3, 12):
+                self.logger.warning(
+                    """
+===============================================================
+         ⚠️⚠️ \033[0;31mWARNING: Python 3.12 detected!\033[0m ⚠️⚠️
+Socket connections may be unstable, SSL issues are possible.
+===============================================================
+    """
+                )
             self.logger.info("Connecting to socket %s:%s", self.host, self.port)
             loop = asyncio.get_running_loop()
             raw_sock = await loop.run_in_executor(
@@ -108,7 +118,6 @@ class SocketMixin(ClientProtocol):
             self.logger.warning("Recv loop started without socket instance")
             return
 
-        self.logger.warning(">>> Recv loop started (socket)")
         loop = asyncio.get_running_loop()
 
         def _recv_exactly(n: int) -> bytes:
@@ -283,6 +292,8 @@ class SocketMixin(ClientProtocol):
         cmd: int = 0,
         timeout: float = 10.0,
     ) -> dict[str, Any]:
+        if not self.is_connected or self._socket is None:
+            raise ConnectionError("Socket not connected")
         sock = self.sock
         msg = self._make_message(opcode, payload, cmd)
         loop = asyncio.get_running_loop()
@@ -303,11 +314,21 @@ class SocketMixin(ClientProtocol):
                 data.get("opcode"),
             )
             return data
+
+        except (ssl.SSLEOFError, ssl.SSLError, ConnectionError):
+            self.logger.warning("Connection lost, reconnecting...")
+            self.is_connected = False
+            try:
+                await self._connect(self.user_agent)
+            except Exception:
+                self.logger.error("Reconnect failed", exc_info=True)
+                raise
         except Exception:
             self.logger.exception(
                 "Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"]
             )
             raise RuntimeError("Send and wait failed (socket)")
+
         finally:
             self._pending.pop(msg["seq"], None)
 

@@ -10,7 +10,7 @@ phone = "+1234567890"
 
 
 # client = MaxClient(phone=phone, work_dir="cache")
-client = SocketMaxClient(phone=phone, work_dir="cache", send_fake_telemetry=False)
+client = SocketMaxClient(phone=phone, work_dir="cache")
 
 
 async def main() -> None:
