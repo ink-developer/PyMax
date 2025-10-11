@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import socket
+import ssl
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from logging import Logger
@@ -38,6 +40,8 @@ class ClientProtocol(ABC):
         self.dialogs: list[Dialog] = []
         self.channels: list[Channel] = []
         self.me: Me | None = None
+        self.host: str
+        self.port: int
         self._users: dict[int, User] = {}
         self._work_dir: str
         self._database_path: Path
@@ -57,6 +61,8 @@ class ClientProtocol(ABC):
         ] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
+        self._ssl_context: ssl.SSLContext
+        self._socket: socket.socket | None = None
 
     @abstractmethod
     async def _send_and_wait(
