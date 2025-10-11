@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import override
 
 from .crud import Database
-from .exceptions import InvalidPhoneError
+from .exceptions import InvalidPhoneError, WebSocketNotConnectedError
 from .mixins import ApiMixin, SocketMixin, WebSocketMixin
 from .static import Constants
 from .types import Channel, Chat, Dialog, Me, Message, User
