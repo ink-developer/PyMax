@@ -10,7 +10,7 @@ from pymax.interfaces import ClientProtocol
 from pymax.mixins import self
 from pymax.payloads import BaseWebSocketMessage, SyncPayload
 from pymax.static import Opcode
-from pymax.types import Channel, Chat, Dialog
+from pymax.types import Channel, Chat, Dialog, Me
 
 
 class SocketMixin(ClientProtocol):
@@ -22,86 +22,28 @@ class SocketMixin(ClientProtocol):
         return self._socket
 
     def _unpack_packet(self, data: bytes) -> dict[str, Any] | None:
-        self.logger.debug("Unpacking packet of length %d", len(data))
-        if len(data) < 10:
-            self.logger.error("Packet too small for header: %d bytes", len(data))
-            return None
-
         ver = int.from_bytes(data[0:1], "big")
         cmd = int.from_bytes(data[1:3], "big")
         seq = int.from_bytes(data[3:4], "big")
         opcode = int.from_bytes(data[4:6], "big")
         packed_len = int.from_bytes(data[6:10], "big", signed=False)
-
-        flags = (packed_len >> 24) & 0xFF
+        comp_flag = packed_len >> 24
         payload_length = packed_len & 0xFFFFFF
+        payload_bytes = data[10 : 10 + payload_length]
 
-        expected_length = 10 + payload_length
-        actual_length = len(data)
-
-        self.logger.debug(
-            "Packet details: ver=%d, cmd=%d, seq=%d, opcode=%d, packed_len=0x%x, payload_length=%d, flags=0x%02x",
-            ver,
-            cmd,
-            seq,
-            opcode,
-            packed_len,
-            payload_length,
-            flags,
-        )
-
-        if actual_length < expected_length:
-            self.logger.error(
-                "Incomplete packet: expected %d bytes, got %d bytes",
-                expected_length,
-                actual_length,
-            )
-            return None
-
-        if actual_length > expected_length:
-            self.logger.debug(
-                "Truncating packet from %d to %d bytes", actual_length, expected_length
-            )
-            data = data[:expected_length]
-
-        payload_bytes = data[10:expected_length]
-        self.logger.debug("Raw payload size: %d bytes", len(payload_bytes))
-
-        if flags & 0x02:
-            try:
-                self.logger.debug("Decompressing payload with lz4 (flags=0x02)")
-                payload_bytes = lz4.block.decompress(payload_bytes)
-                self.logger.debug(
-                    "Decompressed payload size: %d bytes", len(payload_bytes)
-                )
-            except Exception:
-                self.logger.exception(
-                    "lz4 decompression failed; will attempt to parse raw payload"
-                )
-
-        try:
-            up = msgpack.Unpacker(raw=False)
-            up.feed(payload_bytes)
-            items = list(up)
-        except Exception:
-            self.logger.exception(
-                "msgpack Unpacker failed; attempting single unpackb fallback"
-            )
-            try:
-                items = [msgpack.unpackb(payload_bytes, raw=False)]
-            except Exception:
-                self.logger.exception(
-                    "Failed to unpack payload with both Unpacker and unpackb"
-                )
-                return None
-
-        if not items:
-            payload = None
-        elif len(items) == 1:
-            payload = items[0]
-        else:
-            self.logger.debug("Payload contains %d msgpack objects", len(items))
-            payload = items
+        payload = None
+        if payload_bytes:
+            if comp_flag != 0:
+                uncompressed_size = int.from_bytes(payload_bytes[0:4], "big")
+                compressed_data = payload_bytes
+                try:
+                    payload_bytes = lz4.block.decompress(
+                        compressed_data,
+                        uncompressed_size=99999,
+                    )
+                except lz4.block.LZ4BlockError:
+                    return None
+            payload = msgpack.unpackb(payload_bytes, raw=False, strict_map_key=False)
 
         return {
             "ver": ver,
@@ -109,7 +51,6 @@ class SocketMixin(ClientProtocol):
             "seq": seq,
             "opcode": opcode,
             "payload": payload,
-            "flags": flags,
         }
 
     def _pack_packet(
@@ -135,6 +76,7 @@ class SocketMixin(ClientProtocol):
             self._socket = self._ssl_context.wrap_socket(
                 raw_sock, server_hostname=self.host
             )
+            self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
             self.is_connected = True
             self._incoming = asyncio.Queue()
             self._pending = {}
@@ -164,98 +106,142 @@ class SocketMixin(ClientProtocol):
         if self._socket is None:
             self.logger.warning("Recv loop started without socket instance")
             return
-        self.logger.debug("Receive loop started (socket)")
-        while True:
-            try:
-                header = await asyncio.get_running_loop().run_in_executor(
-                    None, lambda: self._socket.recv(10)
-                )
-                if not header:
-                    self.logger.info("Socket connection closed; exiting recv loop")
-                    break
-                packed_len = int.from_bytes(header[6:10], "big", signed=False)
-                payload_length = packed_len & 0xFFFFFF
-                payload = bytearray()
-                remaining = payload_length
 
-                while remaining > 0:
-                    chunk = await asyncio.get_running_loop().run_in_executor(
-                        None, lambda r=remaining: self._socket.recv(min(r, 8192))
-                    )
-                    if not chunk:
-                        self.logger.error("Connection closed while reading payload")
+        self.logger.warning(">>> Recv loop started (socket)")
+        loop = asyncio.get_running_loop()
+
+        def _recv_exactly(n: int) -> bytes:
+            """Синхронная функция: читает ровно n байт из сокета или возвращает b'' если закрыт."""
+            buf = bytearray()
+            sock = self._socket
+            while len(buf) < n:
+                chunk = sock.recv(n - len(buf))
+                if not chunk:
+                    # соединение закрыто
+                    return bytes(buf)
+                buf.extend(chunk)
+            return bytes(buf)
+
+        try:
+            while True:
+                try:
+                    # Читаем заголовок
+                    header = await loop.run_in_executor(None, lambda: _recv_exactly(10))
+                    if not header or len(header) < 10:
+                        self.logger.info("Socket connection closed; exiting recv loop")
+                        self.is_connected = False
+                        try:
+                            self._socket.close()
+                        except Exception:
+                            pass
                         break
-                    payload.extend(chunk)
-                    remaining -= len(chunk)
 
-                if remaining > 0:
-                    self.logger.error("Incomplete payload received")
-                    continue
+                    packed_len = int.from_bytes(header[6:10], "big", signed=False)
+                    payload_length = packed_len & 0xFFFFFF
+                    remaining = payload_length
+                    payload = bytearray()
 
-                raw = header + payload
-                data = self._unpack_packet(raw)
-                if not data:
-                    continue
+                    # Читаем тело пакета
+                    while remaining > 0:
+                        chunk = await loop.run_in_executor(
+                            None, lambda r=remaining: _recv_exactly(min(r, 8192))
+                        )
+                        if not chunk:
+                            self.logger.error("Connection closed while reading payload")
+                            break
+                        payload.extend(chunk)
+                        remaining -= len(chunk)
 
-                payload_objs = data.get("payload")
-                if isinstance(payload_objs, list):
-                    datas = [{**data, "payload": obj} for obj in payload_objs]
-                else:
-                    datas = [data]
-
-                for data_item in datas:
-                    seq = data_item.get("seq")
-                    fut = self._pending.get(seq) if isinstance(seq, int) else None
-                    if fut and not fut.done():
-                        fut.set_result(data_item)
-                        self.logger.debug("Matched response for pending seq=%s", seq)
+                    if remaining > 0:
+                        self.logger.error(
+                            "Incomplete payload received; skipping packet"
+                        )
                         continue
 
-                    if self._incoming is not None:
-                        try:
-                            self._incoming.put_nowait(data_item)
-                        except asyncio.QueueFull:
-                            self.logger.warning(
-                                "Incoming queue full; dropping message seq=%s",
-                                data_item.get("seq"),
+                    raw = header + payload
+                    if len(raw) < 10 + payload_length:
+                        self.logger.error(
+                            "Incomplete packet: expected %d bytes, got %d",
+                            10 + payload_length,
+                            len(raw),
+                        )
+                        await asyncio.sleep(0.5)
+                        continue
+
+                    # Распаковка пакета
+                    data = self._unpack_packet(raw)
+                    if not data:
+                        self.logger.warning("Failed to unpack packet, skipping")
+                        continue
+
+                    # Разбираем payload (может быть список)
+                    payload_objs = data.get("payload")
+                    datas = (
+                        [{**data, "payload": obj} for obj in payload_objs]
+                        if isinstance(payload_objs, list)
+                        else [data]
+                    )
+
+                    # Обработка каждого сообщения
+                    for data_item in datas:
+                        seq = data_item.get("seq")
+                        fut = self._pending.get(seq) if isinstance(seq, int) else None
+                        if fut and not fut.done():
+                            fut.set_result(data_item)
+                            self.logger.debug(
+                                "Matched response for pending seq=%s", seq
                             )
+                            continue
 
-                    if (
-                        data_item.get("opcode") == Opcode.NOTIF_MESSAGE
-                        and self._on_message_handlers
-                    ):
-                        try:
-                            for handler, filter in self._on_message_handlers:
-                                payload = data_item.get("payload", {})
-
-                                msg_dict = (
-                                    payload.get("message")
-                                    if isinstance(payload, dict)
-                                    else None
+                        if self._incoming is not None:
+                            try:
+                                self._incoming.put_nowait(data_item)
+                            except asyncio.QueueFull:
+                                self.logger.warning(
+                                    "Incoming queue full; dropping message seq=%s",
+                                    seq,
                                 )
-                                msg = Message.from_dict(msg_dict) if msg_dict else None
-                                if msg:
-                                    if msg.status:
-                                        continue
-                                    if filter:
-                                        if filter.match(msg):
-                                            result = handler(msg)
-                                        else:
+
+                        if (
+                            data_item.get("opcode") == Opcode.NOTIF_MESSAGE
+                            and self._on_message_handlers
+                        ):
+                            try:
+                                for handler, filter in self._on_message_handlers:
+                                    payload = data_item.get("payload", {})
+                                    msg_dict = (
+                                        payload.get("message")
+                                        if isinstance(payload, dict)
+                                        else None
+                                    )
+                                    msg = (
+                                        Message.from_dict(msg_dict)
+                                        if msg_dict
+                                        else None
+                                    )
+                                    if msg and not msg.status:
+                                        if filter and not filter.match(msg):
                                             continue
-                                    else:
                                         result = handler(msg)
-                                    if asyncio.iscoroutine(result):
-                                        task = asyncio.create_task(result)
-                                        self._background_tasks.add(task)
-                                        task.add_done_callback(
-                                            lambda t: self._background_tasks.discard(t)
-                                            or self._log_task_exception(t)
-                                        )
-                        except Exception:
-                            self.logger.exception("Error in on_message_handler")
-            except Exception:
-                self.logger.exception("Error in recv_loop; backing off briefly")
-                await asyncio.sleep(0.5)
+                                        if asyncio.iscoroutine(result):
+                                            task = asyncio.create_task(result)
+                                            self._background_tasks.add(task)
+                                            task.add_done_callback(
+                                                lambda t: self._background_tasks.discard(
+                                                    t
+                                                )
+                                                or self._log_task_exception(t)
+                                            )
+                            except Exception:
+                                self.logger.exception("Error in on_message_handler")
+                except asyncio.CancelledError:
+                    self.logger.debug("Recv loop cancelled")
+                    break
+                except Exception:
+                    self.logger.exception("Error in recv_loop; backing off briefly")
+                    await asyncio.sleep(0.5)
+        finally:
+            self.logger.warning("<<< Recv loop exited (socket)")
 
     def _log_task_exception(self, task: asyncio.Task[Any]) -> None:
         try:
@@ -370,6 +356,7 @@ class SocketMixin(ClientProtocol):
         except Exception:
             self.logger.exception("Sync failed (socket)")
 
+    @override
     async def _get_chat(self, chat_id: int) -> Chat | None:
         for chat in self.chats:
             if chat.id == chat_id:

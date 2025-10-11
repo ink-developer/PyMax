@@ -4,9 +4,11 @@ import socket
 import ssl
 from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 
 import websockets
+
+from pymax.mixins import self
 
 from .crud import Database
 from .exceptions import InvalidPhoneError, WebSocketNotConnectedError
@@ -93,7 +95,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         )
 
     def _setup_logger(self) -> None:
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
 
         if not logger.handlers:
             handler = logging.StreamHandler()
@@ -102,6 +104,12 @@ class MaxClient(ApiMixin, WebSocketMixin):
             )
             handler.setFormatter(formatter)
             logger.addHandler(handler)
+
+    async def _wait_forever(self):
+        try:
+            await self.ws.wait_closed()
+        except asyncio.CancelledError:
+            self.logger.debug("wait_closed cancelled")
 
     async def close(self) -> None:
         try:
@@ -142,21 +150,25 @@ class MaxClient(ApiMixin, WebSocketMixin):
                 if asyncio.iscoroutine(result):
                     await result
 
-            if self._ws:
-                ping_task = asyncio.create_task(self._send_interactive_ping())
-                self._background_tasks.add(ping_task)
-                ping_task.add_done_callback(
-                    lambda t: self._background_tasks.discard(t)
-                    or self._log_task_exception(t)
-                )
+            ping_task = asyncio.create_task(self._send_interactive_ping())
+            self._background_tasks.add(ping_task)
+            ping_task.add_done_callback(
+                lambda t: self._background_tasks.discard(t)
+                or self._log_task_exception(t)
+            )
+            await self._wait_forever()
 
-                try:
-                    await self._ws.wait_closed()
-                except asyncio.CancelledError:
-                    self.logger.debug("wait_closed cancelled")
         except Exception:
             self.logger.exception("Client start failed")
 
 
 class SocketMaxClient(SocketMixin, MaxClient):
-    pass
+    @override
+    async def _wait_forever(self):
+        if self._recv_task:
+            try:
+                await self._recv_task
+            except asyncio.CancelledError:
+                self.logger.debug("Socket recv_task cancelled")
+            except Exception as e:
+                self.logger.exception("Socket recv_task failed: %s", e)
