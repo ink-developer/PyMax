@@ -167,6 +167,46 @@ class FileAttach:
         return f"FileAttach: {self.file_id}"
 
 
+class FileRequest:
+    def __init__(
+        self,
+        unsafe: bool,
+        url: str,
+    ) -> None:
+        self.unsafe = unsafe
+        self.url = url
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "FileRequest":
+        return cls(
+            unsafe=data["unsafe"],
+            url=data["url"],
+    )
+
+
+class VideoRequest:
+    def __init__(
+        self,
+        external: str,
+        cache: bool,
+        url: str,
+    ) -> None:
+        self.external = external
+        self.cache = cache
+        self.url = url
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "VideoRequest":
+
+        listdata = list(data.values()) # Костыль ✅
+
+        return cls(
+            external=data["EXTERNAL"],
+            cache=data["cache"],
+            url=listdata[2],
+    )
+        
+
 class Me:
     def __init__(
         self,
@@ -538,7 +578,7 @@ class User:
         return f"User {self.id}: {', '.join(str(n) for n in self.names)}"
 
 
-class Attach:  # УБРАТЬ ГАДА!!!
+class Attach:  # УБРАТЬ ГАДА!!! или нет...
     def __init__(
         self,
         _type: AttachType,
