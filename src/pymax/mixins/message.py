@@ -295,6 +295,16 @@ class MessageMixin(ClientProtocol):
     ) -> VideoRequest | None:
         """
         Получает видео
+
+        Args:
+            chat_id (int): ID чата
+            message_id (int): ID сообщения
+            video_id (int): ID видео
+
+        Returns:
+            external (str): Странная ссылка из апи
+            cache (bool): True, если видео кэшировано
+            url (str): Ссылка на видео
         """
         try:
             self.logger.info(
@@ -327,6 +337,15 @@ class MessageMixin(ClientProtocol):
     ) -> FileRequest | None:
         """
         Получает файл
+
+        Args:
+            chat_id (int): ID чата
+            message_id (int): ID сообщения
+            file_id (int): ID видео
+
+        Returns:
+            unsafe (bool): Проверка файла на безопасность максом
+            url (str): Ссылка на скачивание файла
         """
         try:
             self.logger.info(
