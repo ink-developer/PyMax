@@ -137,5 +137,11 @@ if __name__ == "__main__":
 
 - **[noxzion](https://github.com/noxzion)** — оригинальный автор проекта
 - **[ink](https://github.com/ink-developer)** — второй разработчик, исследование API и его документация
-- **[fresh-milkshake](https://github.com/fresh-milkshake)** — контрибьютор и автор лого
 
+## Контрибьюторы
+
+Спасибо всем за помощь в разработке!
+
+<a href="https://github.com/ink-developer/PyMax/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=ink-developer/PyMax" />
+</a>
