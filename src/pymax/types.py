@@ -39,6 +39,32 @@ class Names:
         return self.name
 
 
+class ControlAttach:
+    def __init__(self, type: AttachType, event: str, **kwargs: dict[str, Any]) -> None:
+        self.type = type
+        self.event = event
+        self.extra = kwargs
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ControlAttach":
+        data = dict(data)
+        attach_type = AttachType(data.pop("_type"))
+        event = data.pop("event")
+        return cls(
+            type=attach_type,
+            event=event,
+            **data,
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return f"ControlAttach(type={self.type!r}, event={self.event!r}, extra={self.extra!r})"
+
+    @override
+    def __str__(self) -> str:
+        return f"ControlAttach: {self.event}"
+
+
 class PhotoAttach:
     def __init__(
         self,
@@ -281,7 +307,7 @@ class Message:
         text: str,
         status: MessageStatus | str | None,
         type: MessageType | str,
-        attaches: list[PhotoAttach | VideoAttach | FileAttach],
+        attaches: list[PhotoAttach | VideoAttach | FileAttach | ControlAttach] | None,
     ) -> None:
         self.chat_id = chat_id
         self.sender = sender
@@ -306,6 +332,8 @@ class Message:
                 attaches.append(VideoAttach.from_dict(a))
             elif a["_type"] == AttachType.FILE:
                 attaches.append(FileAttach.from_dict(a))
+            elif a["_type"] == AttachType.CONTROL:
+                attaches.append(ControlAttach.from_dict(a))
         return cls(
             chat_id=data.get("chatId"),
             sender=message.get("sender"),

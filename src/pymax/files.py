@@ -56,7 +56,7 @@ class Photo(BaseFile):
             return (extension[1:], ("image/" + extension[1:]).lower())
         elif self.url:
             extension = Path(self.url).suffix.lower()
-            if extension in self.ALLOWED_EXTENSIONS:
+            if extension not in self.ALLOWED_EXTENSIONS:
                 raise ValueError(
                     f"Invalid photo extension in URL: {extension}. Allowed: {self.ALLOWED_EXTENSIONS}"
                 )

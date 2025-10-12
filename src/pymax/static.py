@@ -191,6 +191,7 @@ class AttachType(str, Enum):
     VIDEO = "VIDEO"
     FILE = "FILE"
     STICKER = "STICKER"
+    CONTROL = "CONTROL"
 
 
 class Constants(Enum):
