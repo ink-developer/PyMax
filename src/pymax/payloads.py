@@ -205,3 +205,7 @@ class GetFilePayload(CamelModel):
     chat_id: int
     message_id: str | int
     file_id: int
+
+
+class SearchByPhonePayload(CamelModel):
+    phone: str

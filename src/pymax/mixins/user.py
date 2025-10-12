@@ -1,5 +1,5 @@
 from pymax.interfaces import ClientProtocol
-from pymax.payloads import FetchContactsPayload
+from pymax.payloads import FetchContactsPayload, SearchByPhonePayload
 from pymax.static import Opcode
 from pymax.types import User
 
@@ -80,3 +80,38 @@ class UserMixin(ClientProtocol):
         except Exception:
             self.logger.exception("Fetch users failed")
             return []
+
+    async def search_by_phone(self, phone: str) -> User | None:
+        """
+        Ищет пользователя по номеру телефона.
+
+        Args:
+            phone (str): Номер телефона.
+
+        Returns:
+            User | None: Объект User или None при ошибке.
+        """
+        try:
+            self.logger.info("Searching user by phone: %s", phone)
+
+            payload = SearchByPhonePayload(phone=phone).model_dump(by_alias=True)
+
+            data = await self._send_and_wait(
+                opcode=Opcode.CONTACT_INFO_BY_PHONE, payload=payload
+            )
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Search by phone error: %s", error)
+                return None
+
+            user = (
+                User.from_dict(data["payload"]["contact"])
+                if data.get("payload")
+                else None
+            )
+            if user:
+                self._users[user.id] = user
+                self.logger.debug("Found user by phone: %s", user)
+            return user
+        except Exception:
+            self.logger.exception("Search by phone failed")
+            return None
