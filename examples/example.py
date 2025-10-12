@@ -49,14 +49,22 @@ async def handle_start() -> None:
     history = await client.fetch_history(chat_id=0)
     if history:
         for message in history:
-            user_id = message.sender
-            chat_id = message.chat_id
-            print(chat_id)
-            user = await client.get_user(user_id)
-
-            if user:
-                print(f"{user.names[0].name}: {message.text}")
-
+            if message.attaches:
+                for attach in message.attaches:
+                    if attach.type == AttachType.VIDEO:
+                        vid = await client.get_video_by_id(
+                            chat_id=0,
+                            video_id=attach.video_id,
+                            message_id=message.id,
+                        )
+                        print(vid.url)
+                    elif attach.type == AttachType.FILE:
+                        file = await client.get_file_by_id(
+                            chat_id=0,
+                            file_id=attach.file_id,
+                            message_id=message.id,
+                        )
+                        print(file.url)
     # print(client.me.names[0].first_name)
     # user = await client.get_user(client.me.id)
 
