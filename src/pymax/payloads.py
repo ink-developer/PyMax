@@ -194,12 +194,14 @@ class NavigationEventPayload(CamelModel):
 class NavigationPayload(CamelModel):
     events: list[NavigationEventPayload]
 
+
 class GetVideoPayload(CamelModel):
     chat_id: int
-    message_id: str
+    message_id: int | str
     video_id: int
+
 
 class GetFilePayload(CamelModel):
     chat_id: int
-    message_id: str
+    message_id: str | int
     file_id: int

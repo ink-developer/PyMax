@@ -181,7 +181,7 @@ class FileRequest:
         return cls(
             unsafe=data["unsafe"],
             url=data["url"],
-    )
+        )
 
 
 class VideoRequest:
@@ -197,15 +197,16 @@ class VideoRequest:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "VideoRequest":
-
-        listdata = list(data.values()) # Костыль ✅
-
+        # listdata = list(data.values()) # Костыль ✅
+        url = [v for k, v in data.items() if k not in ("EXTERNAL", "cache")][
+            0
+        ]  # Еще больший костыль ✅
         return cls(
             external=data["EXTERNAL"],
             cache=data["cache"],
-            url=listdata[2],
-    )
-        
+            url=url,
+        )
+
 
 class Me:
     def __init__(

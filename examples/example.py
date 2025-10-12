@@ -9,33 +9,8 @@ from pymax.static import AttachType
 phone = "+1234567890"
 
 
-client = MaxClient(phone=phone, work_dir="cache")
+client = SocketMaxClient(phone=phone, work_dir="cache")
 # client = SocketMaxClient(phone=phone, work_dir="cache")
-
-
-async def main() -> None:
-    for chat in client.chats:
-        print(chat.title)
-
-        message = await client.send_message(
-            "Hello from MaxClient!", chat.id, notify=True
-        )
-
-        await asyncio.sleep(5)
-        message = await client.edit_message(
-            chat.id, message.id, "Hello from MaxClient! (edited)"
-        )
-        await asyncio.sleep(5)
-
-        await client.delete_message(chat.id, [message.id], for_me=False)
-
-    for dialog in client.dialogs:
-        print(dialog.last_message.text)
-
-    for channel in client.channels:
-        print(channel.title)
-
-    await client.close()
 
 
 @client.on_message(filter=Filter(chat_id=0))
@@ -52,6 +27,7 @@ async def handle_start() -> None:
             if message.attaches:
                 for attach in message.attaches:
                     if attach.type == AttachType.VIDEO:
+                        print(message)
                         vid = await client.get_video_by_id(
                             chat_id=0,
                             video_id=attach.video_id,
