@@ -135,8 +135,8 @@ if __name__ == "__main__":
 
 ## Авторы
 
-- **[noxzion](https://github.com/noxzion)** — оригинальный автор проекта
-- **[ink](https://github.com/ink-developer)** — второй разработчик, исследование API и его документация
+- **[noxzion](https://github.com/noxzion)** — Оригинальный автор проекта
+- **[ink](https://github.com/ink-developer)** — Главный разработчик, исследование API и его документация
 
 ## Контрибьюторы
 
