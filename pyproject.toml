@@ -16,7 +16,7 @@ classifiers = [
 ]
 dependencies = [
     "sqlmodel>=0.0.24",
-    "websockets>=11.0",
+    "websockets>=15.0",
     "msgpack>=1.1.1",
     "lz4>=4.4.4",
     "aiohttp>=3.12.15",
