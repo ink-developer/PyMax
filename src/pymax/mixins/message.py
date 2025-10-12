@@ -15,9 +15,11 @@ from pymax.payloads import (
     SendMessagePayload,
     SendMessagePayloadMessage,
     UploadPhotoPayload,
+    GetVideoPayload,
+    GetFilePayload,
 )
 from pymax.static import AttachType, Opcode
-from pymax.types import Attach, Message
+from pymax.types import Attach, Message, FileRequest, VideoRequest
 
 
 class MessageMixin(ClientProtocol):
@@ -282,4 +284,65 @@ class MessageMixin(ClientProtocol):
             return messages
         except Exception:
             self.logger.exception("Fetch history failed")
+            return None
+
+
+    async def get_video_by_id(
+        self,
+        chat_id: int,
+        message_id: int,
+        video_id: str,
+    ) -> VideoRequest | None:
+        """
+        Получает видео
+        """
+        try:
+            self.logger.info(
+                "Getting video_id=%s message_id=%s", video_id, message_id
+            )
+
+            payload = GetVideoPayload(
+                chat_id=chat_id,
+                message_id=message_id,
+                video_id=video_id
+            ).model_dump(by_alias=True)
+
+            data = await self._send_and_wait(opcode=Opcode.VIDEO_PLAY, payload=payload)
+
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Get video error: %s", error)
+            
+            video = VideoRequest.from_dict(data["payload"]) if data.get("payload") else None 
+            self.logger.debug(" result: %r", video)
+            return video
+        except Exception:
+            self.logger.exception("Get video error")
+            return None
+        
+    async def get_file_by_id(
+        self,
+        chat_id: int,
+        message_id: int,
+        file_id: str,
+    ) -> FileRequest | None:
+        """
+        Получает файл
+        """
+        try:
+            self.logger.info(
+                "Getting file_id=%s message_id=%s", file_id, message_id
+            )
+            payload = GetFilePayload(
+                chat_id=chat_id,
+                message_id=message_id,
+                file_id=file_id
+            ).model_dump(by_alias=True)
+            data = await self._send_and_wait(opcode=Opcode.FILE_DOWNLOAD, payload=payload)
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Get file error: %s", error)
+            file = FileRequest.from_dict(data["payload"]) if data.get("payload") else None 
+            self.logger.debug(" result: %r", file)
+            return file
+        except Exception:
+            self.logger.exception("Get video error")
             return None
