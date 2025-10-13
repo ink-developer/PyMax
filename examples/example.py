@@ -25,7 +25,8 @@ async def handle_start() -> None:
     for session in sessions:
         print(session.client)
     # print(client.dialogs)
-    # history = await client.fetch_history(chat_id=0)
+    chat = await client.join_group("join/sdfdfsfdf")
+    print(chat.title)
     # if history:
     #     for message in history:
     #         if message.link:

@@ -9,6 +9,7 @@ from pymax.payloads import (
     CreateGroupMessage,
     CreateGroupPayload,
     InviteUsersPayload,
+    JoinGroupPayload,
     RemoveUsersPayload,
 )
 from pymax.static import Opcode
@@ -218,3 +219,46 @@ class GroupMixin(ClientProtocol):
 
         except Exception:
             self.logger.exception("Change group profile failed")
+
+    def _process_chat_join_link(self, link: str) -> str | None:
+        idx = link.find("join/")
+        return link[idx:] if idx != -1 else None
+
+    async def join_group(self, link: str) -> Chat | None:
+        """
+        Вступает в группу по ссылке
+
+        Args:
+            link (str): Ссылка на группу.
+
+        Returns:
+            bool: True, если успешно вступил в группу
+        """
+        try:
+            proceed_link = self._process_chat_join_link(link)
+            if proceed_link is None:
+                self.logger.error("Invalid group link: %s", link)
+                return None
+
+            payload = JoinGroupPayload(link=proceed_link).model_dump(by_alias=True)
+
+            data = await self._send_and_wait(opcode=Opcode.CHAT_JOIN, payload=payload)
+
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Join group error: %s", error)
+                return None
+
+            chat = Chat.from_dict(data["payload"]["chat"])
+            if chat:
+                cached_chat = await self._get_chat(chat.id)
+                if cached_chat is None:
+                    self.chats.append(chat)
+                else:
+                    idx = self.chats.index(cached_chat)
+                    self.chats[idx] = chat
+
+            return chat
+
+        except Exception:
+            self.logger.exception("Join group failed")
+            return None

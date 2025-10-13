@@ -1,5 +1,6 @@
 from .auth import AuthMixin
 from .channel import ChannelMixin
+from .group import GroupMixin
 from .handler import HandlerMixin
 from .message import MessageMixin
 from .self import SelfMixin
@@ -17,6 +18,7 @@ class ApiMixin(
     SelfMixin,
     MessageMixin,
     TelemetryMixin,
+    GroupMixin,
 ):
     pass
 

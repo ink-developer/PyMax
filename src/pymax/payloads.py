@@ -209,3 +209,7 @@ class GetFilePayload(CamelModel):
 
 class SearchByPhonePayload(CamelModel):
     phone: str
+
+
+class JoinGroupPayload(CamelModel):
+    link: str
