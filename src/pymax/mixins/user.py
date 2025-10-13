@@ -1,7 +1,7 @@
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import FetchContactsPayload, SearchByPhonePayload
 from pymax.static import Opcode
-from pymax.types import User
+from pymax.types import Session, User
 
 
 class UserMixin(ClientProtocol):
@@ -114,4 +114,20 @@ class UserMixin(ClientProtocol):
             return user
         except Exception:
             self.logger.exception("Search by phone failed")
+            return None
+
+    async def get_sessions(self) -> list[Session] | None:
+        try:
+            self.logger.info("Fetching sessions")
+
+            data = await self._send_and_wait(opcode=Opcode.SESSIONS_INFO, payload={})
+
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Fetching sessions error: %s", error)
+                return None
+
+            return [Session.from_dict(s) for s in data["payload"].get("sessions", [])]
+
+        except Exception:
+            self.logger.exception("Fetching sessions failed")
             return None

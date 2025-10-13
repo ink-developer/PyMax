@@ -21,30 +21,35 @@ async def handle_message(message: Message) -> None:
 @client.on_start
 async def handle_start() -> None:
     print("Client started successfully!")
+    sessions = await client.get_sessions()
+    for session in sessions:
+        print(session.client)
     # print(client.dialogs)
-    history = await client.fetch_history(chat_id=0)
-    if history:
-        for message in history:
-            if message.attaches:
-                for attach in message.attaches:
-                    if attach.type == AttachType.CONTROL:
-                        print(attach.event)
-                        print(attach.extra)
-                    # if attach.type == AttachType.VIDEO:
-                    #     print(message)
-                    #     vid = await client.get_video_by_id(
-                    #         chat_id=0,
-                    #         video_id=attach.video_id,
-                    #         message_id=message.id,
-                    #     )
-                    #     print(vid.url)
-                    # elif attach.type == AttachType.FILE:
-                    #     file = await client.get_file_by_id(
-                    #         chat_id=0,
-                    #         file_id=attach.file_id,
-                    #         message_id=message.id,
-                    #     )
-                    #     print(file.url)
+    # history = await client.fetch_history(chat_id=0)
+    # if history:
+    #     for message in history:
+    #         if message.link:
+    #             print(message.link.chat_id)
+    #             print(message.link.message.text)
+    # for attach in message.attaches:
+    #     if attach.type == AttachType.CONTROL:
+    #         print(attach.event)
+    #         print(attach.extra)
+    # if attach.type == AttachType.VIDEO:
+    #     print(message)
+    #     vid = await client.get_video_by_id(
+    #         chat_id=0,
+    #         video_id=attach.video_id,
+    #         message_id=message.id,
+    #     )
+    #     print(vid.url)
+    # elif attach.type == AttachType.FILE:
+    #     file = await client.get_file_by_id(
+    #         chat_id=0,
+    #         file_id=attach.file_id,
+    #         message_id=message.id,
+    #     )
+    #     print(file.url)
     # print(client.me.names[0].first_name)
     # user = await client.get_user(client.me.id)
 

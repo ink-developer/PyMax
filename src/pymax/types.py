@@ -294,6 +294,29 @@ class Element:
         return f"{self.type}({self.length})"
 
 
+class MessageLink:
+    def __init__(self, chat_id: int, message: "Message", type: str) -> None:
+        self.chat_id = chat_id
+        self.message = message
+        self.type = type
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "MessageLink":
+        return cls(
+            chat_id=data["chatId"],
+            message=Message.from_dict(data["message"]),
+            type=data["type"],
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return f"MessageLink(chat_id={self.chat_id!r}, message={self.message!r}, type={self.type!r})"
+
+    @override
+    def __str__(self) -> str:
+        return f"MessageLink: {self.chat_id}/{self.message.id}"
+
+
 class Message:
     def __init__(
         self,
@@ -304,6 +327,7 @@ class Message:
         options: int | None,
         id: int,
         time: int,
+        link: MessageLink | None,
         text: str,
         status: MessageStatus | str | None,
         type: MessageType | str,
@@ -319,6 +343,7 @@ class Message:
         self.type = type
         self.attaches = attaches
         self.status = status
+        self.link = link
         self.reactionInfo = reaction_info
 
     @classmethod
@@ -345,6 +370,9 @@ class Message:
             type=message["type"],
             attaches=attaches,
             status=message.get("status"),
+            link=MessageLink.from_dict(message.get("link"))
+            if message.get("link")
+            else None,
             reaction_info=message.get("reactionInfo"),
         )
 
@@ -642,3 +670,40 @@ class Attach:  # УБРАТЬ ГАДА!!! или нет...
     @override
     def __str__(self) -> str:
         return f"Attach: {self.type}"
+
+
+class Session:
+    def __init__(
+        self,
+        client: str,
+        info: str,
+        location: str,
+        time: int,
+        current: bool | None = None,
+    ) -> None:
+        self.client = client
+        self.info = info
+        self.location = location
+        self.time = time
+        self.current = current if current is not None else False
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Session":
+        return cls(
+            client=data["client"],
+            info=data["info"],
+            location=data["location"],
+            time=data["time"],
+            current=data.get("current"),
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return (
+            f"Session(client={self.client!r}, info={self.info!r}, "
+            f"location={self.location!r}, time={self.time!r}, current={self.current!r})"
+        )
+
+    @override
+    def __str__(self) -> str:
+        return f"Session: {self.client} from {self.location} at {self.time} (current={self.current})"
