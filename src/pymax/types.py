@@ -317,13 +317,51 @@ class MessageLink:
         return f"MessageLink: {self.chat_id}/{self.message.id}"
 
 
+class ReactionCounter:
+    def __init__(self, count: int, reaction: str) -> None:
+        self.count = count
+        self.reaction = reaction
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReactionCounter":
+        return cls(count=data["count"], reaction=data["reaction"])
+
+    @override
+    def __repr__(self) -> str:
+        return f"ReactionCounter(count={self.count!r}, reaction={self.reaction!r})"
+
+    @override
+    def __str__(self) -> str:
+        return f"{self.reaction}: {self.count}"
+
+
+class ReactionInfo:
+    def __init__(
+        self,
+        total_count: int,
+        counters: list[ReactionCounter],
+        your_reaction: str | None = None,
+    ) -> None:
+        self.total_count = total_count
+        self.counters = counters
+        self.your_reaction = your_reaction
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReactionInfo":
+        return cls(
+            total_count=data.get("totalCount", 0),
+            counters=[ReactionCounter.from_dict(c) for c in data.get("counters", [])],
+            your_reaction=data.get("yourReaction"),
+        )
+
+
 class Message:
     def __init__(
         self,
         chat_id: int | None,
         sender: int | None,
         elements: list[Element] | None,
-        reaction_info: dict[str, Any] | None,
+        reaction_info: ReactionInfo | None,
         options: int | None,
         id: int,
         time: int,
@@ -373,7 +411,9 @@ class Message:
             link=MessageLink.from_dict(message.get("link"))
             if message.get("link")
             else None,
-            reaction_info=message.get("reactionInfo"),
+            reaction_info=ReactionInfo.from_dict(message.get("reactionInfo"))
+            if message.get("reactionInfo")
+            else None,
         )
 
     @override

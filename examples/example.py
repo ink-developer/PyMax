@@ -21,12 +21,27 @@ async def handle_message(message: Message) -> None:
 @client.on_start
 async def handle_start() -> None:
     print("Client started successfully!")
-    sessions = await client.get_sessions()
-    for session in sessions:
-        print(session.client)
+    react_info = await client.add_reaction(
+        chat_id=0, message_id="115368067020359151", reaction="👍"
+    )
+    if react_info:
+        print("Reaction added!")
+        print(react_info.total_count)
+    react_info = await client.get_reactions(
+        chat_id=0, message_ids=["115368067020359151"]
+    )
+    if react_info:
+        print("Reactions fetched!")
+        for msg_id, info in react_info.items():
+            print(f"Message ID: {msg_id}, Total Reactions: {info.total_count}")
+    react_info = await client.remove_reaction(
+        chat_id=0, message_id="115368067020359151"
+    )
+    if react_info:
+        print("Reaction removed!")
+        print(react_info.total_count)
     # print(client.dialogs)
-    chat = await client.join_group("join/sdfdfsfdf")
-    print(chat.title)
+
     # if history:
     #     for message in history:
     #         if message.link:
