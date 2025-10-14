@@ -1,17 +1,22 @@
 import time
+from typing import Any
 
 import aiohttp
 from aiohttp import ClientSession
 
-from pymax.files import File, Photo, Video
+from pymax.files import Photo
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import (
+    AddReactionPayload,
     AttachPhotoPayload,
     DeleteMessagePayload,
     EditMessagePayload,
     FetchHistoryPayload,
     GetFilePayload,
+    GetReactionsPayload,
     GetVideoPayload,
+    ReactionObject,
+    RemoveReactionPayload,
     PinMessagePayload,
     ReplyLink,
     SendMessagePayload,
@@ -375,3 +380,76 @@ class MessageMixin(ClientProtocol):
         except Exception:
             self.logger.exception("Get video error")
             return None
+
+    async def add_reaction(self, chat_id: int, message_id: int, emoji: str) -> bool:
+        try:
+            self.logger.info(
+                "Adding reaction chat_id=%s message_id=%s emoji=%s",
+                chat_id,
+                message_id,
+                emoji,
+            )
+            payload = AddReactionPayload(
+                chat_id=chat_id,
+                message_id=message_id,
+                reaction=ReactionObject(id=emoji),
+            ).model_dump(by_alias=True)
+            data = await self._send_and_wait(opcode=Opcode.MSG_REACTION, payload=payload)
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Add reaction error: %s", error)
+                return False
+            return True
+        except Exception:
+            self.logger.exception("Add reaction failed")
+            return False
+
+    async def remove_reaction(self, chat_id: int, message_id: int) -> bool:
+        try:
+            self.logger.info(
+                "Removing reaction chat_id=%s message_id=%s", chat_id, message_id
+            )
+            payload = RemoveReactionPayload(
+                chat_id=chat_id,
+                message_id=message_id,
+            ).model_dump(by_alias=True)
+            data = await self._send_and_wait(
+                opcode=Opcode.MSG_CANCEL_REACTION, payload=payload
+            )
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Remove reaction error: %s", error)
+                return False
+            return True
+        except Exception:
+            self.logger.exception("Remove reaction failed")
+            return False
+
+    async def get_reactions(
+        self, chat_id: int, message_ids: list[str]
+    ) -> dict[str, Any] | None:
+        """
+        Получает реакции на несколько сообщений.
+
+        Args:
+            chat_id (int): ID чата
+            message_ids (list[str]): Список ID сообщений
+
+        Returns:
+            dict[str, Any] | None: Данные о реакциях или None при ошибке
+        """
+        try:
+            self.logger.info(
+                "Getting reactions chat_id=%s message_ids=%s", chat_id, message_ids
+            )
+            payload = GetReactionsPayload(
+                chat_id=chat_id, message_ids=message_ids
+            ).model_dump(by_alias=True)
+            data = await self._send_and_wait(opcode=Opcode.MSG_GET_REACTIONS, payload=payload)
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Get reactions error: %s", error)
+                return None
+            self.logger.debug("get_reactions success")
+            return data.get("payload")
+        except Exception:
+            self.logger.exception("Get reactions failed")
+            return None
+

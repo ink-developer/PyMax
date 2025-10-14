@@ -213,3 +213,24 @@ class SearchByPhonePayload(CamelModel):
 
 class JoinGroupPayload(CamelModel):
     link: str
+
+    
+class ReactionObject(CamelModel):
+    reaction_type: Literal["EMOJI"] = "EMOJI"
+    id: str
+
+
+class AddReactionPayload(CamelModel):
+    chat_id: int
+    message_id: int
+    reaction: ReactionObject
+
+
+class RemoveReactionPayload(CamelModel):
+    chat_id: int
+    message_id: int
+
+
+class GetReactionsPayload(CamelModel):
+    chat_id: int
+    message_ids: list[str]
