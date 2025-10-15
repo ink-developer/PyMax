@@ -164,19 +164,9 @@ async def main():
 !!! example "Примеры фильтров"
     ```python
     # Только текстовые сообщения
-    @client.on_message(MessageTypeFilter(MessageType.TEXT))
+    @client.on_message(Filter(chat_id=0))
     async def handle_text(message: Message):
         print(f"Текст: {message.text}")
-
-    # Сообщения с фото
-    @client.on_message(lambda m: any(isinstance(a, PhotoAttach) for a in m.attaches))
-    async def handle_photos(message: Message):
-        print("Получены фотографии!")
-
-    # Сообщения от конкретного пользователя
-    @client.on_message(lambda m: m.sender == admin_id)
-    async def handle_admin(message: Message):
-        print("Сообщение от администратора!")
     ```
 
 ## 💾 Работа с данными {#работа-с-данными}

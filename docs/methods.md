@@ -130,7 +130,7 @@ if chat:
 
 **Пример использования**
 ```python
-chat = await client.join_group("https://max.my/join/group123")
+chat = await client.join_group("https://max.ru/join/group123")
 if chat:
     print(f"Присоединились к группе: {chat.title}")
 ```
@@ -159,14 +159,9 @@ async def handle_message(message: Message):
     print(f"Получено сообщение: {message.text}")
 
 # Обработка только текстовых сообщений
-@client.on_message(MessageTypeFilter(MessageType.TEXT))
+@client.on_message(Filter(chat_id=0))
 async def handle_text(message: Message):
-    print(f"Получено текстовое сообщение: {message.text}")
-
-# Обработка сообщений с фото
-@client.on_message(lambda msg: len(msg.attaches) > 0)
-async def handle_media(message: Message):
-    print(f"Получено медиа сообщение")
+    print(f"Получено текстовое сообщение из избранного: {message.text}")
 ```
 
 #### `on_start() -> Callable`
@@ -221,14 +216,13 @@ msg = await client.send_message(
 )
 
 # Сообщение с фото
-with open("image.jpg", "rb") as f:
-    photo = Photo(f)
-    msg = await client.send_message(
-        chat_id=123456,
-        text="Смотри, какое фото!",
-        photo=photo,
-        notify=True
-    )
+photo = Photo("/photos/photo.png")
+    sg = await client.send_message(
+    chat_id=123456,
+    text="Смотри, какое фото!",
+    photo=photo,
+    notify=True
+)
 ```
 
 #### `edit_message(chat_id: int, message_id: int, text: str) -> Message | None`
@@ -388,9 +382,8 @@ success = await client.change_profile(
 )
 
 # Обновление фото профиля
-with open("avatar.jpg", "rb") as f:
-    photo = Photo(f)
-    success = await client.change_profile(photo=photo)
+photo = Photo("/photos/new_profile.jpg")
+success = await client.change_profile(photo=photo)
 ```
 
 ## 👥 Управление пользователями {#управление-пользователями}
@@ -497,19 +490,6 @@ for session in sessions:
         print(f"Ошибка при закреплении: {e}")
     ```
 
-### Работа с Файлами
-
-!!! info "Правильное использование файловых ресурсов"
-    Всегда используйте контекстный менеджер при работе с файлами:
-    ```python
-    with open("image.jpg", "rb") as f:
-        photo = Photo(f)
-        await client.send_message(
-            chat_id=123456,
-            text="Фото",
-            photo=photo
-        )
-    ```
 
 ### Оптимизация Запросов
 

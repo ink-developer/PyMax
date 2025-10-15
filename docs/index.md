@@ -10,14 +10,14 @@ from pymax import MaxClient
 
 async def main():
     client = MaxClient(phone="+79001234567")
-    
-    @client.on_message
+
+    @client.on_message()
     async def handle_message(message):
         await client.send_message(
             chat_id=message.chat_id,
             text=f"Привет, {message.author.username}! {message.text}"
         )
-    
+
     await client.start()
 
 asyncio.run(main())
