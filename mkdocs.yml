@@ -1,10 +1,10 @@
 site_name: Документация PyMax
 site_description: Python wrapper для API мессенджера Max
-site_author: noxzion
-site_url: https://github.com/noxzion/PyMax
+site_author: ink-developer
+site_url: https://github.com/ink-developer/PyMax
 
-repo_name: noxzion/PyMax
-repo_url: https://github.com/noxzion/PyMax
+repo_name: ink-developer/PyMax
+repo_url: https://github.com/ink-developer/PyMax
 edit_uri: edit/main/docs/
 
 theme:
@@ -55,24 +55,56 @@ theme:
 
 plugins:
   - search
-  - mkdocstrings:
-      default_handler: python
-      handlers:
-        python:
-          paths: [src]
-          options:
-            show_source: true
-            show_root_heading: true
-            show_category_heading: true
-            show_signature_annotations: true
-            show_bases: true
-            show_submodules: true
-            heading_level: 2
-            members_order: source
-            docstring_style: google
-            preload_modules: [pymax]
-            filters: ["!^_"]
-            merge_init_into_class: true
+  # - mkdocstrings:
+  #     default_handler: python
+  #     handlers:
+  #       python:
+  #         paths: [src]
+  #         options:
+  #           show_source: true
+  #           show_root_heading: true
+  #           show_category_heading: true
+  #           show_signature_annotations: true
+  #           show_bases: true
+  #           show_submodules: true
+  #           heading_level: 2
+  #           members_order: source
+  #           docstring_style: google
+  #           preload_modules: [pymax]
+  #           filters: ["!^_"]
+  #           merge_init_into_class: true
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+
+nav:
+  - Главная: index.md
+  - Документация:
+    - Клиент: client.md
+    - Методы: methods.md
+    - Типы данных: types.md
 
 markdown_extensions:
   - abbr
@@ -114,11 +146,6 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
-
-nav:
-  - Главная: index.md
-  - API Reference: api.md
-  - Примеры: examples.md
 
 extra:
   social:
