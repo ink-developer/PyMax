@@ -175,7 +175,9 @@ class Navigation:
 
     @classmethod
     def get_random_navigation(cls, screen_name: str) -> str:
-        return random.choice(cls.SCREENS_GRAPH.get(screen_name, []))  # noqa: S311
+        return random.choice(  # nosec B311
+            cls.SCREENS_GRAPH.get(screen_name, [])
+        )
 
     @classmethod
     def get_screen_name(cls, screen_id: int) -> str | None:

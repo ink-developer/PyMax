@@ -1,8 +1,8 @@
-from typing import Any
+from typing import Any, Self
 
 from typing_extensions import override
 
-from .static import (
+from .static.enum import (
     AccessType,
     AttachType,
     ChatType,
@@ -22,7 +22,7 @@ class Names:
         self.type = type
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Names":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             name=data["name"],
             first_name=data["firstName"],
@@ -40,13 +40,15 @@ class Names:
 
 
 class ControlAttach:
-    def __init__(self, type: AttachType, event: str, **kwargs: dict[str, Any]) -> None:
+    def __init__(
+        self, type: AttachType, event: str, **kwargs: dict[str, Any]
+    ) -> None:
         self.type = type
         self.event = event
         self.extra = kwargs
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ControlAttach":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         data = dict(data)
         attach_type = AttachType(data.pop("_type"))
         event = data.pop("event")
@@ -85,7 +87,7 @@ class PhotoAttach:
         self.type = type
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "PhotoAttach":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             base_url=data["baseUrl"],
             height=data["height"],
@@ -133,7 +135,7 @@ class VideoAttach:
         self.video_type = video_type
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "VideoAttach":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             height=data["height"],
             width=data["width"],
@@ -172,7 +174,7 @@ class FileAttach:
         self.type = type
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "FileAttach":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             file_id=data["fileId"],
             name=data["name"],
@@ -203,7 +205,7 @@ class FileRequest:
         self.url = url
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "FileRequest":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             unsafe=data["unsafe"],
             url=data["url"],
@@ -222,7 +224,7 @@ class VideoRequest:
         self.url = url
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "VideoRequest":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         # listdata = list(data.values()) # Костыль ✅
         url = [v for k, v in data.items() if k not in ("EXTERNAL", "cache")][
             0
@@ -252,7 +254,7 @@ class Me:
         self.names = names
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Me":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             id=data["id"],
             account_status=data["accountStatus"],
@@ -280,14 +282,14 @@ class Element:
         self.from_ = from_
 
     @classmethod
-    def from_dict(cls, data: dict[Any, Any]) -> "Element":
-        return cls(type=data["type"], length=data["length"], from_=data.get("from"))
+    def from_dict(cls, data: dict[Any, Any]) -> Self:
+        return cls(
+            type=data["type"], length=data["length"], from_=data.get("from")
+        )
 
     @override
     def __repr__(self) -> str:
-        return (
-            f"Element(type={self.type!r}, length={self.length!r}, from_={self.from_!r})"
-        )
+        return f"Element(type={self.type!r}, length={self.length!r}, from_={self.from_!r})"
 
     @override
     def __str__(self) -> str:
@@ -301,7 +303,7 @@ class MessageLink:
         self.type = type
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "MessageLink":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             chat_id=data["chatId"],
             message=Message.from_dict(data["message"]),
@@ -323,7 +325,7 @@ class ReactionCounter:
         self.reaction = reaction
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ReactionCounter":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(count=data["count"], reaction=data["reaction"])
 
     @override
@@ -347,10 +349,12 @@ class ReactionInfo:
         self.your_reaction = your_reaction
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ReactionInfo":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             total_count=data.get("totalCount", 0),
-            counters=[ReactionCounter.from_dict(c) for c in data.get("counters", [])],
+            counters=[
+                ReactionCounter.from_dict(c) for c in data.get("counters", [])
+            ],
             your_reaction=data.get("yourReaction"),
         )
 
@@ -369,7 +373,9 @@ class Message:
         text: str,
         status: MessageStatus | str | None,
         type: MessageType | str,
-        attaches: list[PhotoAttach | VideoAttach | FileAttach | ControlAttach] | None,
+        attaches: (
+            list[PhotoAttach | VideoAttach | FileAttach | ControlAttach] | None
+        ),
     ) -> None:
         self.chat_id = chat_id
         self.sender = sender
@@ -385,9 +391,11 @@ class Message:
         self.reactionInfo = reaction_info
 
     @classmethod
-    def from_dict(cls, data: dict[Any, Any]) -> "Message":
+    def from_dict(cls, data: dict[Any, Any]) -> Self:
         message = data["message"] if data.get("message") else data
-        attaches = []
+        attaches: list[
+            PhotoAttach | VideoAttach | FileAttach | ControlAttach
+        ] = []
         for a in message.get("attaches", []):
             if a["_type"] == AttachType.PHOTO:
                 attaches.append(PhotoAttach.from_dict(a))
@@ -397,10 +405,22 @@ class Message:
                 attaches.append(FileAttach.from_dict(a))
             elif a["_type"] == AttachType.CONTROL:
                 attaches.append(ControlAttach.from_dict(a))
+        link_value = message.get("link")
+        if isinstance(link_value, dict):
+            link = MessageLink.from_dict(link_value)
+        else:
+            link = None
+        reaction_info_value = message.get("reactionInfo")
+        if isinstance(reaction_info_value, dict):
+            reaction_info = ReactionInfo.from_dict(reaction_info_value)
+        else:
+            reaction_info = None
         return cls(
             chat_id=data.get("chatId"),
             sender=message.get("sender"),
-            elements=[Element.from_dict(e) for e in message.get("elements", [])],
+            elements=[
+                Element.from_dict(e) for e in message.get("elements", [])
+            ],
             options=message.get("options"),
             id=message["id"],
             time=message["time"],
@@ -408,12 +428,8 @@ class Message:
             type=message["type"],
             attaches=attaches,
             status=message.get("status"),
-            link=MessageLink.from_dict(message.get("link"))
-            if message.get("link")
-            else None,
-            reaction_info=ReactionInfo.from_dict(message.get("reactionInfo"))
-            if message.get("reactionInfo")
-            else None,
+            link=link,
+            reaction_info=reaction_info,
         )
 
     @override
@@ -467,16 +483,18 @@ class Dialog:
         self.participants = participants
 
     @classmethod
-    def from_dict(cls, data: dict[Any, Any]) -> "Dialog":
+    def from_dict(cls, data: dict[Any, Any]) -> Self:
         return cls(
             cid=data.get("cid"),
             owner=data["owner"],
             has_bots=data.get("hasBots"),
             join_time=data["joinTime"],
             created=data["created"],
-            last_message=Message.from_dict(data["lastMessage"])
-            if data.get("lastMessage")
-            else None,
+            last_message=(
+                Message.from_dict(data["lastMessage"])
+                if data.get("lastMessage")
+                else None
+            ),
             type=ChatType(data["type"]),
             last_fire_delayed_error_time=data["lastFireDelayedErrorTime"],
             last_delayed_update_time=data["lastDelayedUpdateTime"],
@@ -558,15 +576,19 @@ class Chat:
         self.cid = cid
 
     @classmethod
-    def from_dict(cls, data: dict[Any, Any]) -> "Chat":
+    def from_dict(cls, data: dict[Any, Any]) -> Self:
         raw_admins = data.get("adminParticipants", {}) or {}
         admin_participants: dict[int, dict[Any, Any]] = {
             int(k): v for k, v in raw_admins.items()
         }
         raw_participants = data.get("participants", {}) or {}
-        participants: dict[int, int] = {int(k): v for k, v in raw_participants.items()}
+        participants: dict[int, int] = {
+            int(k): v for k, v in raw_participants.items()
+        }
         last_msg = (
-            Message.from_dict(data["lastMessage"]) if data.get("lastMessage") else None
+            Message.from_dict(data["lastMessage"])
+            if data.get("lastMessage")
+            else None
         )
         return cls(
             participants_count=data.get("participantsCount", 0),
@@ -578,7 +600,9 @@ class Chat:
             description=data.get("description"),
             chat_type=ChatType(data.get("type", ChatType.CHAT.value)),
             title=data.get("title"),
-            last_fire_delayed_error_time=data.get("lastFireDelayedErrorTime", 0),
+            last_fire_delayed_error_time=data.get(
+                "lastFireDelayedErrorTime", 0
+            ),
             last_delayed_update_time=data.get("lastDelayedUpdateTime", 0),
             options=data.get("options", {}),
             modified=data.get("modified", 0),
@@ -600,7 +624,9 @@ class Chat:
 
     @override
     def __repr__(self) -> str:
-        return f"Chat(id={self.id!r}, title={self.title!r}, type={self.type!r})"
+        return (
+            f"Chat(id={self.id!r}, title={self.title!r}, type={self.type!r})"
+        )
 
     @override
     def __str__(self) -> str:
@@ -649,7 +675,7 @@ class User:
         self.menu_button = menu_button
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "User":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             account_status=data["accountStatus"],
             update_time=data["updateTime"],
@@ -691,7 +717,7 @@ class Attach:  # УБРАТЬ ГАДА!!! или нет...
         self.token = token
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Attach":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             _type=AttachType(data["type"]),
             video_id=data.get("videoId"),
@@ -728,7 +754,7 @@ class Session:
         self.current = current if current is not None else False
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Session":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             client=data["client"],
             info=data["info"],

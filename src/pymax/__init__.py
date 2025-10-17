@@ -6,13 +6,11 @@ from .core import (
     InvalidPhoneError,
     MaxClient,
     SocketMaxClient,
-    WebSocketNotConnectedError,
 )
-from .static import (
+from .static.enum import (
     AccessType,
     AuthType,
     ChatType,
-    Constants,
     DeviceType,
     ElementType,
     MessageStatus,
@@ -38,7 +36,6 @@ __all__ = [
     "Channel",
     "Chat",
     "ChatType",
-    "Constants",
     "DeviceType",
     "Dialog",
     "Element",
@@ -53,5 +50,4 @@ __all__ = [
     "Opcode",
     "SocketMaxClient",
     "User",
-    "WebSocketNotConnectedError",
 ]

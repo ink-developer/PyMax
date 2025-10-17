@@ -4,23 +4,21 @@ version = "1.1.11"
 description = "Python wrapper для API мессенджера Max"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [
-    { name = "noxzion", email = "mail@gmail.com" }
-]
+authors = [{ name = "noxzion", email = "mail@gmail.com" }]
 license = "MIT"
 keywords = ["max", "messenger", "api", "wrapper", "websocket"]
 classifiers = [
-    "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3",
 
-    "Operating System :: OS Independent"
+  "Operating System :: OS Independent",
 ]
 dependencies = [
-    "sqlmodel>=0.0.24",
-    "websockets>=15.0",
-    "msgpack>=1.1.1",
-    "lz4>=4.4.4",
-    "aiohttp>=3.12.15",
-    "aiofiles>=24.1.0",
+  "sqlmodel>=0.0.24",
+  "websockets>=15.0",
+  "msgpack>=1.1.1",
+  "lz4>=4.4.4",
+  "aiohttp>=3.12.15",
+  "aiofiles>=24.1.0",
 ]
 
 [project.urls]
@@ -40,11 +38,36 @@ where = ["src"]
 
 [dependency-groups]
 dev = [
-    "mkdocs>=1.6.1",
-    "mkdocs-material>=9.6.18",
-    "mkdocstrings[python]>=0.30.0",
-    "pydocstring>=0.2.1",
+  "mkdocs>=1.6.1",
+  "mkdocs-material>=9.6.18",
+  "mkdocstrings[python]>=0.30.0",
+  "pre-commit>=4.3.0",
+  "pydocstring>=0.2.1",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pymax"]
+
+[tool.pyright]
+venv = ".venv"
+venvPath = "."
+
+[tool.black]
+line-length = 79
+target-version = ['py313']
+
+[tool.flake8]
+max-line-length = 79
+max-complexity = 10
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+plugins = ["sqlalchemy.ext.mypy.plugin", "pydantic.mypy"]
+
+[tool.isort]
+profile = "black"
+line_length = 79
+multi_line_output = 3
+include_trailing_comma = true
