@@ -51,7 +51,6 @@ class MaxClient(ApiMixin, WebSocketMixin):
         logger: logging.Logger | None = None,
     ) -> None:
         logger = logger or logging.getLogger(f"{__name__}.MaxClient")
-        self._setup_logger()
         ApiMixin.__init__(self, token=token, logger=logger)
         WebSocketMixin.__init__(self, token=token, logger=logger)
         self.uri: str = uri
@@ -78,6 +77,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
         self._ssl_context.load_default_certs()
         self._socket: socket.socket | None = None
+        self._setup_logger()
         self.logger.debug(
             "Initialized MaxClient uri=%s work_dir=%s",
             self.uri,
