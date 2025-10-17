@@ -7,16 +7,24 @@ from typing_extensions import override
 
 from pymax.exceptions import LoginError, WebSocketNotConnectedError
 from pymax.interfaces import ClientProtocol
-from pymax.payloads import BaseWebSocketMessage, SyncPayload
-from pymax.static import ChatType, Constants, Opcode
+from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
+from pymax.static.constant import DEFAULT_TIMEOUT, WEBSOCKET_ORIGIN
+from pymax.static.enum import ChatType, Opcode
 from pymax.types import Channel, Chat, Dialog, Me, Message
 
 
 class WebSocketMixin(ClientProtocol):
+
+    def __init__(self, token: str | None = None, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._token = token
+
     @property
     def ws(self) -> websockets.ClientConnection:
         if self._ws is None or not self.is_connected:
-            self.logger.critical("WebSocket not connected when access attempted")
+            self.logger.critical(
+                "WebSocket not connected when access attempted"
+            )
             raise WebSocketNotConnectedError
         return self._ws
 
@@ -51,10 +59,14 @@ class WebSocketMixin(ClientProtocol):
                 self.logger.warning("Interactive ping failed", exc_info=True)
             await asyncio.sleep(30)
 
-    async def _connect(self, user_agent: dict[str, Any]) -> dict[str, Any]:
+    async def _connect(self, user_agent: UserAgentPayload) -> dict[str, Any]:
         try:
             self.logger.info("Connecting to WebSocket %s", self.uri)
-            self._ws = await websockets.connect(self.uri, origin="https://web.max.ru")  # type: ignore[]
+            self._ws = await websockets.connect(
+                self.uri,
+                origin=WEBSOCKET_ORIGIN,
+                user_agent_header=user_agent.headerUserAgent,
+            )
             self.is_connected = True
             self._incoming = asyncio.Queue()
             self._pending = {}
@@ -65,14 +77,18 @@ class WebSocketMixin(ClientProtocol):
             self.logger.error("Failed to connect: %s", e, exc_info=True)
             raise ConnectionError(f"Failed to connect: {e}")
 
-    async def _handshake(self, user_agent: dict[str, Any]) -> dict[str, Any]:
+    async def _handshake(self, user_agent: UserAgentPayload) -> dict[str, Any]:
         try:
             self.logger.debug(
-                "Sending handshake with user_agent keys=%s", list(user_agent.keys())
+                "Sending handshake with user_agent keys=%s",
+                user_agent.model_dump().keys(),
             )
             resp = await self._send_and_wait(
                 opcode=Opcode.SESSION_INIT,
-                payload={"deviceId": str(self._device_id), "userAgent": user_agent},
+                payload={
+                    "deviceId": str(self._device_id),
+                    "userAgent": user_agent,
+                },
             )
             self.logger.info("Handshake completed")
             return resp
@@ -100,7 +116,9 @@ class WebSocketMixin(ClientProtocol):
 
                 if fut and not fut.done():
                     fut.set_result(data)
-                    self.logger.debug("Matched response for pending seq=%s", seq)
+                    self.logger.debug(
+                        "Matched response for pending seq=%s", seq
+                    )
                 else:
                     if self._incoming is not None:
                         try:
@@ -133,17 +151,25 @@ class WebSocketMixin(ClientProtocol):
                                         task = asyncio.create_task(result)
                                         self._background_tasks.add(task)
                                         task.add_done_callback(
-                                            lambda t: self._background_tasks.discard(t)
-                                            or self._log_task_exception(t)
+                                            lambda t: self._background_tasks.discard(  # type: ignore[func-returns-value]
+                                                t
+                                            )
+                                            or self._log_task_exception(t)  # type: ignore[func-returns-value]
                                         )
                         except Exception:
-                            self.logger.exception("Error in on_message_handler")
+                            self.logger.exception(
+                                "Error in on_message_handler"
+                            )
 
             except websockets.exceptions.ConnectionClosed:
-                self.logger.info("WebSocket connection closed; exiting recv loop")
+                self.logger.info(
+                    "WebSocket connection closed; exiting recv loop"
+                )
                 break
             except Exception:
-                self.logger.exception("Error in recv_loop; backing off briefly")
+                self.logger.exception(
+                    "Error in recv_loop; backing off briefly"
+                )
                 await asyncio.sleep(0.5)
 
     def _log_task_exception(self, task: asyncio.Task[Any]) -> None:
@@ -151,7 +177,8 @@ class WebSocketMixin(ClientProtocol):
             exc = task.exception()
             if exc:
                 self.logger.exception("Background task exception: %s", exc)
-        except Exception:
+        except Exception as e:
+            self.logger.exception("Error retrieving task exception: %s", e)
             pass
 
     @override
@@ -160,7 +187,7 @@ class WebSocketMixin(ClientProtocol):
         opcode: int,
         payload: dict[str, Any],
         cmd: int = 0,
-        timeout: float = Constants.DEFAULT_TIMEOUT.value,
+        timeout: float = DEFAULT_TIMEOUT,
     ) -> dict[str, Any]:
         ws = self.ws
 
@@ -171,7 +198,10 @@ class WebSocketMixin(ClientProtocol):
 
         try:
             self.logger.debug(
-                "Sending frame opcode=%s cmd=%s seq=%s", opcode, cmd, msg["seq"]
+                "Sending frame opcode=%s cmd=%s seq=%s",
+                opcode,
+                cmd,
+                msg["seq"],
             )
             await ws.send(json.dumps(msg))
             data = await asyncio.wait_for(fut, timeout=timeout)
@@ -203,7 +233,9 @@ class WebSocketMixin(ClientProtocol):
         ).model_dump(by_alias=True)
 
         try:
-            data = await self._send_and_wait(opcode=19, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.LOGIN, payload=payload
+            )
             raw_payload = data.get("payload", {})
 
             if error := raw_payload.get("error"):

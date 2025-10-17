@@ -1,8 +1,8 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
-from pymax.static import AttachType, AuthType
+from pymax.static.enum import AttachType, AuthType
 
 
 def to_camel(string: str) -> str:
@@ -57,7 +57,7 @@ class UploadPhotoPayload(CamelModel):
 
 
 class AttachPhotoPayload(CamelModel):
-    type: AttachType = Field(AttachType.PHOTO, alias="_type")
+    type: AttachType = Field(default=AttachType.PHOTO, alias="_type")
     photo_token: str
 
 
@@ -95,7 +95,10 @@ class FetchContactsPayload(CamelModel):
 
 class FetchHistoryPayload(CamelModel):
     chat_id: int
-    from_time: int = Field(alias="from")
+    from_time: int = Field(
+        validation_alias=AliasChoices("from_time", "from"),
+        serialization_alias="from",
+    )
     forward: int
     backward: int = 200
     get_messages: bool = True
@@ -234,3 +237,15 @@ class GetReactionsPayload(CamelModel):
 class RemoveReactionPayload(CamelModel):
     chat_id: int
     message_id: str
+
+
+class UserAgentPayload(BaseModel):
+    deviceType: str = Field(default="WEB")
+    locale: str = Field(default="ru")
+    deviceLocale: str = Field(default="ru")
+    osVersion: str = Field(default="Linux")
+    deviceName: str = Field(default="Chrome")
+    headerUserAgent: str = Field(default="Mozilla/5.0 ...")
+    appVersion: str = Field(default="25.8.5")
+    screen: str = Field(default="1080x1920 1.0x")
+    timezone: str = Field(default="Europe/Moscow")

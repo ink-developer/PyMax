@@ -1,4 +1,4 @@
-from .static import MessageStatus, MessageType
+from .static.enum import MessageStatus, MessageType
 from .types import Message
 
 
@@ -30,13 +30,18 @@ class Filter:
             text not in message.text for text in self.text
         ):
             return False
-        if self.text_contains is not None and self.text_contains not in message.text:
+        if (
+            self.text_contains is not None
+            and self.text_contains not in message.text
+        ):
             return False
         if self.status is not None and message.status != self.status:
             return False
         if self.type is not None and message.type != self.type:
             return False
-        if self.reaction_info is not None and message.reactionInfo is None:  # noqa: SIM103
+        if (
+            self.reaction_info is not None and message.reactionInfo is None
+        ):  # noqa: SIM103
             return False
 
         return True

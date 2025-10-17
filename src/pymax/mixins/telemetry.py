@@ -1,5 +1,4 @@
 import asyncio
-import json
 import random
 import time
 
@@ -10,7 +9,7 @@ from pymax.payloads import (
     NavigationEventPayload,
     NavigationPayload,
 )
-from pymax.static import Opcode
+from pymax.static.enum import Opcode
 
 
 class TelemetryMixin(ClientProtocol):
@@ -18,7 +17,9 @@ class TelemetryMixin(ClientProtocol):
         self, events: list[NavigationEventPayload]
     ) -> None:
         try:
-            payload = NavigationPayload(events=events).model_dump(by_alias=True)
+            payload = NavigationPayload(events=events).model_dump(
+                by_alias=True
+            )
             data = await self._send_and_wait(
                 opcode=Opcode.LOG,
                 payload=payload,
@@ -30,7 +31,9 @@ class TelemetryMixin(ClientProtocol):
                 self.logger.error("Failed to send navigation event: %s", error)
                 return
         except Exception:
-            self.logger.warning("Failed to send navigation event", exc_info=True)
+            self.logger.warning(
+                "Failed to send navigation event", exc_info=True
+            )
             return
 
     async def _send_cold_start(self) -> None:
@@ -93,8 +96,10 @@ class TelemetryMixin(ClientProtocol):
 
         weights = [0.05, 0.10, 0.15, 0.20, 0.50]
 
-        low, high = random.choices(sleep_options, weights=weights, k=1)[0]
-        return random.randint(low, high)
+        low, high = random.choices(  # nosec B311
+            sleep_options, weights=weights, k=1
+        )[0]
+        return random.randint(low, high)  # nosec B311
 
     async def _start(self) -> None:
         if not self.is_connected:

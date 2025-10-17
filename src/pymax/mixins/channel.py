@@ -1,6 +1,6 @@
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import ResolveLinkPayload
-from pymax.static import Opcode
+from pymax.static.enum import Opcode
 
 
 class ChannelMixin(ClientProtocol):
@@ -18,7 +18,9 @@ class ChannelMixin(ClientProtocol):
             link=f"https://max.ru/{name}",
         ).model_dump(by_alias=True)
 
-        data = await self._send_and_wait(opcode=Opcode.LINK_INFO, payload=payload)
+        data = await self._send_and_wait(
+            opcode=Opcode.LINK_INFO, payload=payload
+        )
         if error := data.get("payload", {}).get("error"):
             self.logger.error("Resolve link error: %s", error)
             return False

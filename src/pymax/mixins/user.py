@@ -1,6 +1,6 @@
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import FetchContactsPayload, SearchByPhonePayload
-from pymax.static import Opcode
+from pymax.static.enum import Opcode
 from pymax.types import Session, User
 
 
@@ -24,7 +24,9 @@ class UserMixin(ClientProtocol):
         Получает информацию о пользователях по их ID (с кешем).
         """
         self.logger.debug("get_users ids=%s", user_ids)
-        cached = {uid: self._users[uid] for uid in user_ids if uid in self._users}
+        cached = {
+            uid: self._users[uid] for uid in user_ids if uid in self._users
+        }
         missing_ids = [uid for uid in user_ids if uid not in self._users]
 
         if missing_ids:
@@ -71,7 +73,9 @@ class UserMixin(ClientProtocol):
                 self.logger.error("Fetch users error: %s", error)
                 return None
 
-            users = [User.from_dict(u) for u in data["payload"].get("contacts", [])]
+            users = [
+                User.from_dict(u) for u in data["payload"].get("contacts", [])
+            ]
             for user in users:
                 self._users[user.id] = user
 
@@ -94,7 +98,9 @@ class UserMixin(ClientProtocol):
         try:
             self.logger.info("Searching user by phone: %s", phone)
 
-            payload = SearchByPhonePayload(phone=phone).model_dump(by_alias=True)
+            payload = SearchByPhonePayload(phone=phone).model_dump(
+                by_alias=True
+            )
 
             data = await self._send_and_wait(
                 opcode=Opcode.CONTACT_INFO_BY_PHONE, payload=payload
@@ -120,13 +126,18 @@ class UserMixin(ClientProtocol):
         try:
             self.logger.info("Fetching sessions")
 
-            data = await self._send_and_wait(opcode=Opcode.SESSIONS_INFO, payload={})
+            data = await self._send_and_wait(
+                opcode=Opcode.SESSIONS_INFO, payload={}
+            )
 
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Fetching sessions error: %s", error)
                 return None
 
-            return [Session.from_dict(s) for s in data["payload"].get("sessions", [])]
+            return [
+                Session.from_dict(s)
+                for s in data["payload"].get("sessions", [])
+            ]
 
         except Exception:
             self.logger.exception("Fetching sessions failed")

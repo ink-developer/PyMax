@@ -12,13 +12,16 @@ from pymax.payloads import (
     JoinGroupPayload,
     RemoveUsersPayload,
 )
-from pymax.static import Opcode
+from pymax.static.enum import Opcode
 from pymax.types import Chat, Message
 
 
 class GroupMixin(ClientProtocol):
     async def create_group(
-        self, name: str, participant_ids: list[int] | None = None, notify: bool = True
+        self,
+        name: str,
+        participant_ids: list[int] | None = None,
+        notify: bool = True,
     ) -> tuple[Chat, Message] | None:
         """
         Создает группу
@@ -39,14 +42,18 @@ class GroupMixin(ClientProtocol):
                         CreateGroupAttach(
                             _type="CONTROL",
                             title=name,
-                            user_ids=participant_ids if participant_ids else [],
+                            user_ids=(
+                                participant_ids if participant_ids else []
+                            ),
                         )
                     ],
                 ),
                 notify=notify,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(opcode=Opcode.MSG_SEND, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.MSG_SEND, payload=payload
+            )
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Create group error: %s", error)
                 return None
@@ -66,6 +73,7 @@ class GroupMixin(ClientProtocol):
 
         except Exception:
             self.logger.exception("Create group failed")
+            return None
 
     async def invite_users_to_group(
         self,
@@ -171,7 +179,9 @@ class GroupMixin(ClientProtocol):
                 ),
             ).model_dump(by_alias=True, exclude_none=True)
 
-            data = await self._send_and_wait(opcode=Opcode.CHAT_UPDATE, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.CHAT_UPDATE, payload=payload
+            )
 
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Change group settings error: %s", error)
@@ -202,7 +212,9 @@ class GroupMixin(ClientProtocol):
                 description=description,
             ).model_dump(by_alias=True, exclude_none=True)
 
-            data = await self._send_and_wait(opcode=Opcode.CHAT_UPDATE, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.CHAT_UPDATE, payload=payload
+            )
 
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Change group profile error: %s", error)
@@ -240,9 +252,13 @@ class GroupMixin(ClientProtocol):
                 self.logger.error("Invalid group link: %s", link)
                 return None
 
-            payload = JoinGroupPayload(link=proceed_link).model_dump(by_alias=True)
+            payload = JoinGroupPayload(link=proceed_link).model_dump(
+                by_alias=True
+            )
 
-            data = await self._send_and_wait(opcode=Opcode.CHAT_JOIN, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.CHAT_JOIN, payload=payload
+            )
 
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Join group error: %s", error)

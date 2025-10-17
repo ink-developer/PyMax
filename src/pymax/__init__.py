@@ -3,16 +3,18 @@ Python wrapper для API мессенджера Max
 """
 
 from .core import (
-    InvalidPhoneError,
     MaxClient,
     SocketMaxClient,
+)
+from .exceptions import (
+    InvalidPhoneError,
+    LoginError,
     WebSocketNotConnectedError,
 )
-from .static import (
+from .static.enum import (
     AccessType,
     AuthType,
     ChatType,
-    Constants,
     DeviceType,
     ElementType,
     MessageStatus,
@@ -38,13 +40,14 @@ __all__ = [
     "Channel",
     "Chat",
     "ChatType",
-    "Constants",
     "DeviceType",
     "Dialog",
     "Element",
     "ElementType",
     # Исключения
     "InvalidPhoneError",
+    "LoginError",
+    "WebSocketNotConnectedError",
     # Клиент
     "MaxClient",
     "Message",
@@ -53,5 +56,4 @@ __all__ = [
     "Opcode",
     "SocketMaxClient",
     "User",
-    "WebSocketNotConnectedError",
 ]
