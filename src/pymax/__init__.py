@@ -3,9 +3,13 @@ Python wrapper для API мессенджера Max
 """
 
 from .core import (
-    InvalidPhoneError,
     MaxClient,
     SocketMaxClient,
+)
+from .exceptions import (
+    InvalidPhoneError,
+    LoginError,
+    WebSocketNotConnectedError,
 )
 from .static.enum import (
     AccessType,
@@ -42,6 +46,8 @@ __all__ = [
     "ElementType",
     # Исключения
     "InvalidPhoneError",
+    "LoginError",
+    "WebSocketNotConnectedError",
     # Клиент
     "MaxClient",
     "Message",
