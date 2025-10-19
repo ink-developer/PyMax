@@ -21,25 +21,34 @@ async def handle_message(message: Message) -> None:
 @client.on_start
 async def handle_start() -> None:
     print("Client started successfully!")
-    react_info = await client.add_reaction(
-        chat_id=0, message_id="115368067020359151", reaction="👍"
-    )
-    if react_info:
-        print("Reaction added!")
-        print(react_info.total_count)
-    react_info = await client.get_reactions(
-        chat_id=0, message_ids=["115368067020359151"]
-    )
-    if react_info:
-        print("Reactions fetched!")
-        for msg_id, info in react_info.items():
-            print(f"Message ID: {msg_id}, Total Reactions: {info.total_count}")
-    react_info = await client.remove_reaction(
-        chat_id=0, message_id="115368067020359151"
-    )
-    if react_info:
-        print("Reaction removed!")
-        print(react_info.total_count)
+    # chat = await client.rework_invite_link(chat_id=0)
+    # print(chat.link)
+    # text = """
+    # **123**
+    # *123*
+    # __123__
+    # ~~123~~
+    # """
+    # message = await client.send_message(text, chat_id=0, notify=True)
+    # react_info = await client.add_reaction(
+    #     chat_id=0, message_id="115368067020359151", reaction="👍"
+    # )
+    # if react_info:
+    #     print("Reaction added!")
+    #     print(react_info.total_count)
+    # react_info = await client.get_reactions(
+    #     chat_id=0, message_ids=["115368067020359151"]
+    # )
+    # if react_info:
+    #     print("Reactions fetched!")
+    #     for msg_id, info in react_info.items():
+    #         print(f"Message ID: {msg_id}, Total Reactions: {info.total_count}")
+    # react_info = await client.remove_reaction(
+    #     chat_id=0, message_id="115368067020359151"
+    # )
+    # if react_info:
+    #     print("Reaction removed!")
+    #     print(react_info.total_count)
     # print(client.dialogs)
 
     # if history:
@@ -69,14 +78,12 @@ async def handle_start() -> None:
     # print(client.me.names[0].first_name)
     # user = await client.get_user(client.me.id)
 
-    # print(user.names[0].first_name)
+    photo1 = Photo(path="tests/test.jpeg")
+    photo2 = Photo(path="tests/test.jpg")
 
-    # photo1 = Photo(path="tests/test.jpeg")
-    # photo2 = Photo(path="tests/test.jpg")
-
-    # await client.send_message(
-    #     "Hello with photo!", chat_id=0, photos=[photo1, photo2], notify=True
-    # )
+    await client.send_message(
+        "Hello with photo!", chat_id=0, photos=[photo1, photo2], notify=True
+    )
 
 
 if __name__ == "__main__":

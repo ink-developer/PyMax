@@ -7,6 +7,7 @@ from .static import (
     AttachType,
     ChatType,
     ElementType,
+    FormattingType,
     MessageStatus,
     MessageType,
 )
@@ -273,7 +274,7 @@ class Me:
 
 class Element:
     def __init__(
-        self, type: ElementType | str, length: int, from_: int | None = None
+        self, type: FormattingType | str, length: int, from_: int | None = None
     ) -> None:
         self.type = type
         self.length = length

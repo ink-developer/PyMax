@@ -3,6 +3,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 from pymax.static import AttachType, AuthType
+from pymax.types import ControlAttach, Element, FileAttach, PhotoAttach, VideoAttach
 
 
 def to_camel(string: str) -> str:
@@ -14,6 +15,7 @@ class CamelModel(BaseModel):
     model_config = {
         "alias_generator": to_camel,
         "populate_by_name": True,
+        "arbitrary_types_allowed": True,
     }
 
 
@@ -61,11 +63,17 @@ class AttachPhotoPayload(CamelModel):
     photo_token: str
 
 
+class MessageElement(CamelModel):
+    type: str
+    from_: int = Field(..., alias="from")
+    length: int
+
+
 class SendMessagePayloadMessage(CamelModel):
     text: str
     cid: int
-    elements: list[Any]
-    attaches: list[dict[str, Any]]
+    elements: list[MessageElement]
+    attaches: list[AttachPhotoPayload]
     link: ReplyLink | None = None
 
 
@@ -79,8 +87,8 @@ class EditMessagePayload(CamelModel):
     chat_id: int
     message_id: int
     text: str
-    elements: list[Any]
-    attaches: list[Any]
+    elements: list[MessageElement]
+    attaches: list[AttachPhotoPayload]
 
 
 class DeleteMessagePayload(CamelModel):
@@ -234,3 +242,8 @@ class GetReactionsPayload(CamelModel):
 class RemoveReactionPayload(CamelModel):
     chat_id: int
     message_id: str
+
+
+class ReworkInviteLinkPayload(CamelModel):
+    revoke_private_link: bool = True
+    chat_id: int

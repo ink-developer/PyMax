@@ -194,12 +194,26 @@ class AttachType(str, Enum):
     CONTROL = "CONTROL"
 
 
+class FormattingType(str, Enum):
+    STRONG = "STRONG"
+    EMPHASIZED = "EMPHASIZED"
+    UNDERLINE = "UNDERLINE"
+    STRIKETHROUGH = "STRIKETHROUGH"
+
+
+class MarkupType(str, Enum):
+    BOLD = "**"
+    ITALIC = "*"
+    UNDERLINE = "__"
+    STRIKETHROUGH = "~~"
+
+
 class Constants(Enum):
     PHONE_REGEX = r"^\+?\d{10,15}$"
     WEBSOCKET_URI = "wss://ws-api.oneme.ru/websocket"
     HOST = "api.oneme.ru"
     PORT = 443
-    DEFAULT_TIMEOUT = 10.0
+    DEFAULT_TIMEOUT = 60.0
     DEFAULT_USER_AGENT = {  # noqa: RUF012
         "deviceType": "WEB",
         "locale": "ru",

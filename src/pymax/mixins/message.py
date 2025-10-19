@@ -4,6 +4,7 @@ import aiohttp
 from aiohttp import ClientSession
 
 from pymax.files import File, Photo, Video
+from pymax.formatting import Formatting
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import (
     AddReactionPayload,
@@ -14,6 +15,7 @@ from pymax.payloads import (
     GetFilePayload,
     GetReactionsPayload,
     GetVideoPayload,
+    MessageElement,
     PinMessagePayload,
     ReactionInfoPayload,
     RemoveReactionPayload,
@@ -138,12 +140,22 @@ class MessageMixin(ClientProtocol):
                     self.logger.error("All photo uploads failed, message not sent")
                     return None
 
+            elements = []
+            clean_text = None
+            raw_elements = Formatting.get_elements_from_markdown(text)[0]
+            if raw_elements:
+                clean_text = Formatting.get_elements_from_markdown(text)[1]
+            elements = [
+                MessageElement(type=e.type, length=e.length, from_=e.from_)
+                for e in raw_elements
+            ]
+
             payload = SendMessagePayload(
                 chat_id=chat_id,
                 message=SendMessagePayloadMessage(
-                    text=text,
+                    text=clean_text if clean_text else text,
                     cid=int(time.time() * 1000),
-                    elements=[],
+                    elements=elements,
                     attaches=attaches,
                     link=ReplyLink(message_id=str(reply_to)) if reply_to else None,
                 ),
@@ -162,7 +174,12 @@ class MessageMixin(ClientProtocol):
             return None
 
     async def edit_message(
-        self, chat_id: int, message_id: int, text: str
+        self,
+        chat_id: int,
+        message_id: int,
+        text: str,
+        photo: Photo | None = None,
+        photos: list[Photo] | None = None,
     ) -> Message | None:
         """
         Редактирует сообщение.
@@ -171,12 +188,52 @@ class MessageMixin(ClientProtocol):
             self.logger.info(
                 "Editing message chat_id=%s message_id=%s", chat_id, message_id
             )
+
+            if photos and photo:
+                self.logger.warning("Both photo and photos provided; using photos")
+                photo = None
+            attaches = []
+            if photo:
+                self.logger.info("Uploading photo for message")
+                attach = await self._upload_photo(photo)
+                if not attach or not attach.photo_token:
+                    self.logger.error("Photo upload failed, message not sent")
+                    return None
+                attaches = [
+                    AttachPhotoPayload(photo_token=attach.photo_token).model_dump(
+                        by_alias=True
+                    )
+                ]
+            elif photos:
+                self.logger.info("Uploading multiple photos for message")
+                for p in photos:
+                    attach = await self._upload_photo(p)
+                    if attach and attach.photo_token:
+                        attaches.append(
+                            AttachPhotoPayload(
+                                photo_token=attach.photo_token
+                            ).model_dump(by_alias=True)
+                        )
+                if not attaches:
+                    self.logger.error("All photo uploads failed, message not sent")
+                    return None
+
+            elements = []
+            clean_text = None
+            raw_elements = Formatting.get_elements_from_markdown(text)[0]
+            if raw_elements:
+                clean_text = Formatting.get_elements_from_markdown(text)[1]
+            elements = [
+                MessageElement(type=e.type, length=e.length, from_=e.from_)
+                for e in raw_elements
+            ]
+
             payload = EditMessagePayload(
                 chat_id=chat_id,
                 message_id=message_id,
-                text=text,
-                elements=[],
-                attaches=[],
+                text=clean_text if clean_text else text,
+                elements=elements,
+                attaches=attaches,
             ).model_dump(by_alias=True)
             data = await self._send_and_wait(opcode=Opcode.MSG_EDIT, payload=payload)
             if error := data.get("payload", {}).get("error"):
