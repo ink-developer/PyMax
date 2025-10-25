@@ -79,6 +79,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
+        self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
+        self._outgoing_task: asyncio.Task[Any] | None = None
+        self._error_count: int = 0
+        self._circuit_breaker: bool = False
+        self._last_error_time: float = 0.0
         self._device_id = self._database.get_device_id()
         self._token = self._database.get_auth_token() or token
         self.user_agent = headers
@@ -139,6 +144,12 @@ class MaxClient(ApiMixin, WebSocketMixin):
                     await self._recv_task
                 except asyncio.CancelledError:
                     self.logger.debug("recv_task cancelled")
+            if self._outgoing_task:
+                self._outgoing_task.cancel()
+                try:
+                    await self._outgoing_task
+                except asyncio.CancelledError:
+                    self.logger.debug("outgoing_task cancelled")
             if self._ws:
                 await self._ws.close()
             self.is_connected = False
