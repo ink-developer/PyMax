@@ -105,6 +105,7 @@ class MessageMixin(ClientProtocol):
         photo: Photo | None = None,
         photos: list[Photo] | None = None,
         reply_to: int | None = None,
+        use_queue: bool = True,
     ) -> Message | None:
         """
         Отправляет сообщение в чат.
@@ -162,13 +163,18 @@ class MessageMixin(ClientProtocol):
                 notify=notify,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(opcode=Opcode.MSG_SEND, payload=payload)
-            if error := data.get("payload", {}).get("error"):
-                self.logger.error("Send message error: %s", error)
+            if use_queue:
+                await self._queue_message(opcode=Opcode.MSG_SEND, payload=payload)
+                self.logger.debug("Message queued for sending")
                 return None
-            msg = Message.from_dict(data["payload"]) if data.get("payload") else None
-            self.logger.debug("send_message result: %r", msg)
-            return msg
+            else:
+                data = await self._send_and_wait(opcode=Opcode.MSG_SEND, payload=payload)
+                if error := data.get("payload", {}).get("error"):
+                    self.logger.error("Send message error: %s", error)
+                    return None
+                msg = Message.from_dict(data["payload"]) if data.get("payload") else None
+                self.logger.debug("send_message result: %r", msg)
+                return msg
         except Exception:
             self.logger.exception("Send message failed")
             return None
@@ -180,10 +186,8 @@ class MessageMixin(ClientProtocol):
         text: str,
         photo: Photo | None = None,
         photos: list[Photo] | None = None,
+        use_queue: bool = True,
     ) -> Message | None:
-        """
-        Редактирует сообщение.
-        """
         try:
             self.logger.info(
                 "Editing message chat_id=%s message_id=%s", chat_id, message_id
@@ -235,18 +239,24 @@ class MessageMixin(ClientProtocol):
                 elements=elements,
                 attaches=attaches,
             ).model_dump(by_alias=True)
-            data = await self._send_and_wait(opcode=Opcode.MSG_EDIT, payload=payload)
-            if error := data.get("payload", {}).get("error"):
-                self.logger.error("Edit message error: %s", error)
-            msg = Message.from_dict(data["payload"]) if data.get("payload") else None
-            self.logger.debug("edit_message result: %r", msg)
-            return msg
+            
+            if use_queue:
+                await self._queue_message(opcode=Opcode.MSG_EDIT, payload=payload)
+                self.logger.debug("Edit message queued for sending")
+                return None
+            else:
+                data = await self._send_and_wait(opcode=Opcode.MSG_EDIT, payload=payload)
+                if error := data.get("payload", {}).get("error"):
+                    self.logger.error("Edit message error: %s", error)
+                msg = Message.from_dict(data["payload"]) if data.get("payload") else None
+                self.logger.debug("edit_message result: %r", msg)
+                return msg
         except Exception:
             self.logger.exception("Edit message failed")
             return None
 
     async def delete_message(
-        self, chat_id: int, message_ids: list[int], for_me: bool
+        self, chat_id: int, message_ids: list[int], for_me: bool, use_queue: bool = True
     ) -> bool:
         """
         Удаляет сообщения.
@@ -263,12 +273,17 @@ class MessageMixin(ClientProtocol):
                 chat_id=chat_id, message_ids=message_ids, for_me=for_me
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(opcode=Opcode.MSG_DELETE, payload=payload)
-            if error := data.get("payload", {}).get("error"):
-                self.logger.error("Delete message error: %s", error)
-                return False
-            self.logger.debug("delete_message success")
-            return True
+            if use_queue:
+                await self._queue_message(opcode=Opcode.MSG_DELETE, payload=payload)
+                self.logger.debug("Delete message queued for sending")
+                return True
+            else:
+                data = await self._send_and_wait(opcode=Opcode.MSG_DELETE, payload=payload)
+                if error := data.get("payload", {}).get("error"):
+                    self.logger.error("Delete message error: %s", error)
+                    return False
+                self.logger.debug("delete_message success")
+                return True
         except Exception:
             self.logger.exception("Delete message failed")
             return False

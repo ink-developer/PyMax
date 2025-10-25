@@ -50,6 +50,11 @@ class ClientProtocol(ABC):
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
+        self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
+        self._outgoing_task: asyncio.Task[Any] | None = None
+        self._error_count: int = 0
+        self._circuit_breaker: bool = False
+        self._last_error_time: float = 0.0
         self.user_agent = Constants.DEFAULT_USER_AGENT.value
 
         self._session_id: int
