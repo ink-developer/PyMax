@@ -15,7 +15,7 @@
 
 ---
 > ⚠️ **Дисклеймер**
-> 
+>
 > *   Это **неофициальная** библиотека для работы с внутренним API Max.
 > *   Использование может **нарушать условия предоставления услуг** сервиса.
 > *   **Вы используете её исключительно на свой страх и риск.**
@@ -72,7 +72,7 @@ async def handle_message(message: Message) -> None:
 @client.on_start
 async def handle_start() -> None:
     print("Клиент запущен")
-    
+
     # Получение истории сообщений
     history = await client.fetch_history(chat_id=0)
     if history:
@@ -83,38 +83,38 @@ async def handle_start() -> None:
 
 async def main() -> None:
     await client.start()
-    
+
     # Работа с чатами
     for chat in client.chats:
         print(f"Чат: {chat.title}")
-        
+
         # Отправка сообщения
         message = await client.send_message(
-            "Привет от PyMax!", 
-            chat.id, 
+            "Привет от PyMax!",
+            chat.id,
             notify=True
         )
-        
+
         # Редактирование сообщения
         await asyncio.sleep(2)
         await client.edit_message(
-            chat.id, 
-            message.id, 
+            chat.id,
+            message.id,
             "Привет от PyMax! (отредактировано)"
         )
-        
+
         # Удаление сообщения
         await asyncio.sleep(2)
         await client.delete_message(chat.id, [message.id], for_me=False)
-    
+
     # Работа с диалогами
     for dialog in client.dialogs:
         print(f"Диалог: {dialog.last_message.text}")
-    
+
     # Работа с каналами
     for channel in client.channels:
         print(f"Канал: {channel.title}")
-    
+
     await client.close()
 
 if __name__ == "__main__":
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
 ## Документация
 
-[WIP](https://noxzion.github.io/)
+[WIP](https://ink-developer.github.io/)
 
 ## Лицензия
 
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
 ## Авторы
 
-- **[noxzion](https://github.com/noxzion)** — Оригинальный автор проекта
+- **[ink-developer](https://github.com/ink-developer)** — Оригинальный автор проекта
 - **[ink](https://github.com/ink-developer)** — Главный разработчик, исследование API и его документация
 
 ## Контрибьюторы
