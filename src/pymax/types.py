@@ -368,7 +368,7 @@ class Message:
         time: int,
         link: MessageLink | None,
         text: str,
-        status: MessageStatus | str | None,
+        status: MessageStatus | None,
         type: MessageType | str,
         attaches: list[PhotoAttach | VideoAttach | FileAttach | ControlAttach] | None,
     ) -> None:

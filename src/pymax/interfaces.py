@@ -59,6 +59,12 @@ class ClientProtocol(ABC):
         self._on_message_handlers: list[
             tuple[Callable[[Message], Any], Filter | None]
         ] = []
+        self._on_message_edit_handlers: list[
+            tuple[Callable[[Message], Any], Filter | None]
+        ] = []
+        self._on_message_delete_handlers: list[
+            tuple[Callable[[Message], Any], Filter | None]
+        ] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._ssl_context: ssl.SSLContext

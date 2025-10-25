@@ -18,6 +18,16 @@ async def handle_message(message: Message) -> None:
     print(str(message.sender) + ": " + message.text)
 
 
+@client.on_message_edit()
+async def handle_edited_message(message: Message) -> None:
+    print(f"Edited message in chat {message.chat_id}: {message.text}")
+
+
+@client.on_message_delete()
+async def handle_deleted_message(message: Message) -> None:
+    print(f"Deleted message in chat {message.chat_id}: {message.id}")
+
+
 @client.on_start
 async def handle_start() -> None:
     print("Client started successfully!")
@@ -78,12 +88,12 @@ async def handle_start() -> None:
     # print(client.me.names[0].first_name)
     # user = await client.get_user(client.me.id)
 
-    photo1 = Photo(path="tests/test.jpeg")
-    photo2 = Photo(path="tests/test.jpg")
+    # photo1 = Photo(path="tests/test.jpeg")
+    # photo2 = Photo(path="tests/test.jpg")
 
-    await client.send_message(
-        "Hello with photo!", chat_id=0, photos=[photo1, photo2], notify=True
-    )
+    # await client.send_message(
+    #     "Hello with photo!", chat_id=0, photos=[photo1, photo2], notify=True
+    # )
 
 
 if __name__ == "__main__":

@@ -156,10 +156,8 @@ class MessageType(str, Enum):
 
 
 class MessageStatus(str, Enum):
-    SENT = "SENT"
-    DELIVERED = "DELIVERED"
-    READ = "READ"
-    ERROR = "ERROR"
+    EDITED = "EDITED"
+    REMOVED = "REMOVED"
 
 
 class ElementType(str, Enum):

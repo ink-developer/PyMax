@@ -1,14 +1,16 @@
 import asyncio
 import json
+from collections.abc import Callable
 from typing import Any
 
 import websockets
 from typing_extensions import override
 
 from pymax.exceptions import LoginError, WebSocketNotConnectedError
+from pymax.filters import Filter
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import BaseWebSocketMessage, SyncPayload
-from pymax.static import ChatType, Constants, Opcode
+from pymax.static import ChatType, Constants, MessageStatus, Opcode
 from pymax.types import Channel, Chat, Dialog, Me, Message
 
 
@@ -80,6 +82,25 @@ class WebSocketMixin(ClientProtocol):
             self.logger.error("Handshake failed: %s", e, exc_info=True)
             raise ConnectionError(f"Handshake failed: {e}")
 
+    async def _process_message_handler(
+        self, handler: Callable[[Message], Any], filter: Filter | None, message: Message
+    ):
+        result = None
+        if filter:
+            if filter.match(message):
+                result = handler(message)
+            else:
+                return
+        else:
+            result = handler(message)
+        if asyncio.iscoroutine(result):
+            task = asyncio.create_task(result)
+            self._background_tasks.add(task)
+            task.add_done_callback(
+                lambda t: self._background_tasks.discard(t)
+                or self._log_task_exception(t)
+            )
+
     async def _recv_loop(self) -> None:
         if self._ws is None:
             self.logger.warning("Recv loop started without websocket instance")
@@ -121,21 +142,25 @@ class WebSocketMixin(ClientProtocol):
                                 msg = Message.from_dict(payload)
                                 if msg:
                                     if msg.status:
-                                        continue  # TODO: заглушка! сделать отдельный хендлер
-                                    if filter:
-                                        if filter.match(msg):
-                                            result = handler(msg)
-                                        else:
-                                            continue
-                                    else:
-                                        result = handler(msg)
-                                    if asyncio.iscoroutine(result):
-                                        task = asyncio.create_task(result)
-                                        self._background_tasks.add(task)
-                                        task.add_done_callback(
-                                            lambda t: self._background_tasks.discard(t)
-                                            or self._log_task_exception(t)
-                                        )
+                                        if msg.status == MessageStatus.EDITED:
+                                            for (
+                                                edit_handler,
+                                                edit_filter,
+                                            ) in self._on_message_edit_handlers:
+                                                await self._process_message_handler(
+                                                    edit_handler, edit_filter, msg
+                                                )
+                                        elif msg.status == MessageStatus.REMOVED:
+                                            for (
+                                                remove_handler,
+                                                remove_filter,
+                                            ) in self._on_message_delete_handlers:
+                                                await self._process_message_handler(
+                                                    remove_handler, remove_filter, msg
+                                                )
+                                    await self._process_message_handler(
+                                        handler, filter, msg
+                                    )
                         except Exception:
                             self.logger.exception("Error in on_message_handler")
 
