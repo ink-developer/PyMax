@@ -14,11 +14,6 @@ class Database:
         self.create_all()
         self._ensure_single_auth()
 
-        self.workdir = workdir
-        self.engine = self.get_engine(workdir)
-        self.create_all()
-        self._ensure_single_auth()
-
     def create_all(self) -> None:
         SQLModel.metadata.create_all(self.engine)
 
