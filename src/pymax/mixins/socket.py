@@ -267,38 +267,33 @@ Socket connections may be unstable, SSL issues are possible.
                                         if msg_dict
                                         else None
                                     )
-                                    if msg:
-                                        if msg.status:
-                                            if (
-                                                msg.status
-                                                == MessageStatus.EDITED
+                                    if msg and msg.status:
+                                        if msg.status == MessageStatus.EDITED:
+                                            for (
+                                                edit_handler,
+                                                edit_filter,
+                                            ) in (
+                                                self._on_message_edit_handlers
                                             ):
-                                                for (
-                                                    edit_handler,
-                                                    edit_filter,
-                                                ) in (
-                                                    self._on_message_edit_handlers
-                                                ):
-                                                    await self._process_message_handler(
-                                                        handler=edit_handler,
-                                                        msg_filter=edit_filter,
-                                                        message=msg,
-                                                    )
-                                            elif (
-                                                msg.status
-                                                == MessageStatus.REMOVED
+                                                await self._process_message_handler(
+                                                    handler=edit_handler,
+                                                    msg_filter=edit_filter,
+                                                    message=msg,
+                                                )
+                                        elif (
+                                            msg.status == MessageStatus.REMOVED
+                                        ):
+                                            for (
+                                                remove_handler,
+                                                remove_filter,
+                                            ) in (
+                                                self._on_message_delete_handlers
                                             ):
-                                                for (
-                                                    remove_handler,
-                                                    remove_filter,
-                                                ) in (
-                                                    self._on_message_delete_handlers
-                                                ):
-                                                    await self._process_message_handler(
-                                                        handler=remove_handler,
-                                                        msg_filter=remove_filter,
-                                                        message=msg,
-                                                    )
+                                                await self._process_message_handler(
+                                                    handler=remove_handler,
+                                                    msg_filter=remove_filter,
+                                                    message=msg,
+                                                )
                                         await self._process_message_handler(
                                             handler=handler,
                                             msg_filter=filter,

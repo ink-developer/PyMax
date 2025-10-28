@@ -9,7 +9,6 @@ license = "MIT"
 keywords = ["max", "messenger", "api", "wrapper", "websocket"]
 classifiers = [
   "Programming Language :: Python :: 3",
-
   "Operating System :: OS Independent",
 ]
 dependencies = [
