@@ -39,6 +39,6 @@ uv add -U maxapi-python
 
 ## Ссылки
 
-- [GitHub](https://github.com/noxzion/PyMax)
+- [GitHub](https://github.com/ink-developer/PyMax)
 - [PyPI](https://pypi.org/project/pymax/)
-- [Issues](https://github.com/noxzion/PyMax/issues)
+- [Issues](https://github.com/ink-developer/PyMax/issues)

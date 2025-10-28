@@ -30,7 +30,7 @@ from .types import (
     User,
 )
 
-__author__ = "noxzion"
+__author__ = "ink-developer"
 
 __all__ = [
     # Перечисления и константы

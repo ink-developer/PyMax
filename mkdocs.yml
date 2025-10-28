@@ -150,6 +150,6 @@ markdown_extensions:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/noxzion/PyMax
+      link: https://github.com/ink-developer/PyMax
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/maxapi-python

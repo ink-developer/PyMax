@@ -156,10 +156,8 @@ class MessageType(StrEnum):
 
 
 class MessageStatus(StrEnum):
-    SENT = "SENT"
-    DELIVERED = "DELIVERED"
-    READ = "READ"
-    ERROR = "ERROR"
+    EDITED = "EDITED"
+    REMOVED = "REMOVED"
 
 
 class ElementType(StrEnum):
@@ -192,3 +190,17 @@ class AttachType(StrEnum):
     FILE = "FILE"
     STICKER = "STICKER"
     CONTROL = "CONTROL"
+
+
+class FormattingType(StrEnum):
+    STRONG = "STRONG"
+    EMPHASIZED = "EMPHASIZED"
+    UNDERLINE = "UNDERLINE"
+    STRIKETHROUGH = "STRIKETHROUGH"
+
+
+class MarkupType(StrEnum):
+    BOLD = "**"
+    ITALIC = "*"
+    UNDERLINE = "__"
+    STRIKETHROUGH = "~~"

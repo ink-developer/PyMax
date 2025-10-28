@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
 ## Документация
 
-[WIP](https://noxzion.github.io/)
+[WIP](https://ink-developer.github.io/)
 
 ## Лицензия
 
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
 ## Авторы
 
-- **[noxzion](https://github.com/noxzion)** — Оригинальный автор проекта
+- **[ink-developer](https://github.com/ink-developer)** — Оригинальный автор проекта
 - **[ink](https://github.com/ink-developer)** — Главный разработчик, исследование API и его документация
 
 ## Контрибьюторы

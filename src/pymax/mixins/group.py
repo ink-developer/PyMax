@@ -11,6 +11,7 @@ from pymax.payloads import (
     InviteUsersPayload,
     JoinGroupPayload,
     RemoveUsersPayload,
+    ReworkInviteLinkPayload,
 )
 from pymax.static.enum import Opcode
 from pymax.types import Chat, Message
@@ -277,4 +278,33 @@ class GroupMixin(ClientProtocol):
 
         except Exception:
             self.logger.exception("Join group failed")
+            return None
+
+    async def rework_invite_link(self, chat_id: int) -> Chat | None:
+        """
+        Пересоздает ссылку для приглашения в группу
+
+        Args:
+            chat_id (int): ID группы.
+
+        Returns:
+            str | None: Новая ссылка или None при ошибке.
+        """
+        try:
+            payload = ReworkInviteLinkPayload(chat_id=chat_id).model_dump(
+                by_alias=True
+            )
+
+            data = await self._send_and_wait(
+                opcode=Opcode.CHAT_UPDATE, payload=payload
+            )
+
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Rework invite link error: %s", error)
+                return None
+
+            return Chat.from_dict(data["payload"].get("chat"))
+
+        except Exception:
+            self.logger.exception("Rework invite link failed")
             return None

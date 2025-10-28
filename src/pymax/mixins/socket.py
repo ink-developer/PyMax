@@ -2,16 +2,18 @@ import asyncio
 import socket
 import ssl
 import sys
+from collections.abc import Callable
 from typing import Any
 
 import lz4.block
 import msgpack
 from typing_extensions import override
 
-from pymax.filters import Message
+from pymax.exceptions import SocketNotConnectedError, SocketSendError
+from pymax.filters import Filter, Message
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
-from pymax.static.enum import Opcode
+from pymax.static.enum import MessageStatus, Opcode
 from pymax.types import Channel, Chat, Dialog, Me
 
 
@@ -25,7 +27,7 @@ class SocketMixin(ClientProtocol):
     def sock(self) -> socket.socket:
         if self._socket is None or not self.is_connected:
             self.logger.critical("Socket not connected when access attempted")
-            raise ConnectionError("Socket not connected")
+            raise SocketNotConnectedError()
         return self._socket
 
     def _unpack_packet(self, data: bytes) -> dict[str, Any] | None:
@@ -41,7 +43,8 @@ class SocketMixin(ClientProtocol):
         payload = None
         if payload_bytes:
             if comp_flag != 0:
-                uncompressed_size = int.from_bytes(payload_bytes[0:4], "big")
+                # TODO: надо выяснить правильный размер распаковки
+                # uncompressed_size = int.from_bytes(payload_bytes[0:4], "big")
                 compressed_data = payload_bytes
                 try:
                     payload_bytes = lz4.block.decompress(
@@ -264,19 +267,43 @@ Socket connections may be unstable, SSL issues are possible.
                                         if msg_dict
                                         else None
                                     )
-                                    if msg and not msg.status:
-                                        if filter and not filter.match(msg):
-                                            continue
-                                        result = handler(msg)
-                                        if asyncio.iscoroutine(result):
-                                            task = asyncio.create_task(result)
-                                            self._background_tasks.add(task)
-                                            task.add_done_callback(
-                                                lambda t: self._background_tasks.discard(  # type: ignore[func-returns-value]
-                                                    t
-                                                )
-                                                or self._log_task_exception(t)  # type: ignore[func-returns-value]
-                                            )
+                                    if msg:
+                                        if msg.status:
+                                            if (
+                                                msg.status
+                                                == MessageStatus.EDITED
+                                            ):
+                                                for (
+                                                    edit_handler,
+                                                    edit_filter,
+                                                ) in (
+                                                    self._on_message_edit_handlers
+                                                ):
+                                                    await self._process_message_handler(
+                                                        handler=edit_handler,
+                                                        msg_filter=edit_filter,
+                                                        message=msg,
+                                                    )
+                                            elif (
+                                                msg.status
+                                                == MessageStatus.REMOVED
+                                            ):
+                                                for (
+                                                    remove_handler,
+                                                    remove_filter,
+                                                ) in (
+                                                    self._on_message_delete_handlers
+                                                ):
+                                                    await self._process_message_handler(
+                                                        handler=remove_handler,
+                                                        msg_filter=remove_filter,
+                                                        message=msg,
+                                                    )
+                                        await self._process_message_handler(
+                                            handler=handler,
+                                            msg_filter=filter,
+                                            message=msg,
+                                        )
                             except Exception:
                                 self.logger.exception(
                                     "Error in on_message_handler"
@@ -298,8 +325,26 @@ Socket connections may be unstable, SSL issues are possible.
             if exc:
                 self.logger.exception("Background task exception: %s", exc)
         except Exception as e:
-            self.logger.exception("Error retrieving task exception: %s", e)
+            self.logger.exception("Error getting task exception: %s", e)
             pass
+
+    async def _process_message_handler(
+        self,
+        handler: Callable[[Message], Any],
+        msg_filter: Filter | None,
+        message: Message,
+    ) -> None:
+        if msg_filter and not msg_filter.match(message):
+            return
+
+        result = handler(message)
+        if asyncio.iscoroutine(result):
+            task = asyncio.create_task(result)
+            self._background_tasks.add(task)
+            task.add_done_callback(
+                lambda t: self._background_tasks.discard(t)  # type: ignore[func-returns-value]
+                or self._log_task_exception(t)  # type: ignore[func-returns-value]
+            )
 
     async def _send_interactive_ping(self) -> None:
         while self.is_connected:
@@ -343,7 +388,7 @@ Socket connections may be unstable, SSL issues are possible.
         timeout: float = 10.0,
     ) -> dict[str, Any]:
         if not self.is_connected or self._socket is None:
-            raise ConnectionError("Socket not connected")
+            raise SocketNotConnectedError
         sock = self.sock
         msg = self._make_message(opcode, payload, cmd)
         loop = asyncio.get_running_loop()
@@ -372,19 +417,20 @@ Socket connections may be unstable, SSL issues are possible.
             )
             return data
 
-        except (ssl.SSLEOFError, ssl.SSLError, ConnectionError):
+        except (ssl.SSLEOFError, ssl.SSLError, ConnectionError) as conn_err:
             self.logger.warning("Connection lost, reconnecting...")
             self.is_connected = False
             try:
-                return await self._connect(self.user_agent)
-            except Exception:
-                self.logger.error("Reconnect failed", exc_info=True)
-                raise
-        except Exception:
+                await self._connect(self.user_agent)
+            except Exception as exc:
+                self.logger.exception("Reconnect failed")
+                raise exc from conn_err
+            raise SocketNotConnectedError from conn_err
+        except Exception as exc:
             self.logger.exception(
                 "Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"]
             )
-            raise RuntimeError("Send and wait failed (socket)")
+            raise SocketSendError from exc
 
         finally:
             self._pending.pop(msg["seq"], None)

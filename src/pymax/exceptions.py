@@ -20,6 +20,25 @@ class WebSocketNotConnectedError(Exception):
         super().__init__("WebSocket is not connected")
 
 
+class SocketNotConnectedError(Exception):
+    """
+    Исключение, вызываемое при попытке обращения к сокету,
+    если соединение не установлено.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("Socket is not connected")
+
+
+class SocketSendError(Exception):
+    """
+    Исключение, вызываемое при ошибке отправки данных через сокет.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("Send and wait failed (socket)")
+
+
 class LoginError(Exception):
     """
     Исключение, вызываемое при ошибке авторизации.

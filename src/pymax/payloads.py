@@ -14,6 +14,7 @@ class CamelModel(BaseModel):
     model_config = {
         "alias_generator": to_camel,
         "populate_by_name": True,
+        "arbitrary_types_allowed": True,
     }
 
 
@@ -61,11 +62,17 @@ class AttachPhotoPayload(CamelModel):
     photo_token: str
 
 
+class MessageElement(CamelModel):
+    type: str
+    from_: int = Field(..., alias="from")
+    length: int
+
+
 class SendMessagePayloadMessage(CamelModel):
     text: str
     cid: int
-    elements: list[Any]
-    attaches: list[dict[str, Any]]
+    elements: list[MessageElement]
+    attaches: list[AttachPhotoPayload]
     link: ReplyLink | None = None
 
 
@@ -79,8 +86,8 @@ class EditMessagePayload(CamelModel):
     chat_id: int
     message_id: int
     text: str
-    elements: list[Any]
-    attaches: list[Any]
+    elements: list[MessageElement]
+    attaches: list[AttachPhotoPayload]
 
 
 class DeleteMessagePayload(CamelModel):
@@ -249,3 +256,8 @@ class UserAgentPayload(BaseModel):
     appVersion: str = Field(default="25.8.5")
     screen: str = Field(default="1080x1920 1.0x")
     timezone: str = Field(default="Europe/Moscow")
+
+
+class ReworkInviteLinkPayload(CamelModel):
+    revoke_private_link: bool = True
+    chat_id: int

@@ -1,10 +1,10 @@
 [project]
 name = "maxapi-python"
-version = "1.1.11"
+version = "1.1.13"
 description = "Python wrapper для API мессенджера Max"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{ name = "noxzion", email = "mail@gmail.com" }]
+authors = [{ name = "ink", email = "mail@gmail.com" }]
 license = "MIT"
 keywords = ["max", "messenger", "api", "wrapper", "websocket"]
 classifiers = [
@@ -22,9 +22,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/noxzion/PyMax"
-Repository = "https://github.com/noxzion/PyMax"
-Issues = "https://github.com/noxzion/PyMax/issues"
+Homepage = "https://github.com/ink-developer/PyMax"
+Repository = "https://github.com/ink-developer/PyMax"
+Issues = "https://github.com/ink-developer/PyMax/issues"
 
 [build-system]
 requires = ["hatchling"]

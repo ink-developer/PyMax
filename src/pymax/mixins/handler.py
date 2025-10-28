@@ -31,6 +31,56 @@ class HandlerMixin(ClientProtocol):
 
         return decorator
 
+    def on_message_edit(self, *, filter: Filter | None = None) -> Callable[
+        [Callable[[Any], Any | Awaitable[Any]]],
+        Callable[[Any], Any | Awaitable[Any]],
+    ]:
+        """
+        Декоратор для установки обработчика отредактированных сообщений.
+
+        Args:
+            filter: Фильтр для обработки сообщений.
+
+        Returns:
+            Декоратор.
+        """
+
+        def decorator(
+            handler: Callable[[Any], Any | Awaitable[Any]],
+        ) -> Callable[[Any], Any | Awaitable[Any]]:
+            self._on_message_edit_handlers.append((handler, filter))
+            self.logger.info(
+                f"on_message_edit handler set: {handler}, filter: {filter}"
+            )
+            return handler
+
+        return decorator
+
+    def on_message_delete(self, *, filter: Filter | None = None) -> Callable[
+        [Callable[[Any], Any | Awaitable[Any]]],
+        Callable[[Any], Any | Awaitable[Any]],
+    ]:
+        """
+        Декоратор для установки обработчика удаленных сообщений.
+
+        Args:
+            filter: Фильтр для обработки сообщений.
+
+        Returns:
+            Декоратор.
+        """
+
+        def decorator(
+            handler: Callable[[Any], Any | Awaitable[Any]],
+        ) -> Callable[[Any], Any | Awaitable[Any]]:
+            self._on_message_delete_handlers.append((handler, filter))
+            self.logger.info(
+                f"on_message_delete handler set: {handler}, filter: {filter}"
+            )
+            return handler
+
+        return decorator
+
     def on_start(
         self, handler: Callable[[], Any | Awaitable[Any]]
     ) -> Callable[[], Any | Awaitable[Any]]:
