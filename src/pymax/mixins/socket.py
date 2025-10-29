@@ -315,11 +315,11 @@ Socket connections may be unstable, SSL issues are possible.
         finally:
             self.logger.warning("<<< Recv loop exited (socket)")
 
-    def _log_task_exception(self, task: asyncio.Task[Any]) -> None:
+    def _log_task_exception(self, fut: asyncio.Future[Any]) -> None:
         try:
-            exc = task.exception()
-            if exc:
-                self.logger.exception("Background task exception: %s", exc)
+            fut.result()
+        except asyncio.CancelledError:
+            pass
         except Exception as e:
             self.logger.exception("Error getting task exception: %s", e)
             pass
@@ -336,11 +336,8 @@ Socket connections may be unstable, SSL issues are possible.
         result = handler(message)
         if asyncio.iscoroutine(result):
             task = asyncio.create_task(result)
+            task.add_done_callback(self._log_task_exception)
             self._background_tasks.add(task)
-            task.add_done_callback(
-                lambda t: self._background_tasks.discard(t)  # type: ignore[func-returns-value]
-                or self._log_task_exception(t)  # type: ignore[func-returns-value]
-            )
 
     async def _send_interactive_ping(self) -> None:
         while self.is_connected:
