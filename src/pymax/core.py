@@ -143,18 +143,12 @@ class MaxClient(ApiMixin, WebSocketMixin):
                     await result
 
             ping_task = asyncio.create_task(self._send_interactive_ping())
+            ping_task.add_done_callback(self._log_task_exception)
             self._background_tasks.add(ping_task)
             if self._send_fake_telemetry:
                 telemetry_task = asyncio.create_task(self._start())
+                telemetry_task.add_done_callback(self._log_task_exception)
                 self._background_tasks.add(telemetry_task)
-                telemetry_task.add_done_callback(
-                    lambda t: self._background_tasks.discard(t)  # type: ignore[func-returns-value]
-                    or self._log_task_exception(t)  # type: ignore[func-returns-value]
-                )
-            ping_task.add_done_callback(
-                lambda t: self._background_tasks.discard(t)  # type: ignore[func-returns-value]
-                or self._log_task_exception(t)  # type: ignore[func-returns-value]
-            )
             await self._wait_forever()
         except Exception:
             self.logger.exception("Client start failed")

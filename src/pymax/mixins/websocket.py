@@ -113,11 +113,8 @@ class WebSocketMixin(ClientProtocol):
             result = handler(message)
         if asyncio.iscoroutine(result):
             task = asyncio.create_task(result)
+            task.add_done_callback(self._log_task_exception)
             self._background_tasks.add(task)
-            task.add_done_callback(
-                lambda t: self._background_tasks.discard(t)  # type: ignore[func-returns-value]
-                or self._log_task_exception(t)  # type: ignore[func-returns-value]
-            )
 
     async def _recv_loop(self) -> None:
         if self._ws is None:
@@ -207,11 +204,11 @@ class WebSocketMixin(ClientProtocol):
                 )
                 await asyncio.sleep(0.5)
 
-    def _log_task_exception(self, task: asyncio.Task[Any]) -> None:
+    def _log_task_exception(self, fut: asyncio.Future[Any]) -> None:
         try:
-            exc = task.exception()
-            if exc:
-                self.logger.exception("Background task exception: %s", exc)
+            fut.result()
+        except asyncio.CancelledError:
+            pass
         except Exception as e:
             self.logger.exception("Error retrieving task exception: %s", e)
             pass
