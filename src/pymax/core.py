@@ -88,7 +88,6 @@ class MaxClient(ApiMixin, WebSocketMixin):
         )
 
     def _setup_logger(self) -> None:
-        self.logger.setLevel(logging.INFO)
         if not logger.handlers:
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
