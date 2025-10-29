@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from pymax.exceptions import ResponseError, ResponseStructureError
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import (
@@ -44,7 +42,7 @@ class ChannelMixin(ClientProtocol):
 
     async def _query_members(
         self, payload: GetGroupMembersPayload | SearchGroupMembersPayload
-    ) -> Tuple[List[Member], int]:
+    ) -> tuple[list[Member], int]:
         data = await self._send_and_wait(
             opcode=Opcode.CHAT_MEMBERS,
             payload=payload.model_dump(by_alias=True),
@@ -79,7 +77,7 @@ class ChannelMixin(ClientProtocol):
         chat_id: int,
         marker: int = DEFAULT_MARKER_VALUE,
         count: int = DEFAULT_CHAT_MEMBERS_LIMIT,
-    ) -> Tuple[List[Member], int]:
+    ) -> tuple[list[Member], int]:
         """
         Загружает членов канала
 
@@ -90,7 +88,7 @@ class ChannelMixin(ClientProtocol):
             Данное значение лучше не менять, так как веб-клиент загружает именно столько.
 
         Returns:
-            List[Member]: Список участников канала
+            list[Member]: Список участников канала
         """
         payload = GetGroupMembersPayload(
             chat_id=chat_id, marker=marker, count=count
@@ -99,7 +97,7 @@ class ChannelMixin(ClientProtocol):
 
     async def find_members(
         self, chat_id: int, query: str
-    ) -> Tuple[List[Member], int]:
+    ) -> tuple[list[Member], int]:
         """
         Поиск участников канала по строке
         Внимание! веб-клиент всегда возвращает только определённое количество пользователей,
@@ -110,7 +108,7 @@ class ChannelMixin(ClientProtocol):
             query (str): Строка для поиска участников
 
         Returns:
-            List[Member]: Список участников канала
+            list[Member]: Список участников канала
         """
         payload = SearchGroupMembersPayload(chat_id=chat_id, query=query)
         return await self._query_members(payload)
