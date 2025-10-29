@@ -10,7 +10,12 @@ from pymax.exceptions import LoginError, WebSocketNotConnectedError
 from pymax.filters import Filter
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
-from pymax.static.constant import DEFAULT_TIMEOUT, WEBSOCKET_ORIGIN
+from pymax.static.constant import (
+    DEFAULT_PING_INTERVAL,
+    DEFAULT_TIMEOUT,
+    RECV_LOOP_BACKOFF_DELAY,
+    WEBSOCKET_ORIGIN,
+)
 from pymax.static.enum import ChatType, MessageStatus, Opcode
 from pymax.types import Channel, Chat, Dialog, Me, Message
 
@@ -58,7 +63,7 @@ class WebSocketMixin(ClientProtocol):
                 self.logger.debug("Interactive ping sent successfully")
             except Exception:
                 self.logger.warning("Interactive ping failed", exc_info=True)
-            await asyncio.sleep(30)
+            await asyncio.sleep(DEFAULT_PING_INTERVAL)
 
     async def _connect(self, user_agent: UserAgentPayload) -> dict[str, Any]:
         try:
@@ -202,7 +207,7 @@ class WebSocketMixin(ClientProtocol):
                 self.logger.exception(
                     "Error in recv_loop; backing off briefly"
                 )
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
 
     def _log_task_exception(self, fut: asyncio.Future[Any]) -> None:
         try:

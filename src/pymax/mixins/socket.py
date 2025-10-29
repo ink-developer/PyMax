@@ -13,7 +13,11 @@ from pymax.exceptions import SocketNotConnectedError, SocketSendError
 from pymax.filters import Filter, Message
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
-from pymax.static.constant import DEFAULT_TIMEOUT
+from pymax.static.constant import (
+    DEFAULT_PING_INTERVAL,
+    DEFAULT_TIMEOUT,
+    RECV_LOOP_BACKOFF_DELAY,
+)
 from pymax.static.enum import MessageStatus, Opcode
 from pymax.types import Channel, Chat, Dialog, Me
 
@@ -208,7 +212,7 @@ Socket connections may be unstable, SSL issues are possible.
                             10 + payload_length,
                             len(raw),
                         )
-                        await asyncio.sleep(0.5)
+                        await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
                         continue
 
                     data = self._unpack_packet(raw)
@@ -311,7 +315,7 @@ Socket connections may be unstable, SSL issues are possible.
                     self.logger.exception(
                         "Error in recv_loop; backing off briefly"
                     )
-                    await asyncio.sleep(0.5)
+                    await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
         finally:
             self.logger.warning("<<< Recv loop exited (socket)")
 
@@ -354,7 +358,7 @@ Socket connections may be unstable, SSL issues are possible.
                 self.logger.warning(
                     "Interactive ping failed (socket)", exc_info=True
                 )
-            await asyncio.sleep(30)
+            await asyncio.sleep(DEFAULT_PING_INTERVAL)
 
     def _make_message(
         self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0
