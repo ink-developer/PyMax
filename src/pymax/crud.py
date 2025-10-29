@@ -1,4 +1,4 @@
-from typing import Optional, cast
+from typing import cast
 from uuid import UUID
 
 from sqlalchemy.engine.base import Engine
@@ -26,15 +26,13 @@ class Database:
 
     def get_auth_token(self) -> str | None:
         with self.get_session() as session:
-            token = cast(
-                Optional[str], session.exec(select(Auth.token)).first()
-            )
+            token = cast(str | None, session.exec(select(Auth.token)).first())
             return token
 
     def get_device_id(self) -> UUID:
         with self.get_session() as session:
             device_id = cast(
-                Optional[UUID], session.exec(select(Auth.device_id)).first()
+                UUID | None, session.exec(select(Auth.device_id)).first()
             )
             if device_id is None:
                 auth = Auth()
