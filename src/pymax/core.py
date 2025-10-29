@@ -11,7 +11,11 @@ from .crud import Database
 from .exceptions import InvalidPhoneError
 from .mixins import ApiMixin, SocketMixin, WebSocketMixin
 from .payloads import UserAgentPayload
-from .static.constant import DEFAULT_USER_AGENT, HOST, PORT, WEBSOCKET_URI
+from .static.constant import (
+    HOST,
+    PORT,
+    WEBSOCKET_URI,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +31,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         work_dir (str, optional): Рабочая директория для хранения базы данных. По умолчанию ".".
         logger (logging.Logger | None): Пользовательский логгер. Если не передан — используется
             логгер модуля с именем f"{__name__}.MaxClient".
-        headers (dict[str, Any] | None): Заголовки для подключения к WebSocket. По умолчанию
-            Constants.DEFAULT_USER_AGENT.value.
+        headers (UserAgentPayload): Заголовки для подключения к WebSocket.
         token (str | None, optional): Токен авторизации. Если не передан, будет выполнен
             процесс логина по номеру телефона.
         host (str, optional): Хост API сервера. По умолчанию Constants.HOST.value.
@@ -42,7 +45,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self,
         phone: str,
         uri: str = WEBSOCKET_URI,
-        headers: UserAgentPayload = DEFAULT_USER_AGENT,
+        headers: UserAgentPayload = UserAgentPayload(),
         token: str | None = None,
         send_fake_telemetry: bool = True,
         host: str = HOST,

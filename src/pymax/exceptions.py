@@ -46,3 +46,21 @@ class LoginError(Exception):
 
     def __init__(self, message: str) -> None:
         super().__init__(f"Login error: {message}")
+
+
+class ResponseError(Exception):
+    """
+    Исключение, вызываемое при ошибке в ответе от сервера.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(f"Response error: {message}")
+
+
+class ResponseStructureError(Exception):
+    """
+    Исключение, вызываемое при неверной структуре ответа от сервера.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(f"Response structure error: {message}")

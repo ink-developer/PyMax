@@ -1,7 +1,18 @@
-from typing import Any, Literal
+from typing import Any, Final, Literal
 
 from pydantic import AliasChoices, BaseModel, Field
 
+from pymax.static.constant import (
+    DEFAULT_APP_VERSION,
+    DEFAULT_DEVICE_LOCALE,
+    DEFAULT_DEVICE_NAME,
+    DEFAULT_DEVICE_TYPE,
+    DEFAULT_LOCALE,
+    DEFAULT_OS_VERSION,
+    DEFAULT_SCREEN,
+    DEFAULT_TIMEZONE,
+    DEFAULT_USER_AGENT,
+)
 from pymax.static.enum import AttachType, AuthType
 
 
@@ -19,7 +30,7 @@ class CamelModel(BaseModel):
 
 
 class BaseWebSocketMessage(BaseModel):
-    ver: int = 11
+    ver: Final[int] = 11
     cmd: int
     seq: int
     opcode: int
@@ -179,10 +190,16 @@ class ChangeGroupProfilePayload(CamelModel):
 
 
 class GetGroupMembersPayload(CamelModel):
-    type: str = "MEMBER"
+    type: Final[str] = "MEMBER"
     marker: int
     chat_id: int
     count: int
+
+
+class SearchGroupMembersPayload(CamelModel):
+    type: Final[str] = "MEMBER"
+    query: str
+    chat_id: int
 
 
 class NavigationEventParams(BaseModel):
@@ -247,15 +264,15 @@ class RemoveReactionPayload(CamelModel):
 
 
 class UserAgentPayload(BaseModel):
-    deviceType: str = Field(default="WEB")
-    locale: str = Field(default="ru")
-    deviceLocale: str = Field(default="ru")
-    osVersion: str = Field(default="Linux")
-    deviceName: str = Field(default="Chrome")
-    headerUserAgent: str = Field(default="Mozilla/5.0 ...")
-    appVersion: str = Field(default="25.8.5")
-    screen: str = Field(default="1080x1920 1.0x")
-    timezone: str = Field(default="Europe/Moscow")
+    deviceType: str = Field(default=DEFAULT_DEVICE_TYPE)
+    locale: str = Field(default=DEFAULT_LOCALE)
+    deviceLocale: str = Field(default=DEFAULT_DEVICE_LOCALE)
+    osVersion: str = Field(default=DEFAULT_OS_VERSION)
+    deviceName: str = Field(default=DEFAULT_DEVICE_NAME)
+    headerUserAgent: str = Field(default=DEFAULT_USER_AGENT)
+    appVersion: str = Field(default=DEFAULT_APP_VERSION)
+    screen: str = Field(default=DEFAULT_SCREEN)
+    timezone: str = Field(default=DEFAULT_TIMEZONE)
 
 
 class ReworkInviteLinkPayload(CamelModel):

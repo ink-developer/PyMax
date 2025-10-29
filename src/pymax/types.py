@@ -11,11 +11,56 @@ from .static.enum import (
     MessageType,
 )
 
+# TODO: все это нужно переделать на pydantic модели.
+# Я просто придерживаюсь текущего стиля.
+# - 6RUN0
 
-class Names:
+
+class Presence:
+    def __init__(self, seen: int | None) -> None:
+        """
+        Присутствие пользователя.
+
+        {
+            "seen": {{ unix timestamp }}
+        },
+        """
+        # TODO надо сделать пребразование в datetime с учетом таймзоны
+        self.seen = seen
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(seen=data.get("seen"))
+
+    @override
+    def __repr__(self) -> str:
+        return f"Presence(seen={self.seen!r})"
+
+    @override
+    def __str__(self) -> str:
+        return f"{self.seen}"
+
+
+class Name:
     def __init__(
-        self, name: str, first_name: str, last_name: str | None, type: str
+        self,
+        name: str | None,
+        first_name: None,
+        last_name: str | None,
+        type: str | None,
     ) -> None:
+        """
+        Структура имени пользователя.
+
+        Структура может поменяться, ничего не гарантируется.
+        На данный момент она такая:
+        {
+            "name": "Василий",
+            "firstName": "Пупкин",
+            "lastName": "Чеевич",
+            "type": "ONEME"
+        }
+        """
         self.name = name
         self.first_name = first_name
         self.last_name = last_name
@@ -24,19 +69,150 @@ class Names:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
-            name=data["name"],
-            first_name=data["firstName"],
+            name=data.get("name"),
+            first_name=data.get("firstName"),
             last_name=data.get("lastName"),
-            type=data["type"],
+            type=data.get("type"),
         )
 
     @override
     def __repr__(self) -> str:
-        return f"Names(name={self.name!r}, first_name={self.first_name!r}, last_name={self.last_name!r}, type={self.type!r})"
+        return f"Name(name={self.name!r}, first_name={self.first_name!r}, last_name={self.last_name!r}, type={self.type!r})"
 
     @override
     def __str__(self) -> str:
-        return self.name
+        return self.name or ""
+
+
+class Names(Name):
+    def __init__(
+        self,
+        name: str | None,
+        first_name: None,
+        last_name: str | None,
+        type: str | None,
+    ) -> None:
+        """
+        Синоним для класса Name.
+        """
+        super().__init__(
+            name=name, first_name=first_name, last_name=last_name, type=type
+        )
+
+
+class Contact:
+    def __init__(
+        self,
+        id: int | None,
+        account_status: int | None,
+        base_raw_url: str | None,
+        base_url: str | None,
+        names: list[Name] | None,
+        options: list[str] | None,
+        photo_id: int | None,
+        update_time: int | None,
+    ) -> None:
+        """
+        Контакт.
+
+        Сруктура:
+        {
+            "accountStatus": 0,
+            "baseUrl": "https://i.oneme.ru/i?r=...",
+            "names": [
+                Name{},
+            ],
+            "options": [
+                "TT",
+                "ONEME"
+            ],
+            "photoId": {{ file id }},
+            "updateTime": 0,
+            "id": {{ user id }},
+            "baseRawUrl": "https://i.oneme.ru/i?r=..."
+        }
+        """
+        self.id = id
+        self.account_status = account_status
+        self.base_raw_url = base_raw_url
+        self.base_url = base_url
+        self.names = names
+        self.options = options or []
+        self.photo_id = photo_id
+        # TODO надо сделать пребразование в datetime с учетом таймзоны
+        self.update_time = update_time
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(
+            account_status=data.get("accountStatus"),
+            update_time=data.get("updateTime"),
+            id=data.get("id"),
+            names=[Name.from_dict(n) for n in data.get("names", [])],
+            options=data.get("options"),
+            base_url=data.get("baseUrl"),
+            base_raw_url=data.get("baseRawUrl"),
+            photo_id=data.get("photoId"),
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return f"Contact(id={self.id!r}, names={self.names!r}, status={self.account_status!r})"
+
+    @override
+    def __str__(self) -> str:
+        return (
+            f"Contact {self.id}: {', '.join(str(n) for n in self.names or [])}"
+        )
+
+
+class Member:
+    def __init__(
+        self,
+        contact: Contact,
+        presence: Presence,
+        read_mark: int | None,
+    ) -> None:
+        """
+        Участник чата.
+
+        Структура:
+        {
+            "presence": Presence{}
+            "readMark": {{ timestamp with milliseconds }},
+            "contact": Contact{}
+        },
+        """
+        self.presence = presence
+        # TODO надо сделать пребразование в datetime с учетом таймзоны
+        self.read_mark = read_mark
+        self.contact = contact
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        presence_value = data.get("presence")
+        if isinstance(presence_value, dict):
+            presence = Presence.from_dict(presence_value)
+        else:
+            presence = Presence.from_dict({})
+        contact_value = data.get("contact")
+        if isinstance(contact_value, dict):
+            contact = Contact.from_dict(contact_value)
+        else:
+            contact = Contact.from_dict({})
+        return cls(
+            contact=contact,
+            presence=presence,
+            read_mark=data.get("readMark"),
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return f"Member(presence={self.presence!r}, read_mark={self.read_mark!r}, contact={self.contact!r})"
+
+    @override
+    def __str__(self) -> str:
+        return f"Member {self.contact.id}: {', '.join(str(n) for n in self.contact.names or [])}"
 
 
 class ControlAttach:

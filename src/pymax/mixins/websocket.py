@@ -31,15 +31,14 @@ class WebSocketMixin(ClientProtocol):
         return self._ws
 
     def _make_message(
-        self, opcode: int, payload: dict[str, Any], cmd: int = 0
+        self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0
     ) -> dict[str, Any]:
         self._seq += 1
 
         msg = BaseWebSocketMessage(
-            ver=11,
             cmd=cmd,
             seq=self._seq,
-            opcode=opcode,
+            opcode=opcode.value,
             payload=payload,
         ).model_dump(by_alias=True)
 
@@ -52,7 +51,7 @@ class WebSocketMixin(ClientProtocol):
         while self.is_connected:
             try:
                 await self._send_and_wait(
-                    opcode=1,
+                    opcode=Opcode.PING,
                     payload={"interactive": True},
                     cmd=0,
                 )
@@ -154,7 +153,7 @@ class WebSocketMixin(ClientProtocol):
                             )
 
                     if (
-                        data.get("opcode") == Opcode.NOTIF_MESSAGE
+                        data.get("opcode") == Opcode.NOTIF_MESSAGE.value
                         and self._on_message_handlers
                     ):
                         try:
@@ -220,13 +219,12 @@ class WebSocketMixin(ClientProtocol):
     @override
     async def _send_and_wait(
         self,
-        opcode: int,
+        opcode: Opcode,
         payload: dict[str, Any],
         cmd: int = 0,
         timeout: float = DEFAULT_TIMEOUT,
     ) -> dict[str, Any]:
         ws = self.ws
-
         msg = self._make_message(opcode, payload, cmd)
         loop = asyncio.get_running_loop()
         fut: asyncio.Future[dict[str, Any]] = loop.create_future()

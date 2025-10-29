@@ -13,6 +13,7 @@ from pymax.exceptions import SocketNotConnectedError, SocketSendError
 from pymax.filters import Filter, Message
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
+from pymax.static.constant import DEFAULT_TIMEOUT
 from pymax.static.enum import MessageStatus, Opcode
 from pymax.types import Channel, Chat, Dialog, Me
 
@@ -277,7 +278,7 @@ Socket connections may be unstable, SSL issues are possible.
                                             ):
                                                 await self._process_message_handler(
                                                     handler=edit_handler,
-                                                    msg_filter=edit_filter,
+                                                    filter=edit_filter,
                                                     message=msg,
                                                 )
                                         elif (
@@ -291,12 +292,12 @@ Socket connections may be unstable, SSL issues are possible.
                                             ):
                                                 await self._process_message_handler(
                                                     handler=remove_handler,
-                                                    msg_filter=remove_filter,
+                                                    filter=remove_filter,
                                                     message=msg,
                                                 )
                                         await self._process_message_handler(
                                             handler=handler,
-                                            msg_filter=filter,
+                                            filter=filter,
                                             message=msg,
                                         )
                             except Exception:
@@ -326,10 +327,10 @@ Socket connections may be unstable, SSL issues are possible.
     async def _process_message_handler(
         self,
         handler: Callable[[Message], Any],
-        msg_filter: Filter | None,
+        filter: Filter | None,
         message: Message,
     ) -> None:
-        if msg_filter and not msg_filter.match(message):
+        if filter and not filter.match(message):
             return
 
         result = handler(message)
@@ -359,14 +360,13 @@ Socket connections may be unstable, SSL issues are possible.
             await asyncio.sleep(30)
 
     def _make_message(
-        self, opcode: int, payload: dict[str, Any], cmd: int = 0
+        self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0
     ) -> dict[str, Any]:
         self._seq += 1
         msg = BaseWebSocketMessage(
-            ver=11,
             cmd=cmd,
             seq=self._seq,
-            opcode=opcode,
+            opcode=opcode.value,
             payload=payload,
         ).model_dump(by_alias=True)
         self.logger.debug(
@@ -377,10 +377,10 @@ Socket connections may be unstable, SSL issues are possible.
     @override
     async def _send_and_wait(
         self,
-        opcode: int,
+        opcode: Opcode,
         payload: dict[str, Any],
         cmd: int = 0,
-        timeout: float = 10.0,
+        timeout: float = DEFAULT_TIMEOUT,
     ) -> dict[str, Any]:
         if not self.is_connected or self._socket is None:
             raise SocketNotConnectedError

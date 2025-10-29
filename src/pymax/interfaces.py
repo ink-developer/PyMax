@@ -10,7 +10,9 @@ from typing import TYPE_CHECKING, Any
 import websockets
 
 from .filters import Filter
-from .static.constant import DEFAULT_TIMEOUT, DEFAULT_USER_AGENT
+from .payloads import UserAgentPayload
+from .static.constant import DEFAULT_TIMEOUT
+from .static.enum import Opcode
 from .types import Channel, Chat, Dialog, Me, Message, User
 
 if TYPE_CHECKING:
@@ -42,7 +44,7 @@ class ClientProtocol(ABC):
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
-        self.user_agent = DEFAULT_USER_AGENT
+        self.user_agent = UserAgentPayload()
         self._session_id: int
         self._action_id: int = 0
         self._current_screen: str = "chats_list_tab"
@@ -65,7 +67,7 @@ class ClientProtocol(ABC):
     @abstractmethod
     async def _send_and_wait(
         self,
-        opcode: int,
+        opcode: Opcode,
         payload: dict[str, Any],
         cmd: int = 0,
         timeout: float = DEFAULT_TIMEOUT,
