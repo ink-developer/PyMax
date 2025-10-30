@@ -6,10 +6,9 @@ from pymax.types import Message
 
 
 class HandlerMixin(ClientProtocol):
-    def on_message(
-        self, *, filter: Filter | None = None
-    ) -> Callable[
-        [Callable[[Any], Any | Awaitable[Any]]], Callable[[Any], Any | Awaitable[Any]]
+    def on_message(self, *, filter: Filter | None = None) -> Callable[
+        [Callable[[Any], Any | Awaitable[Any]]],
+        Callable[[Any], Any | Awaitable[Any]],
     ]:
         """
         Декоратор для установки обработчика входящих сообщений.
@@ -25,15 +24,16 @@ class HandlerMixin(ClientProtocol):
             handler: Callable[[Any], Any | Awaitable[Any]],
         ) -> Callable[[Any], Any | Awaitable[Any]]:
             self._on_message_handlers.append((handler, filter))
-            self.logger.info(f"on_message handler set: {handler}, filter: {filter}")
+            self.logger.info(
+                f"on_message handler set: {handler}, filter: {filter}"
+            )
             return handler
 
         return decorator
 
-    def on_message_edit(
-        self, *, filter: Filter | None = None
-    ) -> Callable[
-        [Callable[[Any], Any | Awaitable[Any]]], Callable[[Any], Any | Awaitable[Any]]
+    def on_message_edit(self, *, filter: Filter | None = None) -> Callable[
+        [Callable[[Any], Any | Awaitable[Any]]],
+        Callable[[Any], Any | Awaitable[Any]],
     ]:
         """
         Декоратор для установки обработчика отредактированных сообщений.
@@ -56,10 +56,9 @@ class HandlerMixin(ClientProtocol):
 
         return decorator
 
-    def on_message_delete(
-        self, *, filter: Filter | None = None
-    ) -> Callable[
-        [Callable[[Any], Any | Awaitable[Any]]], Callable[[Any], Any | Awaitable[Any]]
+    def on_message_delete(self, *, filter: Filter | None = None) -> Callable[
+        [Callable[[Any], Any | Awaitable[Any]]],
+        Callable[[Any], Any | Awaitable[Any]],
     ]:
         """
         Декоратор для установки обработчика удаленных сообщений.
@@ -99,7 +98,9 @@ class HandlerMixin(ClientProtocol):
         return handler
 
     def add_message_handler(
-        self, handler: Callable[[Message], Any | Awaitable[Any]], filter: Filter | None
+        self,
+        handler: Callable[[Message], Any | Awaitable[Any]],
+        filter: Filter | None,
     ) -> Callable[[Message], Any | Awaitable[Any]]:
         self.logger.debug("add_message_handler (alias) used")
         self._on_message_handlers.append((handler, filter))

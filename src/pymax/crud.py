@@ -1,10 +1,11 @@
+from typing import cast
 from uuid import UUID
 
 from sqlalchemy.engine.base import Engine
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from .models import Auth
-from .static import DeviceType
+from .static.enum import DeviceType
 
 
 class Database:
@@ -25,11 +26,14 @@ class Database:
 
     def get_auth_token(self) -> str | None:
         with self.get_session() as session:
-            return session.exec(select(Auth.token)).first()
+            token = cast(str | None, session.exec(select(Auth.token)).first())
+            return token
 
     def get_device_id(self) -> UUID:
         with self.get_session() as session:
-            device_id = session.exec(select(Auth.device_id)).first()
+            device_id = cast(
+                UUID | None, session.exec(select(Auth.device_id)).first()
+            )
             if device_id is None:
                 auth = Auth()
                 session.add(auth)
@@ -47,7 +51,9 @@ class Database:
 
     def update_auth_token(self, device_id: UUID, token: str) -> None:
         with self.get_session() as session:
-            auth = session.exec(select(Auth).where(Auth.device_id == device_id)).first()
+            auth = session.exec(
+                select(Auth).where(Auth.device_id == device_id)
+            ).first()
             if auth:
                 auth.token = token
                 session.add(auth)

@@ -1,9 +1,19 @@
-from typing import Any, Literal
+from typing import Any, Final, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
-from pymax.static import AttachType, AuthType
-from pymax.types import ControlAttach, Element, FileAttach, PhotoAttach, VideoAttach
+from pymax.static.constant import (
+    DEFAULT_APP_VERSION,
+    DEFAULT_DEVICE_LOCALE,
+    DEFAULT_DEVICE_NAME,
+    DEFAULT_DEVICE_TYPE,
+    DEFAULT_LOCALE,
+    DEFAULT_OS_VERSION,
+    DEFAULT_SCREEN,
+    DEFAULT_TIMEZONE,
+    DEFAULT_USER_AGENT,
+)
+from pymax.static.enum import AttachType, AuthType
 
 
 def to_camel(string: str) -> str:
@@ -20,7 +30,7 @@ class CamelModel(BaseModel):
 
 
 class BaseWebSocketMessage(BaseModel):
-    ver: int = 11
+    ver: Final[int] = 11
     cmd: int
     seq: int
     opcode: int
@@ -59,7 +69,7 @@ class UploadPhotoPayload(CamelModel):
 
 
 class AttachPhotoPayload(CamelModel):
-    type: AttachType = Field(AttachType.PHOTO, alias="_type")
+    type: AttachType = Field(default=AttachType.PHOTO, alias="_type")
     photo_token: str
 
 
@@ -103,7 +113,10 @@ class FetchContactsPayload(CamelModel):
 
 class FetchHistoryPayload(CamelModel):
     chat_id: int
-    from_time: int = Field(alias="from")
+    from_time: int = Field(
+        validation_alias=AliasChoices("from_time", "from"),
+        serialization_alias="from",
+    )
     forward: int
     backward: int = 200
     get_messages: bool = True
@@ -177,10 +190,16 @@ class ChangeGroupProfilePayload(CamelModel):
 
 
 class GetGroupMembersPayload(CamelModel):
-    type: str = "MEMBER"
+    type: Final[str] = "MEMBER"
     marker: int
     chat_id: int
     count: int
+
+
+class SearchGroupMembersPayload(CamelModel):
+    type: Final[str] = "MEMBER"
+    query: str
+    chat_id: int
 
 
 class NavigationEventParams(BaseModel):
@@ -242,6 +261,18 @@ class GetReactionsPayload(CamelModel):
 class RemoveReactionPayload(CamelModel):
     chat_id: int
     message_id: str
+
+
+class UserAgentPayload(BaseModel):
+    deviceType: str = Field(default=DEFAULT_DEVICE_TYPE)
+    locale: str = Field(default=DEFAULT_LOCALE)
+    deviceLocale: str = Field(default=DEFAULT_DEVICE_LOCALE)
+    osVersion: str = Field(default=DEFAULT_OS_VERSION)
+    deviceName: str = Field(default=DEFAULT_DEVICE_NAME)
+    headerUserAgent: str = Field(default=DEFAULT_USER_AGENT)
+    appVersion: str = Field(default=DEFAULT_APP_VERSION)
+    screen: str = Field(default=DEFAULT_SCREEN)
+    timezone: str = Field(default=DEFAULT_TIMEZONE)
 
 
 class ReworkInviteLinkPayload(CamelModel):

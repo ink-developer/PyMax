@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum
+from enum import IntEnum, StrEnum
 
 
 class Opcode(IntEnum):
@@ -143,48 +143,48 @@ class Opcode(IntEnum):
     NOTIF_FOLDERS = 277
 
 
-class ChatType(str, Enum):
+class ChatType(StrEnum):
     DIALOG = "DIALOG"
     CHAT = "CHAT"
     CHANNEL = "CHANNEL"
 
 
-class MessageType(str, Enum):
+class MessageType(StrEnum):
     TEXT = "TEXT"
     SYSTEM = "SYSTEM"
     SERVICE = "SERVICE"
 
 
-class MessageStatus(str, Enum):
+class MessageStatus(StrEnum):
     EDITED = "EDITED"
     REMOVED = "REMOVED"
 
 
-class ElementType(str, Enum):
+class ElementType(StrEnum):
     TEXT = "text"
     MENTION = "mention"
     LINK = "link"
     EMOJI = "emoji"
 
 
-class AuthType(str, Enum):
+class AuthType(StrEnum):
     START_AUTH = "START_AUTH"
     CHECK_CODE = "CHECK_CODE"
 
 
-class AccessType(str, Enum):
+class AccessType(StrEnum):
     PUBLIC = "PUBLIC"
     PRIVATE = "PRIVATE"
-    SECRET = "SECRET"
+    SECRET = "SECRET"  # nosec B105
 
 
-class DeviceType(str, Enum):
+class DeviceType(StrEnum):
     WEB = "WEB"
     ANDROID = "ANDROID"
     IOS = "IOS"
 
 
-class AttachType(str, Enum):
+class AttachType(StrEnum):
     PHOTO = "PHOTO"
     VIDEO = "VIDEO"
     FILE = "FILE"
@@ -192,34 +192,15 @@ class AttachType(str, Enum):
     CONTROL = "CONTROL"
 
 
-class FormattingType(str, Enum):
+class FormattingType(StrEnum):
     STRONG = "STRONG"
     EMPHASIZED = "EMPHASIZED"
     UNDERLINE = "UNDERLINE"
     STRIKETHROUGH = "STRIKETHROUGH"
 
 
-class MarkupType(str, Enum):
+class MarkupType(StrEnum):
     BOLD = "**"
     ITALIC = "*"
     UNDERLINE = "__"
     STRIKETHROUGH = "~~"
-
-
-class Constants(Enum):
-    PHONE_REGEX = r"^\+?\d{10,15}$"
-    WEBSOCKET_URI = "wss://ws-api.oneme.ru/websocket"
-    HOST = "api.oneme.ru"
-    PORT = 443
-    DEFAULT_TIMEOUT = 60.0
-    DEFAULT_USER_AGENT = {  # noqa: RUF012
-        "deviceType": "WEB",
-        "locale": "ru",
-        "deviceLocale": "ru",
-        "osVersion": "Linux",
-        "deviceName": "Chrome",
-        "headerUserAgent": "Mozilla/5.0 ...",
-        "appVersion": "25.8.5",
-        "screen": "1080x1920 1.0x",
-        "timezone": "Europe/Moscow",
-    }

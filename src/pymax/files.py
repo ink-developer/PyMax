@@ -9,7 +9,9 @@ from typing_extensions import override
 
 
 class BaseFile(ABC):
-    def __init__(self, url: str | None = None, path: str | None = None) -> None:
+    def __init__(
+        self, url: str | None = None, path: str | None = None
+    ) -> None:
         self.url = url
         self.path = path
 
@@ -22,7 +24,10 @@ class BaseFile(ABC):
     @abstractmethod
     async def read(self) -> bytes:
         if self.url:
-            async with ClientSession() as session, session.get(self.url) as response:
+            async with (
+                ClientSession() as session,
+                session.get(self.url) as response,
+            ):
                 response.raise_for_status()
                 return await response.read()
         elif self.path:
@@ -42,7 +47,9 @@ class Photo(BaseFile):
         ".bmp",
     }  # FIXME: костыль ✅
 
-    def __init__(self, url: str | None = None, path: str | None = None) -> None:
+    def __init__(
+        self, url: str | None = None, path: str | None = None
+    ) -> None:
         super().__init__(url, path)
 
     def validate_photo(self) -> tuple[str, str] | None:
@@ -64,7 +71,9 @@ class Photo(BaseFile):
             mime_type = mimetypes.guess_type(self.url)[0]
 
             if not mime_type or not mime_type.startswith("image/"):
-                raise ValueError(f"URL does not appear to be an image: {self.url}")
+                raise ValueError(
+                    f"URL does not appear to be an image: {self.url}"
+                )
 
             return (extension[1:], mime_type)
         return None

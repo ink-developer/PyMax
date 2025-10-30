@@ -1,16 +1,12 @@
 import asyncio
-import logging
 
-from pymax import MaxClient, Message, SocketMaxClient
-from pymax.files import Photo
+from pymax import MaxClient, Message
 from pymax.filters import Filter
-from pymax.static import AttachType
 
 phone = "+1234567890"
 
 
 client = MaxClient(phone=phone, work_dir="cache")
-# client = SocketMaxClient(phone=phone, work_dir="cache")
 
 
 @client.on_message(filter=Filter(chat_id=0))

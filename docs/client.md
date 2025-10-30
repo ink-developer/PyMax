@@ -19,7 +19,7 @@
 client = MaxClient(
     phone: str,
     uri: str = Constants.WEBSOCKET_URI.value,
-    headers: dict[str, Any] | None = Constants.DEFAULT_USER_AGENT.value,
+    headers: dict[str, Any] | None = Constants.DEFAULT_USER_AGENT_PAYLOAD.value,
     token: str | None = None,
     send_fake_telemetry: bool = True,
     host: str = Constants.HOST.value,
@@ -35,7 +35,7 @@ client = MaxClient(
 |----------|-----|----------|---------------|
 | `phone` | `str` | Номер телефона для авторизации | - |
 | `uri` | `str` | URI WebSocket сервера | `Constants.WEBSOCKET_URI.value` |
-| `headers` | `dict[str, Any] \| None` | Заголовки для соединения | `Constants.DEFAULT_USER_AGENT.value` |
+| `headers` | `dict[str, Any] \| None` | Заголовки для соединения | `Constants.DEFAULT_USER_AGENT_PAYLOAD.value` |
 | `token` | `str \| None` | Токен авторизации | `None` |
 | `send_fake_telemetry` | `bool` | Отправка телеметрии | `True` |
 | `host` | `str` | Хост API сервера | `Constants.HOST.value` |

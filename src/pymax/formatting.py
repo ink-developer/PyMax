@@ -1,6 +1,6 @@
 import re
 
-from pymax.static import FormattingType
+from pymax.static.enum import FormattingType
 from pymax.types import Element
 
 
@@ -46,9 +46,9 @@ class Formatting:
 
             if inner_text is not None and fmt_type is not None:
                 next_pos = match.end()
-                has_newline = (next_pos < len(text) and text[next_pos] == "\n") or (
-                    next_pos == len(text)
-                )
+                has_newline = (
+                    next_pos < len(text) and text[next_pos] == "\n"
+                ) or (next_pos == len(text))
 
                 length = len(inner_text) + (1 if has_newline else 0)
                 elements.append(

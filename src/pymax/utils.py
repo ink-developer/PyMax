@@ -16,11 +16,19 @@ def unpack_packet(data: bytes) -> None | dict[str, Any]:
     if comp_flag != 0:
         compressed_data = payload_bytes
         try:
-            payload_bytes = lz4.block.decompress(compressed_data, uncompressed_size=255)
+            payload_bytes = lz4.block.decompress(
+                compressed_data, uncompressed_size=255
+            )
         except lz4.block.LZ4BlockError:
             return None
     payload = msgpack.unpackb(payload_bytes, raw=False)
-    return {"ver": ver, "cmd": cmd, "seq": seq, "opcode": opcode, "payload": payload}
+    return {
+        "ver": ver,
+        "cmd": cmd,
+        "seq": seq,
+        "opcode": opcode,
+        "payload": payload,
+    }
 
 
 # ToDo: Add lz4 compression
@@ -31,7 +39,7 @@ def pack_packet(
     cmd_b = cmd.to_bytes(2, "big")
     seq_b = seq.to_bytes(1, "big")
     opcode_b = opcode.to_bytes(2, "big")
-    payload_bytes = msgpack.packb(payload)
+    payload_bytes: bytes | None = msgpack.packb(payload)
     if payload_bytes is None:
         payload_bytes = b""
     payload_len_b = len(payload_bytes).to_bytes(4, "big")
