@@ -42,7 +42,7 @@ class ChannelMixin(ClientProtocol):
 
     async def _query_members(
         self, payload: GetGroupMembersPayload | SearchGroupMembersPayload
-    ) -> tuple[list[Member], int]:
+    ) -> tuple[list[Member], int | None]:
         data = await self._send_and_wait(
             opcode=Opcode.CHAT_MEMBERS,
             payload=payload.model_dump(by_alias=True),
@@ -56,7 +56,8 @@ class ChannelMixin(ClientProtocol):
         elif isinstance(marker, int):
             pass
         elif marker is None:
-            raise ResponseStructureError("Missing marker in response")
+            # маркер может отсутствовать
+            pass
         else:
             raise ResponseStructureError("Invalid marker type in response")
         members = response_payload.get("members")
@@ -77,7 +78,7 @@ class ChannelMixin(ClientProtocol):
         chat_id: int,
         marker: int = DEFAULT_MARKER_VALUE,
         count: int = DEFAULT_CHAT_MEMBERS_LIMIT,
-    ) -> tuple[list[Member], int]:
+    ) -> tuple[list[Member], int | None]:
         """
         Загружает членов канала
 
@@ -97,7 +98,7 @@ class ChannelMixin(ClientProtocol):
 
     async def find_members(
         self, chat_id: int, query: str
-    ) -> tuple[list[Member], int]:
+    ) -> tuple[list[Member], int | None]:
         """
         Поиск участников канала по строке
         Внимание! веб-клиент всегда возвращает только определённое количество пользователей,
