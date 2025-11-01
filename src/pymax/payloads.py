@@ -13,7 +13,7 @@ from pymax.static.constant import (
     DEFAULT_TIMEZONE,
     DEFAULT_USER_AGENT,
 )
-from pymax.static.enum import AttachType, AuthType
+from pymax.static.enum import AttachType, AuthType, ContactAction
 
 
 def to_camel(string: str) -> str:
@@ -278,3 +278,8 @@ class UserAgentPayload(BaseModel):
 class ReworkInviteLinkPayload(CamelModel):
     revoke_private_link: bool = True
     chat_id: int
+
+
+class ContactActionPayload(CamelModel):
+    contact_id: int
+    action: ContactAction
