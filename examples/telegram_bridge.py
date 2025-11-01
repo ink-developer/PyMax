@@ -1,11 +1,13 @@
 import asyncio
-from pymax import MaxClient, Message, Chat, User
-from pymax.types import VideoAttach, PhotoAttach, FileAttach
 import os
-from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher, types
-import aiohttp
 from io import BytesIO
+
+import aiohttp
+from aiogram import Bot, Dispatcher, types
+from dotenv import load_dotenv
+
+from pymax import Chat, MaxClient, Message, User
+from pymax.types import FileAttach, PhotoAttach, VideoAttach
 
 """
 Зависимости:
@@ -13,8 +15,6 @@ from io import BytesIO
 pip install maxapi-python==1.1.13 aiogram==3.22.0 python-dotenv
 
 """
-
-
 
 
 """
@@ -25,7 +25,7 @@ BOT_TOKEN = "23456789:AAH0cJ3SNzZ2zzD0uF8HOqmxtKpwsKwggM"  # Твой токен
 
 """
 
-chats = { # В формате айди чата в Max: айди чата в Telegram
+chats = {  # В формате айди чата в Max: айди чата в Telegram
     -68690734055662: -1003177746657,
 }
 
@@ -39,8 +39,8 @@ load_dotenv(override=True)
 
 
 # Настройки из .env
-PHONE = os.getenv("PHONE") # Номер телефона Max
-telegram_bot_TOKEN = os.getenv("BOT_TOKEN") # Токен TG-бота
+PHONE = os.getenv("PHONE")  # Номер телефона Max
+telegram_bot_TOKEN = os.getenv("BOT_TOKEN")  # Токен TG-бота
 
 
 client = MaxClient(phone=PHONE, work_dir="cache")
@@ -51,18 +51,15 @@ telegram_bot = Bot(token=telegram_bot_TOKEN)
 dp = Dispatcher()
 
 
-
 # Обработчик входящих сообщений MAX
 @client.on_message()
 async def handle_message(message: Message) -> None:
-
     tg_id = chats[message.chat_id]
 
     sender = await client.get_user(user_id=message.sender)
 
     if message.attaches:
         for attach in message.attaches:
-
             # Проверка на видео
             if isinstance(attach, VideoAttach):
                 async with aiohttp.ClientSession() as session:
@@ -71,9 +68,8 @@ async def handle_message(message: Message) -> None:
                         video = await client.get_video_by_id(
                             chat_id=message.chat_id,
                             message_id=message.id,
-                            video_id=attach.video_id
-                            )
-
+                            video_id=attach.video_id,
+                        )
 
                         # Загружаем видео по URL
                         async with session.get(video.url) as response:
@@ -85,7 +81,9 @@ async def handle_message(message: Message) -> None:
                         await telegram_bot.send_video(
                             chat_id=tg_id,
                             caption=f"{sender.names[0].name}: {message.text}",
-                            video=types.BufferedInputFile(video_bytes.getvalue(), filename=video_bytes.name)
+                            video=types.BufferedInputFile(
+                                video_bytes.getvalue(), filename=video_bytes.name
+                            ),
                         )
 
                         # Очищаем память
@@ -110,7 +108,9 @@ async def handle_message(message: Message) -> None:
                         await telegram_bot.send_photo(
                             chat_id=tg_id,
                             caption=f"{sender.names[0].name}: {message.text}",
-                            photo=types.BufferedInputFile(photo_bytes.getvalue(), filename=photo_bytes.name)
+                            photo=types.BufferedInputFile(
+                                photo_bytes.getvalue(), filename=photo_bytes.name
+                            ),
                         )
 
                         # Очищаем память
@@ -120,7 +120,7 @@ async def handle_message(message: Message) -> None:
                         print(f"Ошибка при загрузке изображения: {e}")
                     except Exception as e:
                         print(f"Ошибка при отправке фото: {e}")
-                        
+
             # Проверка на файл
             elif isinstance(attach, FileAttach):
                 async with aiohttp.ClientSession() as session:
@@ -129,8 +129,8 @@ async def handle_message(message: Message) -> None:
                         file = await client.get_file_by_id(
                             chat_id=message.chat_id,
                             message_id=message.id,
-                            file_id=attach.file_id
-                            )
+                            file_id=attach.file_id,
+                        )
 
                         # Загружаем файл по URL
                         async with session.get(file.url) as response:
@@ -142,7 +142,9 @@ async def handle_message(message: Message) -> None:
                         await telegram_bot.send_document(
                             chat_id=tg_id,
                             caption=f"{sender.names[0].name}: {message.text}",
-                            document=types.BufferedInputFile(file_bytes.getvalue(), filename=file_bytes.name)
+                            document=types.BufferedInputFile(
+                                file_bytes.getvalue(), filename=file_bytes.name
+                            ),
                         )
 
                         # Очищаем память
@@ -154,8 +156,7 @@ async def handle_message(message: Message) -> None:
                         print(f"Ошибка при отправке файла: {e}")
     else:
         await telegram_bot.send_message(
-            chat_id=tg_id,
-            text=f"{sender.names[0].name}: {message.text}"
+            chat_id=tg_id, text=f"{sender.names[0].name}: {message.text}"
         )
 
 
@@ -163,7 +164,7 @@ async def handle_message(message: Message) -> None:
 @client.on_start
 async def handle_start() -> None:
     print("Клиент запущен")
-    
+
     # Получение истории сообщений
     history = await client.fetch_history(chat_id=0)
     if history:
@@ -186,7 +187,7 @@ async def main() -> None:
     telegram_bot_task = asyncio.create_task(dp.start_polling(telegram_bot))
 
     try:
-        while True: # Не спрашивайте 😃
+        while True:  # Не спрашивайте 😃
             await client.start()
 
     finally:
