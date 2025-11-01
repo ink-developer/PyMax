@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
 ## Документация
 
-[WIP](https://ink-developer.github.io/)
+[WIP](https://ink-developer.github.io/PyMax)
 
 ## Лицензия
 
