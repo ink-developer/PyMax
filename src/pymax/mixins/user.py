@@ -1,7 +1,14 @@
+from typing import Any, Literal
+
+from pymax.exceptions import ResponseError, ResponseStructureError
 from pymax.interfaces import ClientProtocol
-from pymax.payloads import FetchContactsPayload, SearchByPhonePayload
-from pymax.static.enum import Opcode
-from pymax.types import Session, User
+from pymax.payloads import (
+    ContactActionPayload,
+    FetchContactsPayload,
+    SearchByPhonePayload,
+)
+from pymax.static.enum import ContactAction, Opcode
+from pymax.types import Contact, Session, User
 
 
 class UserMixin(ClientProtocol):
@@ -142,3 +149,63 @@ class UserMixin(ClientProtocol):
         except Exception:
             self.logger.exception("Fetching sessions failed")
             return None
+
+    async def _contact_action(
+        self, payload: ContactActionPayload
+    ) -> dict[str, Any]:
+        """
+        Действия с контактом
+
+        Args:
+            payload (ContactActionPayload): Полезная нагрузка
+
+        Return:
+            Полезная нагрузка ответа
+        """
+        data = await self._send_and_wait(
+            opcode=Opcode.CONTACT_UPDATE,  # 34
+            payload=payload.model_dump(by_alias=True),
+        )
+        response_payload = data.get("payload")
+        if not isinstance(response_payload, dict):
+            raise ResponseStructureError("Invalid response structure")
+        if error := response_payload.get("error"):
+            raise ResponseError(error)
+        return response_payload
+
+    async def add_contact(self, contact_id: int) -> Contact:
+        """
+        Добавляет контакт в список контактов
+
+        Args:
+            contact_id (int): ID контакта
+
+        Returns:
+            Contact: Объект контакта, иначе будут выброшены исключения
+        """
+        payload = await self._contact_action(
+            ContactActionPayload(
+                contact_id=contact_id, action=ContactAction.ADD
+            )
+        )
+        contact_dict = payload.get("contact")
+        if isinstance(contact_dict, dict):
+            return Contact.from_dict(contact_dict)
+        raise ResponseStructureError("Wrong contact structure in response")
+
+    async def remove_contact(self, contact_id: int) -> Literal[True]:
+        """
+        Удаляет контакт из списка контактов
+
+        Args:
+            contact_id (int): ID контакта
+
+        Returns:
+            True если успешно, иначе будут выброшены исключения
+        """
+        await self._contact_action(
+            ContactActionPayload(
+                contact_id=contact_id, action=ContactAction.REMOVE
+            )
+        )
+        return True
