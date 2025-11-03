@@ -4,6 +4,7 @@ import socket
 import ssl
 import time
 from pathlib import Path
+from typing import Literal
 
 from typing_extensions import override
 
@@ -36,6 +37,12 @@ class MaxClient(ApiMixin, WebSocketMixin):
             процесс логина по номеру телефона.
         host (str, optional): Хост API сервера. По умолчанию Constants.HOST.value.
         port (int, optional): Порт API сервера. По умолчанию Constants.PORT.value.
+        registration (bool, optional): Флаг регистрации нового пользователя. По умолчанию False.
+        first_name (str, optional): Имя пользователя для регистрации. Требуется, если registration=True.
+        last_name (str | None, optional): Фамилия пользователя для регистрации.
+        send_fake_telemetry (bool, optional): Флаг отправки фейковой телеметрии. По умолчанию True.
+        proxy (str | Literal[True] | None, optional): Прокси для подключения к WebSocket.
+            (См. https://websockets.readthedocs.io/en/stable/topics/proxies.html).
 
     Raises:
         InvalidPhoneError: Если формат номера телефона неверный.
@@ -50,7 +57,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
         send_fake_telemetry: bool = True,
         host: str = HOST,
         port: int = PORT,
+        proxy: str | Literal[True] | None = None,
         work_dir: str = ".",
+        registration: bool = False,
+        first_name: str = "",
+        last_name: str | None = None,
         logger: logging.Logger | None = None,
     ) -> None:
         logger = logger or logging.getLogger(f"{__name__}.MaxClient")
@@ -62,6 +73,10 @@ class MaxClient(ApiMixin, WebSocketMixin):
             raise InvalidPhoneError(self.phone)
         self.host: str = host
         self.port: int = port
+        self.registration: bool = registration
+        self.first_name: str = first_name
+        self.last_name: str | None = last_name
+        self.proxy: str | Literal[True] | None = proxy
         self._work_dir: str = work_dir
         self._database_path: Path = Path(work_dir) / "session.db"
         self._database_path.parent.mkdir(parents=True, exist_ok=True)
@@ -126,6 +141,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
         try:
             self.logger.info("Client starting")
             await self._connect(self.user_agent)
+
+            if self.registration:
+                if not self.first_name:
+                    raise ValueError("First name is required for registration")
+                await self._register(self.first_name, self.last_name)
 
             if self._token and self._database.get_auth_token() is None:
                 self._database.update_auth_token(self._device_id, self._token)

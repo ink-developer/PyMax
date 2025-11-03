@@ -21,7 +21,6 @@ from pymax.types import Channel, Chat, Dialog, Me, Message
 
 
 class WebSocketMixin(ClientProtocol):
-
     def __init__(self, token: str | None = None, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._token = token
@@ -29,9 +28,7 @@ class WebSocketMixin(ClientProtocol):
     @property
     def ws(self) -> websockets.ClientConnection:
         if self._ws is None or not self.is_connected:
-            self.logger.critical(
-                "WebSocket not connected when access attempted"
-            )
+            self.logger.critical("WebSocket not connected when access attempted")
             raise WebSocketNotConnectedError
         return self._ws
 
@@ -72,6 +69,7 @@ class WebSocketMixin(ClientProtocol):
                 self.uri,
                 origin=WEBSOCKET_ORIGIN,
                 user_agent_header=user_agent.headerUserAgent,
+                proxy=self.proxy,
             )
             self.is_connected = True
             self._incoming = asyncio.Queue()
@@ -141,9 +139,7 @@ class WebSocketMixin(ClientProtocol):
 
                 if fut and not fut.done():
                     fut.set_result(data)
-                    self.logger.debug(
-                        "Matched response for pending seq=%s", seq
-                    )
+                    self.logger.debug("Matched response for pending seq=%s", seq)
                 else:
                     if self._incoming is not None:
                         try:
@@ -168,23 +164,17 @@ class WebSocketMixin(ClientProtocol):
                                             for (
                                                 edit_handler,
                                                 edit_filter,
-                                            ) in (
-                                                self._on_message_edit_handlers
-                                            ):
+                                            ) in self._on_message_edit_handlers:
                                                 await self._process_message_handler(
                                                     edit_handler,
                                                     edit_filter,
                                                     msg,
                                                 )
-                                        elif (
-                                            msg.status == MessageStatus.REMOVED
-                                        ):
+                                        elif msg.status == MessageStatus.REMOVED:
                                             for (
                                                 remove_handler,
                                                 remove_filter,
-                                            ) in (
-                                                self._on_message_delete_handlers
-                                            ):
+                                            ) in self._on_message_delete_handlers:
                                                 await self._process_message_handler(
                                                     remove_handler,
                                                     remove_filter,
@@ -194,19 +184,13 @@ class WebSocketMixin(ClientProtocol):
                                         handler, filter, msg
                                     )
                         except Exception:
-                            self.logger.exception(
-                                "Error in on_message_handler"
-                            )
+                            self.logger.exception("Error in on_message_handler")
 
             except websockets.exceptions.ConnectionClosed:
-                self.logger.info(
-                    "WebSocket connection closed; exiting recv loop"
-                )
+                self.logger.info("WebSocket connection closed; exiting recv loop")
                 break
             except Exception:
-                self.logger.exception(
-                    "Error in recv_loop; backing off briefly"
-                )
+                self.logger.exception("Error in recv_loop; backing off briefly")
                 await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
 
     def _log_task_exception(self, fut: asyncio.Future[Any]) -> None:
@@ -269,9 +253,7 @@ class WebSocketMixin(ClientProtocol):
         ).model_dump(by_alias=True)
 
         try:
-            data = await self._send_and_wait(
-                opcode=Opcode.LOGIN, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.LOGIN, payload=payload)
             raw_payload = data.get("payload", {})
 
             if error := raw_payload.get("error"):

@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from logging import Logger
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import websockets
 
@@ -37,6 +37,10 @@ class ClientProtocol(ABC):
         self.me: Me | None = None
         self.host: str
         self.port: int
+        self.proxy: str | Literal[True] | None
+        self.registration: bool
+        self.first_name: str
+        self.last_name: str | None
         self._work_dir: str
         self._database_path: Path
         self._ws: websockets.ClientConnection | None = None
@@ -57,9 +61,7 @@ class ClientProtocol(ABC):
         self._on_message_delete_handlers: list[
             tuple[Callable[[Message], Any], Filter | None]
         ] = []
-        self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = (
-            None
-        )
+        self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._ssl_context: ssl.SSLContext
         self._socket: socket.socket | None = None
