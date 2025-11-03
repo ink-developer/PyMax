@@ -74,9 +74,7 @@ class MessageMixin(ClientProtocol):
                 ) as response,
             ):
                 if response.status != 200:
-                    self.logger.error(
-                        f"Upload failed with status {response.status}"
-                    )
+                    self.logger.error(f"Upload failed with status {response.status}")
                     return None
 
                 result = await response.json()
@@ -107,18 +105,15 @@ class MessageMixin(ClientProtocol):
         photo: Photo | None = None,
         photos: list[Photo] | None = None,
         reply_to: int | None = None,
+        use_queue: bool = True,
     ) -> Message | None:
         """
         Отправляет сообщение в чат.
         """
         try:
-            self.logger.info(
-                "Sending message to chat_id=%s notify=%s", chat_id, notify
-            )
+            self.logger.info("Sending message to chat_id=%s notify=%s", chat_id, notify)
             if photos and photo:
-                self.logger.warning(
-                    "Both photo and photos provided; using photos"
-                )
+                self.logger.warning("Both photo and photos provided; using photos")
                 photo = None
             attaches = []
             if photo:
@@ -128,9 +123,9 @@ class MessageMixin(ClientProtocol):
                     self.logger.error("Photo upload failed, message not sent")
                     return None
                 attaches = [
-                    AttachPhotoPayload(
-                        photo_token=attach.photo_token
-                    ).model_dump(by_alias=True)
+                    AttachPhotoPayload(photo_token=attach.photo_token).model_dump(
+                        by_alias=True
+                    )
                 ]
             elif photos:
                 self.logger.info("Uploading multiple photos for message")
@@ -143,9 +138,7 @@ class MessageMixin(ClientProtocol):
                             ).model_dump(by_alias=True)
                         )
                 if not attaches:
-                    self.logger.error(
-                        "All photo uploads failed, message not sent"
-                    )
+                    self.logger.error("All photo uploads failed, message not sent")
                     return None
 
             elements = []
@@ -165,28 +158,27 @@ class MessageMixin(ClientProtocol):
                     cid=int(time.time() * 1000),
                     elements=elements,
                     attaches=attaches,
-                    link=(
-                        ReplyLink(message_id=str(reply_to))
-                        if reply_to
-                        else None
-                    ),
+                    link=(ReplyLink(message_id=str(reply_to)) if reply_to else None),
                 ),
                 notify=notify,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.MSG_SEND, payload=payload
-            )
-            if error := data.get("payload", {}).get("error"):
-                self.logger.error("Send message error: %s", error)
+            if use_queue:
+                await self._queue_message(opcode=Opcode.MSG_SEND, payload=payload)
+                self.logger.debug("Message queued for sending")
                 return None
-            msg = (
-                Message.from_dict(data["payload"])
-                if data.get("payload")
-                else None
-            )
-            self.logger.debug("send_message result: %r", msg)
-            return msg
+            else:
+                data = await self._send_and_wait(
+                    opcode=Opcode.MSG_SEND, payload=payload
+                )
+                if error := data.get("payload", {}).get("error"):
+                    self.logger.error("Send message error: %s", error)
+                    return None
+                msg = (
+                    Message.from_dict(data["payload"]) if data.get("payload") else None
+                )
+                self.logger.debug("send_message result: %r", msg)
+                return msg
         except Exception:
             self.logger.exception("Send message failed")
             return None
@@ -198,19 +190,15 @@ class MessageMixin(ClientProtocol):
         text: str,
         photo: Photo | None = None,
         photos: list[Photo] | None = None,
+        use_queue: bool = True,
     ) -> Message | None:
-        """
-        Редактирует сообщение.
-        """
         try:
             self.logger.info(
                 "Editing message chat_id=%s message_id=%s", chat_id, message_id
             )
 
             if photos and photo:
-                self.logger.warning(
-                    "Both photo and photos provided; using photos"
-                )
+                self.logger.warning("Both photo and photos provided; using photos")
                 photo = None
             attaches = []
             if photo:
@@ -220,9 +208,9 @@ class MessageMixin(ClientProtocol):
                     self.logger.error("Photo upload failed, message not sent")
                     return None
                 attaches = [
-                    AttachPhotoPayload(
-                        photo_token=attach.photo_token
-                    ).model_dump(by_alias=True)
+                    AttachPhotoPayload(photo_token=attach.photo_token).model_dump(
+                        by_alias=True
+                    )
                 ]
             elif photos:
                 self.logger.info("Uploading multiple photos for message")
@@ -235,9 +223,7 @@ class MessageMixin(ClientProtocol):
                             ).model_dump(by_alias=True)
                         )
                 if not attaches:
-                    self.logger.error(
-                        "All photo uploads failed, message not sent"
-                    )
+                    self.logger.error("All photo uploads failed, message not sent")
                     return None
 
             elements = []
@@ -257,24 +243,28 @@ class MessageMixin(ClientProtocol):
                 elements=elements,
                 attaches=attaches,
             ).model_dump(by_alias=True)
-            data = await self._send_and_wait(
-                opcode=Opcode.MSG_EDIT, payload=payload
-            )
-            if error := data.get("payload", {}).get("error"):
-                self.logger.error("Edit message error: %s", error)
-            msg = (
-                Message.from_dict(data["payload"])
-                if data.get("payload")
-                else None
-            )
-            self.logger.debug("edit_message result: %r", msg)
-            return msg
+
+            if use_queue:
+                await self._queue_message(opcode=Opcode.MSG_EDIT, payload=payload)
+                self.logger.debug("Edit message queued for sending")
+                return None
+            else:
+                data = await self._send_and_wait(
+                    opcode=Opcode.MSG_EDIT, payload=payload
+                )
+                if error := data.get("payload", {}).get("error"):
+                    self.logger.error("Edit message error: %s", error)
+                msg = (
+                    Message.from_dict(data["payload"]) if data.get("payload") else None
+                )
+                self.logger.debug("edit_message result: %r", msg)
+                return msg
         except Exception:
             self.logger.exception("Edit message failed")
             return None
 
     async def delete_message(
-        self, chat_id: int, message_ids: list[int], for_me: bool
+        self, chat_id: int, message_ids: list[int], for_me: bool, use_queue: bool = True
     ) -> bool:
         """
         Удаляет сообщения.
@@ -291,14 +281,19 @@ class MessageMixin(ClientProtocol):
                 chat_id=chat_id, message_ids=message_ids, for_me=for_me
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.MSG_DELETE, payload=payload
-            )
-            if error := data.get("payload", {}).get("error"):
-                self.logger.error("Delete message error: %s", error)
-                return False
-            self.logger.debug("delete_message success")
-            return True
+            if use_queue:
+                await self._queue_message(opcode=Opcode.MSG_DELETE, payload=payload)
+                self.logger.debug("Delete message queued for sending")
+                return True
+            else:
+                data = await self._send_and_wait(
+                    opcode=Opcode.MSG_DELETE, payload=payload
+                )
+                if error := data.get("payload", {}).get("error"):
+                    self.logger.error("Delete message error: %s", error)
+                    return False
+                self.logger.debug("delete_message success")
+                return True
         except Exception:
             self.logger.exception("Delete message failed")
             return False
@@ -324,9 +319,7 @@ class MessageMixin(ClientProtocol):
                 pin_message_id=message_id,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.CHAT_UPDATE, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.CHAT_UPDATE, payload=payload)
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Pin message error: %s", error)
                 return False
@@ -376,8 +369,7 @@ class MessageMixin(ClientProtocol):
                 return None
 
             messages = [
-                Message.from_dict(msg)
-                for msg in data["payload"].get("messages", [])
+                Message.from_dict(msg) for msg in data["payload"].get("messages", [])
             ]
             self.logger.debug("History fetched: %d messages", len(messages))
             return messages
@@ -405,9 +397,7 @@ class MessageMixin(ClientProtocol):
             url (str): Ссылка на видео
         """
         try:
-            self.logger.info(
-                "Getting video_id=%s message_id=%s", video_id, message_id
-            )
+            self.logger.info("Getting video_id=%s message_id=%s", video_id, message_id)
 
             if self.is_connected and self._socket is not None:
                 payload = GetVideoPayload(
@@ -420,18 +410,14 @@ class MessageMixin(ClientProtocol):
                     video_id=video_id,
                 ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.VIDEO_PLAY, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.VIDEO_PLAY, payload=payload)
 
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Get video error: %s", error)
                 return None
 
             video = (
-                VideoRequest.from_dict(data["payload"])
-                if data.get("payload")
-                else None
+                VideoRequest.from_dict(data["payload"]) if data.get("payload") else None
             )
             self.logger.debug("result: %r", video)
             return video
@@ -458,9 +444,7 @@ class MessageMixin(ClientProtocol):
             url (str): Ссылка на скачивание файла
         """
         try:
-            self.logger.info(
-                "Getting file_id=%s message_id=%s", file_id, message_id
-            )
+            self.logger.info("Getting file_id=%s message_id=%s", file_id, message_id)
             if self.is_connected and self._socket is not None:
                 payload = GetFilePayload(
                     chat_id=chat_id, message_id=message_id, file_id=file_id
@@ -480,9 +464,7 @@ class MessageMixin(ClientProtocol):
                 return None
 
             file = (
-                FileRequest.from_dict(data["payload"])
-                if data.get("payload")
-                else None
+                FileRequest.from_dict(data["payload"]) if data.get("payload") else None
             )
             self.logger.debug(" result: %r", file)
             return file
