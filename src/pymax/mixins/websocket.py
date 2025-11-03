@@ -69,7 +69,7 @@ class WebSocketMixin(ClientProtocol):
             self._ws = await websockets.connect(
                 self.uri,
                 origin=WEBSOCKET_ORIGIN,
-                user_agent_header=user_agent.headerUserAgent,
+                user_agent_header=user_agent.header_user_agent,
                 proxy=self.proxy,
             )
             self.is_connected = True

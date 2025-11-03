@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import websockets
 
+from pymax.static.constant import DEFAULT_USER_AGENT
+
 from .filters import Filter
 from .payloads import UserAgentPayload
 from .static.constant import DEFAULT_TIMEOUT
@@ -54,7 +56,7 @@ class ClientProtocol(ABC):
         self._error_count: int = 0
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
-        self.user_agent = Constants.DEFAULT_USER_AGENT.value
+        self.user_agent = DEFAULT_USER_AGENT
         self._session_id: int
         self._action_id: int = 0
         self._current_screen: str = "chats_list_tab"
