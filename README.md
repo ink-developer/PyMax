@@ -133,6 +133,10 @@ if __name__ == "__main__":
 
 [Telegram](https://t.me/pymax_news)
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=ink-developer/PyMax&type=date&legend=top-left)](https://www.star-history.com/#ink-developer/PyMax&type=date&legend=top-left)
+
 ## Авторы
 
 - **[ink-developer](https://github.com/ink-developer)** — Оригинальный автор проекта
