@@ -138,9 +138,9 @@ if __name__ == "__main__":
 [![Star History Chart](https://api.star-history.com/svg?repos=ink-developer/PyMax&type=date&legend=top-left)](https://www.star-history.com/#ink-developer/PyMax&type=date&legend=top-left)
 
 ## Авторы
-
-- **[ink-developer](https://github.com/ink-developer)** — Оригинальный автор проекта
 - **[ink](https://github.com/ink-developer)** — Главный разработчик, исследование API и его документация
+- **[noxzion](https://github.com/noxzion)** — Оригинальный автор проекта
+
 
 ## Контрибьюторы
 
