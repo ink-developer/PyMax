@@ -64,13 +64,18 @@ class ReplyLink(CamelModel):
     message_id: str
 
 
-class UploadPhotoPayload(CamelModel):
+class UploadPayload(CamelModel):
     count: int = 1
 
 
 class AttachPhotoPayload(CamelModel):
     type: AttachType = Field(default=AttachType.PHOTO, alias="_type")
     photo_token: str
+
+
+class AttachFilePayload(CamelModel):
+    type: AttachType = Field(default=AttachType.FILE, alias="_type")
+    file_id: int
 
 
 class MessageElement(CamelModel):
@@ -83,7 +88,7 @@ class SendMessagePayloadMessage(CamelModel):
     text: str
     cid: int
     elements: list[MessageElement]
-    attaches: list[AttachPhotoPayload]
+    attaches: list[AttachPhotoPayload | AttachFilePayload]
     link: ReplyLink | None = None
 
 

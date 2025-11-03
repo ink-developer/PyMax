@@ -1,13 +1,15 @@
+import asyncio
 import time
 
 import aiohttp
 from aiohttp import ClientSession
 
-from pymax.files import Photo
+from pymax.files import File, Photo
 from pymax.formatting import Formatting
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import (
     AddReactionPayload,
+    AttachFilePayload,
     AttachPhotoPayload,
     DeleteMessagePayload,
     EditMessagePayload,
@@ -22,8 +24,9 @@ from pymax.payloads import (
     ReplyLink,
     SendMessagePayload,
     SendMessagePayloadMessage,
-    UploadPhotoPayload,
+    UploadPayload,
 )
+from pymax.static.constant import DEFAULT_TIMEOUT
 from pymax.static.enum import AttachType, Opcode
 from pymax.types import (
     Attach,
@@ -35,10 +38,70 @@ from pymax.types import (
 
 
 class MessageMixin(ClientProtocol):
+    async def _upload_file(self, file: File) -> None | Attach:
+        try:
+            self.logger.info("Uploading file")
+            payload = UploadPayload().model_dump(by_alias=True)
+            data = await self._send_and_wait(
+                opcode=Opcode.FILE_UPLOAD,
+                payload=payload,
+            )
+            if error := data.get("payload", {}).get("error"):
+                self.logger.error("Upload file error: %s", error)
+                return None
+
+            url = data.get("payload", {}).get("info", [None])[0].get("url", None)
+            file_id = data.get("payload", {}).get("info", [None])[0].get("fileId", None)
+            if not url or not file_id:
+                self.logger.error("No upload URL or file ID received")
+                return None
+
+            file_bytes = await file.read()
+
+            headers = {
+                "Content-Disposition": f"attachment; filename={file.file_name}",
+                "Content-Range": f"0-{len(file_bytes) - 1}/{len(file_bytes)}",
+            }
+
+            loop = asyncio.get_running_loop()
+            fut: asyncio.Future[dict] = loop.create_future()
+            try:
+                self._file_upload_waiters[int(file_id)] = fut
+            except Exception:
+                self.logger.exception("Failed to register file upload waiter")
+
+            async with (
+                ClientSession() as session,
+                session.post(
+                    url=url,
+                    headers=headers,
+                    data=file_bytes,
+                ) as response,
+            ):
+                if response.status != 200:
+                    self.logger.error(f"Upload failed with status {response.status}")
+                    # cleanup waiter
+                    self._file_upload_waiters.pop(int(file_id), None)
+                    return None
+
+                try:
+                    await asyncio.wait_for(fut, timeout=DEFAULT_TIMEOUT)
+                    return Attach(_type=AttachType.FILE, file_id=file_id)
+                except asyncio.TimeoutError:
+                    self.logger.error(
+                        "Timed out waiting for file processing notification for fileId=%s",
+                        file_id,
+                    )
+                    self._file_upload_waiters.pop(int(file_id), None)
+                    return None
+        except Exception as e:
+            self.logger.exception("Upload file failed: %s", str(e))
+            return None
+
     async def _upload_photo(self, photo: Photo) -> None | Attach:
         try:
             self.logger.info("Uploading photo")
-            payload = UploadPhotoPayload().model_dump(by_alias=True)
+            payload = UploadPayload().model_dump(by_alias=True)
 
             data = await self._send_and_wait(
                 opcode=Opcode.PHOTO_UPLOAD,
@@ -97,48 +160,62 @@ class MessageMixin(ClientProtocol):
             self.logger.exception("Upload photo failed: %s", str(e))
             return None
 
+    async def _upload_attachment(self, attach: Photo | File) -> dict | None:
+        if isinstance(attach, Photo):
+            uploaded = await self._upload_photo(attach)
+            if uploaded and uploaded.photo_token:
+                return AttachPhotoPayload(photo_token=uploaded.photo_token).model_dump(
+                    by_alias=True
+                )
+        elif isinstance(attach, File):
+            uploaded = await self._upload_file(attach)
+            if uploaded and uploaded.file_id:
+                return AttachFilePayload(file_id=uploaded.file_id).model_dump(
+                    by_alias=True
+                )
+        self.logger.error(f"Attachment upload failed for {attach}")
+        return None
+
     async def send_message(
         self,
         text: str,
         chat_id: int,
         notify: bool,
-        photo: Photo | None = None,
-        photos: list[Photo] | None = None,
+        attachment: Photo | File | None = None,
+        attachments: list[Photo | File] | None = None,
         reply_to: int | None = None,
-        use_queue: bool = True,
+        use_queue: bool = False,
     ) -> Message | None:
         """
         Отправляет сообщение в чат.
         """
         try:
             self.logger.info("Sending message to chat_id=%s notify=%s", chat_id, notify)
-            if photos and photo:
+            if attachments and attachment:
                 self.logger.warning("Both photo and photos provided; using photos")
-                photo = None
+                attachment = None
             attaches = []
-            if photo:
-                self.logger.info("Uploading photo for message")
-                attach = await self._upload_photo(photo)
-                if not attach or not attach.photo_token:
-                    self.logger.error("Photo upload failed, message not sent")
+            if attachment:
+                self.logger.info("Uploading attachment for message")
+                result = await self._upload_attachment(attachment)
+                if not result:
+                    self.logger.error("Attachment upload failed, message not sent")
                     return None
-                attaches = [
-                    AttachPhotoPayload(photo_token=attach.photo_token).model_dump(
-                        by_alias=True
-                    )
-                ]
-            elif photos:
-                self.logger.info("Uploading multiple photos for message")
-                for p in photos:
-                    attach = await self._upload_photo(p)
-                    if attach and attach.photo_token:
-                        attaches.append(
-                            AttachPhotoPayload(
-                                photo_token=attach.photo_token
-                            ).model_dump(by_alias=True)
-                        )
+                attaches.append(result)
+
+            elif attachments:
+                self.logger.info("Uploading multiple attachments for message")
+                for p in attachments:
+                    result = await self._upload_attachment(p)
+                    if result:
+                        attaches.append(result)
+                    else:
+                        self.logger.error("One of attachments upload failed")
+
                 if not attaches:
-                    self.logger.error("All photo uploads failed, message not sent")
+                    self.logger.error(
+                        "All attachments uploads failed, message not sent"
+                    )
                     return None
 
             elements = []
@@ -188,42 +265,40 @@ class MessageMixin(ClientProtocol):
         chat_id: int,
         message_id: int,
         text: str,
-        photo: Photo | None = None,
-        photos: list[Photo] | None = None,
-        use_queue: bool = True,
+        attachment: Photo | None = None,
+        attachments: list[Photo] | None = None,
+        use_queue: bool = False,
     ) -> Message | None:
         try:
             self.logger.info(
                 "Editing message chat_id=%s message_id=%s", chat_id, message_id
             )
 
-            if photos and photo:
+            if attachments and attachment:
                 self.logger.warning("Both photo and photos provided; using photos")
-                photo = None
+                attachment = None
             attaches = []
-            if photo:
-                self.logger.info("Uploading photo for message")
-                attach = await self._upload_photo(photo)
-                if not attach or not attach.photo_token:
-                    self.logger.error("Photo upload failed, message not sent")
+            if attachment:
+                self.logger.info("Uploading attachment for message")
+                result = await self._upload_attachment(attachment)
+                if not result:
+                    self.logger.error("Attachment upload failed, message not sent")
                     return None
-                attaches = [
-                    AttachPhotoPayload(photo_token=attach.photo_token).model_dump(
-                        by_alias=True
-                    )
-                ]
-            elif photos:
-                self.logger.info("Uploading multiple photos for message")
-                for p in photos:
-                    attach = await self._upload_photo(p)
-                    if attach and attach.photo_token:
-                        attaches.append(
-                            AttachPhotoPayload(
-                                photo_token=attach.photo_token
-                            ).model_dump(by_alias=True)
-                        )
+                attaches.append(result)
+
+            elif attachments:
+                self.logger.info("Uploading multiple attachments for message")
+                for p in attachment:
+                    result = await self._upload_attachment(p)
+                    if result:
+                        attaches.append(result)
+                    else:
+                        self.logger.error("One of attachments upload failed")
+
                 if not attaches:
-                    self.logger.error("All photo uploads failed, message not sent")
+                    self.logger.error(
+                        "All attachments uploads failed, message not sent"
+                    )
                     return None
 
             elements = []
@@ -264,7 +339,11 @@ class MessageMixin(ClientProtocol):
             return None
 
     async def delete_message(
-        self, chat_id: int, message_ids: list[int], for_me: bool, use_queue: bool = True
+        self,
+        chat_id: int,
+        message_ids: list[int],
+        for_me: bool,
+        use_queue: bool = False,
     ) -> bool:
         """
         Удаляет сообщения.

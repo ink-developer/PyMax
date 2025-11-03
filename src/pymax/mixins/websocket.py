@@ -153,6 +153,20 @@ class WebSocketMixin(ClientProtocol):
                                 data.get("seq"),
                             )
 
+                    try:  # TODO: переделать, временное решение
+                        if data.get("opcode") == Opcode.NOTIF_ATTACH:
+                            file_id = data.get("payload", {}).get("fileId", None)
+                            if isinstance(file_id, int):
+                                fut = self._file_upload_waiters.pop(file_id, None)
+                                if fut and not fut.done():
+                                    fut.set_result(data)
+                                    self.logger.debug(
+                                        "Fulfilled file upload waiter for fileId=%s",
+                                        file_id,
+                                    )
+                    except Exception:
+                        self.logger.exception("Error handling file upload notification")
+
                     if (
                         data.get("opcode") == Opcode.NOTIF_MESSAGE.value
                         and self._on_message_handlers
@@ -294,7 +308,7 @@ class WebSocketMixin(ClientProtocol):
                         opcode=message["opcode"],
                         payload=message["payload"],
                         cmd=message.get("cmd", 0),
-                        timeout=message.get("timeout", Constants.DEFAULT_TIMEOUT.value),
+                        timeout=message.get("timeout", DEFAULT_TIMEOUT),
                     )
                     self.logger.debug("Message sent successfully from queue")
                     self._error_count = max(0, self._error_count - 1)

@@ -128,7 +128,7 @@ class AuthMixin(ClientProtocol):
             self.logger.error("Submit registration info failed", exc_info=True)
             raise RuntimeError("Submit registration info failed")
 
-    async def _register(self, first_name: str, last_name: str | None = None):
+    async def _register(self, first_name: str, last_name: str | None = None) -> None:
         self.logger.info("Starting registration flow")
 
         request_code_payload = await self._request_code(self.phone)

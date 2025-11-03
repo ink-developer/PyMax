@@ -50,6 +50,7 @@ class ClientProtocol(ABC):
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
+        self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self.user_agent = UserAgentPayload()
         self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
         self._outgoing_task: asyncio.Task[Any] | None = None
@@ -86,4 +87,15 @@ class ClientProtocol(ABC):
 
     @abstractmethod
     async def _get_chat(self, chat_id: int) -> Chat | None:
+        pass
+
+    @abstractmethod
+    async def _queue_message(
+        self,
+        opcode: int,
+        payload: dict[str, Any],
+        cmd: int = 0,
+        timeout: float = DEFAULT_TIMEOUT,
+        max_retries: int = 3,
+    ) -> Message | None:
         pass
