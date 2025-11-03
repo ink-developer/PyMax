@@ -210,13 +210,13 @@ class WebSocketMixin(ClientProtocol):
         opcode: int,
         payload: dict[str, Any],
         cmd: int = 0,
-        timeout: float = Constants.DEFAULT_TIMEOUT.value,
+        timeout: float = DEFAULT_TIMEOUT,
         max_retries: int = 3,
     ) -> None:
         if self._outgoing is None:
             self.logger.warning("Outgoing queue not initialized")
             return
-            
+
         message = {
             "opcode": opcode,
             "payload": payload,
@@ -225,7 +225,7 @@ class WebSocketMixin(ClientProtocol):
             "retry_count": 0,
             "max_retries": max_retries,
         }
-        
+
         await self._outgoing.put(message)
         self.logger.debug("Message queued for sending")
 
@@ -272,7 +272,7 @@ class WebSocketMixin(ClientProtocol):
                 if self._outgoing is None:
                     await asyncio.sleep(0.1)
                     continue
-                
+
                 if self._circuit_breaker:
                     if time.time() - self._last_error_time > 60:
                         self._circuit_breaker = False
@@ -281,43 +281,52 @@ class WebSocketMixin(ClientProtocol):
                     else:
                         await asyncio.sleep(5)
                         continue
-                 
-                message = await self._outgoing.get() # TODO: persistent msg q mb?
+
+                message = await self._outgoing.get()  # TODO: persistent msg q mb?
                 if not message:
                     continue
-                
+
                 retry_count = message.get("retry_count", 0)
                 max_retries = message.get("max_retries", 3)
-                
+
                 try:
                     await self._send_and_wait(
                         opcode=message["opcode"],
                         payload=message["payload"],
                         cmd=message.get("cmd", 0),
-                        timeout=message.get("timeout", Constants.DEFAULT_TIMEOUT.value)
+                        timeout=message.get("timeout", Constants.DEFAULT_TIMEOUT.value),
                     )
                     self.logger.debug("Message sent successfully from queue")
                     self._error_count = max(0, self._error_count - 1)
                 except Exception as e:
                     self._error_count += 1
                     self._last_error_time = time.time()
-                    
+
                     if self._error_count > 10:
                         self._circuit_breaker = True
-                        self.logger.warning("Circuit breaker activated due to %d consecutive errors", self._error_count)
+                        self.logger.warning(
+                            "Circuit breaker activated due to %d consecutive errors",
+                            self._error_count,
+                        )
                         await self._outgoing.put(message)
                         continue
-                    
+
                     retry_delay = self._get_retry_delay(e, retry_count)
-                    self.logger.warning("Failed to send message from queue: %s (delay: %ds)", e, retry_delay)
-                    
+                    self.logger.warning(
+                        "Failed to send message from queue: %s (delay: %ds)",
+                        e,
+                        retry_delay,
+                    )
+
                     if retry_count < max_retries:
                         message["retry_count"] = retry_count + 1
                         await asyncio.sleep(retry_delay)
                         await self._outgoing.put(message)
                     else:
-                        self.logger.error("Message failed after %d retries, dropping", max_retries)
-                        
+                        self.logger.error(
+                            "Message failed after %d retries, dropping", max_retries
+                        )
+
             except Exception:
                 self.logger.exception("Error in outgoing loop")
                 await asyncio.sleep(1)
@@ -330,7 +339,7 @@ class WebSocketMixin(ClientProtocol):
         elif isinstance(error, WebSocketNotConnectedError):
             return 2.0
         else:
-            return 2 ** retry_count
+            return 2**retry_count
 
     async def _sync(self) -> None:
         self.logger.info("Starting initial sync")

@@ -82,19 +82,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._database_path.parent.mkdir(parents=True, exist_ok=True)
         self._database_path.touch(exist_ok=True)
         self._database = Database(self._work_dir)
-<<<<<<< HEAD
-=======
-        self._ws: websockets.ClientConnection | None = None
-        self._seq: int = 0
-        self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
-        self._recv_task: asyncio.Task[Any] | None = None
-        self._incoming: asyncio.Queue[dict[str, Any]] | None = None
         self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
         self._outgoing_task: asyncio.Task[Any] | None = None
         self._error_count: int = 0
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
->>>>>>> dev/outgoing_q
         self._device_id = self._database.get_device_id()
         self._token = self._database.get_auth_token() or token
         self.user_agent = headers
