@@ -1,15 +1,15 @@
 import asyncio
 import re
+import sys
 from typing import Any
 
 from pymax.interfaces import ClientProtocol
-from pymax.payloads import RequestCodePayload, SendCodePayload
+from pymax.payloads import RegisterPayload, RequestCodePayload, SendCodePayload
 from pymax.static.constant import PHONE_REGEX
 from pymax.static.enum import AuthType, Opcode
 
 
 class AuthMixin(ClientProtocol):
-
     def __init__(self, token: str | None = None, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._token = token
@@ -75,13 +75,15 @@ class AuthMixin(ClientProtocol):
 
     async def _login(self) -> None:
         self.logger.info("Starting login flow")
+
         request_code_payload = await self._request_code(self.phone)
         temp_token = request_code_payload.get("token")
         if not temp_token or not isinstance(temp_token, str):
             self.logger.critical("Failed to request code: token missing")
             raise ValueError("Failed to request code")
 
-        code = await asyncio.to_thread(input, "Введите код: ")
+        print("Введите код: ", end="", flush=True)
+        code = await asyncio.to_thread(lambda: sys.stdin.readline().strip())
         if len(code) != 6 or not code.isdigit():
             self.logger.error("Invalid code format entered")
             raise ValueError("Invalid code format")
@@ -97,3 +99,70 @@ class AuthMixin(ClientProtocol):
         self._token = token
         self._database.update_auth_token(self._device_id, self._token)
         self.logger.info("Login successful, token saved to database")
+
+    async def _submit_reg_info(
+        self, first_name: str, last_name: str | None, token: str
+    ) -> dict[str, Any]:
+        try:
+            self.logger.info("Submitting registration info")
+
+            payload = RegisterPayload(
+                first_name=first_name,
+                last_name=last_name,
+                token=token,
+            ).model_dump(by_alias=True)
+
+            data = await self._send_and_wait(
+                opcode=Opcode.AUTH_CONFIRM, payload=payload
+            )
+            self.logger.debug(
+                "Registration info response opcode=%s seq=%s",
+                data.get("opcode"),
+                data.get("seq"),
+            )
+            payload_data = data.get("payload")
+            if isinstance(payload_data, dict):
+                return payload_data
+            else:
+                self.logger.error("Invalid payload data received")
+                raise ValueError("Invalid payload data received")
+        except Exception:
+            self.logger.error("Submit registration info failed", exc_info=True)
+            raise RuntimeError("Submit registration info failed")
+
+    async def _register(
+        self, first_name: str, last_name: str | None = None
+    ) -> None:
+        self.logger.info("Starting registration flow")
+
+        request_code_payload = await self._request_code(self.phone)
+        temp_token = request_code_payload.get("token")
+
+        if not temp_token or not isinstance(temp_token, str):
+            self.logger.critical("Failed to request code: token missing")
+            raise ValueError("Failed to request code")
+
+        print("Введите код: ", end="", flush=True)
+        code = await asyncio.to_thread(lambda: sys.stdin.readline().strip())
+        if len(code) != 6 or not code.isdigit():
+            self.logger.error("Invalid code format entered")
+            raise ValueError("Invalid code format")
+
+        registration_response = await self._send_code(code, temp_token)
+        token: str | None = (
+            registration_response.get("tokenAttrs", {})
+            .get("REGISTER", {})
+            .get("token")
+        )
+        if not token:
+            self.logger.critical("Failed to register, token not received")
+            raise ValueError("Failed to register, token not received")
+
+        data = await self._submit_reg_info(first_name, last_name, token)
+        self._token = data.get("token")
+        if not self._token:
+            self.logger.critical("Failed to register, token not received")
+            raise ValueError("Failed to register, token not received")
+
+        self._database.update_auth_token(self._device_id, self._token)
+        self.logger.info("Registration successful, token saved to database")

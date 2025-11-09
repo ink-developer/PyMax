@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from logging import Logger
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import websockets
 
@@ -37,6 +37,10 @@ class ClientProtocol(ABC):
         self.me: Me | None = None
         self.host: str
         self.port: int
+        self.proxy: str | Literal[True] | None
+        self.registration: bool
+        self.first_name: str
+        self.last_name: str | None
         self._work_dir: str
         self._database_path: Path
         self._ws: websockets.ClientConnection | None = None
@@ -44,7 +48,15 @@ class ClientProtocol(ABC):
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
+        self._file_upload_waiters: dict[
+            int, asyncio.Future[dict[str, Any]]
+        ] = {}
         self.user_agent = UserAgentPayload()
+        self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
+        self._outgoing_task: asyncio.Task[Any] | None = None
+        self._error_count: int = 0
+        self._circuit_breaker: bool = False
+        self._last_error_time: float = 0.0
         self._session_id: int
         self._action_id: int = 0
         self._current_screen: str = "chats_list_tab"
@@ -76,4 +88,15 @@ class ClientProtocol(ABC):
 
     @abstractmethod
     async def _get_chat(self, chat_id: int) -> Chat | None:
+        pass
+
+    @abstractmethod
+    async def _queue_message(
+        self,
+        opcode: int,
+        payload: dict[str, Any],
+        cmd: int = 0,
+        timeout: float = DEFAULT_TIMEOUT,
+        max_retries: int = 3,
+    ) -> Message | None:
         pass

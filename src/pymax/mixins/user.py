@@ -130,6 +130,15 @@ class UserMixin(ClientProtocol):
             return None
 
     async def get_sessions(self) -> list[Session] | None:
+        """
+        Получает информацию о сессиях.
+
+        Args:
+            None
+
+        Returns:
+            list[Session] | None: Список объектов Session или None при ошибке.
+        """
         try:
             self.logger.info("Fetching sessions")
 
@@ -209,3 +218,16 @@ class UserMixin(ClientProtocol):
             )
         )
         return True
+
+    def get_chat_id(self, first_user_id: int, second_user_id: int) -> int:
+        """
+        Получение айди лс (диалога)
+
+        Args:
+            first_user_id (int): ID первого пользователя
+            second_user_id (int): ID второго пользователя
+
+        Returns:
+            int: Айди диалога
+        """
+        return first_user_id ^ second_user_id

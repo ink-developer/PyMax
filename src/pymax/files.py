@@ -90,6 +90,20 @@ class Video(BaseFile):
 
 
 class File(BaseFile):
+    def __init__(
+        self, url: str | None = None, path: str | None = None
+    ) -> None:
+        self.file_name: str = ""
+        if path:
+            self.file_name = Path(path).name
+        elif url:
+            self.file_name = Path(url).name
+
+        if not self.file_name:
+            raise ValueError("Either url or path must be provided.")
+
+        super().__init__(url, path)
+
     @override
     async def read(self) -> bytes:
         return await super().read()

@@ -170,6 +170,7 @@ class ElementType(StrEnum):
 class AuthType(StrEnum):
     START_AUTH = "START_AUTH"
     CHECK_CODE = "CHECK_CODE"
+    REGISTER = "REGISTER"
 
 
 class AccessType(StrEnum):

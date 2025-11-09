@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
 ## Документация
 
-[WIP](https://ink-developer.github.io/)
+[WIP](https://ink-developer.github.io/PyMax)
 
 ## Лицензия
 
@@ -133,10 +133,14 @@ if __name__ == "__main__":
 
 [Telegram](https://t.me/pymax_news)
 
-## Авторы
+## Star History
 
-- **[ink-developer](https://github.com/ink-developer)** — Оригинальный автор проекта
+[![Star History Chart](https://api.star-history.com/svg?repos=ink-developer/PyMax&type=date&legend=top-left)](https://www.star-history.com/#ink-developer/PyMax&type=date&legend=top-left)
+
+## Авторы
 - **[ink](https://github.com/ink-developer)** — Главный разработчик, исследование API и его документация
+- **[noxzion](https://github.com/noxzion)** — Оригинальный автор проекта
+
 
 ## Контрибьюторы
 

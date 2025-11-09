@@ -1,7 +1,10 @@
 import asyncio
+import datetime
 
 from pymax import MaxClient, Message
+from pymax.files import File
 from pymax.filters import Filter
+from pymax.static.enum import AttachType
 
 phone = "+1234567890"
 
@@ -26,7 +29,24 @@ async def handle_deleted_message(message: Message) -> None:
 
 @client.on_start
 async def handle_start() -> None:
-    print("Client started successfully!")
+    print(f"Client started successfully at {datetime.datetime.now()}!")
+    file_path = "ruff.toml"
+    file = File(path=file_path)
+    msg = await client.send_message(
+        text="Here is the file you requested.",
+        chat_id=0,
+        attachment=file,
+        notify=True,
+    )
+    if msg:
+        print(f"File sent successfully in message ID: {msg.id}")
+    # history = await client.fetch_history(chat_id=0)
+    # if history:
+    #     for message in history:
+    #         if message.attaches:
+    #             for attach in message.attaches:
+    #                 if attach.type == AttachType.STICKER:
+    #                     print(attach.lottie_url)
     # chat = await client.rework_invite_link(chat_id=0)
     # print(chat.link)
     # text = """

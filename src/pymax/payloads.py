@@ -64,13 +64,18 @@ class ReplyLink(CamelModel):
     message_id: str
 
 
-class UploadPhotoPayload(CamelModel):
+class UploadPayload(CamelModel):
     count: int = 1
 
 
 class AttachPhotoPayload(CamelModel):
     type: AttachType = Field(default=AttachType.PHOTO, alias="_type")
     photo_token: str
+
+
+class AttachFilePayload(CamelModel):
+    type: AttachType = Field(default=AttachType.FILE, alias="_type")
+    file_id: int
 
 
 class MessageElement(CamelModel):
@@ -83,7 +88,7 @@ class SendMessagePayloadMessage(CamelModel):
     text: str
     cid: int
     elements: list[MessageElement]
-    attaches: list[AttachPhotoPayload]
+    attaches: list[AttachPhotoPayload | AttachFilePayload]
     link: ReplyLink | None = None
 
 
@@ -263,14 +268,14 @@ class RemoveReactionPayload(CamelModel):
     message_id: str
 
 
-class UserAgentPayload(BaseModel):
-    deviceType: str = Field(default=DEFAULT_DEVICE_TYPE)
+class UserAgentPayload(CamelModel):
+    device_type: str = Field(default=DEFAULT_DEVICE_TYPE)
     locale: str = Field(default=DEFAULT_LOCALE)
-    deviceLocale: str = Field(default=DEFAULT_DEVICE_LOCALE)
-    osVersion: str = Field(default=DEFAULT_OS_VERSION)
-    deviceName: str = Field(default=DEFAULT_DEVICE_NAME)
-    headerUserAgent: str = Field(default=DEFAULT_USER_AGENT)
-    appVersion: str = Field(default=DEFAULT_APP_VERSION)
+    device_locale: str = Field(default=DEFAULT_DEVICE_LOCALE)
+    os_version: str = Field(default=DEFAULT_OS_VERSION)
+    device_name: str = Field(default=DEFAULT_DEVICE_NAME)
+    header_user_agent: str = Field(default=DEFAULT_USER_AGENT)
+    app_version: str = Field(default=DEFAULT_APP_VERSION)
     screen: str = Field(default=DEFAULT_SCREEN)
     timezone: str = Field(default=DEFAULT_TIMEZONE)
 
@@ -283,3 +288,10 @@ class ReworkInviteLinkPayload(CamelModel):
 class ContactActionPayload(CamelModel):
     contact_id: int
     action: ContactAction
+
+
+class RegisterPayload(CamelModel):
+    last_name: str | None = None
+    first_name: str
+    token: str
+    token_type: AuthType = AuthType.REGISTER

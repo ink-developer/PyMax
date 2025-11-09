@@ -14,6 +14,8 @@ from .static.enum import (
 # TODO: все это нужно переделать на pydantic модели.
 # Я просто придерживаюсь текущего стиля.
 # - 6RUN0
+# Хз, а в чем аргументация, так контроля больше и пайдентик модели явного преимущества не дают.
+# - ink-developer
 
 
 class Presence:
@@ -213,6 +215,86 @@ class Member:
     @override
     def __str__(self) -> str:
         return f"Member {self.contact.id}: {', '.join(str(n) for n in self.contact.names or [])}"
+
+
+class StickerAttach:
+    """
+        {
+      "authorType": "USER",
+      "_type": "STICKER",
+      "lottieUrl": "https://fd.oneme.ru/getfile?sig=qZ7r3QJChvdxaqy0qLJIcJ7Cjhquy7nA_ixhKGr3w3xh1hQaf9pT5GU6R3CyoblJdkA0YZ2wn4a7xni6P1D-EA&lottie=true&clientType=6&id=51626&userId=73007509",
+      "url": "https://i.oneme.ru/getSmile?smileId=429b5&smileType=4",
+      "stickerId": 272821,
+      "tags": [
+        "👋"
+      ],
+      "width": 170,
+      "setId": 56245,
+      "time": 1736942723379,
+      "stickerType": "LOTTIE",
+      "audio": false,
+      "height": 170
+    }
+    """
+
+    def __init__(
+        self,
+        author_type: str,
+        lottie_url: str,
+        url: str,
+        sticker_id: int,
+        tags: list[str],
+        width: int,
+        set_id: int,
+        time: int,
+        sticker_type: str,
+        audio: bool,
+        height: int,
+        type: AttachType,
+    ):
+        self.author_type = author_type
+        self.lottie_url = lottie_url
+        self.url = url
+        self.sticker_id = sticker_id
+        self.tags = tags
+        self.width = width
+        self.set_id = set_id
+        self.time = time
+        self.sticker_type = sticker_type
+        self.audio = audio
+        self.height = height
+        self.type = type
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(
+            author_type=data["authorType"],
+            lottie_url=data["lottieUrl"],
+            url=data["url"],
+            sticker_id=data["stickerId"],
+            tags=data["tags"],
+            width=data["width"],
+            set_id=data["setId"],
+            time=data["time"],
+            sticker_type=data["stickerType"],
+            audio=data["audio"],
+            height=data["height"],
+            type=AttachType(data["_type"]),
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return (
+            f"StickerAttach(author_type={self.author_type!r}, lottie_url={self.lottie_url!r}, "
+            f"url={self.url!r}, sticker_id={self.sticker_id!r}, tags={self.tags!r}, "
+            f"width={self.width!r}, set_id={self.set_id!r}, time={self.time!r}, "
+            f"sticker_type={self.sticker_type!r}, audio={self.audio!r}, height={self.height!r}, "
+            f"type={self.type!r})"
+        )
+
+    @override
+    def __str__(self) -> str:
+        return f"StickerAttach: {self.sticker_id}"
 
 
 class ControlAttach:
@@ -550,7 +632,14 @@ class Message:
         status: MessageStatus | None,
         type: MessageType | str,
         attaches: (
-            list[PhotoAttach | VideoAttach | FileAttach | ControlAttach] | None
+            list[
+                PhotoAttach
+                | VideoAttach
+                | FileAttach
+                | ControlAttach
+                | StickerAttach
+            ]
+            | None
         ),
     ) -> None:
         self.chat_id = chat_id
@@ -570,7 +659,11 @@ class Message:
     def from_dict(cls, data: dict[Any, Any]) -> Self:
         message = data["message"] if data.get("message") else data
         attaches: list[
-            PhotoAttach | VideoAttach | FileAttach | ControlAttach
+            PhotoAttach
+            | VideoAttach
+            | FileAttach
+            | ControlAttach
+            | StickerAttach
         ] = []
         for a in message.get("attaches", []):
             if a["_type"] == AttachType.PHOTO:
@@ -581,6 +674,8 @@ class Message:
                 attaches.append(FileAttach.from_dict(a))
             elif a["_type"] == AttachType.CONTROL:
                 attaches.append(ControlAttach.from_dict(a))
+            elif a["_type"] == AttachType.STICKER:
+                attaches.append(StickerAttach.from_dict(a))
         link_value = message.get("link")
         if isinstance(link_value, dict):
             link = MessageLink.from_dict(link_value)
