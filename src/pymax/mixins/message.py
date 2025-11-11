@@ -50,8 +50,14 @@ class MessageMixin(ClientProtocol):
                 self.logger.error("Upload file error: %s", error)
                 return None
 
-            url = data.get("payload", {}).get("info", [None])[0].get("url", None)
-            file_id = data.get("payload", {}).get("info", [None])[0].get("fileId", None)
+            url = (
+                data.get("payload", {}).get("info", [None])[0].get("url", None)
+            )
+            file_id = (
+                data.get("payload", {})
+                .get("info", [None])[0]
+                .get("fileId", None)
+            )
             if not url or not file_id:
                 self.logger.error("No upload URL or file ID received")
                 return None
@@ -79,7 +85,9 @@ class MessageMixin(ClientProtocol):
                 ) as response,
             ):
                 if response.status != 200:
-                    self.logger.error(f"Upload failed with status {response.status}")
+                    self.logger.error(
+                        f"Upload failed with status {response.status}"
+                    )
                     # cleanup waiter
                     self._file_upload_waiters.pop(int(file_id), None)
                     return None
@@ -137,7 +145,9 @@ class MessageMixin(ClientProtocol):
                 ) as response,
             ):
                 if response.status != 200:
-                    self.logger.error(f"Upload failed with status {response.status}")
+                    self.logger.error(
+                        f"Upload failed with status {response.status}"
+                    )
                     return None
 
                 result = await response.json()
@@ -164,9 +174,9 @@ class MessageMixin(ClientProtocol):
         if isinstance(attach, Photo):
             uploaded = await self._upload_photo(attach)
             if uploaded and uploaded.photo_token:
-                return AttachPhotoPayload(photo_token=uploaded.photo_token).model_dump(
-                    by_alias=True
-                )
+                return AttachPhotoPayload(
+                    photo_token=uploaded.photo_token
+                ).model_dump(by_alias=True)
         elif isinstance(attach, File):
             uploaded = await self._upload_file(attach)
             if uploaded and uploaded.file_id:
@@ -190,16 +200,22 @@ class MessageMixin(ClientProtocol):
         Отправляет сообщение в чат.
         """
         try:
-            self.logger.info("Sending message to chat_id=%s notify=%s", chat_id, notify)
+            self.logger.info(
+                "Sending message to chat_id=%s notify=%s", chat_id, notify
+            )
             if attachments and attachment:
-                self.logger.warning("Both photo and photos provided; using photos")
+                self.logger.warning(
+                    "Both photo and photos provided; using photos"
+                )
                 attachment = None
             attaches = []
             if attachment:
                 self.logger.info("Uploading attachment for message")
                 result = await self._upload_attachment(attachment)
                 if not result:
-                    self.logger.error("Attachment upload failed, message not sent")
+                    self.logger.error(
+                        "Attachment upload failed, message not sent"
+                    )
                     return None
                 attaches.append(result)
 
@@ -235,13 +251,19 @@ class MessageMixin(ClientProtocol):
                     cid=int(time.time() * 1000),
                     elements=elements,
                     attaches=attaches,
-                    link=(ReplyLink(message_id=str(reply_to)) if reply_to else None),
+                    link=(
+                        ReplyLink(message_id=str(reply_to))
+                        if reply_to
+                        else None
+                    ),
                 ),
                 notify=notify,
             ).model_dump(by_alias=True)
 
             if use_queue:
-                await self._queue_message(opcode=Opcode.MSG_SEND, payload=payload)
+                await self._queue_message(
+                    opcode=Opcode.MSG_SEND, payload=payload
+                )
                 self.logger.debug("Message queued for sending")
                 return None
             else:
@@ -252,7 +274,9 @@ class MessageMixin(ClientProtocol):
                     self.logger.error("Send message error: %s", error)
                     return None
                 msg = (
-                    Message.from_dict(data["payload"]) if data.get("payload") else None
+                    Message.from_dict(data["payload"])
+                    if data.get("payload")
+                    else None
                 )
                 self.logger.debug("send_message result: %r", msg)
                 return msg
@@ -275,20 +299,24 @@ class MessageMixin(ClientProtocol):
             )
 
             if attachments and attachment:
-                self.logger.warning("Both photo and photos provided; using photos")
+                self.logger.warning(
+                    "Both photo and photos provided; using photos"
+                )
                 attachment = None
             attaches = []
             if attachment:
                 self.logger.info("Uploading attachment for message")
                 result = await self._upload_attachment(attachment)
                 if not result:
-                    self.logger.error("Attachment upload failed, message not sent")
+                    self.logger.error(
+                        "Attachment upload failed, message not sent"
+                    )
                     return None
                 attaches.append(result)
 
             elif attachments:
                 self.logger.info("Uploading multiple attachments for message")
-                for p in attachment:
+                for p in attachments:
                     result = await self._upload_attachment(p)
                     if result:
                         attaches.append(result)
@@ -320,7 +348,9 @@ class MessageMixin(ClientProtocol):
             ).model_dump(by_alias=True)
 
             if use_queue:
-                await self._queue_message(opcode=Opcode.MSG_EDIT, payload=payload)
+                await self._queue_message(
+                    opcode=Opcode.MSG_EDIT, payload=payload
+                )
                 self.logger.debug("Edit message queued for sending")
                 return None
             else:
@@ -330,7 +360,9 @@ class MessageMixin(ClientProtocol):
                 if error := data.get("payload", {}).get("error"):
                     self.logger.error("Edit message error: %s", error)
                 msg = (
-                    Message.from_dict(data["payload"]) if data.get("payload") else None
+                    Message.from_dict(data["payload"])
+                    if data.get("payload")
+                    else None
                 )
                 self.logger.debug("edit_message result: %r", msg)
                 return msg
@@ -361,7 +393,9 @@ class MessageMixin(ClientProtocol):
             ).model_dump(by_alias=True)
 
             if use_queue:
-                await self._queue_message(opcode=Opcode.MSG_DELETE, payload=payload)
+                await self._queue_message(
+                    opcode=Opcode.MSG_DELETE, payload=payload
+                )
                 self.logger.debug("Delete message queued for sending")
                 return True
             else:
@@ -398,7 +432,9 @@ class MessageMixin(ClientProtocol):
                 pin_message_id=message_id,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(opcode=Opcode.CHAT_UPDATE, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.CHAT_UPDATE, payload=payload
+            )
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Pin message error: %s", error)
                 return False
@@ -448,7 +484,8 @@ class MessageMixin(ClientProtocol):
                 return None
 
             messages = [
-                Message.from_dict(msg) for msg in data["payload"].get("messages", [])
+                Message.from_dict(msg)
+                for msg in data["payload"].get("messages", [])
             ]
             self.logger.debug("History fetched: %d messages", len(messages))
             return messages
@@ -476,7 +513,9 @@ class MessageMixin(ClientProtocol):
             url (str): Ссылка на видео
         """
         try:
-            self.logger.info("Getting video_id=%s message_id=%s", video_id, message_id)
+            self.logger.info(
+                "Getting video_id=%s message_id=%s", video_id, message_id
+            )
 
             if self.is_connected and self._socket is not None:
                 payload = GetVideoPayload(
@@ -489,14 +528,18 @@ class MessageMixin(ClientProtocol):
                     video_id=video_id,
                 ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(opcode=Opcode.VIDEO_PLAY, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.VIDEO_PLAY, payload=payload
+            )
 
             if error := data.get("payload", {}).get("error"):
                 self.logger.error("Get video error: %s", error)
                 return None
 
             video = (
-                VideoRequest.from_dict(data["payload"]) if data.get("payload") else None
+                VideoRequest.from_dict(data["payload"])
+                if data.get("payload")
+                else None
             )
             self.logger.debug("result: %r", video)
             return video
@@ -523,7 +566,9 @@ class MessageMixin(ClientProtocol):
             url (str): Ссылка на скачивание файла
         """
         try:
-            self.logger.info("Getting file_id=%s message_id=%s", file_id, message_id)
+            self.logger.info(
+                "Getting file_id=%s message_id=%s", file_id, message_id
+            )
             if self.is_connected and self._socket is not None:
                 payload = GetFilePayload(
                     chat_id=chat_id, message_id=message_id, file_id=file_id
@@ -543,7 +588,9 @@ class MessageMixin(ClientProtocol):
                 return None
 
             file = (
-                FileRequest.from_dict(data["payload"]) if data.get("payload") else None
+                FileRequest.from_dict(data["payload"])
+                if data.get("payload")
+                else None
             )
             self.logger.debug(" result: %r", file)
             return file

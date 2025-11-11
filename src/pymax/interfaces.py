@@ -9,8 +9,6 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import websockets
 
-from pymax.static.constant import DEFAULT_USER_AGENT
-
 from .filters import Filter
 from .payloads import UserAgentPayload
 from .static.constant import DEFAULT_TIMEOUT
@@ -50,14 +48,15 @@ class ClientProtocol(ABC):
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
-        self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
+        self._file_upload_waiters: dict[
+            int, asyncio.Future[dict[str, Any]]
+        ] = {}
         self.user_agent = UserAgentPayload()
         self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
         self._outgoing_task: asyncio.Task[Any] | None = None
         self._error_count: int = 0
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
-        self.user_agent = DEFAULT_USER_AGENT
         self._session_id: int
         self._action_id: int = 0
         self._current_screen: str = "chats_list_tab"
@@ -70,7 +69,9 @@ class ClientProtocol(ABC):
         self._on_message_delete_handlers: list[
             tuple[Callable[[Message], Any], Filter | None]
         ] = []
-        self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
+        self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = (
+            None
+        )
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._ssl_context: ssl.SSLContext
         self._socket: socket.socket | None = None

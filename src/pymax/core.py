@@ -4,7 +4,7 @@ import socket
 import ssl
 import time
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from typing_extensions import override
 
@@ -88,7 +88,9 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
         self._device_id = self._database.get_device_id()
-        self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
+        self._file_upload_waiters: dict[
+            int, asyncio.Future[dict[str, Any]]
+        ] = {}
         self._token = self._database.get_auth_token() or token
         self.user_agent = headers
         self._send_fake_telemetry: bool = send_fake_telemetry

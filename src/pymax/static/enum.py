@@ -205,3 +205,8 @@ class MarkupType(StrEnum):
     ITALIC = "*"
     UNDERLINE = "__"
     STRIKETHROUGH = "~~"
+
+
+class ContactAction(StrEnum):
+    ADD = "ADD"
+    REMOVE = "REMOVE"

@@ -163,7 +163,9 @@ class Contact:
 
     @override
     def __str__(self) -> str:
-        return f"Contact {self.id}: {', '.join(str(n) for n in self.names or [])}"
+        return (
+            f"Contact {self.id}: {', '.join(str(n) for n in self.names or [])}"
+        )
 
 
 class Member:
@@ -296,7 +298,9 @@ class StickerAttach:
 
 
 class ControlAttach:
-    def __init__(self, type: AttachType, event: str, **kwargs: dict[str, Any]) -> None:
+    def __init__(
+        self, type: AttachType, event: str, **kwargs: dict[str, Any]
+    ) -> None:
         self.type = type
         self.event = event
         self.extra = kwargs
@@ -537,13 +541,13 @@ class Element:
 
     @classmethod
     def from_dict(cls, data: dict[Any, Any]) -> Self:
-        return cls(type=data["type"], length=data["length"], from_=data.get("from"))
+        return cls(
+            type=data["type"], length=data["length"], from_=data.get("from")
+        )
 
     @override
     def __repr__(self) -> str:
-        return (
-            f"Element(type={self.type!r}, length={self.length!r}, from_={self.from_!r})"
-        )
+        return f"Element(type={self.type!r}, length={self.length!r}, from_={self.from_!r})"
 
     @override
     def __str__(self) -> str:
@@ -606,7 +610,9 @@ class ReactionInfo:
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             total_count=data.get("totalCount", 0),
-            counters=[ReactionCounter.from_dict(c) for c in data.get("counters", [])],
+            counters=[
+                ReactionCounter.from_dict(c) for c in data.get("counters", [])
+            ],
             your_reaction=data.get("yourReaction"),
         )
 
@@ -626,7 +632,13 @@ class Message:
         status: MessageStatus | None,
         type: MessageType | str,
         attaches: (
-            list[PhotoAttach | VideoAttach | FileAttach | ControlAttach | StickerAttach]
+            list[
+                PhotoAttach
+                | VideoAttach
+                | FileAttach
+                | ControlAttach
+                | StickerAttach
+            ]
             | None
         ),
     ) -> None:
@@ -647,7 +659,11 @@ class Message:
     def from_dict(cls, data: dict[Any, Any]) -> Self:
         message = data["message"] if data.get("message") else data
         attaches: list[
-            PhotoAttach | VideoAttach | FileAttach | ControlAttach | StickerAttach
+            PhotoAttach
+            | VideoAttach
+            | FileAttach
+            | ControlAttach
+            | StickerAttach
         ] = []
         for a in message.get("attaches", []):
             if a["_type"] == AttachType.PHOTO:
@@ -673,7 +689,9 @@ class Message:
         return cls(
             chat_id=data.get("chatId"),
             sender=message.get("sender"),
-            elements=[Element.from_dict(e) for e in message.get("elements", [])],
+            elements=[
+                Element.from_dict(e) for e in message.get("elements", [])
+            ],
             options=message.get("options"),
             id=message["id"],
             time=message["time"],
@@ -835,9 +853,13 @@ class Chat:
             int(k): v for k, v in raw_admins.items()
         }
         raw_participants = data.get("participants", {}) or {}
-        participants: dict[int, int] = {int(k): v for k, v in raw_participants.items()}
+        participants: dict[int, int] = {
+            int(k): v for k, v in raw_participants.items()
+        }
         last_msg = (
-            Message.from_dict(data["lastMessage"]) if data.get("lastMessage") else None
+            Message.from_dict(data["lastMessage"])
+            if data.get("lastMessage")
+            else None
         )
         return cls(
             participants_count=data.get("participantsCount", 0),
@@ -849,7 +871,9 @@ class Chat:
             description=data.get("description"),
             chat_type=ChatType(data.get("type", ChatType.CHAT.value)),
             title=data.get("title"),
-            last_fire_delayed_error_time=data.get("lastFireDelayedErrorTime", 0),
+            last_fire_delayed_error_time=data.get(
+                "lastFireDelayedErrorTime", 0
+            ),
             last_delayed_update_time=data.get("lastDelayedUpdateTime", 0),
             options=data.get("options", {}),
             modified=data.get("modified", 0),
@@ -871,7 +895,9 @@ class Chat:
 
     @override
     def __repr__(self) -> str:
-        return f"Chat(id={self.id!r}, title={self.title!r}, type={self.type!r})"
+        return (
+            f"Chat(id={self.id!r}, title={self.title!r}, type={self.type!r})"
+        )
 
     @override
     def __str__(self) -> str:

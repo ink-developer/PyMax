@@ -29,7 +29,9 @@ class WebSocketMixin(ClientProtocol):
     @property
     def ws(self) -> websockets.ClientConnection:
         if self._ws is None or not self.is_connected:
-            self.logger.critical("WebSocket not connected when access attempted")
+            self.logger.critical(
+                "WebSocket not connected when access attempted"
+            )
             raise WebSocketNotConnectedError
         return self._ws
 
@@ -142,7 +144,9 @@ class WebSocketMixin(ClientProtocol):
 
                 if fut and not fut.done():
                     fut.set_result(data)
-                    self.logger.debug("Matched response for pending seq=%s", seq)
+                    self.logger.debug(
+                        "Matched response for pending seq=%s", seq
+                    )
                 else:
                     if self._incoming is not None:
                         try:
@@ -155,9 +159,13 @@ class WebSocketMixin(ClientProtocol):
 
                     try:  # TODO: переделать, временное решение
                         if data.get("opcode") == Opcode.NOTIF_ATTACH:
-                            file_id = data.get("payload", {}).get("fileId", None)
+                            file_id = data.get("payload", {}).get(
+                                "fileId", None
+                            )
                             if isinstance(file_id, int):
-                                fut = self._file_upload_waiters.pop(file_id, None)
+                                fut = self._file_upload_waiters.pop(
+                                    file_id, None
+                                )
                                 if fut and not fut.done():
                                     fut.set_result(data)
                                     self.logger.debug(
@@ -165,7 +173,9 @@ class WebSocketMixin(ClientProtocol):
                                         file_id,
                                     )
                     except Exception:
-                        self.logger.exception("Error handling file upload notification")
+                        self.logger.exception(
+                            "Error handling file upload notification"
+                        )
 
                     if (
                         data.get("opcode") == Opcode.NOTIF_MESSAGE.value
@@ -181,17 +191,23 @@ class WebSocketMixin(ClientProtocol):
                                             for (
                                                 edit_handler,
                                                 edit_filter,
-                                            ) in self._on_message_edit_handlers:
+                                            ) in (
+                                                self._on_message_edit_handlers
+                                            ):
                                                 await self._process_message_handler(
                                                     edit_handler,
                                                     edit_filter,
                                                     msg,
                                                 )
-                                        elif msg.status == MessageStatus.REMOVED:
+                                        elif (
+                                            msg.status == MessageStatus.REMOVED
+                                        ):
                                             for (
                                                 remove_handler,
                                                 remove_filter,
-                                            ) in self._on_message_delete_handlers:
+                                            ) in (
+                                                self._on_message_delete_handlers
+                                            ):
                                                 await self._process_message_handler(
                                                     remove_handler,
                                                     remove_filter,
@@ -201,13 +217,19 @@ class WebSocketMixin(ClientProtocol):
                                         handler, filter, msg
                                     )
                         except Exception:
-                            self.logger.exception("Error in on_message_handler")
+                            self.logger.exception(
+                                "Error in on_message_handler"
+                            )
 
             except websockets.exceptions.ConnectionClosed:
-                self.logger.info("WebSocket connection closed; exiting recv loop")
+                self.logger.info(
+                    "WebSocket connection closed; exiting recv loop"
+                )
                 break
             except Exception:
-                self.logger.exception("Error in recv_loop; backing off briefly")
+                self.logger.exception(
+                    "Error in recv_loop; backing off briefly"
+                )
                 await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
 
     def _log_task_exception(self, fut: asyncio.Future[Any]) -> None:
@@ -296,7 +318,9 @@ class WebSocketMixin(ClientProtocol):
                         await asyncio.sleep(5)
                         continue
 
-                message = await self._outgoing.get()  # TODO: persistent msg q mb?
+                message = (
+                    await self._outgoing.get()
+                )  # TODO: persistent msg q mb?
                 if not message:
                     continue
 
@@ -338,7 +362,8 @@ class WebSocketMixin(ClientProtocol):
                         await self._outgoing.put(message)
                     else:
                         self.logger.error(
-                            "Message failed after %d retries, dropping", max_retries
+                            "Message failed after %d retries, dropping",
+                            max_retries,
                         )
 
             except Exception:
@@ -353,7 +378,7 @@ class WebSocketMixin(ClientProtocol):
         elif isinstance(error, WebSocketNotConnectedError):
             return 2.0
         else:
-            return 2**retry_count
+            return float(2**retry_count)
 
     async def _sync(self) -> None:
         self.logger.info("Starting initial sync")
@@ -369,7 +394,9 @@ class WebSocketMixin(ClientProtocol):
         ).model_dump(by_alias=True)
 
         try:
-            data = await self._send_and_wait(opcode=Opcode.LOGIN, payload=payload)
+            data = await self._send_and_wait(
+                opcode=Opcode.LOGIN, payload=payload
+            )
             raw_payload = data.get("payload", {})
 
             if error := raw_payload.get("error"):

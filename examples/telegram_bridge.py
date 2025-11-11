@@ -75,14 +75,17 @@ async def handle_message(message: Message) -> None:
                         async with session.get(video.url) as response:
                             response.raise_for_status()  # Проверка на ошибки HTTP
                             video_bytes = BytesIO(await response.read())
-                            video_bytes.name = response.headers.get("X-File-Name")
+                            video_bytes.name = response.headers.get(
+                                "X-File-Name"
+                            )
 
                         # Отправляем видео через телеграм бота
                         await telegram_bot.send_video(
                             chat_id=tg_id,
                             caption=f"{sender.names[0].name}: {message.text}",
                             video=types.BufferedInputFile(
-                                video_bytes.getvalue(), filename=video_bytes.name
+                                video_bytes.getvalue(),
+                                filename=video_bytes.name,
                             ),
                         )
 
@@ -102,14 +105,17 @@ async def handle_message(message: Message) -> None:
                         async with session.get(attach.base_url) as response:
                             response.raise_for_status()  # Проверка на ошибки HTTP
                             photo_bytes = BytesIO(await response.read())
-                            photo_bytes.name = response.headers.get("X-File-Name")
+                            photo_bytes.name = response.headers.get(
+                                "X-File-Name"
+                            )
 
                         # Отправляем фото через телеграм бота
                         await telegram_bot.send_photo(
                             chat_id=tg_id,
                             caption=f"{sender.names[0].name}: {message.text}",
                             photo=types.BufferedInputFile(
-                                photo_bytes.getvalue(), filename=photo_bytes.name
+                                photo_bytes.getvalue(),
+                                filename=photo_bytes.name,
                             ),
                         )
 
@@ -136,7 +142,9 @@ async def handle_message(message: Message) -> None:
                         async with session.get(file.url) as response:
                             response.raise_for_status()  # Проверка на ошибки HTTP
                             file_bytes = BytesIO(await response.read())
-                            file_bytes.name = response.headers.get("X-File-Name")
+                            file_bytes.name = response.headers.get(
+                                "X-File-Name"
+                            )
 
                         # Отправляем файл через телеграм бота
                         await telegram_bot.send_document(

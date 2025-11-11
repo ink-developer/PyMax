@@ -440,7 +440,7 @@ Socket connections may be unstable, SSL issues are possible.
                 if self._outgoing is None:
                     await asyncio.sleep(0.1)
                     continue
-                
+
                 if self._circuit_breaker:
                     if time.time() - self._last_error_time > 60:
                         self._circuit_breaker = False
@@ -449,48 +449,64 @@ Socket connections may be unstable, SSL issues are possible.
                     else:
                         await asyncio.sleep(5)
                         continue
-                
-                message = await self._outgoing.get() # TODO: persistent msg q mb?
+
+                message = (
+                    await self._outgoing.get()
+                )  # TODO: persistent msg q mb?
                 if not message:
                     continue
-                
+
                 retry_count = message.get("retry_count", 0)
                 max_retries = message.get("max_retries", 3)
-                
+
                 try:
                     await self._send_and_wait(
                         opcode=message["opcode"],
                         payload=message["payload"],
                         cmd=message.get("cmd", 0),
-                        timeout=message.get("timeout", 10.0)
+                        timeout=message.get("timeout", 10.0),
                     )
-                    self.logger.debug("Message sent successfully from queue (socket)")
+                    self.logger.debug(
+                        "Message sent successfully from queue (socket)"
+                    )
                     self._error_count = max(0, self._error_count - 1)
                 except Exception as e:
                     self._error_count += 1
                     self._last_error_time = time.time()
-                    
-                    if self._error_count > 10: # TODO: export to constant
+
+                    if self._error_count > 10:  # TODO: export to constant
                         self._circuit_breaker = True
-                        self.logger.warning("Circuit breaker activated due to %d consecutive errors (socket)", self._error_count)
+                        self.logger.warning(
+                            "Circuit breaker activated due to %d consecutive errors (socket)",
+                            self._error_count,
+                        )
                         await self._outgoing.put(message)
                         continue
-                    
+
                     retry_delay = self._get_retry_delay(e, retry_count)
-                    self.logger.warning("Failed to send message from queue (socket): %s (delay: %ds)", e, retry_delay)
-                    
+                    self.logger.warning(
+                        "Failed to send message from queue (socket): %s (delay: %ds)",
+                        e,
+                        retry_delay,
+                    )
+
                     if retry_count < max_retries:
                         message["retry_count"] = retry_count + 1
                         await asyncio.sleep(retry_delay)
                         await self._outgoing.put(message)
                     else:
-                        self.logger.error("Message failed after %d retries, dropping (socket)", max_retries)
-                        
+                        self.logger.error(
+                            "Message failed after %d retries, dropping (socket)",
+                            max_retries,
+                        )
+
             except Exception:
                 self.logger.exception("Error in outgoing loop (socket)")
                 await asyncio.sleep(1)
 
-    def _get_retry_delay(self, error: Exception, retry_count: int) -> float: # TODO: tune delays later
+    def _get_retry_delay(
+        self, error: Exception, retry_count: int
+    ) -> float:  # TODO: tune delays later
         if isinstance(error, (ConnectionError, OSError, ssl.SSLError)):
             return 1.0
         elif isinstance(error, TimeoutError):
@@ -498,7 +514,7 @@ Socket connections may be unstable, SSL issues are possible.
         elif isinstance(error, SocketNotConnectedError):
             return 2.0
         else:
-            return 2 ** retry_count
+            return float(2**retry_count)
 
     async def _queue_message(
         self,
@@ -511,7 +527,7 @@ Socket connections may be unstable, SSL issues are possible.
         if self._outgoing is None:
             self.logger.warning("Outgoing queue not initialized (socket)")
             return
-            
+
         message = {
             "opcode": opcode,
             "payload": payload,
@@ -520,7 +536,7 @@ Socket connections may be unstable, SSL issues are possible.
             "retry_count": 0,
             "max_retries": max_retries,
         }
-        
+
         await self._outgoing.put(message)
         self.logger.debug("Message queued for sending (socket)")
 
