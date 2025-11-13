@@ -6,7 +6,9 @@ from pymax.types import Message
 
 
 class HandlerMixin(ClientProtocol):
-    def on_message(self, *, filter: Filter | None = None) -> Callable[
+    def on_message(
+        self, *, filter: Filter | None = None
+    ) -> Callable[
         [Callable[[Any], Any | Awaitable[Any]]],
         Callable[[Any], Any | Awaitable[Any]],
     ]:
@@ -24,14 +26,14 @@ class HandlerMixin(ClientProtocol):
             handler: Callable[[Any], Any | Awaitable[Any]],
         ) -> Callable[[Any], Any | Awaitable[Any]]:
             self._on_message_handlers.append((handler, filter))
-            self.logger.info(
-                f"on_message handler set: {handler}, filter: {filter}"
-            )
+            self.logger.debug(f"on_message handler set: {handler}, filter: {filter}")
             return handler
 
         return decorator
 
-    def on_message_edit(self, *, filter: Filter | None = None) -> Callable[
+    def on_message_edit(
+        self, *, filter: Filter | None = None
+    ) -> Callable[
         [Callable[[Any], Any | Awaitable[Any]]],
         Callable[[Any], Any | Awaitable[Any]],
     ]:
@@ -49,14 +51,16 @@ class HandlerMixin(ClientProtocol):
             handler: Callable[[Any], Any | Awaitable[Any]],
         ) -> Callable[[Any], Any | Awaitable[Any]]:
             self._on_message_edit_handlers.append((handler, filter))
-            self.logger.info(
+            self.logger.debug(
                 f"on_message_edit handler set: {handler}, filter: {filter}"
             )
             return handler
 
         return decorator
 
-    def on_message_delete(self, *, filter: Filter | None = None) -> Callable[
+    def on_message_delete(
+        self, *, filter: Filter | None = None
+    ) -> Callable[
         [Callable[[Any], Any | Awaitable[Any]]],
         Callable[[Any], Any | Awaitable[Any]],
     ]:
@@ -74,7 +78,7 @@ class HandlerMixin(ClientProtocol):
             handler: Callable[[Any], Any | Awaitable[Any]],
         ) -> Callable[[Any], Any | Awaitable[Any]]:
             self._on_message_delete_handlers.append((handler, filter))
-            self.logger.info(
+            self.logger.debug(
                 f"on_message_delete handler set: {handler}, filter: {filter}"
             )
             return handler

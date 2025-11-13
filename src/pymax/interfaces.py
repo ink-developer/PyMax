@@ -41,6 +41,7 @@ class ClientProtocol(ABC):
         self.registration: bool
         self.first_name: str
         self.last_name: str | None
+        self._token: str | None
         self._work_dir: str
         self._database_path: Path
         self._ws: websockets.ClientConnection | None = None
@@ -99,4 +100,10 @@ class ClientProtocol(ABC):
         timeout: float = DEFAULT_TIMEOUT,
         max_retries: int = 3,
     ) -> Message | None:
+        pass
+
+    @abstractmethod
+    def _create_safe_task(
+        self, coro: Awaitable[Any], name: str | None = None
+    ) -> asyncio.Task[Any]:
         pass

@@ -2,6 +2,7 @@ import asyncio
 import random
 import time
 
+from pymax.exceptions import Error
 from pymax.interfaces import ClientProtocol
 from pymax.navigation import Navigation
 from pymax.payloads import (
@@ -17,23 +18,17 @@ class TelemetryMixin(ClientProtocol):
         self, events: list[NavigationEventPayload]
     ) -> None:
         try:
-            payload = NavigationPayload(events=events).model_dump(
-                by_alias=True
-            )
+            payload = NavigationPayload(events=events).model_dump(by_alias=True)
             data = await self._send_and_wait(
                 opcode=Opcode.LOG,
                 payload=payload,
             )
-
-            payload_data = data.get("payload")
-
-            if payload_data and (error := payload_data.get("error")):
-                self.logger.error("Failed to send navigation event: %s", error)
-                return
+            payload_data = data.get("payload", {})
+            if payload_data and payload_data.get("error"):
+                error = payload_data.get("error")
+                self.logger.error("Navigation event error: %s", error)
         except Exception:
-            self.logger.warning(
-                "Failed to send navigation event", exc_info=True
-            )
+            self.logger.warning("Failed to send navigation event", exc_info=True)
             return
 
     async def _send_cold_start(self) -> None:

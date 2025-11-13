@@ -10,7 +10,7 @@ import lz4.block
 import msgpack
 from typing_extensions import override
 
-from pymax.exceptions import SocketNotConnectedError, SocketSendError
+from pymax.exceptions import Error, SocketNotConnectedError, SocketSendError
 from pymax.filters import Filter, Message
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
@@ -24,11 +24,6 @@ from pymax.types import Channel, Chat, Dialog, Me
 
 
 class SocketMixin(ClientProtocol):
-
-    def __init__(self, token: str | None = None, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self._token = token
-
     @property
     def sock(self) -> socket.socket:
         if self._socket is None or not self.is_connected:
@@ -59,9 +54,7 @@ class SocketMixin(ClientProtocol):
                     )
                 except lz4.block.LZ4BlockError:
                     return None
-            payload = msgpack.unpackb(
-                payload_bytes, raw=False, strict_map_key=False
-            )
+            payload = msgpack.unpackb(payload_bytes, raw=False, strict_map_key=False)
 
         return {
             "ver": ver,
@@ -87,9 +80,7 @@ class SocketMixin(ClientProtocol):
         if payload_bytes is None:
             payload_bytes = b""
         payload_len = len(payload_bytes) & 0xFFFFFF
-        self.logger.debug(
-            "Packing message: payload size=%d bytes", len(payload_bytes)
-        )
+        self.logger.debug("Packing message: payload size=%d bytes", len(payload_bytes))
         payload_len_b = payload_len.to_bytes(4, "big")
         return ver_b + cmd_b + seq_b + opcode_b + payload_len_b + payload_bytes
 
@@ -104,9 +95,7 @@ Socket connections may be unstable, SSL issues are possible.
 ===============================================================
     """
                 )
-            self.logger.info(
-                "Connecting to socket %s:%s", self.host, self.port
-            )
+            self.logger.info("Connecting to socket %s:%s", self.host, self.port)
             loop = asyncio.get_running_loop()
             raw_sock = await loop.run_in_executor(
                 None, lambda: socket.create_connection((self.host, self.port))
@@ -167,13 +156,9 @@ Socket connections may be unstable, SSL issues are possible.
         try:
             while True:
                 try:
-                    header = await loop.run_in_executor(
-                        None, lambda: _recv_exactly(10)
-                    )
+                    header = await loop.run_in_executor(None, lambda: _recv_exactly(10))
                     if not header or len(header) < 10:
-                        self.logger.info(
-                            "Socket connection closed; exiting recv loop"
-                        )
+                        self.logger.info("Socket connection closed; exiting recv loop")
                         self.is_connected = False
                         try:
                             sock.close()
@@ -182,9 +167,7 @@ Socket connections may be unstable, SSL issues are possible.
                         finally:
                             break
 
-                    packed_len = int.from_bytes(
-                        header[6:10], "big", signed=False
-                    )
+                    packed_len = int.from_bytes(header[6:10], "big", signed=False)
                     payload_length = packed_len & 0xFFFFFF
                     remaining = payload_length
                     payload = bytearray()
@@ -195,9 +178,7 @@ Socket connections may be unstable, SSL issues are possible.
                             None, _recv_exactly, min_read
                         )
                         if not chunk:
-                            self.logger.error(
-                                "Connection closed while reading payload"
-                            )
+                            self.logger.error("Connection closed while reading payload")
                             break
                         payload.extend(chunk)
                         remaining -= len(chunk)
@@ -220,9 +201,7 @@ Socket connections may be unstable, SSL issues are possible.
 
                     data = self._unpack_packet(raw)
                     if not data:
-                        self.logger.warning(
-                            "Failed to unpack packet, skipping"
-                        )
+                        self.logger.warning("Failed to unpack packet, skipping")
                         continue
 
                     payload_objs = data.get("payload")
@@ -234,11 +213,7 @@ Socket connections may be unstable, SSL issues are possible.
 
                     for data_item in datas:
                         seq = data_item.get("seq")
-                        fut = (
-                            self._pending.get(seq)
-                            if isinstance(seq, int)
-                            else None
-                        )
+                        fut = self._pending.get(seq) if isinstance(seq, int) else None
                         if fut and not fut.done():
                             fut.set_result(data_item)
                             self.logger.debug(
@@ -266,9 +241,7 @@ Socket connections may be unstable, SSL issues are possible.
                                 ) in self._on_message_handlers:
                                     payload = data_item.get("payload", {})
                                     msg_dict = (
-                                        payload
-                                        if isinstance(payload, dict)
-                                        else None
+                                        payload if isinstance(payload, dict) else None
                                     )
                                     msg = (
                                         Message.from_dict(msg_dict)
@@ -280,23 +253,17 @@ Socket connections may be unstable, SSL issues are possible.
                                             for (
                                                 edit_handler,
                                                 edit_filter,
-                                            ) in (
-                                                self._on_message_edit_handlers
-                                            ):
+                                            ) in self._on_message_edit_handlers:
                                                 await self._process_message_handler(
                                                     handler=edit_handler,
                                                     filter=edit_filter,
                                                     message=msg,
                                                 )
-                                        elif (
-                                            msg.status == MessageStatus.REMOVED
-                                        ):
+                                        elif msg.status == MessageStatus.REMOVED:
                                             for (
                                                 remove_handler,
                                                 remove_filter,
-                                            ) in (
-                                                self._on_message_delete_handlers
-                                            ):
+                                            ) in self._on_message_delete_handlers:
                                                 await self._process_message_handler(
                                                     handler=remove_handler,
                                                     filter=remove_filter,
@@ -308,16 +275,12 @@ Socket connections may be unstable, SSL issues are possible.
                                             message=msg,
                                         )
                             except Exception:
-                                self.logger.exception(
-                                    "Error in on_message_handler"
-                                )
+                                self.logger.exception("Error in on_message_handler")
                 except asyncio.CancelledError:
                     self.logger.debug("Recv loop cancelled")
                     break
                 except Exception:
-                    self.logger.exception(
-                        "Error in recv_loop; backing off briefly"
-                    )
+                    self.logger.exception("Error in recv_loop; backing off briefly")
                     await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
         finally:
             self.logger.warning("<<< Recv loop exited (socket)")
@@ -354,13 +317,9 @@ Socket connections may be unstable, SSL issues are possible.
                     payload={"interactive": True},
                     cmd=0,
                 )
-                self.logger.debug(
-                    "Interactive ping sent successfully (socket)"
-                )
+                self.logger.debug("Interactive ping sent successfully (socket)")
             except Exception:
-                self.logger.warning(
-                    "Interactive ping failed (socket)", exc_info=True
-                )
+                self.logger.warning("Interactive ping failed (socket)", exc_info=True)
             await asyncio.sleep(DEFAULT_PING_INTERVAL)
 
     def _make_message(
@@ -450,9 +409,8 @@ Socket connections may be unstable, SSL issues are possible.
                         await asyncio.sleep(5)
                         continue
 
-                message = (
-                    await self._outgoing.get()
-                )  # TODO: persistent msg q mb?
+                message = await self._outgoing.get()  # TODO: persistent msg q mb?
+
                 if not message:
                     continue
 
@@ -466,9 +424,7 @@ Socket connections may be unstable, SSL issues are possible.
                         cmd=message.get("cmd", 0),
                         timeout=message.get("timeout", 10.0),
                     )
-                    self.logger.debug(
-                        "Message sent successfully from queue (socket)"
-                    )
+                    self.logger.debug("Message sent successfully from queue (socket)")
                     self._error_count = max(0, self._error_count - 1)
                 except Exception as e:
                     self._error_count += 1
@@ -514,7 +470,7 @@ Socket connections may be unstable, SSL issues are possible.
         elif isinstance(error, SocketNotConnectedError):
             return 2.0
         else:
-            return float(2**retry_count)
+            return 2**retry_count
 
     async def _queue_message(
         self,
@@ -552,13 +508,18 @@ Socket connections may be unstable, SSL issues are possible.
                 drafts_sync=0,
                 chats_count=40,
             ).model_dump(by_alias=True)
-            data = await self._send_and_wait(
-                opcode=Opcode.LOGIN, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.LOGIN, payload=payload)
             raw_payload = data.get("payload", {})
             if error := raw_payload.get("error"):
-                self.logger.error("Sync error: %s", error)
-                return
+                localized_message = raw_payload.get("localizedMessage")
+                title = raw_payload.get("title")
+                message = raw_payload.get("message")
+                raise Error(
+                    error=error,
+                    message=message,
+                    title=title,
+                    localized_message=localized_message,
+                )
             for raw_chat in raw_payload.get("chats", []):
                 try:
                     if raw_chat.get("type") == "DIALOG":

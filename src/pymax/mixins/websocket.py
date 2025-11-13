@@ -22,10 +22,6 @@ from pymax.types import Channel, Chat, Dialog, Me, Message
 
 
 class WebSocketMixin(ClientProtocol):
-    def __init__(self, token: str | None = None, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self._token = token
-
     @property
     def ws(self) -> websockets.ClientConnection:
         if self._ws is None or not self.is_connected:
@@ -120,9 +116,7 @@ class WebSocketMixin(ClientProtocol):
         else:
             result = handler(message)
         if asyncio.iscoroutine(result):
-            task = asyncio.create_task(result)
-            task.add_done_callback(self._log_task_exception)
-            self._background_tasks.add(task)
+            self._create_safe_task(result, name=f"handler-{handler.__name__}")
 
     async def _recv_loop(self) -> None:
         if self._ws is None:
@@ -409,7 +403,10 @@ class WebSocketMixin(ClientProtocol):
                     self._ws = None
                     self._recv_task = None
                     raise LoginError(
-                        raw_payload.get("localizedMessage", "Unknown error")
+                        raw_payload.get("error", "unknown"),
+                        raw_payload.get("message", "No message provided"),
+                        raw_payload.get("title", "Login Error"),
+                        raw_payload.get("localizedMessage"),
                     )
 
                 return
@@ -437,15 +434,13 @@ class WebSocketMixin(ClientProtocol):
                 len(self.channels),
             )
 
-        except LoginError:
-            raise
-        except Exception:
+        except Exception as e:
             self.logger.exception("Sync failed")
             self.is_connected = False
             if self._ws:
                 await self._ws.close()
             self._ws = None
-            raise
+            raise e
 
     @override
     async def _get_chat(self, chat_id: int) -> Chat | None:

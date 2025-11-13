@@ -3,17 +3,15 @@ import re
 import sys
 from typing import Any
 
+from pymax.exceptions import Error
 from pymax.interfaces import ClientProtocol
+from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import RegisterPayload, RequestCodePayload, SendCodePayload
 from pymax.static.constant import PHONE_REGEX
 from pymax.static.enum import AuthType, Opcode
 
 
 class AuthMixin(ClientProtocol):
-    def __init__(self, token: str | None = None, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self._token = token
-
     def _check_phone(self) -> bool:
         return bool(re.match(PHONE_REGEX, self.phone))
 
@@ -30,6 +28,9 @@ class AuthMixin(ClientProtocol):
             data = await self._send_and_wait(
                 opcode=Opcode.AUTH_REQUEST, payload=payload
             )
+            if data.get("payload", {}).get("error"):
+                MixinsUtils.handle_error(data)
+
             self.logger.debug(
                 "Code request response opcode=%s seq=%s",
                 data.get("opcode"),
@@ -55,9 +56,10 @@ class AuthMixin(ClientProtocol):
                 auth_token_type=AuthType.CHECK_CODE,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.AUTH, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.AUTH, payload=payload)
+            if data.get("payload", {}).get("error"):
+                MixinsUtils.handle_error(data)
+
             self.logger.debug(
                 "Send code response opcode=%s seq=%s",
                 data.get("opcode"),
@@ -115,6 +117,9 @@ class AuthMixin(ClientProtocol):
             data = await self._send_and_wait(
                 opcode=Opcode.AUTH_CONFIRM, payload=payload
             )
+            if data.get("payload", {}).get("error"):
+                MixinsUtils.handle_error(data)
+
             self.logger.debug(
                 "Registration info response opcode=%s seq=%s",
                 data.get("opcode"),
@@ -123,16 +128,12 @@ class AuthMixin(ClientProtocol):
             payload_data = data.get("payload")
             if isinstance(payload_data, dict):
                 return payload_data
-            else:
-                self.logger.error("Invalid payload data received")
-                raise ValueError("Invalid payload data received")
+            raise ValueError("Invalid payload data received")
         except Exception:
             self.logger.error("Submit registration info failed", exc_info=True)
             raise RuntimeError("Submit registration info failed")
 
-    async def _register(
-        self, first_name: str, last_name: str | None = None
-    ) -> None:
+    async def _register(self, first_name: str, last_name: str | None = None) -> None:
         self.logger.info("Starting registration flow")
 
         request_code_payload = await self._request_code(self.phone)
@@ -150,9 +151,7 @@ class AuthMixin(ClientProtocol):
 
         registration_response = await self._send_code(code, temp_token)
         token: str | None = (
-            registration_response.get("tokenAttrs", {})
-            .get("REGISTER", {})
-            .get("token")
+            registration_response.get("tokenAttrs", {}).get("REGISTER", {}).get("token")
         )
         if not token:
             self.logger.critical("Failed to register, token not received")

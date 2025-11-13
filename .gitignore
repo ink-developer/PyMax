@@ -103,6 +103,7 @@ Thumbs.db
 session.db
 *.bak
 *.swp
+*.bin
 
 # Environment / secrets
 .env
@@ -114,6 +115,7 @@ cache/
 
 # Keep lockfiles and important configs tracked? If you want to track specific lockfiles,
 # remove them from this .gitignore (for example: remove poetry.lock or uv.lock).
+tests2/
 tests/
 
 

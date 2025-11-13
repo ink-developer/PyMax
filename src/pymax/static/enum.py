@@ -1,7 +1,7 @@
-from enum import IntEnum, StrEnum
+from enum import Enum
 
 
-class Opcode(IntEnum):
+class Opcode(int, Enum):
     PING = 1
     DEBUG = 2
     RECONNECT = 3
@@ -143,49 +143,49 @@ class Opcode(IntEnum):
     NOTIF_FOLDERS = 277
 
 
-class ChatType(StrEnum):
+class ChatType(str, Enum):
     DIALOG = "DIALOG"
     CHAT = "CHAT"
     CHANNEL = "CHANNEL"
 
 
-class MessageType(StrEnum):
+class MessageType(str, Enum):
     TEXT = "TEXT"
     SYSTEM = "SYSTEM"
     SERVICE = "SERVICE"
 
 
-class MessageStatus(StrEnum):
+class MessageStatus(str, Enum):
     EDITED = "EDITED"
     REMOVED = "REMOVED"
 
 
-class ElementType(StrEnum):
+class ElementType(str, Enum):
     TEXT = "text"
     MENTION = "mention"
     LINK = "link"
     EMOJI = "emoji"
 
 
-class AuthType(StrEnum):
+class AuthType(str, Enum):
     START_AUTH = "START_AUTH"
     CHECK_CODE = "CHECK_CODE"
     REGISTER = "REGISTER"
 
 
-class AccessType(StrEnum):
+class AccessType(str, Enum):
     PUBLIC = "PUBLIC"
     PRIVATE = "PRIVATE"
     SECRET = "SECRET"  # nosec B105
 
 
-class DeviceType(StrEnum):
+class DeviceType(str, Enum):
     WEB = "WEB"
     ANDROID = "ANDROID"
     IOS = "IOS"
 
 
-class AttachType(StrEnum):
+class AttachType(str, Enum):
     PHOTO = "PHOTO"
     VIDEO = "VIDEO"
     FILE = "FILE"
@@ -193,20 +193,20 @@ class AttachType(StrEnum):
     CONTROL = "CONTROL"
 
 
-class FormattingType(StrEnum):
+class FormattingType(str, Enum):
     STRONG = "STRONG"
     EMPHASIZED = "EMPHASIZED"
     UNDERLINE = "UNDERLINE"
     STRIKETHROUGH = "STRIKETHROUGH"
 
 
-class MarkupType(StrEnum):
+class MarkupType(str, Enum):
     BOLD = "**"
     ITALIC = "*"
     UNDERLINE = "__"
     STRIKETHROUGH = "~~"
 
 
-class ContactAction(StrEnum):
+class ContactAction(str, Enum):
     ADD = "ADD"
     REMOVE = "REMOVE"

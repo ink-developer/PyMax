@@ -1,7 +1,8 @@
 from typing import Any, Literal
 
-from pymax.exceptions import ResponseError, ResponseStructureError
+from pymax.exceptions import Error, ResponseError, ResponseStructureError
 from pymax.interfaces import ClientProtocol
+from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import (
     ContactActionPayload,
     FetchContactsPayload,
@@ -31,9 +32,7 @@ class UserMixin(ClientProtocol):
         Получает информацию о пользователях по их ID (с кешем).
         """
         self.logger.debug("get_users ids=%s", user_ids)
-        cached = {
-            uid: self._users[uid] for uid in user_ids if uid in self._users
-        }
+        cached = {uid: self._users[uid] for uid in user_ids if uid in self._users}
         missing_ids = [uid for uid in user_ids if uid not in self._users]
 
         if missing_ids:
@@ -62,37 +61,27 @@ class UserMixin(ClientProtocol):
             return users[0]
         return None
 
-    async def fetch_users(self, user_ids: list[int]) -> None | list[User]:
+    async def fetch_users(self, user_ids: list[int]) -> list[User]:
         """
         Получает информацию о пользователях по их ID.
         """
-        try:
-            self.logger.info("Fetching users count=%d", len(user_ids))
+        self.logger.info("Fetching users count=%d", len(user_ids))
 
-            payload = FetchContactsPayload(contact_ids=user_ids).model_dump(
-                by_alias=True
-            )
+        payload = FetchContactsPayload(contact_ids=user_ids).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.CONTACT_INFO, payload=payload
-            )
-            if error := data.get("payload", {}).get("error"):
-                self.logger.error("Fetch users error: %s", error)
-                return None
+        data = await self._send_and_wait(opcode=Opcode.CONTACT_INFO, payload=payload)
 
-            users = [
-                User.from_dict(u) for u in data["payload"].get("contacts", [])
-            ]
-            for user in users:
-                self._users[user.id] = user
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
 
-            self.logger.debug("Fetched users: %d", len(users))
-            return users
-        except Exception:
-            self.logger.exception("Fetch users failed")
-            return []
+        users = [User.from_dict(u) for u in data["payload"].get("contacts", [])]
+        for user in users:
+            self._users[user.id] = user
 
-    async def search_by_phone(self, phone: str) -> User | None:
+        self.logger.debug("Fetched users: %d", len(users))
+        return users
+
+    async def search_by_phone(self, phone: str) -> User:
         """
         Ищет пользователя по номеру телефона.
 
@@ -100,68 +89,50 @@ class UserMixin(ClientProtocol):
             phone (str): Номер телефона.
 
         Returns:
-            User | None: Объект User или None при ошибке.
+            User: Объект User.
         """
-        try:
-            self.logger.info("Searching user by phone: %s", phone)
+        self.logger.info("Searching user by phone: %s", phone)
 
-            payload = SearchByPhonePayload(phone=phone).model_dump(
-                by_alias=True
-            )
+        payload = SearchByPhonePayload(phone=phone).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.CONTACT_INFO_BY_PHONE, payload=payload
-            )
-            if error := data.get("payload", {}).get("error"):
-                self.logger.error("Search by phone error: %s", error)
-                return None
+        data = await self._send_and_wait(
+            opcode=Opcode.CONTACT_INFO_BY_PHONE, payload=payload
+        )
 
-            user = (
-                User.from_dict(data["payload"]["contact"])
-                if data.get("payload")
-                else None
-            )
-            if user:
-                self._users[user.id] = user
-                self.logger.debug("Found user by phone: %s", user)
-            return user
-        except Exception:
-            self.logger.exception("Search by phone failed")
-            return None
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
 
-    async def get_sessions(self) -> list[Session] | None:
+        if not data.get("payload"):
+            raise Error("no_payload", "No payload in response", "User Error")
+
+        user = User.from_dict(data["payload"]["contact"])
+        if not user:
+            raise Error("no_user", "User data missing in response", "User Error")
+
+        self._users[user.id] = user
+        self.logger.debug("Found user by phone: %s", user)
+        return user
+
+    async def get_sessions(self) -> list[Session]:
         """
         Получает информацию о сессиях.
 
-        Args:
-            None
-
         Returns:
-            list[Session] | None: Список объектов Session или None при ошибке.
+            list[Session]: Список объектов Session.
         """
-        try:
-            self.logger.info("Fetching sessions")
+        self.logger.info("Fetching sessions")
 
-            data = await self._send_and_wait(
-                opcode=Opcode.SESSIONS_INFO, payload={}
-            )
+        data = await self._send_and_wait(opcode=Opcode.SESSIONS_INFO, payload={})
 
-            if error := data.get("payload", {}).get("error"):
-                self.logger.error("Fetching sessions error: %s", error)
-                return None
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
 
-            return [
-                Session.from_dict(s)
-                for s in data["payload"].get("sessions", [])
-            ]
+        if not data.get("payload"):
+            raise Error("no_payload", "No payload in response", "Session Error")
 
-        except Exception:
-            self.logger.exception("Fetching sessions failed")
-            return None
+        return [Session.from_dict(s) for s in data["payload"].get("sessions", [])]
 
-    async def _contact_action(
-        self, payload: ContactActionPayload
-    ) -> dict[str, Any]:
+    async def _contact_action(self, payload: ContactActionPayload) -> dict[str, Any]:
         """
         Действия с контактом
 
@@ -193,9 +164,7 @@ class UserMixin(ClientProtocol):
             Contact: Объект контакта, иначе будут выброшены исключения
         """
         payload = await self._contact_action(
-            ContactActionPayload(
-                contact_id=contact_id, action=ContactAction.ADD
-            )
+            ContactActionPayload(contact_id=contact_id, action=ContactAction.ADD)
         )
         contact_dict = payload.get("contact")
         if isinstance(contact_dict, dict):
@@ -213,9 +182,7 @@ class UserMixin(ClientProtocol):
             True если успешно, иначе будут выброшены исключения
         """
         await self._contact_action(
-            ContactActionPayload(
-                contact_id=contact_id, action=ContactAction.REMOVE
-            )
+            ContactActionPayload(contact_id=contact_id, action=ContactAction.REMOVE)
         )
         return True
 

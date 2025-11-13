@@ -218,32 +218,13 @@ class Member:
 
 
 class StickerAttach:
-    """
-        {
-      "authorType": "USER",
-      "_type": "STICKER",
-      "lottieUrl": "https://fd.oneme.ru/getfile?sig=qZ7r3QJChvdxaqy0qLJIcJ7Cjhquy7nA_ixhKGr3w3xh1hQaf9pT5GU6R3CyoblJdkA0YZ2wn4a7xni6P1D-EA&lottie=true&clientType=6&id=51626&userId=73007509",
-      "url": "https://i.oneme.ru/getSmile?smileId=429b5&smileType=4",
-      "stickerId": 272821,
-      "tags": [
-        "👋"
-      ],
-      "width": 170,
-      "setId": 56245,
-      "time": 1736942723379,
-      "stickerType": "LOTTIE",
-      "audio": false,
-      "height": 170
-    }
-    """
-
     def __init__(
         self,
         author_type: str,
         lottie_url: str,
         url: str,
         sticker_id: int,
-        tags: list[str],
+        tags: list[str] | None,
         width: int,
         set_id: int,
         time: int,
@@ -272,7 +253,7 @@ class StickerAttach:
             lottie_url=data["lottieUrl"],
             url=data["url"],
             sticker_id=data["stickerId"],
-            tags=data["tags"],
+            tags=data.get("tags"),
             width=data["width"],
             set_id=data["setId"],
             time=data["time"],

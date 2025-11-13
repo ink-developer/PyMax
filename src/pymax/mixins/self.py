@@ -1,4 +1,6 @@
+from pymax.exceptions import Error
 from pymax.interfaces import ClientProtocol
+from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import ChangeProfilePayload
 from pymax.static.enum import Opcode
 
@@ -31,10 +33,9 @@ class SelfMixin(ClientProtocol):
             exclude_none=True,
         )
 
-        data = await self._send_and_wait(
-            opcode=Opcode.PROFILE, payload=payload
-        )
-        if error := data.get("payload", {}).get("error"):
-            self.logger.error("Change profile error: %s", error)
-            return False
+        data = await self._send_and_wait(opcode=Opcode.PROFILE, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
         return True

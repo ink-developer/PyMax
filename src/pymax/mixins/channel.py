@@ -1,7 +1,9 @@
-from pymax.exceptions import ResponseError, ResponseStructureError
+from pymax.exceptions import Error, ResponseError, ResponseStructureError
 from pymax.interfaces import ClientProtocol
+from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import (
     GetGroupMembersPayload,
+    JoinChatPayload,
     ResolveLinkPayload,
     SearchGroupMembersPayload,
 )
@@ -32,12 +34,32 @@ class ChannelMixin(ClientProtocol):
             link=f"https://max.ru/{name}",
         ).model_dump(by_alias=True)
 
-        data = await self._send_and_wait(
-            opcode=Opcode.LINK_INFO, payload=payload
-        )
-        if error := data.get("payload", {}).get("error"):
-            self.logger.error("Resolve link error: %s", error)
-            return False
+        data = await self._send_and_wait(opcode=Opcode.LINK_INFO, payload=payload)
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+        return True
+
+    async def join_channel(self, link: str) -> bool:
+        """
+        Присоединяется к каналу по ссылке
+
+        Args:
+            link (str): Ссылка на канал
+
+        Exceptions:
+            ResponseError: Ошибка в ответе сервера
+            ResponseStructureError: Ошибка структуры ответа сервера
+
+        Returns:
+            bool: True, если присоединение прошло успешно
+        """
+        payload = JoinChatPayload(
+            link=link,
+        ).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.CHAT_JOIN, payload=payload)
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
         return True
 
     async def _query_members(
@@ -65,9 +87,7 @@ class ChannelMixin(ClientProtocol):
         if isinstance(members, list):
             for item in members:
                 if not isinstance(item, dict):
-                    raise ResponseStructureError(
-                        "Invalid member structure in response"
-                    )
+                    raise ResponseStructureError("Invalid member structure in response")
                 member_list.append(Member.from_dict(item))
         else:
             raise ResponseStructureError("Invalid members type in response")
@@ -91,9 +111,7 @@ class ChannelMixin(ClientProtocol):
         Returns:
             list[Member]: Список участников канала
         """
-        payload = GetGroupMembersPayload(
-            chat_id=chat_id, marker=marker, count=count
-        )
+        payload = GetGroupMembersPayload(chat_id=chat_id, marker=marker, count=count)
         return await self._query_members(payload)
 
     async def find_members(

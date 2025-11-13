@@ -30,16 +30,23 @@ async def handle_deleted_message(message: Message) -> None:
 @client.on_start
 async def handle_start() -> None:
     print(f"Client started successfully at {datetime.datetime.now()}!")
-    file_path = "ruff.toml"
-    file = File(path=file_path)
-    msg = await client.send_message(
-        text="Here is the file you requested.",
-        chat_id=0,
-        attachment=file,
-        notify=True,
-    )
-    if msg:
-        print(f"File sent successfully in message ID: {msg.id}")
+    print(client.me.id)
+
+    # await client.send_message(
+    #     "Hello, this is a test message sent upon client start!",
+    #     chat_id=23424,
+    #     notify=True,
+    # )
+    # file_path = "ruff.toml"
+    # file = File(path=file_path)
+    # msg = await client.send_message(
+    #     text="Here is the file you requested.",
+    #     chat_id=0,
+    #     attachment=file,
+    #     notify=True,
+    # )
+    # if msg:
+    #     print(f"File sent successfully in message ID: {msg.id}")
     # history = await client.fetch_history(chat_id=0)
     # if history:
     #     for message in history:

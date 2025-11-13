@@ -39,15 +39,6 @@ class SocketSendError(Exception):
         super().__init__("Send and wait failed (socket)")
 
 
-class LoginError(Exception):
-    """
-    Исключение, вызываемое при ошибке авторизации.
-    """
-
-    def __init__(self, message: str) -> None:
-        super().__init__(f"Login error: {message}")
-
-
 class ResponseError(Exception):
     """
     Исключение, вызываемое при ошибке в ответе от сервера.
@@ -64,3 +55,54 @@ class ResponseStructureError(Exception):
 
     def __init__(self, message: str) -> None:
         super().__init__(f"Response structure error: {message}")
+
+
+class Error(Exception):
+    """
+    Базовое исключение для ошибок PyMax.
+    """
+
+    def __init__(
+        self,
+        error: str,
+        message: str,
+        title: str,
+        localized_message: str | None = None,
+    ) -> None:
+        self.error = error
+        self.message = message
+        self.title = title
+        self.localized_message = localized_message
+
+        parts = []
+        if localized_message:
+            parts.append(localized_message)
+        if message:
+            parts.append(message)
+        if title:
+            parts.append(f"({title})")
+        parts.append(f"[{error}]")
+
+        super().__init__("PyMax Error: " + " ".join(parts))
+
+
+class RateLimitError(Error):
+    """
+    Исключение, вызываемое при превышении лимита запросов.
+    """
+
+    def __init__(
+        self, error: str, message: str, title: str, localized_message: str | None = None
+    ) -> None:
+        super().__init__(error, message, title, localized_message)
+
+
+class LoginError(Error):
+    """
+    Исключение, вызываемое при ошибке авторизации.
+    """
+
+    def __init__(
+        self, error: str, message: str, title: str, localized_message: str | None = None
+    ) -> None:
+        super().__init__(error, message, title, localized_message)

@@ -243,7 +243,7 @@ class SearchByPhonePayload(CamelModel):
     phone: str
 
 
-class JoinGroupPayload(CamelModel):
+class JoinChatPayload(CamelModel):
     link: str
 
 
