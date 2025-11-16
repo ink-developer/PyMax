@@ -43,15 +43,14 @@ class ClientProtocol(ABC):
         self.last_name: str | None
         self._token: str | None
         self._work_dir: str
+        self.reconnect: bool
         self._database_path: Path
         self._ws: websockets.ClientConnection | None = None
         self._seq: int = 0
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
-        self._file_upload_waiters: dict[
-            int, asyncio.Future[dict[str, Any]]
-        ] = {}
+        self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self.user_agent = UserAgentPayload()
         self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
         self._outgoing_task: asyncio.Task[Any] | None = None
@@ -70,9 +69,7 @@ class ClientProtocol(ABC):
         self._on_message_delete_handlers: list[
             tuple[Callable[[Message], Any], Filter | None]
         ] = []
-        self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = (
-            None
-        )
+        self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._ssl_context: ssl.SSLContext
         self._socket: socket.socket | None = None

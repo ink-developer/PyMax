@@ -47,13 +47,13 @@ async def handle_start() -> None:
     # )
     # if msg:
     #     print(f"File sent successfully in message ID: {msg.id}")
-    # history = await client.fetch_history(chat_id=0)
-    # if history:
-    #     for message in history:
-    #         if message.attaches:
-    #             for attach in message.attaches:
-    #                 if attach.type == AttachType.STICKER:
-    #                     print(attach.lottie_url)
+    history = await client.fetch_history(chat_id=0)
+    if history:
+        for message in history:
+            if message.attaches:
+                for attach in message.attaches:
+                    if attach.type == AttachType.AUDIO:
+                        print(attach.url)
     # chat = await client.rework_invite_link(chat_id=0)
     # print(chat.link)
     # text = """

@@ -190,6 +190,7 @@ class AttachType(str, Enum):
     VIDEO = "VIDEO"
     FILE = "FILE"
     STICKER = "STICKER"
+    AUDIO = "AUDIO"
     CONTROL = "CONTROL"
 
 
