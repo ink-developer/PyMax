@@ -1,4 +1,4 @@
-from typing import Any, Final, Literal
+from typing import Any, Literal
 
 from pydantic import AliasChoices, BaseModel, Field
 
@@ -30,7 +30,7 @@ class CamelModel(BaseModel):
 
 
 class BaseWebSocketMessage(BaseModel):
-    ver: Final[int] = 11
+    ver: Literal[10, 11] = 11
     cmd: int
     seq: int
     opcode: int
@@ -195,14 +195,14 @@ class ChangeGroupProfilePayload(CamelModel):
 
 
 class GetGroupMembersPayload(CamelModel):
-    type: Final[str] = "MEMBER"
+    type: Literal["MEMBER"] = "MEMBER"
     marker: int
     chat_id: int
     count: int
 
 
 class SearchGroupMembersPayload(CamelModel):
-    type: Final[str] = "MEMBER"
+    type: Literal["MEMBER"] = "MEMBER"
     query: str
     chat_id: int
 
