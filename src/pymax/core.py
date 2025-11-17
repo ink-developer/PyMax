@@ -7,7 +7,7 @@ import time
 import traceback
 from collections.abc import Awaitable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Self
 
 from typing_extensions import override
 
@@ -328,6 +328,18 @@ class MaxClient(ApiMixin, WebSocketMixin):
 
             self.logger.info("Reconnect enabled — restarting client")
             await asyncio.sleep(self.reconnect_delay)
+
+    async def idle(self):
+        await asyncio.Event().wait()
+
+    async def __aenter__(self) -> Self:
+        self._create_safe_task(self.start(), name="start")
+        while not self.is_connected:
+            await asyncio.sleep(0.05)
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        await self.close()
 
 
 class SocketMaxClient(SocketMixin, MaxClient):
