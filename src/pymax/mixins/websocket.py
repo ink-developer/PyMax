@@ -10,6 +10,7 @@ from typing_extensions import override
 from pymax.exceptions import LoginError, WebSocketNotConnectedError
 from pymax.filters import Filter
 from pymax.interfaces import ClientProtocol
+from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
 from pymax.static.constant import (
     DEFAULT_PING_INTERVAL,
@@ -18,7 +19,15 @@ from pymax.static.constant import (
     WEBSOCKET_ORIGIN,
 )
 from pymax.static.enum import ChatType, MessageStatus, Opcode
-from pymax.types import Channel, Chat, Dialog, Me, Message
+from pymax.types import (
+    Channel,
+    Chat,
+    Dialog,
+    Me,
+    Message,
+    ReactionCounter,
+    ReactionInfo,
+)
 
 
 class WebSocketMixin(ClientProtocol):
@@ -59,45 +68,54 @@ class WebSocketMixin(ClientProtocol):
                 self.logger.warning("Interactive ping failed", exc_info=True)
             await asyncio.sleep(DEFAULT_PING_INTERVAL)
 
-    async def _connect(self, user_agent: UserAgentPayload) -> dict[str, Any]:
-        try:
-            self.logger.info("Connecting to WebSocket %s", self.uri)
-            self._ws = await websockets.connect(
-                self.uri,
-                origin=WEBSOCKET_ORIGIN,
-                user_agent_header=user_agent.header_user_agent,
-                proxy=self.proxy,
-            )
-            self.is_connected = True
-            self._incoming = asyncio.Queue()
-            self._outgoing = asyncio.Queue()
-            self._pending = {}
-            self._recv_task = asyncio.create_task(self._recv_loop())
-            self._outgoing_task = asyncio.create_task(self._outgoing_loop())
-            self.logger.info("WebSocket connected, starting handshake")
-            return await self._handshake(user_agent)
-        except Exception as e:
-            self.logger.error("Failed to connect: %s", e, exc_info=True)
-            raise ConnectionError(f"Failed to connect: {e}")
+    async def connect(
+        self, user_agent: UserAgentPayload | None = None
+    ) -> dict[str, Any] | None:
+        """
+        Устанавливает соединение WebSocket с сервером и выполняет handshake.
+        """
+        if user_agent is None:
+            user_agent = UserAgentPayload()
+
+        self.logger.info("Connecting to WebSocket %s", self.uri)
+
+        if self._ws is not None or self.is_connected:
+            self.logger.warning("WebSocket already connected")
+            return
+
+        self._ws = await websockets.connect(
+            self.uri,
+            origin=WEBSOCKET_ORIGIN,
+            user_agent_header=user_agent.header_user_agent,
+            proxy=self.proxy,
+        )
+        self.is_connected = True
+        self._incoming = asyncio.Queue()
+        self._outgoing = asyncio.Queue()
+        self._pending = {}
+        self._recv_task = asyncio.create_task(self._recv_loop())
+        self._outgoing_task = asyncio.create_task(self._outgoing_loop())
+        self.logger.info("WebSocket connected, starting handshake")
+        return await self._handshake(user_agent)
 
     async def _handshake(self, user_agent: UserAgentPayload) -> dict[str, Any]:
-        try:
-            self.logger.debug(
-                "Sending handshake with user_agent keys=%s",
-                user_agent.model_dump().keys(),
-            )
-            resp = await self._send_and_wait(
-                opcode=Opcode.SESSION_INIT,
-                payload={
-                    "deviceId": str(self._device_id),
-                    "userAgent": user_agent,
-                },
-            )
-            self.logger.info("Handshake completed")
-            return resp
-        except Exception as e:
-            self.logger.error("Handshake failed: %s", e, exc_info=True)
-            raise ConnectionError(f"Handshake failed: {e}")
+        self.logger.debug(
+            "Sending handshake with user_agent keys=%s",
+            user_agent.model_dump().keys(),
+        )
+        resp = await self._send_and_wait(
+            opcode=Opcode.SESSION_INIT,
+            payload={
+                "deviceId": str(self._device_id),
+                "userAgent": user_agent,  # TODO: вынести в статик мб
+            },
+        )
+
+        if resp.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(resp)
+
+        self.logger.info("Handshake completed")
+        return resp
 
     async def _process_message_handler(
         self,
@@ -130,7 +148,6 @@ class WebSocketMixin(ClientProtocol):
                 except Exception:
                     self.logger.warning("JSON parse error", exc_info=True)
                     continue
-
                 seq = data.get("seq")
                 fut = self._pending.get(seq) if isinstance(seq, int) else None
 
@@ -161,9 +178,10 @@ class WebSocketMixin(ClientProtocol):
                     except Exception:
                         self.logger.exception("Error handling file upload notification")
 
-                    if (
-                        data.get("opcode") == Opcode.NOTIF_MESSAGE.value
-                        and self._on_message_handlers
+                    if data.get("opcode") == Opcode.NOTIF_MESSAGE.value and (
+                        self._on_message_handlers
+                        or self._on_message_edit_handlers
+                        or self._on_message_delete_handlers
                     ):
                         try:
                             for handler, filter in self._on_message_handlers:
@@ -196,6 +214,62 @@ class WebSocketMixin(ClientProtocol):
                                     )
                         except Exception:
                             self.logger.exception("Error in on_message_handler")
+
+                    if data.get("opcode") == Opcode.NOTIF_MSG_REACTIONS_CHANGED:
+                        try:
+                            for (
+                                reaction_handler,
+                            ) in self._on_reaction_change_handlers:
+                                payload = data.get("payload", {})
+
+                                chat_id = payload.get("chatId")
+                                message_id = payload.get("messageId")
+
+                                total_count = payload.get("totalCount")
+                                your_reaction = payload.get("yourReaction")
+                                counters = [
+                                    ReactionCounter.from_dict(c)
+                                    for c in payload.get("counters", [])
+                                ]
+
+                                if (
+                                    chat_id
+                                    and message_id
+                                    and (
+                                        total_count is not None
+                                        or your_reaction
+                                        or counters
+                                    )
+                                ):
+                                    reaction_info = ReactionInfo(
+                                        total_count=total_count,
+                                        your_reaction=your_reaction,
+                                        counters=counters,
+                                    )
+                                    result = reaction_handler(
+                                        message_id, chat_id, reaction_info
+                                    )
+                                    if asyncio.iscoroutine(result):
+                                        await result
+
+                        except Exception as e:
+                            self.logger.exception(
+                                "Error in on_reaction_change_handler: %s", e
+                            )
+
+                    if data.get("opcode") == Opcode.NOTIF_CHAT:
+                        try:
+                            for (chat_update_handler,) in self._on_chat_update_handlers:
+                                payload = data.get("payload", {})
+                                chat = Chat.from_dict(payload.get("chat", {}))
+                                if chat:
+                                    result = chat_update_handler(chat)
+                                    if asyncio.iscoroutine(result):
+                                        await result
+                        except Exception as e:
+                            self.logger.exception(
+                                "Error in on_chat_update_handler: %s", e
+                            )
 
             except websockets.exceptions.ConnectionClosed:
                 self.logger.info("WebSocket connection closed; exiting recv loop")
@@ -371,28 +445,12 @@ class WebSocketMixin(ClientProtocol):
             drafts_sync=0,
             chats_count=40,
         ).model_dump(by_alias=True)
-
         try:
             data = await self._send_and_wait(opcode=Opcode.LOGIN, payload=payload)
             raw_payload = data.get("payload", {})
 
             if error := raw_payload.get("error"):
-                self.logger.error("Sync error: %s", error)
-
-                if error == "login.token":
-                    if self._ws:
-                        await self._ws.close()
-                    self.is_connected = False
-                    self._ws = None
-                    self._recv_task = None
-                    raise LoginError(
-                        raw_payload.get("error", "unknown"),
-                        raw_payload.get("message", "No message provided"),
-                        raw_payload.get("title", "Login Error"),
-                        raw_payload.get("localizedMessage"),
-                    )
-
-                return
+                MixinsUtils.handle_error(data)
 
             for raw_chat in raw_payload.get("chats", []):
                 try:

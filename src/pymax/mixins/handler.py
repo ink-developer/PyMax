@@ -2,7 +2,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from pymax.interfaces import ClientProtocol, Filter
-from pymax.types import Message
+from pymax.types import Chat, Message, ReactionInfo
 
 
 class HandlerMixin(ClientProtocol):
@@ -85,6 +85,39 @@ class HandlerMixin(ClientProtocol):
 
         return decorator
 
+    def on_reaction_change(
+        self,
+        handler: Callable[[str, int, ReactionInfo], Any | Awaitable[Any]],
+    ) -> Callable[[str, int, ReactionInfo], Any | Awaitable[Any]]:
+        """
+        Устанавливает обработчик изменения реакций на сообщения.
+
+        Args:
+            handler: Функция или coroutine с аргументами (message_id: str, chat_id: int, reaction_info: ReactionInfo).
+
+        Returns:
+            Установленный обработчик.
+        """
+        self._on_reaction_change_handlers.append((handler,))
+        self.logger.debug("on_reaction_change handler set: %r", handler)
+        return handler
+
+    def on_chat_update(
+        self, handler: Callable[[Chat], Any | Awaitable[Any]]
+    ) -> Callable[[Chat], Any | Awaitable[Any]]:
+        """
+        Устанавливает обработчик обновления информации о чате.
+
+        Args:
+            handler: Функция или coroutine с аргументом (chat: Chat).
+
+        Returns:
+            Установленный обработчик.
+        """
+        self._on_chat_update_handlers.append((handler,))
+        self.logger.debug("on_chat_update handler set: %r", handler)
+        return handler
+
     def on_start(
         self, handler: Callable[[], Any | Awaitable[Any]]
     ) -> Callable[[], Any | Awaitable[Any]]:
@@ -115,4 +148,19 @@ class HandlerMixin(ClientProtocol):
     ) -> Callable[[], Any | Awaitable[Any]]:
         self.logger.debug("add_on_start_handler (alias) used")
         self._on_start_handler = handler
+        return handler
+
+    def add_reaction_change_handler(
+        self,
+        handler: Callable[[str, int, ReactionInfo], Any | Awaitable[Any]],
+    ) -> Callable[[str, int, ReactionInfo], Any | Awaitable[Any]]:
+        self.logger.debug("add_reaction_change_handler (alias) used")
+        self._on_reaction_change_handlers.append((handler,))
+        return handler
+
+    def add_chat_update_handler(
+        self, handler: Callable[[Chat], Any | Awaitable[Any]]
+    ) -> Callable[[Chat], Any | Awaitable[Any]]:
+        self.logger.debug("add_chat_update_handler (alias) used")
+        self._on_chat_update_handlers.append((handler,))
         return handler

@@ -11,7 +11,7 @@ import msgpack
 from typing_extensions import override
 
 from pymax.exceptions import Error, SocketNotConnectedError, SocketSendError
-from pymax.filters import Filter, Message
+from pymax.filters import Filter
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
 from pymax.static.constant import (
@@ -19,8 +19,16 @@ from pymax.static.constant import (
     DEFAULT_TIMEOUT,
     RECV_LOOP_BACKOFF_DELAY,
 )
-from pymax.static.enum import MessageStatus, Opcode
-from pymax.types import Channel, Chat, Dialog, Me
+from pymax.static.enum import ChatType, MessageStatus, Opcode
+from pymax.types import (
+    Channel,
+    Chat,
+    Dialog,
+    Me,
+    Message,
+    ReactionCounter,
+    ReactionInfo,
+)
 
 
 class SocketMixin(ClientProtocol):
@@ -276,6 +284,67 @@ Socket connections may be unstable, SSL issues are possible.
                                         )
                             except Exception:
                                 self.logger.exception("Error in on_message_handler")
+
+                        if (
+                            data_item.get("opcode")
+                            == Opcode.NOTIF_MSG_REACTIONS_CHANGED
+                        ):
+                            try:
+                                for (
+                                    reaction_handler,
+                                ) in self._on_reaction_change_handlers:
+                                    payload = data_item.get("payload", {})
+
+                                    chat_id = payload.get("chatId")
+                                    message_id = payload.get("messageId")
+
+                                    total_count = payload.get("totalCount")
+                                    your_reaction = payload.get("yourReaction")
+                                    counters = [
+                                        ReactionCounter.from_dict(c)
+                                        for c in payload.get("counters", [])
+                                    ]
+
+                                    if (
+                                        chat_id
+                                        and message_id
+                                        and (
+                                            total_count is not None
+                                            or your_reaction
+                                            or counters
+                                        )
+                                    ):
+                                        reaction_info = ReactionInfo(
+                                            total_count=total_count,
+                                            your_reaction=your_reaction,
+                                            counters=counters,
+                                        )
+                                        result = reaction_handler(
+                                            message_id, chat_id, reaction_info
+                                        )
+                                        if asyncio.iscoroutine(result):
+                                            await result
+
+                            except Exception as e:
+                                self.logger.exception(
+                                    "Error in on_reaction_change_handler: %s", e
+                                )
+
+                        if data_item.get("opcode") == Opcode.NOTIF_CHAT:
+                            try:
+                                for (
+                                    chat_update_handler,
+                                ) in self._on_chat_update_handlers:
+                                    payload = data_item.get("payload", {})
+                                    chat = Chat.from_dict(payload.get("chat", {}))
+                                    if chat:
+                                        result = chat_update_handler(chat)
+                                        if asyncio.iscoroutine(result):
+                                            await result
+                            except Exception as e:
+                                self.logger.exception(
+                                    "Error in on_chat_update_handler: %s", e
+                                )
                 except asyncio.CancelledError:
                     self.logger.debug("Recv loop cancelled")
                     break

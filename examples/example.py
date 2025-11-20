@@ -1,35 +1,59 @@
 import asyncio
 import datetime
 
-from pymax import MaxClient, Message
+from pymax import MaxClient, Message, ReactionInfo, SocketMaxClient
 from pymax.files import File
 from pymax.filters import Filter
 from pymax.static.enum import AttachType
+from pymax.types import Chat
 
-phone = "+1234567890"
-
-
-client = MaxClient(phone=phone, work_dir="cache")
+phone = "+79029336523"
 
 
-async def main() -> None:
-    async with client:
-
-        @client.on_start
-        async def handle_start() -> None:
-            print(f"Client started successfully at {datetime.datetime.now()}!")
-            print(client.me.id)
-
-            await client.send_message(
-                "Hello!",
-                chat_id=0,
-                notify=True,
-            )
-
-        await client.idle()
+client = MaxClient(phone=phone, work_dir="cache", reconnect=False, logger=None)
 
 
-asyncio.run(main())
+# async def main() -> None:
+#     async with client:
+
+#         @client.on_start
+#         async def handle_start() -> None:
+#             print(f"Client started successfully at {datetime.datetime.now()}!")
+#             print(client.me.id)
+
+#             await client.send_message(
+#                 "Hello!",
+#                 chat_id=0,
+#                 notify=True,
+#             )
+
+
+#         await client.idle()
+@client.on_reaction_change
+async def handle_reaction_change(
+    message_id: str, chat_id: int, reaction_info: ReactionInfo
+) -> None:
+    print(
+        f"Reaction changed on message {message_id} in chat {chat_id}: "
+        f"Total count: {reaction_info.total_count}, "
+        f"Your reaction: {reaction_info.your_reaction}, "
+        f"Counters: {reaction_info.counters[0].reaction}={reaction_info.counters[0].count}"
+    )
+
+
+@client.on_chat_update
+async def handle_chat_update(chat: Chat) -> None:
+    print(f"Chat updated: {chat.id}, new title: {chat.title}")
+
+
+# async def login_flow_test():
+#     await client.connect()
+#     temp_token = await client.request_code(phone)
+#     code = input("Введите код: ").strip()
+#     await client.login_with_code(temp_token, code)
+
+
+# asyncio.run(login_flow_test())
 
 # @client.on_message(filter=Filter(chat_id=0))
 # async def handle_message(message: Message) -> None:
@@ -138,5 +162,5 @@ asyncio.run(main())
 # )
 
 
-# if __name__ == "__main__":
-#     asyncio.run(client.start())
+if __name__ == "__main__":
+    asyncio.run(client.start())

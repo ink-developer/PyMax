@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     import websockets
 
     from .filters import Filter
-    from .types import Channel, Chat, Dialog, Me, Message, User
+    from .types import Channel, Chat, Dialog, Me, Message, ReactionInfo, User
 
 
 logger = logging.getLogger(__name__)
@@ -143,6 +143,10 @@ class MaxClient(ApiMixin, WebSocketMixin):
             tuple[Callable[[Message], Any], Filter | None]
         ] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
+        self._on_reaction_change_handlers: list[
+            tuple[Callable[[str, int, ReactionInfo], Any]]
+        ] = []
+        self._on_chat_update_handlers: list[tuple[Callable[[Chat], Any]]] = []
 
         self._ssl_context = ssl.create_default_context()
         self._ssl_context.set_ciphers("DEFAULT")
@@ -232,6 +236,97 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._background_tasks.add(task)
         return task
 
+    async def _post_login_tasks(self, sync: bool = True) -> None:
+        if sync:
+            await self._sync()
+
+        if self._on_start_handler:
+            self.logger.debug("Calling on_start handler")
+            result = self._on_start_handler()
+            if asyncio.iscoroutine(result):
+                await self._safe_execute(result, context="on_start handler")
+
+        ping_task = asyncio.create_task(self._send_interactive_ping())
+        ping_task.add_done_callback(self._log_task_exception)
+        self._background_tasks.add(ping_task)
+
+        if self._send_fake_telemetry:
+            telemetry_task = asyncio.create_task(self._start())
+            telemetry_task.add_done_callback(self._log_task_exception)
+            self._background_tasks.add(telemetry_task)
+
+    async def _cleanup_client(self):
+        for task in list(self._background_tasks):
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+            except Exception:
+                self.logger.debug(
+                    "Background task raised during cancellation", exc_info=True
+                )
+            self._background_tasks.discard(task)
+
+        if self._recv_task:
+            self._recv_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await self._recv_task
+            self._recv_task = None
+
+        if self._outgoing_task:
+            self._outgoing_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await self._outgoing_task
+            self._outgoing_task = None
+
+        for fut in self._pending.values():
+            if not fut.done():
+                fut.set_exception(WebSocketNotConnectedError)
+        self._pending.clear()
+
+        if self._ws:
+            try:
+                await self._ws.close()
+            except Exception:
+                self.logger.debug("Error closing ws during cleanup", exc_info=True)
+            self._ws = None
+
+        self.is_connected = False
+        self.logger.info("Client start() cleaned up")
+
+    async def login_with_code(
+        self, temp_token: str, code: str, start: bool = False
+    ) -> None:
+        """
+        Завершает кастомный login flow: отправляет код, сохраняет токен и запускает пост-логин задачи.
+
+        Args:
+            temp_token (str): Временный токен, полученный из request_code()
+            code (str): Код, введённый пользователем
+
+        Returns:
+            str: Токен для входа
+        """
+        resp = await self._send_code(code, temp_token)
+        token = resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
+        self._token = token
+        self._database.update_auth_token(self._device_id, token)
+        if start:
+            while True:
+                try:
+                    await self._post_login_tasks()
+                    await self._wait_forever()
+                except Exception:
+                    self.logger.exception("Error during post-login tasks")
+                finally:
+                    await self._cleanup_client()
+
+                self.logger.info("Reconnecting after post-login tasks failure")
+                await asyncio.sleep(self.reconnect_delay)
+        else:
+            self.logger.info("Login successful, token saved to database, exiting...")
+
     async def start(self) -> None:
         """
         Запускает клиент, подключается к WebSocket, авторизует
@@ -242,7 +337,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         while True:
             try:
                 self.logger.info("Client starting")
-                await self._connect(self.user_agent)
+                await self.connect(self.user_agent)
 
                 if self.registration:
                     if not self.first_name:
@@ -257,70 +352,19 @@ class MaxClient(ApiMixin, WebSocketMixin):
                 else:
                     await self._sync()
 
-                if self._on_start_handler:
-                    self.logger.debug("Calling on_start handler")
-                    result = self._on_start_handler()
-                    if asyncio.iscoroutine(result):
-                        await self._safe_execute(result, context="on_start handler")
-
-                ping_task = asyncio.create_task(self._send_interactive_ping())
-                ping_task.add_done_callback(self._log_task_exception)
-                self._background_tasks.add(ping_task)
-
-                if self._send_fake_telemetry:
-                    telemetry_task = asyncio.create_task(self._start())
-                    telemetry_task.add_done_callback(self._log_task_exception)
-                    self._background_tasks.add(telemetry_task)
+                await self._post_login_tasks(sync=False)
 
                 await self._wait_forever()
                 self.logger.info("WebSocket closed (wait_forever exited)")
 
-            except Exception:
+            except Exception as e:
                 self.logger.exception("Client start iteration failed")
+                raise e
 
             finally:
                 self.logger.debug("Cleaning up background tasks and pending futures")
 
-                for task in list(self._background_tasks):
-                    task.cancel()
-                    try:
-                        await task
-                    except asyncio.CancelledError:
-                        pass
-                    except Exception:
-                        self.logger.debug(
-                            "Background task raised during cancellation", exc_info=True
-                        )
-                    self._background_tasks.discard(task)
-
-                if self._recv_task:
-                    self._recv_task.cancel()
-                    with contextlib.suppress(asyncio.CancelledError):
-                        await self._recv_task
-                    self._recv_task = None
-
-                if self._outgoing_task:
-                    self._outgoing_task.cancel()
-                    with contextlib.suppress(asyncio.CancelledError):
-                        await self._outgoing_task
-                    self._outgoing_task = None
-
-                for fut in self._pending.values():
-                    if not fut.done():
-                        fut.set_exception(WebSocketNotConnectedError)
-                self._pending.clear()
-
-                if self._ws:
-                    try:
-                        await self._ws.close()
-                    except Exception:
-                        self.logger.debug(
-                            "Error closing ws during cleanup", exc_info=True
-                        )
-                    self._ws = None
-
-                self.is_connected = False
-                self.logger.info("Client start() cleaned up")
+                await self._cleanup_client()
 
             if not self.reconnect:
                 self.logger.info("Reconnect disabled — exiting start()")

@@ -18,6 +18,8 @@ from .types import Channel, Chat, Dialog, Me, Message, User
 if TYPE_CHECKING:
     from uuid import UUID
 
+    from pymax.types import ReactionInfo
+
     from .crud import Database
 
 
@@ -69,6 +71,10 @@ class ClientProtocol(ABC):
         self._on_message_delete_handlers: list[
             tuple[Callable[[Message], Any], Filter | None]
         ] = []
+        self._on_reaction_change_handlers: list[
+            tuple[Callable[[str, int, ReactionInfo], Any]]
+        ] = []
+        self._on_chat_update_handlers: list[tuple[Callable[[Chat], Any]]] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._ssl_context: ssl.SSLContext
