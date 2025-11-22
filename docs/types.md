@@ -55,6 +55,7 @@
     | `VIDEO` | Видео |
     | `FILE` | Файл |
     | `STICKER` | Стикер |
+    | `AUDIO` | Аудио/голосовое сообщение |
     | `CONTROL` | Управляющий элемент |
 
 !!! tip "Использование перечислений"
@@ -103,28 +104,9 @@ if user.names:
     | `type` | `MessageType | str` | Тип сообщения |
     | `elements` | `list[Element] | None` | Элементы форматирования |
     | `reaction_info` | `ReactionInfo | None` | Информация о реакциях |
-    | `attaches` | `list[PhotoAttach | VideoAttach | FileAttach | ControlAttach] | None` | Вложения |
+    | `attaches` | `list[PhotoAttach | VideoAttach | FileAttach | StickerAttach | AudioAttach | ControlAttach] | None` | Вложения |
     | `link` | `MessageLink | None` | Связанное сообщение |
     | `options` | `int | None` | Опции сообщения |
-
-**Пример работы с сообщением**
-```python
-async def handle_message(message: Message):
-    # Проверяем тип сообщения
-    if message.type == MessageType.TEXT:
-        # Работаем с текстом
-        print(f"Получено: {message.text}")
-
-        # Проверяем вложения
-        if message.attaches:
-            for attach in message.attaches:
-                if isinstance(attach, PhotoAttach):
-                    print(f"Фото: {attach.photo_id}")
-
-        # Проверяем реакции
-        if message.reaction_info:
-            print(f"Реакций: {message.reaction_info.total_count}")
-```
 
 ### Chat
 
@@ -143,6 +125,32 @@ async def handle_message(message: Message):
     | `link` | `str | None` | Ссылка-приглашение |
     | `base_icon_url` | `str | None` | URL иконки |
     | `invited_by` | `int | None` | Кто пригласил |
+    | `base_raw_icon_url` | `str | None` | Внутренний URL иконки |
+    | `admin_participants` | `dict[int, dict[Any, Any]]` | Структура админов |
+    | `last_message` | `Message | None` | Последнее сообщение |
+    | `last_event_time` | `int` | Время последнего события |
+    | `last_delayed_update_time` | `int` | Время последнего отложенного обновления |
+    | `last_fire_delayed_error_time` | `int` | Время последней отложенной ошибки |
+    | `messages_count` | `int` | Кол-во сообщений |
+    | `modified` | `int` | Время последнего изменения |
+    | `options` | `dict[str, bool]` | Опции чата |
+    | `prev_message_id` | `str | None` | ID предыдущего сообщения |
+    | `restrictions` | `int | None` | Ограничения |
+    | `status` | `str` | Статус чата |
+    | `cid` | `int` | Внутренний CID чата |
+    | `created` | `int` | Время создания чата |
+    | `join_time` | `int` | Время присоединения |
+    | `last_message` | `Message | None` | Последнее сообщение в чате |
+    | `last_event_time` | `int` | Время последнего события |
+    | `last_delayed_update_time` | `int` | Время последнего отложенного обновления |
+    | `last_fire_delayed_error_time` | `int` | Время последней отложенной ошибки |
+    | `modified` | `int` | Время последнего изменения |
+    | `messages_count` | `int` | Кол-во сообщений в чате |
+    | `admin_participants` | `dict[int, dict[Any, Any]]` | Сложная структура админов |
+    | `options` | `dict[str, bool]` | Опции чата |
+    | `prev_message_id` | `str | None` | ID предыдущего сообщения |
+    | `restrictions` | `int | None` | Ограничения в чате |
+    | `status` | `str` | Статус чата |
 
 !!! tip "Работа с чатами"
     ```python
@@ -155,6 +163,32 @@ async def handle_message(message: Message):
             print("Вы администратор")
     ```
 
+        ### Me
+
+        !!! info "Информация о текущем пользователе"
+            | Свойство | Тип | Описание |
+            |----------|-----|----------|
+            | `id` | `int` | ID пользователя |
+            | `phone` | `str` | Номер телефона |
+            | `names` | `list[Names]` | Имена профиля |
+            | `account_status` | `int` | Код статуса аккаунта |
+            | `update_time` | `int` | Время последнего обновления |
+            | `options` | `list[str] | None` | Опции профиля |
+
+### Contact
+
+!!! info "Запись в адресной книге"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `id` | `int` | ID контакта |
+    | `names` | `list[Names]` | Список имён |
+    | `account_status` | `int` | Код статуса аккаунта |
+    | `base_url` | `str | None` | URL ресурса для изображений |
+    | `base_raw_url` | `str | None` | Внутренний URL для изображений |
+    | `options` | `list[str] | None` | Дополнительные параметры |
+    | `photo_id` | `int | None` | ID фото профиля/контакта |
+    | `update_time` | `int` | Время обновления записи |
+
 ### User
 
 !!! info "Представление пользователя"
@@ -166,6 +200,10 @@ async def handle_message(message: Message):
     | `update_time` | `int` | Время обновления |
     | `options` | `list[str] | None` | Опции |
     | `base_url` | `str | None` | URL профиля |
+    | `base_raw_url` | `str | None` | Внутренний URL профиля |
+    | `gender` | `int | None` | Пол пользователя (опционально) |
+    | `web_app` | `str | None` | URL веб-приложения пользователя |
+    | `menu_button` | `dict[str, Any] | None` | Конфигурация меню кнопки |
     | `photo_id` | `int | None` | ID фото |
     | `description` | `str | None` | Описание |
     | `link` | `str | None` | Ссылка на профиль |
@@ -182,6 +220,18 @@ if user:
 
 ##  Вложения {#вложения}
 
+### Attach
+
+!!! note "Общий тип вложения (внутренний, используется для упрощённого парсинга)"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `type` | `AttachType` | Тип вложения |
+    | `video_id` | `int | None` | ID видео (если применимо) |
+    | `photo_token` | `str | None` | Токен фотографии |
+    | `file_id` | `int | None` | ID файла |
+    | `token` | `str | None` | Токен доступа |
+
+
 ### PhotoAttach
 
 !!! info "Фотография-вложение"
@@ -192,20 +242,20 @@ if user:
     | `height` | `int` | Высота |
     | `width` | `int` | Ширина |
     | `photo_token` | `str` | Токен |
+    | `preview_data` | `str | None` | Данные превью (если есть) |
     | `type` | `AttachType` | Всегда `PHOTO` |
 
 **Пример отправки фото**
 ```python
-with open("photo.jpg", "rb") as f:
-    photo = Photo(f)
-    message = await client.send_message(
-        chat_id=123456,
-        text="Смотри, какое фото!",
-        photo=photo
-    )
-    if message and message.attaches:
-        photo_attach = message.attaches[0]
-        print(f"Фото {photo_attach.photo_id} отправлено")
+photo = Photo(path="photo.jpg")
+message = await client.send_message(
+    chat_id=123456,
+    text="Смотри, какое фото!",
+    attachment=photo
+)
+if message and message.attaches:
+    photo_attach = message.attaches[0]
+    print(f"Фото {photo_attach.photo_id} отправлено")
 ```
 
 ### VideoAttach
@@ -217,7 +267,10 @@ with open("photo.jpg", "rb") as f:
     | `height` | `int` | Высота |
     | `width` | `int` | Ширина |
     | `duration` | `int` | Длительность (сек) |
-    | `token` | `str` | Токен |
+    | `preview_data` | `str` | Данные превью |
+    | `thumbnail` | `str` | URL миниатюры |
+    | `token` | `str` | Токен для доступа |
+    | `video_type` | `int` | Тип видео |
     | `type` | `AttachType` | Всегда `VIDEO` |
 
 !!! tip "Получение видео"
@@ -255,6 +308,65 @@ with open("photo.jpg", "rb") as f:
             print(f"Безопасный файл: {attach.name}")
     ```
 
+### StickerAttach
+
+!!! info "Стикер-вложение"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `sticker_id` | `int` | ID стикера |
+    | `set_id` | `int` | ID набора стикеров |
+    | `url` | `str` | URL стикера |
+    | `lottie_url` | `str` | URL Lottie анимации |
+    | `width` | `int` | Ширина |
+    | `height` | `int` | Высота |
+    | `author_type` | `str` | Тип автора |
+    | `sticker_type` | `str` | Тип стикера |
+    | `audio` | `bool` | Содержит ли звук |
+    | `tags` | `list[str] \| None` | Теги стикера |
+    | `time` | `int` | Временная метка |
+    | `type` | `AttachType` | Всегда `STICKER` |
+
+**Пример использования**
+```python
+if isinstance(attach, StickerAttach):
+    print(f"Стикер: {attach.sticker_id}")
+    print(f"Набор: {attach.set_id}")
+    if attach.audio:
+        print("Стикер с звуком!")
+```
+
+### AudioAttach
+
+!!! info "Аудио/голосовое сообщение"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `audio_id` | `int` | ID аудио |
+    | `duration` | `int` | Длительность (сек) |
+    | `url` | `str` | URL аудиофайла |
+    | `wave` | `str` | Данные волны (для визуализации) |
+    | `transcription_status` | `str` | Статус транскрипции |
+    | `token` | `str` | Токен для доступа |
+    | `type` | `AttachType` | Всегда `AUDIO` |
+
+**Пример получения аудио**
+```python
+if isinstance(attach, AudioAttach):
+    print(f"Голосовое сообщение: {attach.duration}с")
+    print(f"Транскрипция: {attach.transcription_status}")
+```
+
+### ControlAttach
+
+!!! info "Управляющее вложение (внутренний тип)"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `type` | `AttachType` | Всегда `CONTROL` |
+    | `event` | `str` | Тип события |
+    | `extra` | `dict` | Дополнительные данные события |
+
+!!! note "Служебный тип"
+    ControlAttach используется внутренне для системных событий. Обычно не требует обработки в пользовательском коде.
+
 ##  Служебные типы {#служебные-типы}
 
 ### Element
@@ -262,18 +374,20 @@ with open("photo.jpg", "rb") as f:
 !!! info "Элемент форматирования сообщения"
     | Свойство | Тип | Описание |
     |----------|-----|----------|
-    | `type` | `ElementType | str` | Тип элемента |
-    | `length` | `int` | Длина |
-    | `from_` | `int | None` | ID для упоминаний |
+    | `type` | `ElementType \| str` | Тип элемента (text, mention, link, emoji) |
+    | `length` | `int` | Длина элемента |
+    | `from_` | `int \| None` | ID пользователя (для упоминаний) |
 
 **Пример работы с элементами**
 ```python
-for element in message.elements:
+for element in message.elements or []:
     if element.type == ElementType.MENTION:
         user = await client.get_user(element.from_)
         if user:
             print(f"Упомянут: {user.names[0].name}")
 ```
+!!! note "Пояснение"
+    В JSON API поле называется `from`, в Python оно доступно как `from_` (с нижним подчёркиванием), чтобы избежать конфликтов с ключевым словом `from`.
 
 ### ReactionInfo
 
@@ -291,6 +405,48 @@ if message.reaction_info:
     for counter in message.reaction_info.counters:
         print(f"{counter.reaction}: {counter.count}")
 ```
+
+### MessageLink
+
+!!! info "Ссылка на сообщение в другом чате/диалоге"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `chat_id` | `int` | ID чата, в котором находится сообщение |
+    | `message` | `Message` | Объект сообщения |
+    | `type` | `str` | Тип ссылки |
+
+### ReactionCounter
+
+!!! info "Запись о количестве реакций определённого типа"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `count` | `int` | Кол-во реакций |
+    | `reaction` | `str` | Символ/тип реакции |
+
+
+### Presence
+
+!!! info "Информация о присутствии пользователя"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `seen` | `int | None` | Временная метка последнего появления в системе |
+
+### FileRequest
+
+!!! info "Запрос файла/запрос загрузки"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `unsafe` | `bool` | Флаг небезопасного файла |
+    | `url` | `str` | URL файла |
+
+### VideoRequest
+
+!!! info "Запрос видео"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `external` | `str` | Внешний идентификатор источника |
+    | `cache` | `bool` | Флаг кеширования |
+    | `url` | `str` | URL видео |
 
 ### Session
 

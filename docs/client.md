@@ -135,7 +135,6 @@ async def close() -> None
 ```python
 async def main():
     async with MaxClient(phone="+79001234567") as client:
-        await client.start()
         # Ваш код здесь
     # Клиент автоматически закроется
 ```
@@ -163,10 +162,10 @@ async def main():
 
 !!! example "Примеры фильтров"
     ```python
-    # Только текстовые сообщения
-    @client.on_message(Filter(chat_id=0))
-    async def handle_text(message: Message):
-        print(f"Текст: {message.text}")
+    # Только из конкретного чата
+    @client.on_message(Filter(chat_id=123456))
+    async def handle_chat(message: Message):
+        print(f"Сообщение в чате: {message.text}")
     ```
 
 ##  Работа с данными {#работа-с-данными}
@@ -197,7 +196,7 @@ async def main():
     me = client.me
     if me:
         name = me.names[0] if me.names else None
-        print(f"Авторизован как: {name.name if name else me.phone}")
+        print(f"Авторизован как: {name.first_name if name else me.phone}")
         print(f"ID: {me.id}")
         print(f"Статус: {me.account_status}")
     ```
@@ -225,7 +224,6 @@ async def main():
     ```python
     async def main():
         async with MaxClient(phone="+79001234567") as client:
-            await client.start()
             # Ваш код здесь
         # Клиент автоматически закроется
     ```

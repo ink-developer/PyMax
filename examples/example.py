@@ -13,19 +13,19 @@ phone = "+79029336523"
 client = MaxClient(phone=phone, work_dir="cache", reconnect=False, logger=None)
 
 
-# async def main() -> None:
-#     async with client:
+async def main() -> None:
+    async with client:
 
-#         @client.on_start
-#         async def handle_start() -> None:
-#             print(f"Client started successfully at {datetime.datetime.now()}!")
-#             print(client.me.id)
+        @client.on_start
+        async def handle_start() -> None:
+            print(f"Client started successfully at {datetime.datetime.now()}!")
+            print(client.me.id)
 
-#             await client.send_message(
-#                 "Hello!",
-#                 chat_id=0,
-#                 notify=True,
-#             )
+            await client.send_message(
+                "Hello!",
+                chat_id=0,
+                notify=True,
+            )
 
 
 #         await client.idle()

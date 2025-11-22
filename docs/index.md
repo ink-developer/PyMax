@@ -12,9 +12,11 @@ async def main():
 
     @client.on_message()
     async def handle_message(message):
+        user = await client.get_user(message.sender)
+        user_name = user.names[0].first_name if user and user.names else "User"
         await client.send_message(
             chat_id=message.chat_id,
-            text=f"Привет, {message.author.username}! {message.text}"
+            text=f"Привет, {user_name}! {message.text}"
         )
 
     await client.start()
@@ -39,5 +41,5 @@ uv add -U maxapi-python
 ## Ссылки
 
 - [GitHub](https://github.com/ink-developer/PyMax)
-- [PyPI](https://pypi.org/project/pymax/)
+- [PyPI](https://pypi.org/project/maxapi-python/)
 - [Issues](https://github.com/ink-developer/PyMax/issues)

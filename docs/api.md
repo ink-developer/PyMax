@@ -22,12 +22,20 @@
 ```python
 MaxClient(
     phone: str,
-    uri: str = "...",
+    uri: str = "wss://...",
+    headers: UserAgentPayload = UserAgentPayload(),
     token: str | None = None,
-    work_dir: str = "...",
+    send_fake_telemetry: bool = True,
+    host: str = "...",
+    port: int = ...,
+    proxy: str | Literal[True] | None = None,
+    work_dir: str = ".",
+    registration: bool = False,
+    first_name: str = "",
+    last_name: str | None = None,
+    logger: logging.Logger | None = None,
     reconnect: bool = True,
-    reconnect_delay: float = 5.0,
-    ...
+    reconnect_delay: float = 1.0,
 )
 ```
 
@@ -37,9 +45,18 @@ MaxClient(
 |----------|-----|---------|
 | `phone` | `str` | Номер телефона для авторизации (обязательно) |
 | `uri` | `str` | URI WebSocket сервера |
-| `token` | `str | None` | Токен для восстановления сессии |
-| `work_dir` | `str` | Директория для БД сессии |
-| `reconnect` | `bool` | Включить автоматическое переподключение |
+| `headers` | `UserAgentPayload` | Заголовки User-Agent для подключения |
+| `token` | `str \| None` | Токен для восстановления сессии |
+| `send_fake_telemetry` | `bool` | Отправлять ли фейковую телеметрию (по умолчанию True) |
+| `host` | `str` | Хост API сервера |
+| `port` | `int` | Порт API сервера |
+| `proxy` | `str \| Literal[True] \| None` | Прокси для WebSocket подключения |
+| `work_dir` | `str` | Директория для хранения БД сессии |
+| `registration` | `bool` | Регистрировать ли новый аккаунт |
+| `first_name` | `str` | Имя для регистрации (если registration=True) |
+| `last_name` | `str \| None` | Фамилия для регистрации |
+| `logger` | `logging.Logger \| None` | Пользовательский логгер |
+| `reconnect` | `bool` | Автоматическое переподключение при разрыве |
 | `reconnect_delay` | `float` | Задержка переподключения в секундах |
 
 #### Основные методы
@@ -85,6 +102,46 @@ async def handle_message(msg: Message):
     print(f"Сообщение от {msg.sender}: {msg.text}")
 ```
 
+##### @on_message_edit(filter: Filter | None = None)
+
+Регистрирует обработчик редактированных сообщений.
+
+```python
+@client.on_message_edit()
+async def handle_edited(msg: Message):
+    print(f"Сообщение {msg.id} отредактировано")
+```
+
+##### @on_message_delete(filter: Filter | None = None)
+
+Регистрирует обработчик удаленных сообщений.
+
+```python
+@client.on_message_delete()
+async def handle_deleted(msg: Message):
+    print(f"Сообщение {msg.id} удалено")
+```
+
+##### @on_reaction_change
+
+Регистрирует обработчик изменения реакций.
+
+```python
+@client.on_reaction_change
+async def handle_reaction(reaction: str, message_id: int, info: ReactionInfo):
+    print(f"Реакция: {reaction}")
+```
+
+##### @on_chat_update
+
+Регистрирует обработчик обновлений чата.
+
+```python
+@client.on_chat_update
+async def handle_chat_update(chat: Chat):
+    print(f"Чат {chat.id} обновлен")
+```
+
 ##### @on_start()
 
 Регистрирует обработчик события запуска клиента.
@@ -119,7 +176,8 @@ client = SocketMaxClient(phone="+1234567890")
 | `phone` | `str` | Номер телефона |
 | `names` | `list[Names]` | Список имен профиля |
 | `account_status` | `int` | Код статуса аккаунта |
-| `options` | `dict` | Дополнительные параметры |
+| `update_time` | `int` | Время последнего обновления профиля |
+| `options` | `list[str] | None` | Дополнительные параметры |
 
 ### User
 
@@ -132,8 +190,16 @@ client = SocketMaxClient(phone="+1234567890")
 | `id` | `int` | ID пользователя |
 | `names` | `list[Names]` | Список имен |
 | `account_status` | `int` | Статус аккаунта |
+| `update_time` | `int` | Время обновления профиля |
+| `options` | `list[str] | None` | Опции |
+| `base_url` | `str | None` | URL профиля |
+| `base_raw_url` | `str | None` | Внутренний URL профиля |
 | `photo_id` | `int | None` | ID фото профиля |
 | `description` | `str | None` | Биография/описание |
+| `gender` | `int | None` | Пол пользователя |
+| `link` | `str | None` | Ссылка на профиль |
+| `web_app` | `str | None` | URL веб-приложения пользователя |
+| `menu_button` | `dict[str, Any] | None` | Конфигурация меню-кнопки |
 
 ### Message
 
@@ -149,9 +215,68 @@ client = SocketMaxClient(phone="+1234567890")
 | `text` | `str` | Текст сообщения |
 | `time` | `int` | Unix timestamp |
 | `type` | `MessageType | str` | Тип сообщения |
-| `attaches` | `list` | Вложенные файлы/медиа |
+| `elements` | `list[Element] | None` | Элементы форматирования |
+| `attaches` | `list[PhotoAttach | VideoAttach | FileAttach | StickerAttach | AudioAttach | ControlAttach] | None` | Вложенные файлы/медиа |
+| `status` | `MessageStatus | None` | Статус сообщения |
 | `reaction_info` | `ReactionInfo | None` | Данные реакций |
-| `edit_time` | `int | None` | Время редактирования |
+| `link` | `MessageLink | None` | Связанное сообщение |
+| `options` | `int | None` | Опции сообщения |
+
+### MessageLink
+
+Связь на сообщение в другом чате/диалоге.
+
+**Свойства:**
+
+| Свойство | Тип | Описание |
+|----------|-----|---------|
+| `chat_id` | `int` | ID чата |
+| `message` | `Message` | Объект сообщения |
+| `type` | `str` | Тип ссылки |
+
+### ReactionCounter
+
+Счётчик конкретной реакции.
+
+**Свойства:**
+
+| Свойство | Тип | Описание |
+|----------|-----|---------|
+| `count` | `int` | Количество реакций |
+| `reaction` | `str` | Символ/тип реакции |
+
+### Presence
+
+Информация о присутствии пользователя.
+
+**Свойства:**
+
+| Свойство | Тип | Описание |
+|----------|-----|---------|
+| `seen` | `int | None` | Временная метка последнего посещения |
+
+### FileRequest
+
+Запрос файла (метаданные).
+
+**Свойства:**
+
+| Свойство | Тип | Описание |
+|----------|-----|---------|
+| `unsafe` | `bool` | Небезопасен ли файл |
+| `url` | `str` | Ссылка на файл |
+
+### VideoRequest
+
+Запрос видео (метаданные).
+
+**Свойства:**
+
+| Свойство | Тип | Описание |
+|----------|-----|---------|
+| `external` | `str` | Внешний источник video |
+| `cache` | `bool` | Использовать кеш |
+| `url` | `str` | Ссылка на видео |
 
 ### Chat
 
@@ -165,10 +290,27 @@ client = SocketMaxClient(phone="+1234567890")
 | `type` | `ChatType | str` | Тип: DIALOG, CHAT, CHANNEL |
 | `title` | `str | None` | Название чата |
 | `owner` | `int` | ID владельца |
+| `access` | `AccessType | str` | Тип доступа (PUBLIC, PRIVATE, SECRET) |
 | `participants_count` | `int` | Количество участников |
 | `admins` | `list[int]` | Список ID администраторов |
 | `description` | `str | None` | Описание чата |
-| `rules` | `str | None` | Правила чата |
+| `link` | `str | None` | Ссылка-приглашение |
+| `base_icon_url` | `str | None` | URL иконки чата |
+| `base_raw_icon_url` | `str | None` | Внутренний URL иконки |
+| `cid` | `int` | Внутренний CID чата |
+| `created` | `int` | Время создания чата |
+| `join_time` | `int` | Время присоединения |
+| `last_message` | `Message | None` | Последнее сообщение |
+| `last_event_time` | `int` | Время последнего события |
+| `last_delayed_update_time` | `int` | Время последнего отложенного обновления |
+| `last_fire_delayed_error_time` | `int` | Время последней отложенной ошибки |
+| `messages_count` | `int` | Количество сообщений |
+| `modified` | `int` | Время последнего изменения |
+| `admin_participants` | `dict[int, dict[Any, Any]]` | Структура администраторов |
+| `options` | `dict[str, bool]` | Опции чата |
+| `prev_message_id` | `str | None` | ID предыдущего сообщения |
+| `restrictions` | `int | None` | Ограничения в чате |
+| `status` | `str` | Статус чата |
 
 ### Dialog
 
@@ -182,6 +324,18 @@ client = SocketMaxClient(phone="+1234567890")
 | `owner` | `int` | ID собеседника |
 | `type` | `ChatType` | Всегда `ChatType.DIALOG` |
 | `last_message` | `Message | None` | Последнее сообщение |
+| `cid` | `int | None` | Внутренний CID диалога |
+| `has_bots` | `bool | None` | Наличие ботов в диалоге |
+| `join_time` | `int` | Время присоединения |
+| `created` | `int` | Время создания |
+| `last_fire_delayed_error_time` | `int` | Время последней отложенной ошибки |
+| `last_delayed_update_time` | `int` | Время последнего отложенного обновления |
+| `prev_message_id` | `str | None` | ID предыдущего сообщения |
+| `options` | `dict` | Опции диалога |
+| `modified` | `int` | Время последнего изменения |
+| `last_event_time` | `int` | Время последнего события |
+| `participants` | `dict[str, int]` | Список участников |
+| `status` | `str` | Статус диалога |
 
 ### Channel
 
@@ -197,8 +351,12 @@ client = SocketMaxClient(phone="+1234567890")
 |----------|-----|---------|
 | `id` | `int` | ID контакта |
 | `names` | `list[Names]` | Имена контакта |
-| `status` | `int` | Код статуса |
-| `photos` | `list` | Фотографии контакта |
+| `account_status` | `int` | Код статуса |
+| `photo_id` | `int | None` | ID фото контакта |
+| `base_url` | `str | None` | URL для изображений |
+| `base_raw_url` | `str | None` | Внутренний URL для изображений |
+| `options` | `list[str] | None` | Дополнительные параметры |
+| `update_time` | `int` | Время обновления контакта |
 
 ### Member
 
@@ -219,7 +377,7 @@ client = SocketMaxClient(phone="+1234567890")
 Вложение с фотографией.
 
 ```python
-PhotoAttach(id: int, width: int, height: int, ...)
+PhotoAttach(photo_id: int, base_url: str, width: int, height: int, preview_data: str | None, ...)
 ```
 
 #### VideoAttach
@@ -243,7 +401,7 @@ FileAttach(id: int, name: str, size: int, ...)
 Вложение со стикером.
 
 ```python
-StickerAttach(id: int, sticker_id: int, ...)
+StickerAttach(sticker_id: int, set_id: int, ...)
 ```
 
 #### AudioAttach
@@ -251,7 +409,7 @@ StickerAttach(id: int, sticker_id: int, ...)
 Вложение с аудио/голосовым сообщением.
 
 ```python
-AudioAttach(id: int, duration: int, ...)
+AudioAttach(audio_id: int, duration: int, ...)
 ```
 
 #### ControlAttach
@@ -322,7 +480,7 @@ except pymax.SocketNotConnectedError:
 
 ```python
 except pymax.RateLimitError as e:
-    print(f"Лимит превышен на {e.retry_after} секунд")
+    print(f"Лимит превышен")
 ```
 
 ### ResponseError
@@ -428,8 +586,6 @@ if chat.type == ChatType.DIALOG:
 | `mention` | Упоминание пользователя @user |
 | `link` | Гиперссылка |
 | `emoji` | Эмодзи/эмотикон |
-| `bold` | Жирное форматирование |
-| `italic` | Курсивное форматирование |
 
 ### FormattingType
 
@@ -437,11 +593,10 @@ if chat.type == ChatType.DIALOG:
 
 | Значение | Описание |
 |----------|---------|
-| `BOLD` | Жирный текст |
-| `ITALIC` | Курсив |
+| `STRONG` | Жирный текст |
+| `EMPHASIZED` | Курсив |
 | `UNDERLINE` | Подчеркивание |
 | `STRIKETHROUGH` | Зачеркивание |
-| `MONOSPACE` | Моноширинный/код |
 
 ### MarkupType
 
@@ -467,14 +622,6 @@ if chat.type == ChatType.DIALOG:
 
 Коды операций протокола WebSocket (150+ значений).
 
-Коды низкоуровневого общения для внутреннего использования. Основные примеры:
-
-| Значение | Код | Описание |
-|----------|-----|---------|
-| 1 | `PING` | Проверка соединения |
-| 2 | `PONG` | Ответ на проверку |
-| 3 | `LOGIN` | Запрос аутентификации |
-| 4 | `MSG_SEND` | Отправка сообщения |
-| 5 | `MSG_READ` | Отметить сообщение прочитанным |
+Коды низкоуровневого общения для внутреннего использования.
 
 ---
