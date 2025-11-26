@@ -195,7 +195,7 @@ async def main() -> None:
     telegram_bot_task = asyncio.create_task(dp.start_polling(telegram_bot))
 
     try:
-        while True:  # Не спрашивайте 😃
+        while True:  # (Не) спрашивайте 😃
             await client.start()
 
     finally:
