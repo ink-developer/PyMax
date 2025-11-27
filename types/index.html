@@ -588,6 +588,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#me" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Me
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#contact" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -969,6 +980,17 @@
     <span class="md-ellipsis">
       
         Chat
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#me" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Me
       
     </span>
   </a>
@@ -1611,11 +1633,6 @@
 <td>Время последнего события</td>
 </tr>
 <tr>
-<td><code>last_delayed_update_time</code></td>
-<td><code>int</code></td>
-<td>Время последнего отложенного обновления</td>
-</tr>
-<tr>
 <td><code>last_fire_delayed_error_time</code></td>
 <td><code>int</code></td>
 <td>Время последней отложенной ошибки</td>
@@ -1666,11 +1683,6 @@
 <td>Время присоединения</td>
 </tr>
 <tr>
-<td><code>last_message</code></td>
-<td><code>Message | None</code></td>
-<td>Последнее сообщение в чате</td>
-</tr>
-<tr>
 <td><code>last_event_time</code></td>
 <td><code>int</code></td>
 <td>Время последнего события</td>
@@ -1696,19 +1708,9 @@
 <td>Кол-во сообщений в чате</td>
 </tr>
 <tr>
-<td><code>admin_participants</code></td>
-<td><code>dict[int, dict[Any, Any]]</code></td>
-<td>Сложная структура админов</td>
-</tr>
-<tr>
 <td><code>options</code></td>
 <td><code>dict[str, bool]</code></td>
 <td>Опции чата</td>
-</tr>
-<tr>
-<td><code>prev_message_id</code></td>
-<td><code>str | None</code></td>
-<td>ID предыдущего сообщения</td>
 </tr>
 <tr>
 <td><code>restrictions</code></td>
@@ -1733,18 +1735,51 @@
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">chat</span><span class="o">.</span><span class="n">admins</span><span class="p">:</span>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Вы администратор&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code>### Me
-
-!!! info &quot;Информация о текущем пользователе&quot;
-    | Свойство | Тип | Описание |
-    |----------|-----|----------|
-    | `id` | `int` | ID пользователя |
-    | `phone` | `str` | Номер телефона |
-    | `names` | `list[Names]` | Имена профиля |
-    | `account_status` | `int` | Код статуса аккаунта |
-    | `update_time` | `int` | Время последнего обновления |
-    | `options` | `list[str] | None` | Опции профиля |
-</code></pre></div>
+</div>
+<h3 id="me">Me<a class="headerlink" href="#me" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Информация о текущем пользователе</p>
+<table>
+<thead>
+<tr>
+<th>Свойство</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>int</code></td>
+<td>ID пользователя</td>
+</tr>
+<tr>
+<td><code>phone</code></td>
+<td><code>str</code></td>
+<td>Номер телефона</td>
+</tr>
+<tr>
+<td><code>names</code></td>
+<td><code>list[Names]</code></td>
+<td>Имена профиля</td>
+</tr>
+<tr>
+<td><code>account_status</code></td>
+<td><code>int</code></td>
+<td>Код статуса аккаунта</td>
+</tr>
+<tr>
+<td><code>update_time</code></td>
+<td><code>int</code></td>
+<td>Время последнего обновления</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>list[str] | None</code></td>
+<td>Опции профиля</td>
+</tr>
+</tbody>
+</table>
 </div>
 <h3 id="contact">Contact<a class="headerlink" href="#contact" title="Permanent link">&para;</a></h3>
 <div class="admonition info">
@@ -2174,7 +2209,7 @@
 </tr>
 <tr>
 <td><code>tags</code></td>
-<td><code>list[str] \| None</code></td>
+<td><code>list[str] | None</code></td>
 <td>Теги стикера</td>
 </tr>
 <tr>
@@ -2301,7 +2336,7 @@
 <tbody>
 <tr>
 <td><code>type</code></td>
-<td><code>ElementType \| str</code></td>
+<td><code>ElementType | str</code></td>
 <td>Тип элемента (text, mention, link, emoji)</td>
 </tr>
 <tr>
@@ -2311,7 +2346,7 @@
 </tr>
 <tr>
 <td><code>from_</code></td>
-<td><code>int \| None</code></td>
+<td><code>int | None</code></td>
 <td>ID пользователя (для упоминаний)</td>
 </tr>
 </tbody>
