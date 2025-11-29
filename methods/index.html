@@ -513,6 +513,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#get_chatschat_ids-listint-listchat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_chats(chat_ids: list[int]) -&gt; list[Chat]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_chatchat_id-int-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_chat(chat_id: int) -&gt; Chat
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -810,10 +832,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#send_messagetext-str-chat_id-int-notify-bool-attachment-photo-file-none-none-attachments-listphoto-file-none-none-reply_to-int-none-none-use_queue-bool-false-message-none" class="md-nav__link">
+  <a href="#send_messagetext-str-chat_id-int-notify-bool-attachment-photo-file-video-none-none-attachments-listphoto-file-video-none-none-reply_to-int-none-none-use_queue-bool-false-message-none" class="md-nav__link">
     <span class="md-ellipsis">
       
-        send_message(text: str, chat_id: int, notify: bool, attachment: Photo | File | None = None, attachments: list[Photo | File] | None = None, reply_to: int | None = None, use_queue: bool = False) -&gt; Message | None
+        send_message(text: str, chat_id: int, notify: bool, attachment: Photo | File | Video | None = None, attachments: list[Photo | File | Video] | None = None, reply_to: int | None = None, use_queue: bool = False) -&gt; Message | None
       
     </span>
   </a>
@@ -821,10 +843,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#edit_messagechat_id-int-message_id-int-text-str-attachment-photo-none-none-attachments-listphoto-none-none-use_queue-bool-false-message-none" class="md-nav__link">
+  <a href="#edit_messagechat_id-int-message_id-int-text-str-attachment-photo-file-video-none-none-attachments-listphoto-file-video-none-none-use_queue-bool-false-message-none" class="md-nav__link">
     <span class="md-ellipsis">
       
-        edit_message(chat_id: int, message_id: int, text: str, attachment: Photo | None = None, attachments: list[Photo] | None = None, use_queue: bool = False) -&gt; Message | None
+        edit_message(chat_id: int, message_id: int, text: str, attachment: Photo | File | Video | None = None, attachments: list[Photo | File | Video] | None = None, use_queue: bool = False) -&gt; Message | None
       
     </span>
   </a>
@@ -1037,6 +1059,67 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Управление папками
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Управление папками">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_foldertitle-str-chat_include-listint-filters-listany-none-none-folderupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_folder(title: str, chat_include: list[int], filters: list[Any] | None = None) -&gt; FolderUpdate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_foldersfolder_sync-int-0-folderlist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_folders(folder_sync: int = 0) -&gt; FolderList
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_folderfolder_id-str-title-str-chat_include-listint-none-none-filters-listany-none-none-options-listany-none-none-folderupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update_folder(folder_id: str, title: str, chat_include: list[int] | None = None, filters: list[Any] | None = None, options: list[Any] | None = None) -&gt; FolderUpdate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_folderfolder_id-str-folderupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_folder(folder_id: str) -&gt; FolderUpdate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1055,7 +1138,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_15" class="md-nav__link">
+  <a href="#_16" class="md-nav__link">
     <span class="md-ellipsis">
       
         Получение Информации о Пользователях
@@ -1127,7 +1210,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_16" class="md-nav__link">
+  <a href="#_17" class="md-nav__link">
     <span class="md-ellipsis">
       
         Поиск Пользователей
@@ -1155,7 +1238,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_17" class="md-nav__link">
+  <a href="#_18" class="md-nav__link">
     <span class="md-ellipsis">
       
         Контакты
@@ -1194,7 +1277,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_18" class="md-nav__link">
+  <a href="#_19" class="md-nav__link">
     <span class="md-ellipsis">
       
         Управление Сессиями
@@ -1227,7 +1310,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_19" class="md-nav__link">
+  <a href="#_20" class="md-nav__link">
     <span class="md-ellipsis">
       
         📝 Рекомендации по использованию
@@ -1239,7 +1322,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_20" class="md-nav__link">
+  <a href="#_21" class="md-nav__link">
     <span class="md-ellipsis">
       
         Обработка Ошибок
@@ -1250,7 +1333,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_21" class="md-nav__link">
+  <a href="#_22" class="md-nav__link">
     <span class="md-ellipsis">
       
         Оптимизация Запросов
@@ -1405,6 +1488,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#get_chatschat_ids-listint-listchat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_chats(chat_ids: list[int]) -&gt; list[Chat]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_chatchat_id-int-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_chat(chat_id: int) -&gt; Chat
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1702,10 +1807,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#send_messagetext-str-chat_id-int-notify-bool-attachment-photo-file-none-none-attachments-listphoto-file-none-none-reply_to-int-none-none-use_queue-bool-false-message-none" class="md-nav__link">
+  <a href="#send_messagetext-str-chat_id-int-notify-bool-attachment-photo-file-video-none-none-attachments-listphoto-file-video-none-none-reply_to-int-none-none-use_queue-bool-false-message-none" class="md-nav__link">
     <span class="md-ellipsis">
       
-        send_message(text: str, chat_id: int, notify: bool, attachment: Photo | File | None = None, attachments: list[Photo | File] | None = None, reply_to: int | None = None, use_queue: bool = False) -&gt; Message | None
+        send_message(text: str, chat_id: int, notify: bool, attachment: Photo | File | Video | None = None, attachments: list[Photo | File | Video] | None = None, reply_to: int | None = None, use_queue: bool = False) -&gt; Message | None
       
     </span>
   </a>
@@ -1713,10 +1818,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#edit_messagechat_id-int-message_id-int-text-str-attachment-photo-none-none-attachments-listphoto-none-none-use_queue-bool-false-message-none" class="md-nav__link">
+  <a href="#edit_messagechat_id-int-message_id-int-text-str-attachment-photo-file-video-none-none-attachments-listphoto-file-video-none-none-use_queue-bool-false-message-none" class="md-nav__link">
     <span class="md-ellipsis">
       
-        edit_message(chat_id: int, message_id: int, text: str, attachment: Photo | None = None, attachments: list[Photo] | None = None, use_queue: bool = False) -&gt; Message | None
+        edit_message(chat_id: int, message_id: int, text: str, attachment: Photo | File | Video | None = None, attachments: list[Photo | File | Video] | None = None, use_queue: bool = False) -&gt; Message | None
       
     </span>
   </a>
@@ -1929,6 +2034,67 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Управление папками
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Управление папками">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_foldertitle-str-chat_include-listint-filters-listany-none-none-folderupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_folder(title: str, chat_include: list[int], filters: list[Any] | None = None) -&gt; FolderUpdate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_foldersfolder_sync-int-0-folderlist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_folders(folder_sync: int = 0) -&gt; FolderList
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_folderfolder_id-str-title-str-chat_include-listint-none-none-filters-listany-none-none-options-listany-none-none-folderupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update_folder(folder_id: str, title: str, chat_include: list[int] | None = None, filters: list[Any] | None = None, options: list[Any] | None = None) -&gt; FolderUpdate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_folderfolder_id-str-folderupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_folder(folder_id: str) -&gt; FolderUpdate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1947,7 +2113,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_15" class="md-nav__link">
+  <a href="#_16" class="md-nav__link">
     <span class="md-ellipsis">
       
         Получение Информации о Пользователях
@@ -2019,7 +2185,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_16" class="md-nav__link">
+  <a href="#_17" class="md-nav__link">
     <span class="md-ellipsis">
       
         Поиск Пользователей
@@ -2047,7 +2213,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_17" class="md-nav__link">
+  <a href="#_18" class="md-nav__link">
     <span class="md-ellipsis">
       
         Контакты
@@ -2086,7 +2252,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_18" class="md-nav__link">
+  <a href="#_19" class="md-nav__link">
     <span class="md-ellipsis">
       
         Управление Сессиями
@@ -2119,7 +2285,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_19" class="md-nav__link">
+  <a href="#_20" class="md-nav__link">
     <span class="md-ellipsis">
       
         📝 Рекомендации по использованию
@@ -2131,7 +2297,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_20" class="md-nav__link">
+  <a href="#_21" class="md-nav__link">
     <span class="md-ellipsis">
       
         Обработка Ошибок
@@ -2142,7 +2308,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_21" class="md-nav__link">
+  <a href="#_22" class="md-nav__link">
     <span class="md-ellipsis">
       
         Оптимизация Запросов
@@ -2334,6 +2500,63 @@
 <p><strong>Пример использования</strong></p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">members</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">find_members</span><span class="p">(</span><span class="n">chat_id</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 </span></code></pre></div>
+<h4 id="get_chatschat_ids-listint-listchat"><code>get_chats(chat_ids: list[int]) -&gt; list[Chat]</code><a class="headerlink" href="#get_chatschat_ids-listint-listchat" title="Permanent link">&para;</a></h4>
+<div class="admonition info">
+<p class="admonition-title">Описание</p>
+<p>Получает информацию о нескольких чатах/группах по их ID. Метод возвращает объекты <code>Chat</code> и обновляет локальный кэш клиента.</p>
+</div>
+<p><strong>Параметры</strong></p>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chat_ids</code></td>
+<td><code>list[int]</code></td>
+<td>Список ID чатов для получения</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Возвращает</strong></p>
+<p><code>list[Chat]</code>: Список объектов <code>Chat</code> с информацией о чатах</p>
+<p><strong>Пример использования</strong>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">chats</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_chats</span><span class="p">([</span><span class="mi">12345</span><span class="p">,</span> <span class="mi">67890</span><span class="p">])</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">for</span> <span class="n">chat</span> <span class="ow">in</span> <span class="n">chats</span><span class="p">:</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">chat</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">chat</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span></code></pre></div></p>
+<h4 id="get_chatchat_id-int-chat"><code>get_chat(chat_id: int) -&gt; Chat</code><a class="headerlink" href="#get_chatchat_id-int-chat" title="Permanent link">&para;</a></h4>
+<div class="admonition info">
+<p class="admonition-title">Описание</p>
+<p>Получает информацию об одном чате (группе/канале) по его ID. Выбрасывает исключение, если чат не найден.</p>
+</div>
+<p><strong>Параметры</strong></p>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chat_id</code></td>
+<td><code>int</code></td>
+<td>ID чата</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Возвращает</strong></p>
+<p><code>Chat</code>: Объект <code>Chat</code> с информацией о чате</p>
+<p><strong>Пример использования</strong>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">chat</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_chat</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">chat</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+</span></code></pre></div></p>
 <h2 id="управление-группами">👥 Управление группами<a class="headerlink" href="#управление-группами" title="Permanent link">&para;</a></h2>
 <h3 id="_4">Создание и Настройка Групп<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <h4 id="create_groupname-str-participant_ids-listint-none-none-notify-bool-true-tuplechat-message-none"><code>create_group(name: str, participant_ids: list[int] | None = None, notify: bool = True) -&gt; tuple[Chat, Message] | None</code><a class="headerlink" href="#create_groupname-str-participant_ids-listint-none-none-notify-bool-true-tuplechat-message-none" title="Permanent link">&para;</a></h4>
@@ -2371,14 +2594,14 @@
 <p><strong>Возвращает</strong></p>
 <p><code>tuple[Chat, Message] | None</code>: Кортеж с объектом созданной группы и системным сообщением, или <code>None</code> при ошибке</p>
 <p><strong>Пример использования</strong>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Моя группа&quot;</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">participant_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">123456</span><span class="p">,</span> <span class="mi">789012</span><span class="p">],</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">notify</span><span class="o">=</span><span class="kc">True</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">)</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">if</span> <span class="n">result</span><span class="p">:</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">chat</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="n">result</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Создана группа: </span><span class="si">{</span><span class="n">chat</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Моя группа&quot;</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">participant_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">123456</span><span class="p">,</span> <span class="mi">789012</span><span class="p">],</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">notify</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">chat</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="n">result</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Создана группа: </span><span class="si">{</span><span class="n">chat</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div></p>
 <h3 id="_5">Управление Участниками<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
 <h4 id="invite_users_to_groupchat_id-int-user_ids-listint-show_history-bool-true-bool"><code>invite_users_to_group(chat_id: int, user_ids: list[int], show_history: bool = True) -&gt; bool</code><a class="headerlink" href="#invite_users_to_groupchat_id-int-user_ids-listint-show_history-bool-true-bool" title="Permanent link">&para;</a></h4>
@@ -2553,9 +2776,9 @@
 </tbody>
 </table>
 <p><strong>Пример использования</strong>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">chat</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">join_group</span><span class="p">(</span><span class="s2">&quot;https://max.ru/join/group123&quot;</span><span class="p">)</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">if</span> <span class="n">chat</span><span class="p">:</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Присоединились к группе: </span><span class="si">{</span><span class="n">chat</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">chat</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">join_group</span><span class="p">(</span><span class="s2">&quot;https://max.ru/join/group123&quot;</span><span class="p">)</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">if</span> <span class="n">chat</span><span class="p">:</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Присоединились к группе: </span><span class="si">{</span><span class="n">chat</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div></p>
 <h4 id="rework_invite_linkchat_id-int-chat"><code>rework_invite_link(chat_id: int) -&gt; Chat</code><a class="headerlink" href="#rework_invite_linkchat_id-int-chat" title="Permanent link">&para;</a></h4>
 <div class="admonition info">
@@ -2582,8 +2805,8 @@
 <p><strong>Возвращает</strong></p>
 <p><code>Chat</code>: Обновленный объект чата с новой ссылкой приглашения</p>
 <p><strong>Пример использования</strong>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">chat</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">rework_invite_link</span><span class="p">(</span><span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">)</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Новая ссылка создана для группы: </span><span class="si">{</span><span class="n">chat</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">chat</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">rework_invite_link</span><span class="p">(</span><span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">)</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Новая ссылка создана для группы: </span><span class="si">{</span><span class="n">chat</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div></p>
 <h2 id="обработка-событий">🎯 Обработка событий<a class="headerlink" href="#обработка-событий" title="Permanent link">&para;</a></h2>
 <h3 id="_8">Обработчики Событий<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
@@ -2610,15 +2833,15 @@
 </tbody>
 </table>
 <p><strong>Примеры использования</strong></p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Обработка всех сообщений</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">()</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Получено сообщение: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1"># Обработка только текстовых сообщений</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filter</span><span class="p">(</span><span class="n">chat_id</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_text</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Получено текстовое сообщение из избранного: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Обработка всех сообщений</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">()</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Получено сообщение: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1"># Обработка только текстовых сообщений</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filter</span><span class="p">(</span><span class="n">chat_id</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_text</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Получено текстовое сообщение из избранного: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="on_message_editfilter-filter-none-none-callable"><code>on_message_edit(filter: Filter | None = None) -&gt; Callable</code><a class="headerlink" href="#on_message_editfilter-filter-none-none-callable" title="Permanent link">&para;</a></h4>
 <div class="admonition info">
@@ -2714,15 +2937,15 @@
 <p>Декоратор для обработки события запуска клиента. Выполняется один раз при успешном запуске и авторизации клиента.</p>
 </div>
 <p><strong>Пример использования</strong></p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nd">@client</span><span class="o">.</span><span class="n">on_start</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_start</span><span class="p">():</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Клиент успешно запущен&quot;</span><span class="p">)</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="c1"># Инициализация при запуске</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        <span class="n">chat_id</span><span class="o">=</span><span class="n">admin_chat</span><span class="p">,</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Бот запущен и готов к работе!&quot;</span><span class="p">,</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        <span class="n">notify</span><span class="o">=</span><span class="kc">True</span>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nd">@client</span><span class="o">.</span><span class="n">on_start</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_start</span><span class="p">():</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Клиент успешно запущен&quot;</span><span class="p">)</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="c1"># Инициализация при запуске</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        <span class="n">chat_id</span><span class="o">=</span><span class="n">admin_chat</span><span class="p">,</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Бот запущен и готов к работе!&quot;</span><span class="p">,</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>        <span class="n">notify</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Совет</p>
@@ -2730,7 +2953,7 @@
 </div>
 <h2 id="управление-сообщениями">📨 Управление сообщениями<a class="headerlink" href="#управление-сообщениями" title="Permanent link">&para;</a></h2>
 <h3 id="_9">Отправка и Редактирование<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
-<h4 id="send_messagetext-str-chat_id-int-notify-bool-attachment-photo-file-none-none-attachments-listphoto-file-none-none-reply_to-int-none-none-use_queue-bool-false-message-none"><code>send_message(text: str, chat_id: int, notify: bool, attachment: Photo | File | None = None, attachments: list[Photo | File] | None = None, reply_to: int | None = None, use_queue: bool = False) -&gt; Message | None</code><a class="headerlink" href="#send_messagetext-str-chat_id-int-notify-bool-attachment-photo-file-none-none-attachments-listphoto-file-none-none-reply_to-int-none-none-use_queue-bool-false-message-none" title="Permanent link">&para;</a></h4>
+<h4 id="send_messagetext-str-chat_id-int-notify-bool-attachment-photo-file-video-none-none-attachments-listphoto-file-video-none-none-reply_to-int-none-none-use_queue-bool-false-message-none"><code>send_message(text: str, chat_id: int, notify: bool, attachment: Photo | File | Video | None = None, attachments: list[Photo | File | Video] | None = None, reply_to: int | None = None, use_queue: bool = False) -&gt; Message | None</code><a class="headerlink" href="#send_messagetext-str-chat_id-int-notify-bool-attachment-photo-file-video-none-none-attachments-listphoto-file-video-none-none-reply_to-int-none-none-use_queue-bool-false-message-none" title="Permanent link">&para;</a></h4>
 <div class="admonition info">
 <p class="admonition-title">Описание</p>
 <p>Отправляет сообщение в чат с возможностью прикрепления медиафайлов и ответа на другие сообщения.</p>
@@ -2762,13 +2985,13 @@
 </tr>
 <tr>
 <td><code>attachment</code></td>
-<td><code>Photo | File | None</code></td>
-<td>Один файл/фото для прикрепления (опционально)</td>
+<td><code>Photo | File | Video | None</code></td>
+<td>Один файл/фото/видео для прикрепления (опционально)</td>
 </tr>
 <tr>
 <td><code>attachments</code></td>
-<td><code>list[Photo | File] | None</code></td>
-<td>Список файлов/фото для прикрепления (опционально)</td>
+<td><code>list[Photo | File | Video] | None</code></td>
+<td>Список файлов/фото/видео для прикрепления (опционально)</td>
 </tr>
 <tr>
 <td><code>reply_to</code></td>
@@ -2785,24 +3008,24 @@
 <p><strong>Возвращает</strong></p>
 <p><code>Message | None</code>: Объект отправленного сообщения или <code>None</code> при ошибке</p>
 <p><strong>Пример использования</strong>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Простое сообщение</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">msg</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Привет!&quot;</span><span class="p">,</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">notify</span><span class="o">=</span><span class="kc">True</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">)</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1"># Сообщение с фото</span>
-</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">Photo</span>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="n">photo</span> <span class="o">=</span> <span class="n">Photo</span><span class="p">(</span><span class="s2">&quot;/photos/photo.png&quot;</span><span class="p">)</span>
-</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="n">msg</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
-</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
-</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Смотри, какое фото!&quot;</span><span class="p">,</span>
-</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="n">attachment</span><span class="o">=</span><span class="n">photo</span><span class="p">,</span>
-</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="n">notify</span><span class="o">=</span><span class="kc">True</span>
-</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Простое сообщение</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">msg</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Привет!&quot;</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">notify</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="c1"># Сообщение с фото</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">Photo</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="n">photo</span> <span class="o">=</span> <span class="n">Photo</span><span class="p">(</span><span class="s2">&quot;/photos/photo.png&quot;</span><span class="p">)</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="n">msg</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Смотри, какое фото!&quot;</span><span class="p">,</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>    <span class="n">attachment</span><span class="o">=</span><span class="n">photo</span><span class="p">,</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    <span class="n">notify</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="p">)</span>
 </span></code></pre></div></p>
-<h4 id="edit_messagechat_id-int-message_id-int-text-str-attachment-photo-none-none-attachments-listphoto-none-none-use_queue-bool-false-message-none"><code>edit_message(chat_id: int, message_id: int, text: str, attachment: Photo | None = None, attachments: list[Photo] | None = None, use_queue: bool = False) -&gt; Message | None</code><a class="headerlink" href="#edit_messagechat_id-int-message_id-int-text-str-attachment-photo-none-none-attachments-listphoto-none-none-use_queue-bool-false-message-none" title="Permanent link">&para;</a></h4>
+<h4 id="edit_messagechat_id-int-message_id-int-text-str-attachment-photo-file-video-none-none-attachments-listphoto-file-video-none-none-use_queue-bool-false-message-none"><code>edit_message(chat_id: int, message_id: int, text: str, attachment: Photo | File | Video | None = None, attachments: list[Photo | File | Video] | None = None, use_queue: bool = False) -&gt; Message | None</code><a class="headerlink" href="#edit_messagechat_id-int-message_id-int-text-str-attachment-photo-file-video-none-none-attachments-listphoto-file-video-none-none-use_queue-bool-false-message-none" title="Permanent link">&para;</a></h4>
 <div class="admonition info">
 <p class="admonition-title">Описание</p>
 <p>Редактирует текст и/или вложения существующего сообщения.</p>
@@ -2834,13 +3057,13 @@
 </tr>
 <tr>
 <td><code>attachment</code></td>
-<td><code>Photo | None</code></td>
-<td>Одно фото для прикрепления (опционально)</td>
+<td><code>Photo | File | Video | None</code></td>
+<td>Одно фото/файл/видео для прикрепления (опционально)</td>
 </tr>
 <tr>
 <td><code>attachments</code></td>
-<td><code>list[Photo] | None</code></td>
-<td>Список фото для прикрепления (опционально)</td>
+<td><code>list[Photo | File | Video] | None</code></td>
+<td>Список фото/файлов/видео для прикрепления (опционально)</td>
 </tr>
 <tr>
 <td><code>use_queue</code></td>
@@ -3013,13 +3236,13 @@
 </tbody>
 </table>
 <p><strong>Пример использования</strong>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">add_reaction</span><span class="p">(</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">message_id</span><span class="o">=</span><span class="s2">&quot;msg_123&quot;</span><span class="p">,</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">reaction</span><span class="o">=</span><span class="s2">&quot;👍&quot;</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">)</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="k">if</span> <span class="n">result</span><span class="p">:</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Всего реакций: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">total_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">add_reaction</span><span class="p">(</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">message_id</span><span class="o">=</span><span class="s2">&quot;msg_123&quot;</span><span class="p">,</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">reaction</span><span class="o">=</span><span class="s2">&quot;👍&quot;</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="p">)</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Всего реакций: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">total_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div></p>
 <h4 id="get_reactionschat_id-int-message_ids-liststr-dictstr-reactioninfo-none"><code>get_reactions(chat_id: int, message_ids: list[str]) -&gt; dict[str, ReactionInfo] | None</code><a class="headerlink" href="#get_reactionschat_id-int-message_ids-liststr-dictstr-reactioninfo-none" title="Permanent link">&para;</a></h4>
 <div class="admonition info">
@@ -3114,20 +3337,163 @@
 <p>Метод <strong>не поддерживает</strong> изменение фотографии профиля (параметр <code>photo</code> не реализован)</p>
 </div>
 <p><strong>Пример использования</strong>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Обновление имени и описания</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">success</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">change_profile</span><span class="p">(</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Иван&quot;</span><span class="p">,</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Python разработчик&quot;</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="p">)</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># Обновление только фамилии</span>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="n">success</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">change_profile</span><span class="p">(</span>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    <span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Иван&quot;</span><span class="p">,</span>
-</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="n">last_name</span><span class="o">=</span><span class="s2">&quot;Петров&quot;</span>
-</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Обновление имени и описания</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">success</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">change_profile</span><span class="p">(</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Иван&quot;</span><span class="p">,</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Python разработчик&quot;</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="p">)</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c1"># Обновление только фамилии</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="n">success</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">change_profile</span><span class="p">(</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Иван&quot;</span><span class="p">,</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    <span class="n">last_name</span><span class="o">=</span><span class="s2">&quot;Петров&quot;</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="p">)</span>
+</span></code></pre></div></p>
+<h3 id="_15">Управление папками<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<h4 id="create_foldertitle-str-chat_include-listint-filters-listany-none-none-folderupdate"><code>create_folder(title: str, chat_include: list[int], filters: list[Any] | None = None) -&gt; FolderUpdate</code><a class="headerlink" href="#create_foldertitle-str-chat_include-listint-filters-listany-none-none-folderupdate" title="Permanent link">&para;</a></h4>
+<div class="admonition info">
+<p class="admonition-title">Описание</p>
+<p>Создаёт новую пользовательскую папку для организации чатов по заданным правилам.</p>
+</div>
+<p><strong>Параметры</strong></p>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>title</code></td>
+<td><code>str</code></td>
+<td>Название папки</td>
+</tr>
+<tr>
+<td><code>chat_include</code></td>
+<td><code>list[int]</code></td>
+<td>Список ID чатов для включения в папку</td>
+</tr>
+<tr>
+<td><code>filters</code></td>
+<td><code>list[Any] | None</code></td>
+<td>Список дополнительных фильтров (API-зависимый)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Возвращает</strong></p>
+<p><code>FolderUpdate</code>: Обновлённые данные о папке и порядке папок</p>
+<p><strong>Пример использования</strong>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">create_folder</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Friends&quot;</span><span class="p">,</span> <span class="n">chat_include</span><span class="o">=</span><span class="p">[</span><span class="mi">123</span><span class="p">,</span> <span class="mi">456</span><span class="p">])</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+</span></code></pre></div></p>
+<h4 id="get_foldersfolder_sync-int-0-folderlist"><code>get_folders(folder_sync: int = 0) -&gt; FolderList</code><a class="headerlink" href="#get_foldersfolder_sync-int-0-folderlist" title="Permanent link">&para;</a></h4>
+<div class="admonition info">
+<p class="admonition-title">Описание</p>
+<p>Возвращает список папок пользователя и данные синхронизации.</p>
+</div>
+<p><strong>Параметры</strong></p>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>folder_sync</code></td>
+<td><code>int</code></td>
+<td>Маркер синхронизации (опционально)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Возвращает</strong></p>
+<p><code>FolderList</code>: Список папок с порядком и маркером синхронизации</p>
+<p><strong>Пример использования</strong>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">folders</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_folders</span><span class="p">()</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">folders</span><span class="o">.</span><span class="n">folders</span><span class="p">:</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span></code></pre></div></p>
+<h4 id="update_folderfolder_id-str-title-str-chat_include-listint-none-none-filters-listany-none-none-options-listany-none-none-folderupdate"><code>update_folder(folder_id: str, title: str, chat_include: list[int] | None = None, filters: list[Any] | None = None, options: list[Any] | None = None) -&gt; FolderUpdate</code><a class="headerlink" href="#update_folderfolder_id-str-title-str-chat_include-listint-none-none-filters-listany-none-none-options-listany-none-none-folderupdate" title="Permanent link">&para;</a></h4>
+<div class="admonition info">
+<p class="admonition-title">Описание</p>
+<p>Обновляет существующую папку: название, список включённых чатов, фильтры и опции.</p>
+</div>
+<p><strong>Параметры</strong></p>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>folder_id</code></td>
+<td><code>str</code></td>
+<td>Уникальный ID папки</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td><code>str</code></td>
+<td>Новое название папки</td>
+</tr>
+<tr>
+<td><code>chat_include</code></td>
+<td><code>list[int] | None</code></td>
+<td>Список ID чатов для папки (опционально)</td>
+</tr>
+<tr>
+<td><code>filters</code></td>
+<td><code>list[Any] | None</code></td>
+<td>Обновлённые фильтры папки (опционально)</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>list[Any] | None</code></td>
+<td>Параметры папки (опционально)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Возвращает</strong></p>
+<p><code>FolderUpdate</code>: Результат обновления папки</p>
+<p><strong>Пример использования</strong>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">updated</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">update_folder</span><span class="p">(</span><span class="n">folder_id</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Best friends&quot;</span><span class="p">,</span> <span class="n">chat_include</span><span class="o">=</span><span class="p">[</span><span class="mi">123</span><span class="p">])</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">updated</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+</span></code></pre></div></p>
+<h4 id="delete_folderfolder_id-str-folderupdate"><code>delete_folder(folder_id: str) -&gt; FolderUpdate</code><a class="headerlink" href="#delete_folderfolder_id-str-folderupdate" title="Permanent link">&para;</a></h4>
+<div class="admonition info">
+<p class="admonition-title">Описание</p>
+<p>Удаляет папку и возвращает обновление порядка папок.</p>
+</div>
+<p><strong>Параметры</strong></p>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>folder_id</code></td>
+<td><code>str</code></td>
+<td>Уникальный ID папки</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Возвращает</strong></p>
+<p><code>FolderUpdate</code>: Результат удаления</p>
+<p><strong>Пример использования</strong>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">delete_folder</span><span class="p">(</span><span class="n">folder_id</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
 </span></code></pre></div></p>
 <h2 id="управление-пользователями">👥 Управление пользователями<a class="headerlink" href="#управление-пользователями" title="Permanent link">&para;</a></h2>
-<h3 id="_15">Получение Информации о Пользователях<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<h3 id="_16">Получение Информации о Пользователях<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
 <h4 id="get_cached_useruser_id-int-user-none"><code>get_cached_user(user_id: int) -&gt; User | None</code><a class="headerlink" href="#get_cached_useruser_id-int-user-none" title="Permanent link">&para;</a></h4>
 <div class="admonition info">
 <p class="admonition-title">Описание</p>
@@ -3245,7 +3611,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="_16">Поиск Пользователей<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<h3 id="_17">Поиск Пользователей<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
 <h4 id="search_by_phonephone-str-user-none"><code>search_by_phone(phone: str) -&gt; User | None</code><a class="headerlink" href="#search_by_phonephone-str-user-none" title="Permanent link">&para;</a></h4>
 <div class="admonition info">
 <p class="admonition-title">Описание</p>
@@ -3268,7 +3634,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="_17">Контакты<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<h3 id="_18">Контакты<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
 <h4 id="add_contactcontact_id-int-contact"><code>add_contact(contact_id: int) -&gt; Contact</code><a class="headerlink" href="#add_contactcontact_id-int-contact" title="Permanent link">&para;</a></h4>
 <div class="admonition info">
 <p class="admonition-title">Описание</p>
@@ -3294,8 +3660,8 @@
 <p><strong>Возвращает</strong></p>
 <p><code>Contact</code>: Объект контакта после успешного добавления</p>
 <p><strong>Пример использования</strong></p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">contact</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">add_contact</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Добавлен контакт: </span><span class="si">{</span><span class="n">contact</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">contact</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">add_contact</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Добавлен контакт: </span><span class="si">{</span><span class="n">contact</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="remove_contactcontact_id-int-bool"><code>remove_contact(contact_id: int) -&gt; bool</code><a class="headerlink" href="#remove_contactcontact_id-int-bool" title="Permanent link">&para;</a></h4>
 <div class="admonition info">
@@ -3322,49 +3688,49 @@
 <p><strong>Возвращает</strong></p>
 <p><code>bool</code>: <code>True</code>, если удаление прошло успешно</p>
 <p><strong>Пример использования</strong></p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">success</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">remove_contact</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Контакт удалён&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">success</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">remove_contact</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Контакт удалён&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<h3 id="_18">Управление Сессиями<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<h3 id="_19">Управление Сессиями<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
 <h4 id="get_sessions-listsession"><code>get_sessions() -&gt; list[Session]</code><a class="headerlink" href="#get_sessions-listsession" title="Permanent link">&para;</a></h4>
 <div class="admonition info">
 <p class="admonition-title">Описание</p>
 <p>Получает список всех активных сессий текущего пользователя.</p>
 </div>
 <p><strong>Пример использования</strong>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">sessions</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_sessions</span><span class="p">()</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">sessions</span><span class="p">:</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Сессия: </span><span class="si">{</span><span class="n">session</span><span class="o">.</span><span class="n">client</span><span class="si">}</span><span class="s2"> из </span><span class="si">{</span><span class="n">session</span><span class="o">.</span><span class="n">location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">sessions</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_sessions</span><span class="p">()</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">sessions</span><span class="p">:</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Сессия: </span><span class="si">{</span><span class="n">session</span><span class="o">.</span><span class="n">client</span><span class="si">}</span><span class="s2"> из </span><span class="si">{</span><span class="n">session</span><span class="o">.</span><span class="n">location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div></p>
-<h2 id="_19">📝 Рекомендации по использованию<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h2>
-<h3 id="_20">Обработка Ошибок<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h3>
+<h2 id="_20">📝 Рекомендации по использованию<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h2>
+<h3 id="_21">Обработка Ошибок<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
 <div class="admonition tip">
 <p class="admonition-title">Проверка результатов</p>
 <p>Всегда проверяйте возвращаемые значения на None:
-<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Тестовое сообщение&quot;</span><span class="p">,</span>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">notify</span><span class="o">=</span><span class="kc">True</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="p">)</span>
-</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Не удалось отправить сообщение&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Тестовое сообщение&quot;</span><span class="p">,</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="n">notify</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="p">)</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Не удалось отправить сообщение&quot;</span><span class="p">)</span>
 </span></code></pre></div></p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Обработка исключений</p>
 <p>Используйте try-except для обработки возможных ошибок:
-<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">try</span><span class="p">:</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">pin_message</span><span class="p">(</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>        <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>        <span class="n">message_id</span><span class="o">=</span><span class="mi">789</span><span class="p">,</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>        <span class="n">notify_pin</span><span class="o">=</span><span class="kc">True</span>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    <span class="p">)</span>
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ошибка при закреплении: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">try</span><span class="p">:</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">pin_message</span><span class="p">(</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>        <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>        <span class="n">message_id</span><span class="o">=</span><span class="mi">789</span><span class="p">,</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>        <span class="n">notify_pin</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>    <span class="p">)</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ошибка при закреплении: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div></p>
 </div>
-<h3 id="_21">Оптимизация Запросов<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
+<h3 id="_22">Оптимизация Запросов<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h3>
 <div class="admonition tip">
 <p class="admonition-title">Массовые операции</p>
 <p>Используйте методы для работы с множеством объектов:

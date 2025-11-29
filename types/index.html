@@ -819,6 +819,39 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#folder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Folder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#folderupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FolderUpdate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#folderlist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FolderList
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1212,6 +1245,39 @@
     <span class="md-ellipsis">
       
         Session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#folder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Folder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#folderupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FolderUpdate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#folderlist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FolderList
       
     </span>
   </a>
@@ -1638,11 +1704,6 @@
 <td>Время последней отложенной ошибки</td>
 </tr>
 <tr>
-<td><code>messages_count</code></td>
-<td><code>int</code></td>
-<td>Кол-во сообщений</td>
-</tr>
-<tr>
 <td><code>modified</code></td>
 <td><code>int</code></td>
 <td>Время последнего изменения</td>
@@ -1656,11 +1717,6 @@
 <td><code>prev_message_id</code></td>
 <td><code>str | None</code></td>
 <td>ID предыдущего сообщения</td>
-</tr>
-<tr>
-<td><code>restrictions</code></td>
-<td><code>int | None</code></td>
-<td>Ограничения</td>
 </tr>
 <tr>
 <td><code>status</code></td>
@@ -1683,24 +1739,9 @@
 <td>Время присоединения</td>
 </tr>
 <tr>
-<td><code>last_event_time</code></td>
-<td><code>int</code></td>
-<td>Время последнего события</td>
-</tr>
-<tr>
 <td><code>last_delayed_update_time</code></td>
 <td><code>int</code></td>
 <td>Время последнего отложенного обновления</td>
-</tr>
-<tr>
-<td><code>last_fire_delayed_error_time</code></td>
-<td><code>int</code></td>
-<td>Время последней отложенной ошибки</td>
-</tr>
-<tr>
-<td><code>modified</code></td>
-<td><code>int</code></td>
-<td>Время последнего изменения</td>
 </tr>
 <tr>
 <td><code>messages_count</code></td>
@@ -1708,19 +1749,9 @@
 <td>Кол-во сообщений в чате</td>
 </tr>
 <tr>
-<td><code>options</code></td>
-<td><code>dict[str, bool]</code></td>
-<td>Опции чата</td>
-</tr>
-<tr>
 <td><code>restrictions</code></td>
 <td><code>int | None</code></td>
 <td>Ограничения в чате</td>
-</tr>
-<tr>
-<td><code>status</code></td>
-<td><code>str</code></td>
-<td>Статус чата</td>
 </tr>
 </tbody>
 </table>
@@ -2579,6 +2610,136 @@
 </span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="p">)</span>
 </span></code></pre></div>
 </div>
+<h3 id="folder">Folder<a class="headerlink" href="#folder" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Папка (фильтр чатов)</p>
+<table>
+<thead>
+<tr>
+<th>Свойство</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>source_id</code></td>
+<td><code>int</code></td>
+<td>ID источника/регистратора папки</td>
+</tr>
+<tr>
+<td><code>include</code></td>
+<td><code>list[int]</code></td>
+<td>Список ID чатов, включённых в папку</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>list[Any]</code></td>
+<td>Дополнительные опции папки</td>
+</tr>
+<tr>
+<td><code>update_time</code></td>
+<td><code>int</code></td>
+<td>Временная метка последнего обновления папки</td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td><code>str</code></td>
+<td>Уникальный идентификатор папки</td>
+</tr>
+<tr>
+<td><code>filters</code></td>
+<td><code>list[Any]</code></td>
+<td>Правила/фильтры папки</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td><code>str</code></td>
+<td>Название папки</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Пример использования</strong>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">folders</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_folders</span><span class="p">()</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">if</span> <span class="n">folders</span> <span class="ow">and</span> <span class="n">folders</span><span class="o">.</span><span class="n">folders</span><span class="p">:</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">folder</span> <span class="o">=</span> <span class="n">folders</span><span class="o">.</span><span class="n">folders</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Folder:&quot;</span><span class="p">,</span> <span class="n">folder</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">folder</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span></code></pre></div></p>
+<h3 id="folderupdate">FolderUpdate<a class="headerlink" href="#folderupdate" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Результат создания/обновления/удаления папки</p>
+<table>
+<thead>
+<tr>
+<th>Свойство</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>folder_order</code></td>
+<td><code>list[str] | None</code></td>
+<td>Порядок ID папок после операции</td>
+</tr>
+<tr>
+<td><code>folder</code></td>
+<td><code>Folder | None</code></td>
+<td>Данные папки, если присутствуют</td>
+</tr>
+<tr>
+<td><code>folder_sync</code></td>
+<td><code>int</code></td>
+<td>Синхронизационный маркер папок</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Пример использования</strong>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">create_folder</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Friends&quot;</span><span class="p">,</span> <span class="n">chat_include</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+</span></code></pre></div></p>
+<h3 id="folderlist">FolderList<a class="headerlink" href="#folderlist" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Список папок</p>
+<table>
+<thead>
+<tr>
+<th>Свойство</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>folders_order</code></td>
+<td><code>list[str]</code></td>
+<td>Порядок ID папок</td>
+</tr>
+<tr>
+<td><code>folders</code></td>
+<td><code>list[Folder]</code></td>
+<td>Список объектов <code>Folder</code></td>
+</tr>
+<tr>
+<td><code>folder_sync</code></td>
+<td><code>int</code></td>
+<td>Синхронизационный маркер</td>
+</tr>
+<tr>
+<td><code>all_filter_exclude_folders</code></td>
+<td><code>list[Any] | None</code></td>
+<td>Исключённые папки для фильтров</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Пример использования</strong>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">folders</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_folders</span><span class="p">()</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">folders</span><span class="o">.</span><span class="n">folders</span><span class="p">:</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span></code></pre></div></p>
 
 
 
