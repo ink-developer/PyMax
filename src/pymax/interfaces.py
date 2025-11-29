@@ -4,23 +4,24 @@ import ssl
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from logging import Logger
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
-import websockets
-
-from .filters import Filter
 from .payloads import UserAgentPayload
 from .static.constant import DEFAULT_TIMEOUT
 from .static.enum import Opcode
 from .types import Channel, Chat, Dialog, Me, Message, User
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from uuid import UUID
 
+    import websockets
+
+    from pymax import AttachType
     from pymax.types import ReactionInfo
 
     from .crud import Database
+    from .filters import Filter
 
 
 class ClientProtocol(ABC):
@@ -52,7 +53,10 @@ class ClientProtocol(ABC):
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
-        self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
+        self._file_upload_waiters: dict[
+            int,
+            asyncio.Future[dict[str, Any]],
+        ] = {}
         self.user_agent = UserAgentPayload()
         self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
         self._outgoing_task: asyncio.Task[Any] | None = None

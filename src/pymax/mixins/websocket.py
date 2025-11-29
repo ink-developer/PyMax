@@ -167,13 +167,22 @@ class WebSocketMixin(ClientProtocol):
                     try:  # TODO: переделать, временное решение
                         if data.get("opcode") == Opcode.NOTIF_ATTACH:
                             file_id = data.get("payload", {}).get("fileId", None)
-                            if isinstance(file_id, int):
+                            video_id = data.get("payload", {}).get("videoId", None)
+                            if file_id is not None:
                                 fut = self._file_upload_waiters.pop(file_id, None)
                                 if fut and not fut.done():
                                     fut.set_result(data)
                                     self.logger.debug(
                                         "Fulfilled file upload waiter for fileId=%s",
                                         file_id,
+                                    )
+                            elif video_id is not None:
+                                fut = self._file_upload_waiters.pop(video_id, None)
+                                if fut and not fut.done():
+                                    fut.set_result(data)
+                                    self.logger.debug(
+                                        "Fulfilled file upload waiter for videoId=%s",
+                                        video_id,
                                     )
                     except Exception:
                         self.logger.exception("Error handling file upload notification")

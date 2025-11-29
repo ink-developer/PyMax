@@ -73,6 +73,12 @@ class AttachPhotoPayload(CamelModel):
     photo_token: str
 
 
+class VideoAttachPayload(CamelModel):
+    type: AttachType = Field(default=AttachType.VIDEO, alias="_type")
+    video_id: int
+    token: str
+
+
 class AttachFilePayload(CamelModel):
     type: AttachType = Field(default=AttachType.FILE, alias="_type")
     file_id: int
@@ -88,7 +94,7 @@ class SendMessagePayloadMessage(CamelModel):
     text: str
     cid: int
     elements: list[MessageElement]
-    attaches: list[AttachPhotoPayload | AttachFilePayload]
+    attaches: list[AttachPhotoPayload | AttachFilePayload | VideoAttachPayload]
     link: ReplyLink | None = None
 
 
@@ -103,7 +109,7 @@ class EditMessagePayload(CamelModel):
     message_id: int
     text: str
     elements: list[MessageElement]
-    attaches: list[AttachPhotoPayload]
+    attaches: list[AttachPhotoPayload | AttachFilePayload | VideoAttachPayload]
 
 
 class DeleteMessagePayload(CamelModel):
@@ -196,7 +202,7 @@ class ChangeGroupProfilePayload(CamelModel):
 
 class GetGroupMembersPayload(CamelModel):
     type: Literal["MEMBER"] = "MEMBER"
-    marker: int
+    marker: int | None = None
     chat_id: int
     count: int
 
@@ -295,3 +301,30 @@ class RegisterPayload(CamelModel):
     first_name: str
     token: str
     token_type: AuthType = AuthType.REGISTER
+
+
+class CreateFolderPayload(CamelModel):
+    id: str
+    title: str
+    include: list[int]
+    filters: list[Any] = []
+
+
+class GetChatInfoPayload(CamelModel):
+    chat_ids: list[int]
+
+
+class GetFolderPayload(CamelModel):
+    folder_sync: int = 0
+
+
+class UpdateFolderPayload(CamelModel):
+    id: str
+    title: str
+    include: list[int]
+    filters: list[Any] = []
+    options: list[Any] = []
+
+
+class DeleteFolderPayload(CamelModel):
+    folder_ids: list[str]

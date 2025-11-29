@@ -67,11 +67,11 @@ class ChannelMixin(ClientProtocol):
     ) -> tuple[list[Member], int | None]:
         data = await self._send_and_wait(
             opcode=Opcode.CHAT_MEMBERS,
-            payload=payload.model_dump(by_alias=True),
+            payload=payload.model_dump(by_alias=True, exclude_none=True),
         )
         response_payload = data.get("payload", {})
-        if error := response_payload.get("error"):
-            raise ResponseError(error)
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
         marker = response_payload.get("marker")
         if isinstance(marker, str):
             marker = int(marker)
@@ -96,7 +96,7 @@ class ChannelMixin(ClientProtocol):
     async def load_members(
         self,
         chat_id: int,
-        marker: int = DEFAULT_MARKER_VALUE,
+        marker: int | None = DEFAULT_MARKER_VALUE,
         count: int = DEFAULT_CHAT_MEMBERS_LIMIT,
     ) -> tuple[list[Member], int | None]:
         """
@@ -106,11 +106,11 @@ class ChannelMixin(ClientProtocol):
             chat_id (int): Идентификатор канала
             marker (int, optional): Маркер для пагинации. По умолчанию DEFAULT_MARKER_VALUE
             count (int, optional): Количество членов для загрузки. По умолчанию DEFAULT_CHAT_MEMBERS_LIMIT.
-            Данное значение лучше не менять, так как веб-клиент загружает именно столько.
 
         Returns:
-            list[Member]: Список участников канала
+            tuple[list[Member], int | None]: Список участников канала и маркер для следующей страницы
         """
+
         payload = GetGroupMembersPayload(chat_id=chat_id, marker=marker, count=count)
         return await self._query_members(payload)
 

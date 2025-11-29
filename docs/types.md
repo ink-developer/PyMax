@@ -129,28 +129,17 @@ if user.names:
     | `admin_participants` | `dict[int, dict[Any, Any]]` | Структура админов |
     | `last_message` | `Message | None` | Последнее сообщение |
     | `last_event_time` | `int` | Время последнего события |
-    | `last_delayed_update_time` | `int` | Время последнего отложенного обновления |
     | `last_fire_delayed_error_time` | `int` | Время последней отложенной ошибки |
-    | `messages_count` | `int` | Кол-во сообщений |
     | `modified` | `int` | Время последнего изменения |
     | `options` | `dict[str, bool]` | Опции чата |
     | `prev_message_id` | `str | None` | ID предыдущего сообщения |
-    | `restrictions` | `int | None` | Ограничения |
     | `status` | `str` | Статус чата |
     | `cid` | `int` | Внутренний CID чата |
     | `created` | `int` | Время создания чата |
     | `join_time` | `int` | Время присоединения |
-    | `last_message` | `Message | None` | Последнее сообщение в чате |
-    | `last_event_time` | `int` | Время последнего события |
     | `last_delayed_update_time` | `int` | Время последнего отложенного обновления |
-    | `last_fire_delayed_error_time` | `int` | Время последней отложенной ошибки |
-    | `modified` | `int` | Время последнего изменения |
     | `messages_count` | `int` | Кол-во сообщений в чате |
-    | `admin_participants` | `dict[int, dict[Any, Any]]` | Сложная структура админов |
-    | `options` | `dict[str, bool]` | Опции чата |
-    | `prev_message_id` | `str | None` | ID предыдущего сообщения |
     | `restrictions` | `int | None` | Ограничения в чате |
-    | `status` | `str` | Статус чата |
 
 !!! tip "Работа с чатами"
     ```python
@@ -163,17 +152,17 @@ if user.names:
             print("Вы администратор")
     ```
 
-        ### Me
+### Me
 
-        !!! info "Информация о текущем пользователе"
-            | Свойство | Тип | Описание |
-            |----------|-----|----------|
-            | `id` | `int` | ID пользователя |
-            | `phone` | `str` | Номер телефона |
-            | `names` | `list[Names]` | Имена профиля |
-            | `account_status` | `int` | Код статуса аккаунта |
-            | `update_time` | `int` | Время последнего обновления |
-            | `options` | `list[str] | None` | Опции профиля |
+!!! info "Информация о текущем пользователе"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `id` | `int` | ID пользователя |
+    | `phone` | `str` | Номер телефона |
+    | `names` | `list[Names]` | Имена профиля |
+    | `account_status` | `int` | Код статуса аккаунта |
+    | `update_time` | `int` | Время последнего обновления |
+    | `options` | `list[str] | None` | Опции профиля |
 
 ### Contact
 
@@ -322,7 +311,7 @@ if message and message.attaches:
     | `author_type` | `str` | Тип автора |
     | `sticker_type` | `str` | Тип стикера |
     | `audio` | `bool` | Содержит ли звук |
-    | `tags` | `list[str] \| None` | Теги стикера |
+    | `tags` | `list[str] | None` | Теги стикера |
     | `time` | `int` | Временная метка |
     | `type` | `AttachType` | Всегда `STICKER` |
 
@@ -374,9 +363,9 @@ if isinstance(attach, AudioAttach):
 !!! info "Элемент форматирования сообщения"
     | Свойство | Тип | Описание |
     |----------|-----|----------|
-    | `type` | `ElementType \| str` | Тип элемента (text, mention, link, emoji) |
+    | `type` | `ElementType | str` | Тип элемента (text, mention, link, emoji) |
     | `length` | `int` | Длина элемента |
-    | `from_` | `int \| None` | ID пользователя (для упоминаний) |
+    | `from_` | `int | None` | ID пользователя (для упоминаний) |
 
 **Пример работы с элементами**
 ```python
@@ -468,3 +457,56 @@ if message.reaction_info:
             f"сессия: {session.client} из {session.location}"
         )
     ```
+
+### Folder
+
+!!! info "Папка (фильтр чатов)"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `source_id` | `int` | ID источника/регистратора папки |
+    | `include` | `list[int]` | Список ID чатов, включённых в папку |
+    | `options` | `list[Any]` | Дополнительные опции папки |
+    | `update_time` | `int` | Временная метка последнего обновления папки |
+    | `id` | `str` | Уникальный идентификатор папки |
+    | `filters` | `list[Any]` | Правила/фильтры папки |
+    | `title` | `str` | Название папки |
+
+**Пример использования**
+```python
+folders = await client.get_folders()
+if folders and folders.folders:
+    folder = folders.folders[0]
+    print("Folder:", folder.title, folder.id)
+```
+
+### FolderUpdate
+
+!!! info "Результат создания/обновления/удаления папки"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `folder_order` | `list[str] | None` | Порядок ID папок после операции |
+    | `folder` | `Folder | None` | Данные папки, если присутствуют |
+    | `folder_sync` | `int` | Синхронизационный маркер папок |
+
+**Пример использования**
+```python
+result = await client.create_folder(title="Friends", chat_include=[1, 2, 3])
+print(result.folder.id, result.folder.title)
+```
+
+### FolderList
+
+!!! info "Список папок"
+    | Свойство | Тип | Описание |
+    |----------|-----|----------|
+    | `folders_order` | `list[str]` | Порядок ID папок |
+    | `folders` | `list[Folder]` | Список объектов `Folder` |
+    | `folder_sync` | `int` | Синхронизационный маркер |
+    | `all_filter_exclude_folders` | `list[Any] | None` | Исключённые папки для фильтров |
+
+**Пример использования**
+```python
+folders = await client.get_folders()
+for f in folders.folders:
+    print(f.title, f.id)
+```

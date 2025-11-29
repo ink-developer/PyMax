@@ -2,33 +2,67 @@ import asyncio
 import datetime
 
 from pymax import MaxClient, Message, ReactionInfo, SocketMaxClient
-from pymax.files import File
+from pymax.files import File, Video
 from pymax.filters import Filter
-from pymax.static.enum import AttachType
+from pymax.static.enum import AttachType, Opcode
 from pymax.types import Chat
 
-phone = "+79029336523"
+phone = "+7903223423"
 
 
 client = MaxClient(phone=phone, work_dir="cache", reconnect=False, logger=None)
 
 
-async def main() -> None:
-    async with client:
+@client.on_start
+async def handle_start() -> None:
+    print(f"Client started as {client.me.names[0].first_name}!")
+    folder_list = await client.get_folders()
+    for folder in folder_list.folders:
+        if folder.title == "My Folder Renamed":
+            folder_update = await client.delete_folder(folder_id=folder.id)
+            print(f"Folder deleted: {folder_update.folder_sync}")
+    # folder_update = await client.create_folder(
+    #     title="My Folder",
+    #     chat_include=[0],
+    # )
+    # print(f"Folder created: {folder_update.folder.title}")
+    # video_path = "tests2/test.mp4"
+    # video_file = Video(path=video_path)
 
-        @client.on_start
-        async def handle_start() -> None:
-            print(f"Client started successfully at {datetime.datetime.now()}!")
-            print(client.me.id)
+    # await client.send_message(
+    #     text="Here is the video you requested.",
+    #     chat_id=0,
+    #     attachment=video_file,
+    #     notify=True,
+    # )
+    # chat_id = -6970655
+    # for chat in client.chats:
+    #     if chat.id == chat_id:
+    #         print(f"Found chat: {chat.title}, ID: {chat.id}")
+    #         members_count = chat.participants_count
+    #         marker = 0
+    #         member_list = []
+    #         while len(member_list) < members_count:
+    #             await asyncio.sleep(10)
+    #             r = await client.load_members(
+    #                 chat_id=chat_id,
+    #                 marker=marker,
+    #                 count=200,
+    #             )
+    #             members, marker = r
+    #             member_list.extend(members)
+    #             print(f"Loaded {len(member_list)}/{members_count} members...")
+    #         for member in member_list:
+    #             print(
+    #                 f"Member {member.contact.names[0].first_name}, ID: {member.contact.id}"
+    #             )
+    # r = await client.load_members(chat_id=chat_id, count=50)
+    # print(f"Loaded {len(r)} members from chat {chat_id}")
+    # member_list, marker = r
+    # for member in member_list:
+    #     print(f"Member {member.contact.names[0].first_name}, ID: {member.contact.id}")
 
-            await client.send_message(
-                "Hello!",
-                chat_id=0,
-                notify=True,
-            )
 
-
-#         await client.idle()
 @client.on_reaction_change
 async def handle_reaction_change(
     message_id: str, chat_id: int, reaction_info: ReactionInfo
@@ -163,4 +197,7 @@ async def handle_chat_update(chat: Chat) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(client.start())
+    try:
+        asyncio.run(client.start())
+    except KeyboardInterrupt:
+        print("Client stopped by user")

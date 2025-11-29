@@ -17,7 +17,6 @@ class Opcode(int, Enum):
     AUTH_CONFIRM = 23
     PRESET_AVATARS = 25
     ASSETS_GET = 26
-    UNKNOWN_26 = 26
     ASSETS_UPDATE = 27
     ASSETS_GET_BY_IDS = 28
     ASSETS_ADD = 29

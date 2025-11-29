@@ -46,16 +46,16 @@ MaxClient(
 | `phone` | `str` | Номер телефона для авторизации (обязательно) |
 | `uri` | `str` | URI WebSocket сервера |
 | `headers` | `UserAgentPayload` | Заголовки User-Agent для подключения |
-| `token` | `str \| None` | Токен для восстановления сессии |
+| `token` | `str | None` | Токен для восстановления сессии |
 | `send_fake_telemetry` | `bool` | Отправлять ли фейковую телеметрию (по умолчанию True) |
 | `host` | `str` | Хост API сервера |
 | `port` | `int` | Порт API сервера |
-| `proxy` | `str \| Literal[True] \| None` | Прокси для WebSocket подключения |
+| `proxy` | `str | Literal[True] | None` | Прокси для WebSocket подключения |
 | `work_dir` | `str` | Директория для хранения БД сессии |
 | `registration` | `bool` | Регистрировать ли новый аккаунт |
 | `first_name` | `str` | Имя для регистрации (если registration=True) |
-| `last_name` | `str \| None` | Фамилия для регистрации |
-| `logger` | `logging.Logger \| None` | Пользовательский логгер |
+| `last_name` | `str | None` | Фамилия для регистрации |
+| `logger` | `logging.Logger | None` | Пользовательский логгер |
 | `reconnect` | `bool` | Автоматическое переподключение при разрыве |
 | `reconnect_delay` | `float` | Задержка переподключения в секундах |
 
@@ -76,6 +76,54 @@ await client.start()
 
 ```python
 await client.close()
+```
+
+##### async get_chats(chat_ids: list[int]) -> list[Chat]
+
+Получает информацию о нескольких чатах по их ID.
+
+```python
+chats = await client.get_chats([123, 456])
+```
+
+##### async get_chat(chat_id: int) -> Chat
+
+Получает информацию об одном чате по его ID.
+
+```python
+chat = await client.get_chat(123)
+```
+
+##### async create_folder(title: str, chat_include: list[int], filters: list[Any] | None = None) -> FolderUpdate
+
+Создаёт новую папку (фильтр) и возвращает результат операции.
+
+```python
+res = await client.create_folder(title="Friends", chat_include=[111,222])
+```
+
+##### async get_folders(folder_sync: int = 0) -> FolderList
+
+Возвращает список папок текущего пользователя.
+
+```python
+folders = await client.get_folders()
+```
+
+##### async update_folder(folder_id: str, title: str, chat_include: list[int] | None = None, filters: list[Any] | None = None, options: list[Any] | None = None) -> FolderUpdate
+
+Обновляет существующую папку.
+
+```python
+updated = await client.update_folder(folder_id=res.folder.id, title="Best")
+```
+
+##### async delete_folder(folder_id: str) -> FolderUpdate
+
+Удаляет папку и возвращает информацию об обновлении порядка папок.
+
+```python
+await client.delete_folder(folder_id=res.folder.id)
 ```
 
 #### Свойства
@@ -311,6 +359,47 @@ client = SocketMaxClient(phone="+1234567890")
 | `prev_message_id` | `str | None` | ID предыдущего сообщения |
 | `restrictions` | `int | None` | Ограничения в чате |
 | `status` | `str` | Статус чата |
+
+### Folder
+
+Папка (фильтр для чатов пользователя).
+
+**Свойства:**
+
+| Свойство | Тип | Описание |
+|----------|-----|---------|
+| `source_id` | `int` | ID источника папки |
+| `include` | `list[int]` | Список ID чатов, включённых в папку |
+| `options` | `list[Any]` | Опции папки |
+| `update_time` | `int` | Время последнего обновления папки |
+| `id` | `str` | Уникальный ID папки |
+| `filters` | `list[Any]` | Правила/фильтры папки |
+| `title` | `str` | Название папки |
+
+### FolderUpdate
+
+Результат операций обновления/создания/удаления папки.
+
+**Свойства:**
+
+| Свойство | Тип | Описание |
+|----------|-----|---------|
+| `folder_order` | `list[str] | None` | Порядок ID папок после операции |
+| `folder` | `Folder | None` | Обновлённый объект папки, если присутствует |
+| `folder_sync` | `int` | Синхронизационный маркер папок |
+
+### FolderList
+
+Список папок пользователя.
+
+**Свойства:**
+
+| Свойство | Тип | Описание |
+|----------|-----|---------|
+| `folders_order` | `list[str]` | Порядок ID папок |
+| `folders` | `list[Folder]` | Список объектов `Folder` |
+| `folder_sync` | `int` | Синхронизационный маркер |
+| `all_filter_exclude_folders` | `list[Any] | None` | Исключённые папки для фильтров |
 
 ### Dialog
 

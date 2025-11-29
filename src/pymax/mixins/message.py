@@ -1,11 +1,12 @@
 import asyncio
 import time
+from http import HTTPStatus
 
 import aiohttp
 from aiohttp import ClientSession
 
 from pymax.exceptions import Error
-from pymax.files import File, Photo
+from pymax.files import File, Photo, Video
 from pymax.formatting import Formatting
 from pymax.interfaces import ClientProtocol
 from pymax.mixins.utils import MixinsUtils
@@ -27,6 +28,7 @@ from pymax.payloads import (
     SendMessagePayload,
     SendMessagePayloadMessage,
     UploadPayload,
+    VideoAttachPayload,
 )
 from pymax.static.constant import DEFAULT_TIMEOUT
 from pymax.static.enum import AttachType, Opcode
@@ -35,6 +37,7 @@ from pymax.types import (
     FileRequest,
     Message,
     ReactionInfo,
+    VideoAttach,
     VideoRequest,
 )
 
@@ -79,9 +82,8 @@ class MessageMixin(ClientProtocol):
                     data=file_bytes,
                 ) as response,
             ):
-                if response.status != 200:
+                if response.status != HTTPStatus.OK:
                     self.logger.error(f"Upload failed with status {response.status}")
-                    # cleanup waiter
                     self._file_upload_waiters.pop(int(file_id), None)
                     return None
 
@@ -97,7 +99,76 @@ class MessageMixin(ClientProtocol):
                     return None
         except Exception as e:
             self.logger.exception("Upload file failed: %s", str(e))
-            return None
+            raise e
+
+    async def _upload_video(self, video: Video) -> None | Attach:
+        try:
+            self.logger.info("Uploading video")
+            payload = UploadPayload().model_dump(by_alias=True)
+            data = await self._send_and_wait(
+                opcode=Opcode.VIDEO_UPLOAD,
+                payload=payload,
+            )
+
+            if data.get("payload", {}).get("error"):
+                MixinsUtils.handle_error(data)
+
+            url = data.get("payload", {}).get("info", [None])[0].get("url", None)
+            video_id = (
+                data.get("payload", {}).get("info", [None])[0].get("videoId", None)
+            )
+            if not url or not video_id:
+                self.logger.error("No upload URL or video ID received")
+                return None
+
+            token = data.get("payload", {}).get("info", [None])[0].get("token", None)
+            if not token:
+                self.logger.error("No upload token received")
+                return None
+
+            file_bytes = await video.read()
+
+            headers = {
+                "Content-Disposition": f"attachment; filename={video.file_name}",
+                "Content-Range": f"0-{len(file_bytes) - 1}/{len(file_bytes)}",
+            }
+
+            loop = asyncio.get_running_loop()
+            fut: asyncio.Future[dict] = loop.create_future()
+            try:
+                self._file_upload_waiters[int(video_id)] = fut
+            except Exception:
+                self.logger.exception("Failed to register file upload waiter")
+
+            async with (
+                ClientSession() as session,
+                session.post(
+                    url=url,
+                    headers=headers,
+                    data=file_bytes,
+                ) as response,
+            ):
+                if response.status != HTTPStatus.OK:
+                    self.logger.error(f"Upload failed with status {response.status}")
+                    self._file_upload_waiters.pop(int(video_id), None)
+                    return None
+
+                try:
+                    await asyncio.wait_for(fut, timeout=DEFAULT_TIMEOUT)
+                    return Attach(
+                        _type=AttachType.VIDEO, video_id=video_id, token=token
+                    )
+                except asyncio.TimeoutError:
+                    self.logger.error(
+                        "Timed out waiting for video processing notification for videoId=%s",
+                        video_id,
+                    )
+                    self._file_upload_waiters.pop(int(video_id), None)
+                    return None
+
+        except Exception as e:
+            self.logger.exception("Upload video failed: %s", str(e))
+            raise e
 
     async def _upload_photo(self, photo: Photo) -> None | Attach:
         try:
@@ -137,7 +208,7 @@ class MessageMixin(ClientProtocol):
                     data=form,
                 ) as response,
             ):
-                if response.status != 200:
+                if response.status != HTTPStatus.OK:
                     self.logger.error(f"Upload failed with status {response.status}")
                     return None
 
@@ -161,7 +232,7 @@ class MessageMixin(ClientProtocol):
             self.logger.exception("Upload photo failed: %s", str(e))
             return None
 
-    async def _upload_attachment(self, attach: Photo | File) -> dict | None:
+    async def _upload_attachment(self, attach: Photo | File | Video) -> dict | None:
         if isinstance(attach, Photo):
             uploaded = await self._upload_photo(attach)
             if uploaded and uploaded.photo_token:
@@ -174,6 +245,12 @@ class MessageMixin(ClientProtocol):
                 return AttachFilePayload(file_id=uploaded.file_id).model_dump(
                     by_alias=True
                 )
+        elif isinstance(attach, Video):
+            uploaded = await self._upload_video(attach)
+            if uploaded and uploaded.video_id and uploaded.token:
+                return VideoAttachPayload(
+                    video_id=uploaded.video_id, token=uploaded.token
+                ).model_dump(by_alias=True)
         self.logger.error(f"Attachment upload failed for {attach}")
         return None
 
@@ -181,9 +258,9 @@ class MessageMixin(ClientProtocol):
         self,
         text: str,
         chat_id: int,
-        notify: bool,
-        attachment: Photo | File | None = None,
-        attachments: list[Photo | File] | None = None,
+        notify: bool = True,
+        attachment: Photo | File | Video | None = None,
+        attachments: list[Photo | File | Video] | None = None,
         reply_to: int | None = None,
         use_queue: bool = False,
     ) -> Message | None:
@@ -268,8 +345,8 @@ class MessageMixin(ClientProtocol):
         chat_id: int,
         message_id: int,
         text: str,
-        attachment: Photo | None = None,
-        attachments: list[Photo] | None = None,
+        attachment: Photo | File | Video | None = None,
+        attachments: list[Photo | Video | File] | None = None,
         use_queue: bool = False,
     ) -> Message | None:
         self.logger.info(
@@ -480,7 +557,7 @@ class MessageMixin(ClientProtocol):
                 video_id=video_id,
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(opcode=Opcode.VIDEO_PLAY, payload=payload)
+        data = await self._send_and_wait(opcode=Opcode.VIDEO_PLAY, payload=payload)
 
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)

@@ -10,6 +10,7 @@ from pymax.payloads import (
     CreateGroupAttach,
     CreateGroupMessage,
     CreateGroupPayload,
+    GetChatInfoPayload,
     InviteUsersPayload,
     JoinChatPayload,
     RemoveUsersPayload,
@@ -258,3 +259,62 @@ class GroupMixin(ClientProtocol):
             raise Error("no_chat", "Chat data missing in response", "Chat Error")
 
         return chat
+
+    async def get_chats(self, chat_ids: list[int]) -> list[Chat]:
+        """
+        Получает информацию о группах по их ID
+
+        Args:
+            chat_ids (list[int]): Список идентификаторов групп.
+
+        Returns:
+            list[Chat]: Список объектов Chat.
+        """
+        missed_chat_ids = [
+            chat_id for chat_id in chat_ids if await self._get_chat(chat_id) is None
+        ]
+        if missed_chat_ids:
+            payload = GetChatInfoPayload(chat_ids=missed_chat_ids).model_dump(
+                by_alias=True
+            )
+        else:
+            chats: list[Chat] = [
+                chat
+                for chat_id in chat_ids
+                if (chat := await self._get_chat(chat_id)) is not None
+            ]
+            return chats
+
+        data = await self._send_and_wait(opcode=Opcode.CHAT_INFO, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        chats_data = data["payload"].get("chats", [])
+        chats: list[Chat] = []
+        for chat_dict in chats_data:
+            chat = Chat.from_dict(chat_dict)
+            chats.append(chat)
+            cached_chat = await self._get_chat(chat.id)
+            if cached_chat is None:
+                self.chats.append(chat)
+            else:
+                idx = self.chats.index(cached_chat)
+                self.chats[idx] = chat
+
+        return chats
+
+    async def get_chat(self, chat_id: int) -> Chat:
+        """
+        Получает информацию о группе по ее ID
+
+        Args:
+            chat_id (int): Идентификатор группы.
+
+        Returns:
+            Chat: Объект Chat.
+        """
+        chats = await self.get_chats([chat_id])
+        if not chats:
+            raise Error("no_chat", "Chat not found in response", "Chat Error")
+        return chats[0]

@@ -139,7 +139,7 @@ class AuthMixin(ClientProtocol):
         self.logger.info("Starting registration flow")
 
         request_code_payload = await self.request_code(self.phone)
-        temp_token = request_code_payload.get("token")
+        temp_token = request_code_payload
 
         if not temp_token or not isinstance(temp_token, str):
             self.logger.critical("Failed to request code: token missing")

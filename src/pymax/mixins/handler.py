@@ -1,7 +1,8 @@
 from collections.abc import Awaitable, Callable
 from typing import Any
 
-from pymax.interfaces import ClientProtocol, Filter
+from pymax.filters import Filter
+from pymax.interfaces import ClientProtocol
 from pymax.types import Chat, Message, ReactionInfo
 
 

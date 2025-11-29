@@ -7,12 +7,16 @@ import time
 import traceback
 from collections.abc import Awaitable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Self
+from typing import TYPE_CHECKING, Any, Literal
 
-from typing_extensions import override
+from typing_extensions import Self, override
 
 from .crud import Database
-from .exceptions import InvalidPhoneError, WebSocketNotConnectedError
+from .exceptions import (
+    InvalidPhoneError,
+    SocketNotConnectedError,
+    WebSocketNotConnectedError,
+)
 from .formatter import ColoredFormatter
 from .mixins import ApiMixin, SocketMixin, WebSocketMixin
 from .payloads import UserAgentPayload
@@ -176,13 +180,13 @@ class MaxClient(ApiMixin, WebSocketMixin):
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
 
-    async def _wait_forever(self):
+    async def _wait_forever(self) -> None:
         try:
             await self.ws.wait_closed()
         except asyncio.CancelledError:
             self.logger.debug("wait_closed cancelled")
 
-    async def _safe_execute(self, coro, *, context: str = "unknown"):
+    async def _safe_execute(self, coro, *, context: str = "unknown") -> Any:
         """
         Безопасно выполняет пользовательскую корутину.
         Логирует traceback, но не роняет event loop.
@@ -255,7 +259,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
             telemetry_task.add_done_callback(self._log_task_exception)
             self._background_tasks.add(telemetry_task)
 
-    async def _cleanup_client(self):
+    async def _cleanup_client(self) -> None:
         for task in list(self._background_tasks):
             task.cancel()
             try:
@@ -356,7 +360,6 @@ class MaxClient(ApiMixin, WebSocketMixin):
 
                 await self._wait_forever()
                 self.logger.info("WebSocket closed (wait_forever exited)")
-
             except Exception as e:
                 self.logger.exception("Client start iteration failed")
                 raise e
@@ -396,3 +399,51 @@ class SocketMaxClient(SocketMixin, MaxClient):
                 self.logger.debug("Socket recv_task cancelled")
             except Exception as e:
                 self.logger.exception("Socket recv_task failed: %s", e)
+
+    @override
+    async def _cleanup_client(self):
+        """
+        Socket-specific cleanup: cancel background tasks, set pending futures
+        exceptions to SocketNotConnectedError, and close socket.
+        """
+        from .exceptions import SocketNotConnectedError
+
+        for task in list(self._background_tasks):
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+            except Exception:
+                self.logger.debug(
+                    "Background task raised during cancellation (socket)",
+                    exc_info=True,
+                )
+            self._background_tasks.discard(task)
+
+        if self._recv_task:
+            self._recv_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await self._recv_task
+            self._recv_task = None
+
+        if self._outgoing_task:
+            self._outgoing_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await self._outgoing_task
+            self._outgoing_task = None
+
+        for fut in self._pending.values():
+            if not fut.done():
+                fut.set_exception(SocketNotConnectedError())
+        self._pending.clear()
+
+        if self._socket:
+            try:
+                self._socket.close()
+            except Exception:
+                self.logger.debug("Error closing socket during cleanup", exc_info=True)
+            self._socket = None
+
+        self.is_connected = False
+        self.logger.info("Client start() cleaned up (socket)")

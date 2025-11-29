@@ -1,6 +1,6 @@
-from typing import Any, Self
+from typing import Any
 
-from typing_extensions import override
+from typing_extensions import Self, override
 
 from .static.enum import (
     AccessType,
@@ -1052,3 +1052,115 @@ class Session:
     @override
     def __str__(self) -> str:
         return f"Session: {self.client} from {self.location} at {self.time} (current={self.current})"
+
+
+class Folder:
+    def __init__(
+        self,
+        source_id: int,
+        include: list[int],
+        options: list[Any],
+        update_time: int,
+        id: str,
+        filters: list[Any],
+        title: str,
+    ) -> None:
+        self.source_id = source_id
+        self.include = include
+        self.options = options
+        self.update_time = update_time
+        self.id = id
+        self.filters = filters
+        self.title = title
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(
+            source_id=data.get("sourceId", 0),
+            include=data.get("include", []),
+            options=data.get("options", []),
+            update_time=data.get("updateTime", 0),
+            id=data.get("id", ""),
+            filters=data.get("filters", []),
+            title=data.get("title", ""),
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return (
+            f"Folder(id={self.id!r}, title={self.title!r}, source_id={self.source_id!r}, "
+            f"include={self.include!r}, options={self.options!r}, "
+            f"update_time={self.update_time!r}, filters={self.filters!r})"
+        )
+
+    @override
+    def __str__(self) -> str:
+        return f"Folder: {self.title} ({self.id})"
+
+
+class FolderUpdate:
+    def __init__(
+        self, folder_order: list[str] | None, folder: Folder | None, folder_sync: int
+    ) -> None:
+        self.folder_order = folder_order
+        self.folder = folder
+        self.folder_sync = folder_sync
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        folder_order = data.get("foldersOrder", [])
+        folder_sync = data.get("folderSync", 0)
+        folder_data = data.get("folder", {})
+        folder = Folder.from_dict(folder_data)
+        return cls(
+            folder_order=folder_order,
+            folder=folder,
+            folder_sync=folder_sync,
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return (
+            f"FolderUpdate(folder_order={self.folder_order!r}, "
+            f"folder={self.folder!r}, folder_sync={self.folder_sync!r})"
+        )
+
+    @override
+    def __str__(self) -> str:
+        return f"FolderUpdate: {self.folder.title} ({self.folder.id})"
+
+
+class FolderList:
+    def __init__(
+        self,
+        folders_order: list[str],
+        folders: list[Folder],
+        folder_sync: int,
+        all_filter_exclude_folders: list[Any] | None = None,
+    ) -> None:
+        self.folders_order = folders_order
+        self.folders = folders
+        self.all_filter_exclude_folders = all_filter_exclude_folders or []
+        self.folder_sync = folder_sync
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(
+            folders_order=data.get("foldersOrder", []),
+            folders=[Folder.from_dict(f) for f in data.get("folders", [])],
+            all_filter_exclude_folders=data.get("allFilterExcludeFolders", []),
+            folder_sync=data.get("folderSync", 0),
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return (
+            f"FolderList(folders_order={self.folders_order!r}, "
+            f"folders={self.folders!r}, "
+            f"all_filter_exclude_folders={self.all_filter_exclude_folders!r}, "
+            f"folder_sync={self.folder_sync!r})"
+        )
+
+    @override
+    def __str__(self) -> str:
+        return f"FolderList: {len(self.folders)} folders"

@@ -92,37 +92,33 @@ class SocketMixin(ClientProtocol):
         payload_len_b = payload_len.to_bytes(4, "big")
         return ver_b + cmd_b + seq_b + opcode_b + payload_len_b + payload_bytes
 
-    async def _connect(self, user_agent: UserAgentPayload) -> dict[str, Any]:
-        try:
-            if sys.version_info[:2] == (3, 12):
-                self.logger.warning(
-                    """
+    async def connect(self, user_agent: UserAgentPayload) -> dict[str, Any]:
+        if sys.version_info[:2] == (3, 12):
+            self.logger.warning(
+                """
 ===============================================================
          ⚠️⚠️ \033[0;31mWARNING: Python 3.12 detected!\033[0m ⚠️⚠️
 Socket connections may be unstable, SSL issues are possible.
 ===============================================================
     """
-                )
-            self.logger.info("Connecting to socket %s:%s", self.host, self.port)
-            loop = asyncio.get_running_loop()
-            raw_sock = await loop.run_in_executor(
-                None, lambda: socket.create_connection((self.host, self.port))
             )
-            self._socket = self._ssl_context.wrap_socket(
-                raw_sock, server_hostname=self.host
-            )
-            self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-            self.is_connected = True
-            self._incoming = asyncio.Queue()
-            self._outgoing = asyncio.Queue()
-            self._pending = {}
-            self._recv_task = asyncio.create_task(self._recv_loop())
-            self._outgoing_task = asyncio.create_task(self._outgoing_loop())
-            self.logger.info("Socket connected, starting handshake")
-            return await self._handshake(user_agent)
-        except Exception as e:
-            self.logger.error("Failed to connect: %s", e, exc_info=True)
-            raise ConnectionError(f"Failed to connect: {e}")
+        self.logger.info("Connecting to socket %s:%s", self.host, self.port)
+        loop = asyncio.get_running_loop()
+        raw_sock = await loop.run_in_executor(
+            None, lambda: socket.create_connection((self.host, self.port))
+        )
+        self._socket = self._ssl_context.wrap_socket(
+            raw_sock, server_hostname=self.host
+        )
+        self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        self.is_connected = True
+        self._incoming = asyncio.Queue()
+        self._outgoing = asyncio.Queue()
+        self._pending = {}
+        self._recv_task = asyncio.create_task(self._recv_loop())
+        self._outgoing_task = asyncio.create_task(self._outgoing_loop())
+        self.logger.info("Socket connected, starting handshake")
+        return await self._handshake(user_agent)
 
     async def _handshake(self, user_agent: UserAgentPayload) -> dict[str, Any]:
         try:
@@ -345,6 +341,35 @@ Socket connections may be unstable, SSL issues are possible.
                                 self.logger.exception(
                                     "Error in on_chat_update_handler: %s", e
                                 )
+
+                        try:  # TODO: переделать, временное решение
+                            if data_item.get("opcode") == Opcode.NOTIF_ATTACH:
+                                file_id = data_item.get("payload", {}).get(
+                                    "fileId", None
+                                )
+                                video_id = data_item.get("payload", {}).get(
+                                    "videoId", None
+                                )
+                                if file_id is not None:
+                                    fut = self._file_upload_waiters.pop(file_id, None)
+                                    if fut and not fut.done():
+                                        fut.set_result(data)
+                                        self.logger.debug(
+                                            "Fulfilled file upload waiter for fileId=%s",
+                                            file_id,
+                                        )
+                                elif video_id is not None:
+                                    fut = self._file_upload_waiters.pop(video_id, None)
+                                    if fut and not fut.done():
+                                        fut.set_result(data)
+                                        self.logger.debug(
+                                            "Fulfilled file upload waiter for videoId=%s",
+                                            video_id,
+                                        )
+                        except Exception:
+                            self.logger.exception(
+                                "Error handling file upload notification"
+                            )
                 except asyncio.CancelledError:
                     self.logger.debug("Recv loop cancelled")
                     break
@@ -396,6 +421,7 @@ Socket connections may be unstable, SSL issues are possible.
     ) -> dict[str, Any]:
         self._seq += 1
         msg = BaseWebSocketMessage(
+            ver=10,
             cmd=cmd,
             seq=self._seq,
             opcode=opcode.value,
@@ -416,6 +442,7 @@ Socket connections may be unstable, SSL issues are possible.
     ) -> dict[str, Any]:
         if not self.is_connected or self._socket is None:
             raise SocketNotConnectedError
+
         sock = self.sock
         msg = self._make_message(opcode, payload, cmd)
         loop = asyncio.get_running_loop()
@@ -448,7 +475,7 @@ Socket connections may be unstable, SSL issues are possible.
             self.logger.warning("Connection lost, reconnecting...")
             self.is_connected = False
             try:
-                await self._connect(self.user_agent)
+                await self.connect(self.user_agent)
             except Exception as exc:
                 self.logger.exception("Reconnect failed")
                 raise exc from conn_err
