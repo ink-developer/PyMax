@@ -57,65 +57,47 @@ uv add -U maxapi-python
 
 ```python
 import asyncio
+
 from pymax import MaxClient, Message
+from pymax.filters import Filter
 
-# Инициализация клиента
-phone = "+1234567890"
-client = MaxClient(phone=phone, work_dir="cache")
+client = MaxClient(
+    phone="+1234567890",
+    work_dir="cache",  # директория для сессий
+)
 
-# Обработчик входящих сообщений
-@client.on_message()
-async def handle_message(message: Message) -> None:
-    print(f"{message.sender}: {message.text}")
 
-# Обработчик запуска клиента
+# Обработка входящих сообщений
+@client.on_message(filter=Filter(text=["!hello"]))
+async def on_message(msg: Message) -> None:
+    print(f"[{msg.sender}] {msg.text}")
+
+    await client.send_message(
+        chat_id=msg.chat_id,
+        text="Привет, я бот на PyMax!",
+    )
+
+    await client.add_reaction(
+        chat_id=msg.chat_id,
+        message_id=str(msg.id),
+        reaction="👍",
+    )
+
+
 @client.on_start
-async def handle_start() -> None:
-    print("Клиент запущен")
+async def on_start() -> None:
+    print(f"Клиент запущен. Ваш ID: {client.me.id}")
 
-    # Получение истории сообщений
+    # Получение истории
     history = await client.fetch_history(chat_id=0)
-    if history:
-        for message in history:
-            user = await client.get_user(message.sender)
-            if user:
-                print(f"{user.names[0].name}: {message.text}")
+    print("Последние сообщения из чата 0:")
+    for m in history:
+        print(f"- {m.text}")
 
-async def main() -> None:
-    await client.start()
 
-    # Работа с чатами
-    for chat in client.chats:
-        print(f"Чат: {chat.title}")
+async def main():
+    await client.start()  # подключение и авторизация
 
-        # Отправка сообщения
-        message = await client.send_message(
-            "Привет от PyMax!",
-            chat.id,
-            notify=True
-        )
-
-        # Редактирование сообщения
-        await asyncio.sleep(2)
-        await client.edit_message(
-            chat.id,
-            message.id,
-            "Привет от PyMax! (отредактировано)"
-        )
-
-        # Удаление сообщения
-        await asyncio.sleep(2)
-        await client.delete_message(chat.id, [message.id], for_me=False)
-
-    # Работа с диалогами
-    for dialog in client.dialogs:
-        print(f"Диалог: {dialog.last_message.text}")
-
-    # Работа с каналами
-    for channel in client.channels:
-        print(f"Канал: {channel.title}")
-
-    await client.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
