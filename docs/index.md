@@ -42,4 +42,4 @@ uv add -U maxapi-python
 
 - [GitHub](https://github.com/ink-developer/PyMax)
 - [PyPI](https://pypi.org/project/maxapi-python/)
-- [Issues](https://github.com/ink-developer/PyMax/issues)
+- [Issues](https://github.com/ink-developfer/PyMax/issues)

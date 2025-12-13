@@ -11,7 +11,7 @@ import msgpack
 from typing_extensions import override
 
 from pymax.exceptions import Error, SocketNotConnectedError, SocketSendError
-from pymax.filters import Filter
+from pymax.filters import BaseFilter
 from pymax.interfaces import ClientProtocol
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
 from pymax.static.constant import (
@@ -139,6 +139,188 @@ Socket connections may be unstable, SSL issues are possible.
             self.logger.error("Handshake failed: %s", e, exc_info=True)
             raise ConnectionError(f"Handshake failed: {e}")
 
+    def _recv_exactly(self, sock: socket.socket, n: int) -> bytes:
+        buf = bytearray()
+        while len(buf) < n:
+            chunk = sock.recv(n - len(buf))
+            if not chunk:
+                return bytes(buf)
+            buf.extend(chunk)
+        return bytes(buf)
+
+    async def _parse_header(
+        self, loop: asyncio.AbstractEventLoop, sock: socket.socket
+    ) -> bytes | None:
+        header = await loop.run_in_executor(
+            None, lambda: self._recv_exactly(sock=sock, n=10)
+        )
+        if not header or len(header) < 10:
+            self.logger.info("Socket connection closed; exiting recv loop")
+            self.is_connected = False
+            try:
+                sock.close()
+            except Exception:
+                return None
+
+        return header
+
+    async def _recv_data(
+        self, loop: asyncio.AbstractEventLoop, header: bytes, sock: socket.socket
+    ) -> list[dict[str, Any]] | None:
+        packed_len = int.from_bytes(header[6:10], "big", signed=False)
+        payload_length = packed_len & 0xFFFFFF
+        remaining = payload_length
+        payload = bytearray()
+
+        while remaining > 0:
+            min_read = min(remaining, 8192)
+            chunk = await loop.run_in_executor(
+                None, lambda: self._recv_exactly(sock, min_read)
+            )
+            if not chunk:
+                self.logger.error("Connection closed while reading payload")
+                break
+            payload.extend(chunk)
+            remaining -= len(chunk)
+
+        if remaining > 0:
+            self.logger.error("Incomplete payload received; skipping packet")
+            return None
+
+        raw = header + payload
+        if len(raw) < 10 + payload_length:
+            self.logger.error(
+                "Incomplete packet: expected %d bytes, got %d",
+                10 + payload_length,
+                len(raw),
+            )
+            await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
+            return None
+
+        data = self._unpack_packet(raw)
+        if not data:
+            self.logger.warning("Failed to unpack packet, skipping")
+            return None
+
+        payload_objs = data.get("payload")
+        return (
+            [{**data, "payload": obj} for obj in payload_objs]
+            if isinstance(payload_objs, list)
+            else [data]
+        )
+
+    def _handle_pending(self, seq: int | None, data: dict) -> bool:
+        if isinstance(seq, int):
+            fut = self._pending.get(seq)
+            if fut and not fut.done():
+                fut.set_result(data)
+                self.logger.debug("Matched response for pending seq=%s", seq)
+                return True
+        return False
+
+    async def _handle_incoming_queue(self, data: dict[str, Any]) -> None:
+        if self._incoming:
+            try:
+                self._incoming.put_nowait(data)
+            except asyncio.QueueFull:
+                self.logger.warning(
+                    "Incoming queue full; dropping message seq=%s", data.get("seq")
+                )
+
+    async def _handle_file_upload(self, data: dict[str, Any]) -> None:
+        if data.get("opcode") != Opcode.NOTIF_ATTACH:
+            return
+        payload = data.get("payload", {})
+        for key in ("fileId", "videoId"):
+            id_ = payload.get(key)
+            if id_ is not None:
+                fut = self._file_upload_waiters.pop(id_, None)
+                if fut and not fut.done():
+                    fut.set_result(data)
+                    self.logger.debug(
+                        "Fulfilled file upload waiter for %s=%s", key, id_
+                    )
+
+    async def _handle_message_notifications(self, data: dict) -> None:
+        if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
+            return
+        payload = data.get("payload", {})
+        msg = Message.from_dict(payload)
+        if not msg:
+            return
+        handlers_map = {
+            MessageStatus.EDITED: self._on_message_edit_handlers,
+            MessageStatus.REMOVED: self._on_message_delete_handlers,
+        }
+        if msg.status and msg.status in handlers_map:
+            for handler, filter in handlers_map[msg.status]:
+                await self._process_message_handler(handler, filter, msg)
+        for handler, filter in self._on_message_handlers:
+            await self._process_message_handler(handler, filter, msg)
+
+    async def _handle_reactions(self, data: dict):
+        if data.get("opcode") != Opcode.NOTIF_MSG_REACTIONS_CHANGED:
+            return
+
+        payload = data.get("payload", {})
+        chat_id = payload.get("chatId")
+        message_id = payload.get("messageId")
+
+        if not (chat_id and message_id):
+            return
+
+        total_count = payload.get("totalCount")
+        your_reaction = payload.get("yourReaction")
+        counters = [ReactionCounter.from_dict(c) for c in payload.get("counters", [])]
+
+        reaction_info = ReactionInfo(
+            total_count=total_count,
+            your_reaction=your_reaction,
+            counters=counters,
+        )
+
+        for handler in self._on_reaction_change_handlers:
+            try:
+                result = handler(message_id, chat_id, reaction_info)
+                if asyncio.iscoroutine(result):
+                    await result
+            except Exception as e:
+                self.logger.exception("Error in on_reaction_change_handler: %s", e)
+
+    async def _handle_chat_updates(self, data: dict) -> None:
+        if data.get("opcode") != Opcode.NOTIF_CHAT:
+            return
+
+        payload = data.get("payload", {})
+        chat_data = payload.get("chat", {})
+        chat = Chat.from_dict(chat_data)
+        if not chat:
+            return
+
+        for handler in self._on_chat_update_handlers:
+            try:
+                result = handler(chat)
+                if asyncio.iscoroutine(result):
+                    await result
+            except Exception as e:
+                self.logger.exception("Error in on_chat_update_handler: %s", e)
+
+    async def _handle_raw_receive(self, data: dict[str, Any]) -> None:
+        for handler in self._on_raw_receive_handlers:
+            try:
+                result = handler(data)
+                if asyncio.iscoroutine(result):
+                    await result
+            except Exception as e:
+                self.logger.exception("Error in on_raw_receive_handler: %s", e)
+
+    async def _dispatch_incoming(self, data: dict[str, Any]) -> None:
+        await self._handle_raw_receive(data)
+        await self._handle_file_upload(data)
+        await self._handle_message_notifications(data)
+        await self._handle_reactions(data)
+        await self._handle_chat_updates(data)
+
     async def _recv_loop(self) -> None:
         if self._socket is None:
             self.logger.warning("Recv loop started without socket instance")
@@ -147,229 +329,30 @@ Socket connections may be unstable, SSL issues are possible.
         sock = self._socket
         loop = asyncio.get_running_loop()
 
-        def _recv_exactly(n: int) -> bytes:
-            """Синхронная функция: читает ровно n байт из сокета или возвращает b'' если закрыт."""
-            buf = bytearray()
-            while len(buf) < n:
-                chunk = sock.recv(n - len(buf))
-                if not chunk:
-                    return bytes(buf)
-                buf.extend(chunk)
-            return bytes(buf)
-
         try:
             while True:
                 try:
-                    header = await loop.run_in_executor(None, lambda: _recv_exactly(10))
-                    if not header or len(header) < 10:
-                        self.logger.info("Socket connection closed; exiting recv loop")
-                        self.is_connected = False
-                        try:
-                            sock.close()
-                        except Exception:
-                            pass  # nosec B110
-                        finally:
-                            break
+                    header = await self._parse_header(loop, sock)
 
-                    packed_len = int.from_bytes(header[6:10], "big", signed=False)
-                    payload_length = packed_len & 0xFFFFFF
-                    remaining = payload_length
-                    payload = bytearray()
+                    if not header:
+                        break
 
-                    while remaining > 0:
-                        min_read = min(remaining, 8192)
-                        chunk = await loop.run_in_executor(
-                            None, _recv_exactly, min_read
-                        )
-                        if not chunk:
-                            self.logger.error("Connection closed while reading payload")
-                            break
-                        payload.extend(chunk)
-                        remaining -= len(chunk)
+                    datas = await self._recv_data(loop, header, sock)
 
-                    if remaining > 0:
-                        self.logger.error(
-                            "Incomplete payload received; skipping packet"
-                        )
+                    if not datas:
                         continue
-
-                    raw = header + payload
-                    if len(raw) < 10 + payload_length:
-                        self.logger.error(
-                            "Incomplete packet: expected %d bytes, got %d",
-                            10 + payload_length,
-                            len(raw),
-                        )
-                        await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
-                        continue
-
-                    data = self._unpack_packet(raw)
-                    if not data:
-                        self.logger.warning("Failed to unpack packet, skipping")
-                        continue
-
-                    payload_objs = data.get("payload")
-                    datas = (
-                        [{**data, "payload": obj} for obj in payload_objs]
-                        if isinstance(payload_objs, list)
-                        else [data]
-                    )
 
                     for data_item in datas:
                         seq = data_item.get("seq")
-                        fut = self._pending.get(seq) if isinstance(seq, int) else None
-                        if fut and not fut.done():
-                            fut.set_result(data_item)
-                            self.logger.debug(
-                                "Matched response for pending seq=%s", seq
-                            )
+
+                        if self._handle_pending(seq, data_item):
                             continue
 
                         if self._incoming is not None:
-                            try:
-                                self._incoming.put_nowait(data_item)
-                            except asyncio.QueueFull:
-                                self.logger.warning(
-                                    "Incoming queue full; dropping message seq=%s",
-                                    seq,
-                                )
+                            await self._handle_incoming_queue(data_item)
 
-                        if (
-                            data_item.get("opcode") == Opcode.NOTIF_MESSAGE
-                            and self._on_message_handlers
-                        ):
-                            try:
-                                for (
-                                    handler,
-                                    filter,
-                                ) in self._on_message_handlers:
-                                    payload = data_item.get("payload", {})
-                                    msg_dict = (
-                                        payload if isinstance(payload, dict) else None
-                                    )
-                                    msg = (
-                                        Message.from_dict(msg_dict)
-                                        if msg_dict
-                                        else None
-                                    )
-                                    if msg and msg.status:
-                                        if msg.status == MessageStatus.EDITED:
-                                            for (
-                                                edit_handler,
-                                                edit_filter,
-                                            ) in self._on_message_edit_handlers:
-                                                await self._process_message_handler(
-                                                    handler=edit_handler,
-                                                    filter=edit_filter,
-                                                    message=msg,
-                                                )
-                                        elif msg.status == MessageStatus.REMOVED:
-                                            for (
-                                                remove_handler,
-                                                remove_filter,
-                                            ) in self._on_message_delete_handlers:
-                                                await self._process_message_handler(
-                                                    handler=remove_handler,
-                                                    filter=remove_filter,
-                                                    message=msg,
-                                                )
-                                        await self._process_message_handler(
-                                            handler=handler,
-                                            filter=filter,
-                                            message=msg,
-                                        )
-                            except Exception:
-                                self.logger.exception("Error in on_message_handler")
+                        await self._dispatch_incoming(data_item)
 
-                        if (
-                            data_item.get("opcode")
-                            == Opcode.NOTIF_MSG_REACTIONS_CHANGED
-                        ):
-                            try:
-                                for (
-                                    reaction_handler,
-                                ) in self._on_reaction_change_handlers:
-                                    payload = data_item.get("payload", {})
-
-                                    chat_id = payload.get("chatId")
-                                    message_id = payload.get("messageId")
-
-                                    total_count = payload.get("totalCount")
-                                    your_reaction = payload.get("yourReaction")
-                                    counters = [
-                                        ReactionCounter.from_dict(c)
-                                        for c in payload.get("counters", [])
-                                    ]
-
-                                    if (
-                                        chat_id
-                                        and message_id
-                                        and (
-                                            total_count is not None
-                                            or your_reaction
-                                            or counters
-                                        )
-                                    ):
-                                        reaction_info = ReactionInfo(
-                                            total_count=total_count,
-                                            your_reaction=your_reaction,
-                                            counters=counters,
-                                        )
-                                        result = reaction_handler(
-                                            message_id, chat_id, reaction_info
-                                        )
-                                        if asyncio.iscoroutine(result):
-                                            await result
-
-                            except Exception as e:
-                                self.logger.exception(
-                                    "Error in on_reaction_change_handler: %s", e
-                                )
-
-                        if data_item.get("opcode") == Opcode.NOTIF_CHAT:
-                            try:
-                                for (
-                                    chat_update_handler,
-                                ) in self._on_chat_update_handlers:
-                                    payload = data_item.get("payload", {})
-                                    chat = Chat.from_dict(payload.get("chat", {}))
-                                    if chat:
-                                        result = chat_update_handler(chat)
-                                        if asyncio.iscoroutine(result):
-                                            await result
-                            except Exception as e:
-                                self.logger.exception(
-                                    "Error in on_chat_update_handler: %s", e
-                                )
-
-                        try:  # TODO: переделать, временное решение
-                            if data_item.get("opcode") == Opcode.NOTIF_ATTACH:
-                                file_id = data_item.get("payload", {}).get(
-                                    "fileId", None
-                                )
-                                video_id = data_item.get("payload", {}).get(
-                                    "videoId", None
-                                )
-                                if file_id is not None:
-                                    fut = self._file_upload_waiters.pop(file_id, None)
-                                    if fut and not fut.done():
-                                        fut.set_result(data)
-                                        self.logger.debug(
-                                            "Fulfilled file upload waiter for fileId=%s",
-                                            file_id,
-                                        )
-                                elif video_id is not None:
-                                    fut = self._file_upload_waiters.pop(video_id, None)
-                                    if fut and not fut.done():
-                                        fut.set_result(data)
-                                        self.logger.debug(
-                                            "Fulfilled file upload waiter for videoId=%s",
-                                            video_id,
-                                        )
-                        except Exception:
-                            self.logger.exception(
-                                "Error handling file upload notification"
-                            )
                 except asyncio.CancelledError:
                     self.logger.debug("Recv loop cancelled")
                     break
@@ -391,10 +374,10 @@ Socket connections may be unstable, SSL issues are possible.
     async def _process_message_handler(
         self,
         handler: Callable[[Message], Any],
-        filter: Filter | None,
+        filter: BaseFilter[Message] | None,
         message: Message,
     ) -> None:
-        if filter and not filter.match(message):
+        if filter is not None and not filter(message):
             return
 
         result = handler(message)
@@ -593,51 +576,46 @@ Socket connections may be unstable, SSL issues are possible.
         self.logger.debug("Message queued for sending (socket)")
 
     async def _sync(self) -> None:
-        try:
-            self.logger.info("Starting initial sync (socket)")
-            payload = SyncPayload(
-                interactive=True,
-                token=self._token,
-                chats_sync=0,
-                contacts_sync=0,
-                presence_sync=0,
-                drafts_sync=0,
-                chats_count=40,
-            ).model_dump(by_alias=True)
-            data = await self._send_and_wait(opcode=Opcode.LOGIN, payload=payload)
-            raw_payload = data.get("payload", {})
-            if error := raw_payload.get("error"):
-                localized_message = raw_payload.get("localizedMessage")
-                title = raw_payload.get("title")
-                message = raw_payload.get("message")
-                raise Error(
-                    error=error,
-                    message=message,
-                    title=title,
-                    localized_message=localized_message,
-                )
-            for raw_chat in raw_payload.get("chats", []):
-                try:
-                    if raw_chat.get("type") == "DIALOG":
-                        self.dialogs.append(Dialog.from_dict(raw_chat))
-                    elif raw_chat.get("type") == "CHAT":
-                        self.chats.append(Chat.from_dict(raw_chat))
-                    elif raw_chat.get("type") == "CHANNEL":
-                        self.channels.append(Channel.from_dict(raw_chat))
-                except Exception:
-                    self.logger.exception("Error parsing chat entry (socket)")
-            if raw_payload.get("profile", {}).get("contact"):
-                self.me = Me.from_dict(
-                    raw_payload.get("profile", {}).get("contact", {})
-                )
-            self.logger.info(
-                "Sync completed: dialogs=%d chats=%d channels=%d",
-                len(self.dialogs),
-                len(self.chats),
-                len(self.channels),
+        self.logger.info("Starting initial sync (socket)")
+        payload = SyncPayload(
+            interactive=True,
+            token=self._token,
+            chats_sync=0,
+            contacts_sync=0,
+            presence_sync=0,
+            drafts_sync=0,
+            chats_count=40,
+        ).model_dump(by_alias=True)
+        data = await self._send_and_wait(opcode=Opcode.LOGIN, payload=payload)
+        raw_payload = data.get("payload", {})
+        if error := raw_payload.get("error"):
+            localized_message = raw_payload.get("localizedMessage")
+            title = raw_payload.get("title")
+            message = raw_payload.get("message")
+            raise Error(
+                error=error,
+                message=message,
+                title=title,
+                localized_message=localized_message,
             )
-        except Exception:
-            self.logger.exception("Sync failed (socket)")
+        for raw_chat in raw_payload.get("chats", []):
+            try:
+                if raw_chat.get("type") == "DIALOG":
+                    self.dialogs.append(Dialog.from_dict(raw_chat))
+                elif raw_chat.get("type") == "CHAT":
+                    self.chats.append(Chat.from_dict(raw_chat))
+                elif raw_chat.get("type") == "CHANNEL":
+                    self.channels.append(Channel.from_dict(raw_chat))
+            except Exception:
+                self.logger.exception("Error parsing chat entry (socket)")
+        if raw_payload.get("profile", {}).get("contact"):
+            self.me = Me.from_dict(raw_payload.get("profile", {}).get("contact", {}))
+        self.logger.info(
+            "Sync completed: dialogs=%d chats=%d channels=%d",
+            len(self.dialogs),
+            len(self.chats),
+            len(self.channels),
+        )
 
     @override
     async def _get_chat(self, chat_id: int) -> Chat | None:

@@ -13,6 +13,7 @@ from pymax.payloads import (
     GetChatInfoPayload,
     InviteUsersPayload,
     JoinChatPayload,
+    LeaveChatPayload,
     RemoveUsersPayload,
     ReworkInviteLinkPayload,
 )
@@ -74,7 +75,7 @@ class GroupMixin(ClientProtocol):
         chat_id: int,
         user_ids: list[int],
         show_history: bool = True,
-    ) -> bool:
+    ) -> Chat | None:
         """
         Приглашает пользователей в группу
 
@@ -84,7 +85,7 @@ class GroupMixin(ClientProtocol):
             show_history (bool, optional): Флаг оповещения. Defaults to True.
 
         Returns:
-            bool: True, если пользователи успешно приглашены
+            Chat | None: Объект Chat или None при ошибке.
         """
         payload = InviteUsersPayload(
             chat_id=chat_id,
@@ -109,7 +110,15 @@ class GroupMixin(ClientProtocol):
                 idx = self.chats.index(cached_chat)
                 self.chats[idx] = chat
 
-        return True
+        return chat
+
+    async def invite_users_to_channel(
+        self,
+        chat_id: int,
+        user_ids: list[int],
+        show_history: bool = True,
+    ) -> Chat | None:
+        return await self.invite_users_to_group(chat_id, user_ids, show_history)
 
     async def remove_users_from_group(
         self,
@@ -318,3 +327,30 @@ class GroupMixin(ClientProtocol):
         if not chats:
             raise Error("no_chat", "Chat not found in response", "Chat Error")
         return chats[0]
+
+    async def leave_group(self, chat_id: int) -> None:
+        """
+        Покидает группу
+
+        Args:
+            chat_id (int): Идентификатор группы.
+        """
+        payload = LeaveChatPayload(chat_id=chat_id).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.CHAT_LEAVE, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        cached_chat = await self._get_chat(chat_id)
+        if cached_chat is not None:
+            self.chats.remove(cached_chat)
+
+    async def leave_channel(self, chat_id: int) -> None:
+        """
+        Покидает канал
+
+        Args:
+            chat_id (int): Идентификатор канала.
+        """
+        await self.leave_group(chat_id)

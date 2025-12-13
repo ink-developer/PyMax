@@ -12,11 +12,11 @@ from pymax.static.constant import (
     DEFAULT_MARKER_VALUE,
 )
 from pymax.static.enum import Opcode
-from pymax.types import Member
+from pymax.types import Channel, Member
 
 
 class ChannelMixin(ClientProtocol):
-    async def resolve_channel_by_name(self, name: str) -> bool:
+    async def resolve_channel_by_name(self, name: str) -> Channel | None:
         """
         Пытается найти канал по его имени
 
@@ -28,7 +28,7 @@ class ChannelMixin(ClientProtocol):
             ResponseStructureError: Ошибка структуры ответа сервера
 
         Returns:
-            bool: True, если канал найден
+            Channel | None: Объект канала, если канал найден, иначе None
         """
         payload = ResolveLinkPayload(
             link=f"https://max.ru/{name}",
@@ -37,9 +37,13 @@ class ChannelMixin(ClientProtocol):
         data = await self._send_and_wait(opcode=Opcode.LINK_INFO, payload=payload)
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
-        return True
 
-    async def join_channel(self, link: str) -> bool:
+        channel = Channel.from_dict(data.get("payload", {}).get("chat", {}))
+        if channel not in self.channels:
+            self.channels.append(channel)
+        return channel
+
+    async def join_channel(self, link: str) -> Channel | None:
         """
         Присоединяется к каналу по ссылке
 
@@ -51,7 +55,7 @@ class ChannelMixin(ClientProtocol):
             ResponseStructureError: Ошибка структуры ответа сервера
 
         Returns:
-            bool: True, если присоединение прошло успешно
+            Channel | None: Объект канала, если присоединение прошло успешно, иначе None
         """
         payload = JoinChatPayload(
             link=link,
@@ -60,7 +64,11 @@ class ChannelMixin(ClientProtocol):
         data = await self._send_and_wait(opcode=Opcode.CHAT_JOIN, payload=payload)
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
-        return True
+
+        channel = Channel.from_dict(data.get("payload", {}).get("chat", {}))
+        if channel not in self.channels:
+            self.channels.append(channel)
+        return channel
 
     async def _query_members(
         self, payload: GetGroupMembersPayload | SearchGroupMembersPayload

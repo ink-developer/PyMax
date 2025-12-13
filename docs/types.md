@@ -458,7 +458,10 @@ if message.reaction_info:
         )
     ```
 
+
 ### Folder
+
+
 
 !!! info "Папка (фильтр чатов)"
     | Свойство | Тип | Описание |
@@ -468,15 +471,18 @@ if message.reaction_info:
     | `options` | `list[Any]` | Дополнительные опции папки |
     | `update_time` | `int` | Временная метка последнего обновления папки |
     | `id` | `str` | Уникальный идентификатор папки |
-    | `filters` | `list[Any]` | Правила/фильтры папки |
+    | `filters` | `list[Any]` | Правила/фильтры папки (см. Filters) |
     | `title` | `str` | Название папки |
 
 **Пример использования**
 ```python
+from pymax.filters import Filters
 folders = await client.get_folders()
 if folders and folders.folders:
     folder = folders.folders[0]
     print("Folder:", folder.title, folder.id)
+    # Пример фильтрации: только сообщения с текстом "test" из чата 123
+    my_filter = Filters.text("test") & Filters.chat(123)
 ```
 
 ### FolderUpdate

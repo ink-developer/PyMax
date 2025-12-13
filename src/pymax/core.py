@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from typing_extensions import Self, override
 
+from pymax.filters import BaseFilter
+
 from .crud import Database
 from .exceptions import (
     InvalidPhoneError,
@@ -29,10 +31,11 @@ from .static.constant import (
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
     from typing import Any
+    from uuid import UUID
 
     import websockets
 
-    from .filters import Filter
+    from .filters import filters
     from .types import Channel, Chat, Dialog, Me, Message, ReactionInfo, User
 
 
@@ -82,6 +85,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         registration: bool = False,
         first_name: str = "",
         last_name: str | None = None,
+        device_id: str | None = None,
         logger: logging.Logger | None = None,
         reconnect: bool = True,
         reconnect_delay: float = 1.0,
@@ -127,7 +131,9 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
 
-        self._device_id = self._database.get_device_id()
+        self._device_id = (
+            device_id if device_id is not None else self._database.get_device_id()
+        )
         self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
 
         self._token = self._database.get_auth_token() or token
@@ -138,19 +144,25 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._current_screen: str = "chats_list_tab"
 
         self._on_message_handlers: list[
-            tuple[Callable[[Message], Any], Filter | None]
+            tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_message_edit_handlers: list[
-            tuple[Callable[[Message], Any], Filter | None]
+            tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_message_delete_handlers: list[
-            tuple[Callable[[Message], Any], Filter | None]
+            tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._on_reaction_change_handlers: list[
             tuple[Callable[[str, int, ReactionInfo], Any]]
         ] = []
         self._on_chat_update_handlers: list[tuple[Callable[[Chat], Any]]] = []
+        self._on_raw_receive_handlers: list[
+            Callable[[dict[str, Any]], Any | Awaitable[Any]]
+        ] = []
+        self._scheduled_tasks: list[
+            tuple[Callable[[], Any | Awaitable[Any]], float]
+        ] = []
 
         self._ssl_context = ssl.create_default_context()
         self._ssl_context.set_ciphers("DEFAULT")
@@ -230,11 +242,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
             except asyncio.CancelledError:
                 raise
             except Exception as e:
-                self.logger.exception(
-                    f"Unhandled exception in task {name or coro}: {e}",
-                    exc_info=e,
+                tb = traceback.format_exc()
+                self.logger.error(
+                    f"Unhandled exception in task {name or coro}: {e}\n{tb}"
                 )
-                return None
+                raise
 
         task = asyncio.create_task(runner(), name=name)
         self._background_tasks.add(task)
@@ -253,6 +265,9 @@ class MaxClient(ApiMixin, WebSocketMixin):
         ping_task = asyncio.create_task(self._send_interactive_ping())
         ping_task.add_done_callback(self._log_task_exception)
         self._background_tasks.add(ping_task)
+
+        start_scheduled_task = asyncio.create_task(self._start_scheduled_tasks())
+        start_scheduled_task.add_done_callback(self._log_task_exception)
 
         if self._send_fake_telemetry:
             telemetry_task = asyncio.create_task(self._start())
@@ -378,6 +393,22 @@ class MaxClient(ApiMixin, WebSocketMixin):
 
     async def idle(self):
         await asyncio.Event().wait()
+
+    def inspect(self) -> None:
+        """
+        Выводит в лог текущий статус клиента для отладки.
+        """
+        self.logger.info("Pymax")
+        self.logger.info("---------")
+        self.logger.info(f"Connected: {self.is_connected}")
+        self.logger.info(f"Me: {self.me.names[0].first_name} ({self.me.id})")
+        self.logger.info(f"Dialogs: {len(self.dialogs)}")
+        self.logger.info(f"Chats: {len(self.chats)}")
+        self.logger.info(f"Channels: {len(self.channels)}")
+        self.logger.info(f"Users cached: {len(self._users)}")
+        self.logger.info(f"Background tasks: {len(self._background_tasks)}")
+        self.logger.info(f"Scheduled tasks: {len(self._scheduled_tasks)}")
+        self.logger.info("---------")
 
     async def __aenter__(self) -> Self:
         self._create_safe_task(self.start(), name="start")

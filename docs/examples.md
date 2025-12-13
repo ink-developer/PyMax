@@ -23,7 +23,7 @@ async def on_start() -> None:
 	await client.send_message("Бот запущен!", chat_id=0, notify=True)
 
 
-@client.on_message(filter=Filter(chat_id=0))
+@client.on_message(Filter.chat(0))
 async def on_message(message: Message) -> None:
 	print("New message:", message.text)
 	# Отправка простого ответа
@@ -139,7 +139,7 @@ from pymax.types import Message
 
 client = MaxClient(phone="+79000000000")
 
-@client.on_message(filter=Filter(chat_id=0))
+@client.on_message(Filter.chat(0))
 async def edit_and_pin(message: Message) -> None:
 	# Обновляем текст
 	await client.edit_message(chat_id=message.chat_id, message_id=message.id, text="Обновлённый текст")

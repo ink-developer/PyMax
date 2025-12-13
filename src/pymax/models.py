@@ -5,4 +5,4 @@ from sqlmodel import Field, SQLModel
 
 class Auth(SQLModel, table=True):
     token: str | None = None
-    device_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    device_id: str = Field(default_factory=lambda: str(uuid4()), primary_key=True)

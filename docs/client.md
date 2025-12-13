@@ -163,7 +163,7 @@ async def main():
 !!! example "Примеры фильтров"
     ```python
     # Только из конкретного чата
-    @client.on_message(Filter(chat_id=123456))
+    @client.on_message(Filter.chat(123456))
     async def handle_chat(message: Message):
         print(f"Сообщение в чате: {message.text}")
     ```

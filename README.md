@@ -68,7 +68,7 @@ client = MaxClient(
 
 
 # Обработка входящих сообщений
-@client.on_message(filter=Filter(text=["!hello"]))
+@client.on_message(Filter.chat(0))  # фильтр по ID чата
 async def on_message(msg: Message) -> None:
     print(f"[{msg.sender}] {msg.text}")
 

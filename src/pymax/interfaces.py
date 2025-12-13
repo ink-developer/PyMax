@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from pymax.types import ReactionInfo
 
     from .crud import Database
-    from .filters import Filter
+    from .filters import BaseFilter
 
 
 class ClientProtocol(ABC):
@@ -31,7 +31,7 @@ class ClientProtocol(ABC):
         self._users: dict[int, User] = {}
         self.chats: list[Chat] = []
         self._database: Database
-        self._device_id: UUID
+        self._device_id: str
         self.uri: str
         self.is_connected: bool = False
         self.phone: str
@@ -67,18 +67,24 @@ class ClientProtocol(ABC):
         self._action_id: int = 0
         self._current_screen: str = "chats_list_tab"
         self._on_message_handlers: list[
-            tuple[Callable[[Message], Any], Filter | None]
+            tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_message_edit_handlers: list[
-            tuple[Callable[[Message], Any], Filter | None]
+            tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_message_delete_handlers: list[
-            tuple[Callable[[Message], Any], Filter | None]
+            tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_reaction_change_handlers: list[
-            tuple[Callable[[str, int, ReactionInfo], Any]]
+            Callable[[str, int, ReactionInfo], Any]
         ] = []
-        self._on_chat_update_handlers: list[tuple[Callable[[Chat], Any]]] = []
+        self._on_chat_update_handlers: list[Callable[[Chat], Any | Awaitable[Any]]] = []
+        self._on_raw_receive_handlers: list[
+            Callable[[dict[str, Any]], Any | Awaitable[Any]]
+        ] = []
+        self._scheduled_tasks: list[
+            tuple[Callable[[], Any | Awaitable[Any]], float]
+        ] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._ssl_context: ssl.SSLContext

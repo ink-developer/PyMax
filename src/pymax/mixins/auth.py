@@ -93,9 +93,8 @@ class AuthMixin(ClientProtocol):
             raise ValueError("Invalid code format")
 
         login_resp = await self._send_code(code, temp_token)
-        token: str | None = (
-            login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
-        )
+        token = login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token", "")
+
         if not token:
             self.logger.critical("Failed to login, token not received")
             raise ValueError("Failed to login, token not received")
@@ -152,8 +151,10 @@ class AuthMixin(ClientProtocol):
             raise ValueError("Invalid code format")
 
         registration_response = await self._send_code(code, temp_token)
-        token: str | None = (
-            registration_response.get("tokenAttrs", {}).get("REGISTER", {}).get("token")
+        token = (
+            registration_response.get("tokenAttrs", {})
+            .get("REGISTER", {})
+            .get("token", "")
         )
         if not token:
             self.logger.critical("Failed to register, token not received")
@@ -165,5 +166,9 @@ class AuthMixin(ClientProtocol):
             self.logger.critical("Failed to register, token not received")
             raise ValueError("Failed to register, token not received")
 
-        self._database.update_auth_token(self._device_id, self._token)
-        self.logger.info("Registration successful, token saved to database")
+        self.logger.info("Registration successful")
+        self.logger.info("Token: %s", self._token)
+        self.logger.warning(
+            "IMPORTANT: Use this token ONLY with device_type='DESKTOP' and the special init user agent"
+        )
+        self.logger.warning("This token MUST NOT be used in web clients")
