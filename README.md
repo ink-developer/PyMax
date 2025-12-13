@@ -105,7 +105,8 @@ if __name__ == "__main__":
 
 ## Документация
 
-[Click (WIP)](https://maxapiteam.github.io/PyMax/)
+[GitHub Pages](https://maxapiteam.github.io/PyMax/)
+[DeepWiki](https://deepwiki.com/MaxApiTeam/PyMax)
 
 ## Лицензия
 
