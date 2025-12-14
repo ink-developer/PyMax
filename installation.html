@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Installation" href="installation.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Quick Start" href="quickstart.html"><link rel="prev" title="PyMax" href="index.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>PyMax 1.1.20 documentation</title>
+        <title>Installation - PyMax 1.1.20 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">PyMax 1.1.20 documentation</div></a>
+      <a href="index.html"><div class="brand">PyMax 1.1.20 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -180,7 +180,7 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   <span class="sidebar-brand-text">PyMax 1.1.20 documentation</span>
   
@@ -191,8 +191,8 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Содержание</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="clients.html">Clients</a></li>
 <li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
@@ -219,7 +219,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/index.rst.txt" title="View this page">
+  <a class="muted-link" href="_sources/installation.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -237,96 +237,132 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <div style="margin-top:2rem;"></div><a class="reference internal image-reference" href="_images/logo.svg"><img alt="_images/logo.svg" class="align-center" src="_images/logo.svg" style="width: 320px;" />
-</a>
-<section id="pymax">
-<h1>PyMax<a class="headerlink" href="#pymax" title="Link to this heading">¶</a></h1>
-<p align="center" style="margin-top:0.6rem;">
-  <img src="https://img.shields.io/badge/python-3.10+-3776AB.svg" alt="Python 3.10+">
-  <img src="https://img.shields.io/badge/License-MIT-2f9872.svg" alt="License: MIT">
-  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff">
-  <img src="https://img.shields.io/badge/packaging-uv-D7FF64.svg" alt="Packaging">
-</p><p class="rubric">Кратко</p>
-<p><strong>pymax</strong> — асинхронная Python-библиотека для работы с внутренним API мессенджера Max.
-Упрощает отправку сообщений, управление чатами/каналами и работу с историей через WebSocket.</p>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Содержание</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="clients.html">Clients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
-<li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
-</ul>
-</div>
-<p class="rubric">Особенности</p>
-<ul class="simple">
-<li><p>Вход по номеру телефона</p></li>
-<li><p>Отправка / редактирование / удаление сообщений</p></li>
-<li><p>Управление чатами, каналами и диалогами</p></li>
-<li><p>Получение истории сообщений</p></li>
-</ul>
-<p>---</p>
-<section id="disclaimer">
-<h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Link to this heading">¶</a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Это <strong>неофициальная</strong> библиотека для работы с внутренним API Max.
-Использование может <strong>нарушать условия предоставления услуг</strong>.
-Вы используете её на свой страх и риск — разработчики не несут ответственности
-за блокировку аккаунтов, потерю данных или юридические последствия.</p>
-</div>
-<p>---</p>
-</section>
+          <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h1>
 <section id="id1">
-<h2>Установка<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p>Требуется Python 3.10+.</p>
+<h2>Требования<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Python 3.10+</strong></p></li>
+<li><p>pip или uv package manager</p></li>
+</ul>
+</section>
+<section id="pip">
+<h2>Установка через pip<a class="headerlink" href="#pip" title="Link to this heading">¶</a></h2>
+<p>Самый простой способ установить PyMax:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>maxapi-python
 </pre></div>
 </div>
-<p>или через uv:</p>
+<p>Или в виртуальном окружении:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate<span class="w">  </span><span class="c1"># На Windows: venv\Scripts\activate</span>
+pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>maxapi-python
+</pre></div>
+</div>
+</section>
+<section id="uv">
+<h2>Установка через uv (рекомендуется)<a class="headerlink" href="#uv" title="Link to this heading">¶</a></h2>
+<p>UV — это быстрый пакетный менеджер, написанный на Rust:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>add<span class="w"> </span>maxapi-python
+</pre></div>
+</div>
+<p>Или добавить в <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project]</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;maxapi-python&gt;=1.0.0&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>Установка из исходников<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>Для разработки или тестирования последней версии:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ink-developer/PyMax.git
+<span class="nb">cd</span><span class="w"> </span>PyMax
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<p>Или с использованием uv:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ink-developer/PyMax.git
+<span class="nb">cd</span><span class="w"> </span>PyMax
+uv<span class="w"> </span>sync
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>Проверка установки<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p>Проверить, что библиотека установлена корректно:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pymax</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pymax</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>Системные требования<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>ОС</strong>: Linux, macOS, Windows</p></li>
+<li><p><strong>Python</strong>: 3.10, 3.11, 3.12, 3.13</p></li>
+<li><p><strong>Интернет</strong>: Требуется для подключения к WebSocket серверу Max</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Библиотека использует асинхронный I/O (asyncio), поэтому работает только в асинхронных контекстах.</p>
+</div>
+</section>
+<section id="id5">
+<h2>Зависимости<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p>Основные зависимости (устанавливаются автоматически):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">aiohttp</span></code> — для HTTP запросов</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aiosqlite</span></code> — для локального хранилища сессии</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pydantic</span></code> — для валидации данных</p></li>
+</ul>
+<p>Все зависимости указаны в <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> и устанавливаются автоматически.</p>
+</section>
+<section id="id6">
+<h2>Обновление<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<p>Обновить до последней версии:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>maxapi-python
+</pre></div>
+</div>
+<p>Или через uv:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>add<span class="w"> </span>-U<span class="w"> </span>maxapi-python
 </pre></div>
 </div>
-<p>---</p>
-</section>
-<section id="id2">
-<h2>Быстрый старт<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>Небольшой рабочий пример и описание в <cite>quickstart</cite>.</p>
-</section>
-<section id="id3">
-<h2>Документация<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="https://maxapiteam.github.io/PyMax/">GitHub Pages</a></p></li>
-<li><p><a class="reference external" href="https://deepwiki.com/MaxApiTeam/PyMax">DeepWiki</a></p></li>
-</ul>
-</section>
-<section id="id4">
-<h2>Лицензия<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
-<p>Проект распространяется под MIT (см. LICENSE).</p>
-</section>
-<section id="id5">
-<h2>Новости<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="https://t.me/pymax_news">Telegram</a></p></li>
-</ul>
-</section>
-<section id="star-history">
-<h2>Star History<a class="headerlink" href="#star-history" title="Link to this heading">¶</a></h2>
-<img alt="https://api.star-history.com/svg?repos=ink-developer/PyMax&amp;type=date&amp;legend=top-left" src="https://api.star-history.com/svg?repos=ink-developer/PyMax&amp;type=date&amp;legend=top-left" />
-</section>
-<section id="id6">
-<h2>Авторы<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/ink-developer">ink</a> — главный разработчик</p></li>
-<li><p><a class="reference external" href="https://github.com/noxzion">noxzion</a> — оригинальный автор</p></li>
-</ul>
 </section>
 <section id="id7">
-<h2>Контрибьюторы<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
-<img alt="Contributors" src="https://contrib.rocks/image?repo=ink-developer/PyMax" />
+<h2>Удаление<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<p>Удалить библиотеку:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>uninstall<span class="w"> </span>maxapi-python
+</pre></div>
+</div>
+<p>Или через uv:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>remove<span class="w"> </span>maxapi-python
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h2>Решение проблем<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
+<p><strong>ImportError: No module named 'pymax'</strong></p>
+<blockquote>
+<div><p>Убедитесь, что вы установили библиотеку:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>maxapi-python
+</pre></div>
+</div>
+</div></blockquote>
+<p><strong>версия Python слишком старая</strong></p>
+<blockquote>
+<div><p>Обновите Python до 3.10 или новее:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+</div></blockquote>
+<p><strong>Ошибки зависимостей</strong></p>
+<blockquote>
+<div><p>Попробуйте переустановить:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--force-reinstall<span class="w"> </span>-U<span class="w"> </span>maxapi-python
+</pre></div>
+</div>
+</div></blockquote>
 </section>
 </section>
 
@@ -335,16 +371,26 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="installation.html">
+          <a class="next-page" href="quickstart.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Installation</div>
+                <div class="title">Quick Start</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -375,16 +421,17 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">PyMax</a><ul>
-<li><a class="reference internal" href="#disclaimer">Disclaimer</a></li>
-<li><a class="reference internal" href="#id1">Установка</a></li>
-<li><a class="reference internal" href="#id2">Быстрый старт</a></li>
-<li><a class="reference internal" href="#id3">Документация</a></li>
-<li><a class="reference internal" href="#id4">Лицензия</a></li>
-<li><a class="reference internal" href="#id5">Новости</a></li>
-<li><a class="reference internal" href="#star-history">Star History</a></li>
-<li><a class="reference internal" href="#id6">Авторы</a></li>
-<li><a class="reference internal" href="#id7">Контрибьюторы</a></li>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#id1">Требования</a></li>
+<li><a class="reference internal" href="#pip">Установка через pip</a></li>
+<li><a class="reference internal" href="#uv">Установка через uv (рекомендуется)</a></li>
+<li><a class="reference internal" href="#id2">Установка из исходников</a></li>
+<li><a class="reference internal" href="#id3">Проверка установки</a></li>
+<li><a class="reference internal" href="#id4">Системные требования</a></li>
+<li><a class="reference internal" href="#id5">Зависимости</a></li>
+<li><a class="reference internal" href="#id6">Обновление</a></li>
+<li><a class="reference internal" href="#id7">Удаление</a></li>
+<li><a class="reference internal" href="#id8">Решение проблем</a></li>
 </ul>
 </li>
 </ul>

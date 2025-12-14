@@ -1,0 +1,2339 @@
+<!doctype html>
+<html class="no-js" lang="python" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#"><link rel="search" title="Search" href="search.html">
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 --><title>Index - PyMax 1.1.20 documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f0f0f0;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">PyMax 1.1.20 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">PyMax 1.1.20 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Содержание</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clients.html">Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a> | <a href="#Z"><strong>Z</strong></a></div>
+</section>
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.AccessType">AccessType (class in pymax.static.enum)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ContactAction.ADD">ADD (pymax.static.enum.ContactAction attribute)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.add_chat_update_handler">add_chat_update_handler() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.add_chat_update_handler">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.add_contact">add_contact() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.add_message_handler">add_message_handler() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.add_message_handler">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.add_on_start_handler">add_on_start_handler() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.add_on_start_handler">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.add_raw_receive_handler">add_raw_receive_handler() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.add_raw_receive_handler">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.add_reaction">add_reaction() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.add_reaction_change_handler">add_reaction_change_handler() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.add_reaction_change_handler">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.add_scheduled_task">add_scheduled_task() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.add_scheduled_task">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.DeviceType.ANDROID">ANDROID (pymax.static.enum.DeviceType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.as_integer_ratio">as_integer_ratio() (pymax.static.enum.Opcode method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.ASSETS_ADD">ASSETS_ADD (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.ASSETS_GET">ASSETS_GET (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.ASSETS_GET_BY_IDS">ASSETS_GET_BY_IDS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.ASSETS_LIST_MODIFY">ASSETS_LIST_MODIFY (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.ASSETS_MOVE">ASSETS_MOVE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.ASSETS_REMOVE">ASSETS_REMOVE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.ASSETS_UPDATE">ASSETS_UPDATE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.Attach">Attach (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AttachType">AttachType (class in pymax.static.enum)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AttachType.AUDIO">AUDIO (pymax.static.enum.AttachType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.AudioAttach">AudioAttach (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.AUTH">AUTH (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.AUTH_CHECK_EMAIL">AUTH_CHECK_EMAIL (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.AUTH_CONFIRM">AUTH_CONFIRM (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.AUTH_CREATE_TRACK">AUTH_CREATE_TRACK (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.AUTH_LOGIN_CHECK_PASSWORD">AUTH_LOGIN_CHECK_PASSWORD (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.AUTH_REQUEST">AUTH_REQUEST (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.AUTH_SET_2FA">AUTH_SET_2FA (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.AUTH_VALIDATE_HINT">AUTH_VALIDATE_HINT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.AUTH_VALIDATE_PASSWORD">AUTH_VALIDATE_PASSWORD (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.AUTH_VERIFY_EMAIL">AUTH_VERIFY_EMAIL (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AuthType">AuthType (class in pymax.static.enum)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="B" class="genindex-section">
+  <h2>B</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.bit_count">bit_count() (pymax.static.enum.Opcode method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.bit_length">bit_length() (pymax.static.enum.Opcode method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.MarkupType.BOLD">BOLD (pymax.static.enum.MarkupType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.BOT_INFO">BOT_INFO (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.CALLS_TOKEN">CALLS_TOKEN (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.capitalize">capitalize() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.capitalize">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.capitalize">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.capitalize">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.capitalize">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.capitalize">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.capitalize">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.capitalize">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.capitalize">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.capitalize">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.capitalize">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.casefold">casefold() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.casefold">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.casefold">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.casefold">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.casefold">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.casefold">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.casefold">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.casefold">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.casefold">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.casefold">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.casefold">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.center">center() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.center">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.center">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.center">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.center">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.center">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.center">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.center">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.center">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.center">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.center">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.change_group_profile">change_group_profile() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.change_group_settings">change_group_settings() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.change_profile">change_profile() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.types.Channel">Channel (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ChatType.CHANNEL">CHANNEL (pymax.static.enum.ChatType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.Chat">Chat (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ChatType.CHAT">CHAT (pymax.static.enum.ChatType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_BOT_COMMANDS">CHAT_BOT_COMMANDS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_CHECK_LINK">CHAT_CHECK_LINK (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_CLEAR">CHAT_CLEAR (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_CLOSE">CHAT_CLOSE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_COMPLAIN">CHAT_COMPLAIN (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_CREATE">CHAT_CREATE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_DELETE">CHAT_DELETE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_HIDE">CHAT_HIDE (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_HISTORY">CHAT_HISTORY (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_INFO">CHAT_INFO (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_JOIN">CHAT_JOIN (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_LEAVE">CHAT_LEAVE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_MARK">CHAT_MARK (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_MEDIA">CHAT_MEDIA (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_MEMBERS">CHAT_MEMBERS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_MEMBERS_UPDATE">CHAT_MEMBERS_UPDATE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_PIN_SET_VISIBILITY">CHAT_PIN_SET_VISIBILITY (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_SEARCH">CHAT_SEARCH (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_SEARCH_COMMON_PARTICIPANTS">CHAT_SEARCH_COMMON_PARTICIPANTS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_SUBSCRIBE">CHAT_SUBSCRIBE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHAT_UPDATE">CHAT_UPDATE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CHATS_LIST">CHATS_LIST (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ChatType">ChatType (class in pymax.static.enum)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AuthType.CHECK_CODE">CHECK_CODE (pymax.static.enum.AuthType attribute)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.close">close() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONFIG">CONFIG (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONFIRM_PRESENT">CONFIRM_PRESENT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.conjugate">conjugate() (pymax.static.enum.Opcode method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.connect">connect() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.types.Contact">Contact (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_ADD">CONTACT_ADD (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_INFO">CONTACT_INFO (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_INFO_BY_PHONE">CONTACT_INFO_BY_PHONE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_LIST">CONTACT_LIST (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_MUTUAL">CONTACT_MUTUAL (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_PHOTOS">CONTACT_PHOTOS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_PRESENCE">CONTACT_PRESENCE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_SEARCH">CONTACT_SEARCH (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_SORT">CONTACT_SORT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_UPDATE">CONTACT_UPDATE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_VERIFY">CONTACT_VERIFY (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ContactAction">ContactAction (class in pymax.static.enum)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AttachType.CONTROL">CONTROL (pymax.static.enum.AttachType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.ControlAttach">ControlAttach (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.count">count() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.count">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.count">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.count">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.count">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.count">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.count">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.count">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.count">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.count">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.count">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.create_folder">create_folder() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.create_group">create_group() (pymax.MaxClient method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.DEBUG">DEBUG (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.delete_folder">delete_folder() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.delete_message">delete_message() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.denominator">denominator (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.DeviceType">DeviceType (class in pymax.static.enum)</a>
+</li>
+        <li><a href="types.html#pymax.types.Dialog">Dialog (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ChatType.DIALOG">DIALOG (pymax.static.enum.ChatType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.DRAFT_DISCARD">DRAFT_DISCARD (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.DRAFT_SAVE">DRAFT_SAVE (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="E" class="genindex-section">
+  <h2>E</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="clients.html#pymax.MaxClient.edit_message">edit_message() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.MessageStatus.EDITED">EDITED (pymax.static.enum.MessageStatus attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.Element">Element (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ElementType">ElementType (class in pymax.static.enum)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ElementType.EMOJI">EMOJI (pymax.static.enum.ElementType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.FormattingType.EMPHASIZED">EMPHASIZED (pymax.static.enum.FormattingType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.encode">encode() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.encode">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.encode">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.encode">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.encode">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.encode">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.encode">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.encode">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.encode">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.encode">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.encode">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.endswith">endswith() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.endswith">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.endswith">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.endswith">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.endswith">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.endswith">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.endswith">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.endswith">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.endswith">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.endswith">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.endswith">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.AccessType.expandtabs">expandtabs() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.expandtabs">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.expandtabs">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.expandtabs">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.expandtabs">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.expandtabs">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.expandtabs">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.expandtabs">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.expandtabs">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.expandtabs">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.expandtabs">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.Opcode.EXTERNAL_CALLBACK">EXTERNAL_CALLBACK (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="clients.html#pymax.MaxClient.fetch_history">fetch_history() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.fetch_users">fetch_users() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AttachType.FILE">FILE (pymax.static.enum.AttachType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.FILE_DOWNLOAD">FILE_DOWNLOAD (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.FILE_UPLOAD">FILE_UPLOAD (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.FileAttach">FileAttach (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.types.FileRequest">FileRequest (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.find">find() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.find">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.find">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.find">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.find">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.find">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.find">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.find">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.find">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.find">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.find">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.find_members">find_members() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.types.Folder">Folder (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.types.FolderList">FolderList (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.FOLDERS_DELETE">FOLDERS_DELETE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.FOLDERS_GET">FOLDERS_GET (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.FOLDERS_GET_BY_ID">FOLDERS_GET_BY_ID (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.FOLDERS_REORDER">FOLDERS_REORDER (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.FOLDERS_UPDATE">FOLDERS_UPDATE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.FolderUpdate">FolderUpdate (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.format">format() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.format">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.format">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.format">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.format">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.format">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.format">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.format">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.format">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.format">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.format">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.format_map">format_map() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.format_map">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.format_map">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.format_map">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.format_map">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.format_map">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.format_map">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.format_map">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.format_map">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.format_map">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.format_map">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.FormattingType">FormattingType (class in pymax.static.enum)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.from_bytes">from_bytes() (pymax.static.enum.Opcode method)</a>
+</li>
+        <li><a href="types.html#pymax.types.Attach.from_dict">from_dict() (pymax.types.Attach class method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.types.AudioAttach.from_dict">(pymax.types.AudioAttach class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Channel.from_dict">(pymax.types.Channel class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Chat.from_dict">(pymax.types.Chat class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Contact.from_dict">(pymax.types.Contact class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.ControlAttach.from_dict">(pymax.types.ControlAttach class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Dialog.from_dict">(pymax.types.Dialog class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Element.from_dict">(pymax.types.Element class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.FileAttach.from_dict">(pymax.types.FileAttach class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.FileRequest.from_dict">(pymax.types.FileRequest class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Folder.from_dict">(pymax.types.Folder class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.FolderList.from_dict">(pymax.types.FolderList class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.FolderUpdate.from_dict">(pymax.types.FolderUpdate class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Me.from_dict">(pymax.types.Me class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Member.from_dict">(pymax.types.Member class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Message.from_dict">(pymax.types.Message class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.MessageLink.from_dict">(pymax.types.MessageLink class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Name.from_dict">(pymax.types.Name class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Names.from_dict">(pymax.types.Names class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.PhotoAttach.from_dict">(pymax.types.PhotoAttach class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Presence.from_dict">(pymax.types.Presence class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.ReactionCounter.from_dict">(pymax.types.ReactionCounter class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.ReactionInfo.from_dict">(pymax.types.ReactionInfo class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.Session.from_dict">(pymax.types.Session class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.StickerAttach.from_dict">(pymax.types.StickerAttach class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.User.from_dict">(pymax.types.User class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.VideoAttach.from_dict">(pymax.types.VideoAttach class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.VideoRequest.from_dict">(pymax.types.VideoRequest class method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="clients.html#pymax.MaxClient.get_cached_user">get_cached_user() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.get_chat">get_chat() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.get_chat_id">get_chat_id() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.get_chats">get_chats() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.get_file_by_id">get_file_by_id() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.get_folders">get_folders() (pymax.MaxClient method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.GET_INBOUND_CALLS">GET_INBOUND_CALLS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.GET_LAST_MENTIONS">GET_LAST_MENTIONS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.get_reactions">get_reactions() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.get_sessions">get_sessions() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.get_user">get_user() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.get_users">get_users() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.get_video_by_id">get_video_by_id() (pymax.MaxClient method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="H" class="genindex-section">
+  <h2>H</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin">HandlerMixin (class in pymax.mixins.handler)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="clients.html#pymax.MaxClient.idle">idle() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.imag">imag (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.index">index() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.index">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.index">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.index">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.index">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.index">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.index">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.index">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.index">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.index">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.index">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.inspect">inspect() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.invite_users_to_channel">invite_users_to_channel() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.invite_users_to_group">invite_users_to_group() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.DeviceType.IOS">IOS (pymax.static.enum.DeviceType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.isalnum">isalnum() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.isalnum">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.isalnum">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.isalnum">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.isalnum">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.isalnum">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.isalnum">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.isalnum">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.isalnum">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.isalnum">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.isalnum">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.isalpha">isalpha() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.isalpha">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.isalpha">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.isalpha">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.isalpha">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.isalpha">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.isalpha">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.isalpha">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.isalpha">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.isalpha">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.isalpha">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.isascii">isascii() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.isascii">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.isascii">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.isascii">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.isascii">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.isascii">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.isascii">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.isascii">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.isascii">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.isascii">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.isascii">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.isdecimal">isdecimal() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.isdecimal">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.isdecimal">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.isdecimal">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.isdecimal">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.isdecimal">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.isdecimal">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.isdecimal">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.isdecimal">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.isdecimal">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.isdecimal">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.isdigit">isdigit() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.isdigit">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.isdigit">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.isdigit">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.isdigit">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.isdigit">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.isdigit">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.isdigit">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.isdigit">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.isdigit">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.isdigit">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.isidentifier">isidentifier() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.isidentifier">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.isidentifier">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.isidentifier">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.isidentifier">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.isidentifier">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.isidentifier">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.isidentifier">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.isidentifier">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.isidentifier">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.isidentifier">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.AccessType.islower">islower() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.islower">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.islower">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.islower">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.islower">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.islower">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.islower">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.islower">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.islower">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.islower">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.islower">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.isnumeric">isnumeric() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.isnumeric">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.isnumeric">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.isnumeric">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.isnumeric">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.isnumeric">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.isnumeric">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.isnumeric">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.isnumeric">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.isnumeric">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.isnumeric">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.isprintable">isprintable() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.isprintable">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.isprintable">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.isprintable">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.isprintable">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.isprintable">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.isprintable">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.isprintable">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.isprintable">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.isprintable">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.isprintable">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.isspace">isspace() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.isspace">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.isspace">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.isspace">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.isspace">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.isspace">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.isspace">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.isspace">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.isspace">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.isspace">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.isspace">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.istitle">istitle() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.istitle">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.istitle">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.istitle">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.istitle">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.istitle">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.istitle">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.istitle">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.istitle">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.istitle">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.istitle">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.isupper">isupper() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.isupper">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.isupper">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.isupper">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.isupper">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.isupper">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.isupper">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.isupper">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.isupper">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.isupper">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.isupper">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.MarkupType.ITALIC">ITALIC (pymax.static.enum.MarkupType attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="J" class="genindex-section">
+  <h2>J</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.AccessType.join">join() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.join">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.join">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.join">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.join">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.join">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.join">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.join">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.join">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.join">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.join">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="clients.html#pymax.MaxClient.join_channel">join_channel() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.join_group">join_group() (pymax.MaxClient method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="clients.html#pymax.MaxClient.leave_channel">leave_channel() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.leave_group">leave_group() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ElementType.LINK">LINK (pymax.static.enum.ElementType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.LINK_INFO">LINK_INFO (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.ljust">ljust() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.ljust">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.ljust">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.ljust">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.ljust">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.ljust">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.ljust">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.ljust">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.ljust">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.ljust">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.ljust">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.load_members">load_members() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.LOCATION_REQUEST">LOCATION_REQUEST (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.LOCATION_SEND">LOCATION_SEND (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.LOCATION_STOP">LOCATION_STOP (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.LOG">LOG (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.LOGIN">LOGIN (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.login_with_code">login_with_code() (pymax.MaxClient method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.LOGOUT">LOGOUT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.lower">lower() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.lower">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.lower">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.lower">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.lower">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.lower">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.lower">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.lower">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.lower">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.lower">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.lower">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.lstrip">lstrip() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.lstrip">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.lstrip">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.lstrip">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.lstrip">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.lstrip">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.lstrip">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.lstrip">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.lstrip">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.lstrip">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.lstrip">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.AccessType.maketrans">maketrans() (pymax.static.enum.AccessType static method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.maketrans">(pymax.static.enum.AttachType static method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.maketrans">(pymax.static.enum.AuthType static method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.maketrans">(pymax.static.enum.ChatType static method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.maketrans">(pymax.static.enum.ContactAction static method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.maketrans">(pymax.static.enum.DeviceType static method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.maketrans">(pymax.static.enum.ElementType static method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.maketrans">(pymax.static.enum.FormattingType static method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.maketrans">(pymax.static.enum.MarkupType static method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.maketrans">(pymax.static.enum.MessageStatus static method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.maketrans">(pymax.static.enum.MessageType static method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.MarkupType">MarkupType (class in pymax.static.enum)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient">MaxClient (class in pymax)</a>
+</li>
+        <li><a href="types.html#pymax.types.Me">Me (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.types.Member">Member (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ElementType.MENTION">MENTION (pymax.static.enum.ElementType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.Message">Message (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.types.MessageLink">MessageLink (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.MessageStatus">MessageStatus (class in pymax.static.enum)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.MessageType">MessageType (class in pymax.static.enum)</a>
+</li>
+        <li>
+    module
+
+        <ul>
+          <li><a href="types.html#module-pymax.static.enum">pymax.static.enum</a>
+</li>
+          <li><a href="types.html#module-pymax.types">pymax.types</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_CANCEL_REACTION">MSG_CANCEL_REACTION (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_DELETE">MSG_DELETE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_DELETE_RANGE">MSG_DELETE_RANGE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_EDIT">MSG_EDIT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_GET">MSG_GET (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_GET_DETAILED_REACTIONS">MSG_GET_DETAILED_REACTIONS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_GET_REACTIONS">MSG_GET_REACTIONS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_GET_STAT">MSG_GET_STAT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_REACTION">MSG_REACTION (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_SEARCH">MSG_SEARCH (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_SEARCH_TOUCH">MSG_SEARCH_TOUCH (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_SEND">MSG_SEND (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_SEND_CALLBACK">MSG_SEND_CALLBACK (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_SHARE_PREVIEW">MSG_SHARE_PREVIEW (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.MSG_TYPING">MSG_TYPING (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.types.Name">Name (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.types.Names">Names (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_ASSETS_UPDATE">NOTIF_ASSETS_UPDATE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_ATTACH">NOTIF_ATTACH (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_CALL_START">NOTIF_CALL_START (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_CALLBACK_ANSWER">NOTIF_CALLBACK_ANSWER (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_CHAT">NOTIF_CHAT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_CONFIG">NOTIF_CONFIG (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_CONTACT">NOTIF_CONTACT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_CONTACT_SORT">NOTIF_CONTACT_SORT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_DRAFT">NOTIF_DRAFT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_DRAFT_DISCARD">NOTIF_DRAFT_DISCARD (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_FOLDERS">NOTIF_FOLDERS (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_LOCATION">NOTIF_LOCATION (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_LOCATION_REQUEST">NOTIF_LOCATION_REQUEST (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_MARK">NOTIF_MARK (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_MESSAGE">NOTIF_MESSAGE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_MSG_DELAYED">NOTIF_MSG_DELAYED (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_MSG_DELETE">NOTIF_MSG_DELETE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_MSG_DELETE_RANGE">NOTIF_MSG_DELETE_RANGE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_MSG_REACTIONS_CHANGED">NOTIF_MSG_REACTIONS_CHANGED (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_MSG_YOU_REACTED">NOTIF_MSG_YOU_REACTED (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_PRESENCE">NOTIF_PRESENCE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_PROFILE">NOTIF_PROFILE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.NOTIF_TYPING">NOTIF_TYPING (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.numerator">numerator (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="clients.html#pymax.MaxClient.on_chat_update">on_chat_update() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.on_chat_update">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.on_message">on_message() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.on_message">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.on_message_delete">on_message_delete() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.on_message_delete">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.on_message_edit">on_message_edit() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.on_message_edit">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="clients.html#pymax.MaxClient.on_raw_receive">on_raw_receive() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.on_raw_receive">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.on_reaction_change">on_reaction_change() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.on_reaction_change">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.on_start">on_start() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.on_start">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.Opcode">Opcode (class in pymax.static.enum)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.AccessType.partition">partition() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.partition">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.partition">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.partition">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.partition">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.partition">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.partition">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.partition">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.partition">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.partition">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.partition">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.Opcode.PHONE_BIND_CONFIRM">PHONE_BIND_CONFIRM (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.PHONE_BIND_REQUEST">PHONE_BIND_REQUEST (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AttachType.PHOTO">PHOTO (pymax.static.enum.AttachType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.PHOTO_UPLOAD">PHOTO_UPLOAD (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.types.PhotoAttach">PhotoAttach (class in pymax.types)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.pin_message">pin_message() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.PING">PING (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.Presence">Presence (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.PRESET_AVATARS">PRESET_AVATARS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.PRIVATE">PRIVATE (pymax.static.enum.AccessType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.PROFILE">PROFILE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.PROFILE_DELETE">PROFILE_DELETE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.PROFILE_DELETE_TIME">PROFILE_DELETE_TIME (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.PUBLIC">PUBLIC (pymax.static.enum.AccessType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.PUBLIC_SEARCH">PUBLIC_SEARCH (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li>
+    pymax.static.enum
+
+        <ul>
+          <li><a href="types.html#module-pymax.static.enum">module</a>
+</li>
+        </ul></li>
+        <li>
+    pymax.types
+
+        <ul>
+          <li><a href="types.html#module-pymax.types">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.types.ReactionCounter">ReactionCounter (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.types.ReactionInfo">ReactionInfo (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.real">real (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.RECONNECT">RECONNECT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AuthType.REGISTER">REGISTER (pymax.static.enum.AuthType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.ContactAction.REMOVE">REMOVE (pymax.static.enum.ContactAction attribute)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.remove_contact">remove_contact() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.REMOVE_CONTACT_PHOTO">REMOVE_CONTACT_PHOTO (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.remove_reaction">remove_reaction() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.remove_users_from_group">remove_users_from_group() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.MessageStatus.REMOVED">REMOVED (pymax.static.enum.MessageStatus attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.removeprefix">removeprefix() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.removeprefix">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.removeprefix">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.removeprefix">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.removeprefix">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.removeprefix">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.removeprefix">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.removeprefix">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.removeprefix">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.removeprefix">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.removeprefix">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.removesuffix">removesuffix() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.removesuffix">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.removesuffix">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.removesuffix">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.removesuffix">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.removesuffix">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.removesuffix">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.removesuffix">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.removesuffix">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.removesuffix">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.removesuffix">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.replace">replace() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.replace">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.replace">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.replace">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.replace">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.replace">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.replace">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.replace">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.replace">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.replace">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.replace">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.request_code">request_code() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.resolve_channel_by_name">resolve_channel_by_name() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.rework_invite_link">rework_invite_link() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.rfind">rfind() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.rfind">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.rfind">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.rfind">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.rfind">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.rfind">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.rfind">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.rfind">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.rfind">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.rfind">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.rfind">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.AccessType.rindex">rindex() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.rindex">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.rindex">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.rindex">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.rindex">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.rindex">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.rindex">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.rindex">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.rindex">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.rindex">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.rindex">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.rjust">rjust() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.rjust">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.rjust">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.rjust">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.rjust">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.rjust">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.rjust">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.rjust">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.rjust">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.rjust">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.rjust">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.rpartition">rpartition() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.rpartition">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.rpartition">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.rpartition">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.rpartition">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.rpartition">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.rpartition">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.rpartition">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.rpartition">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.rpartition">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.rpartition">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.rsplit">rsplit() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.rsplit">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.rsplit">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.rsplit">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.rsplit">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.rsplit">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.rsplit">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.rsplit">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.rsplit">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.rsplit">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.rsplit">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.rstrip">rstrip() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.rstrip">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.rstrip">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.rstrip">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.rstrip">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.rstrip">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.rstrip">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.rstrip">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.rstrip">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.rstrip">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.rstrip">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="clients.html#pymax.MaxClient.search_by_phone">search_by_phone() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.SEARCH_FEEDBACK">SEARCH_FEEDBACK (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.SECRET">SECRET (pymax.static.enum.AccessType attribute)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.send_message">send_message() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.MessageType.SERVICE">SERVICE (pymax.static.enum.MessageType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.Session">Session (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.SESSION_INIT">SESSION_INIT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.SESSIONS_CLOSE">SESSIONS_CLOSE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.SESSIONS_INFO">SESSIONS_INFO (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.split">split() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.split">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.split">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.split">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.split">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.split">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.split">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.split">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.split">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.split">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.split">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.splitlines">splitlines() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.splitlines">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.splitlines">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.splitlines">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.splitlines">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.splitlines">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.splitlines">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.splitlines">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.splitlines">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.splitlines">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.splitlines">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.start">start() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AuthType.START_AUTH">START_AUTH (pymax.static.enum.AuthType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.startswith">startswith() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.startswith">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.startswith">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.startswith">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.startswith">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.startswith">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.startswith">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.startswith">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.startswith">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.startswith">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.startswith">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.AttachType.STICKER">STICKER (pymax.static.enum.AttachType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.STICKER_CREATE">STICKER_CREATE (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.STICKER_SUGGEST">STICKER_SUGGEST (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.STICKER_UPLOAD">STICKER_UPLOAD (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.StickerAttach">StickerAttach (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.FormattingType.STRIKETHROUGH">STRIKETHROUGH (pymax.static.enum.FormattingType attribute)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.MarkupType.STRIKETHROUGH">(pymax.static.enum.MarkupType attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.strip">strip() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.strip">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.strip">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.strip">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.strip">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.strip">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.strip">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.strip">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.strip">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.strip">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.strip">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.FormattingType.STRONG">STRONG (pymax.static.enum.FormattingType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.SUSPEND_BOT">SUSPEND_BOT (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.swapcase">swapcase() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.swapcase">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.swapcase">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.swapcase">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.swapcase">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.swapcase">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.swapcase">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.swapcase">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.swapcase">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.swapcase">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.swapcase">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.Opcode.SYNC">SYNC (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.MessageType.SYSTEM">SYSTEM (pymax.static.enum.MessageType attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="clients.html#pymax.MaxClient.task">task() (pymax.MaxClient method)</a>
+
+        <ul>
+          <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.task">(pymax.mixins.handler.HandlerMixin method)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.ElementType.TEXT">TEXT (pymax.static.enum.ElementType attribute)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.MessageType.TEXT">(pymax.static.enum.MessageType attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="types.html#pymax.static.enum.AccessType.title">title() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.title">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.title">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.title">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.title">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.title">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.title">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.title">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.title">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.title">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.title">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.to_bytes">to_bytes() (pymax.static.enum.Opcode method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.translate">translate() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.translate">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.translate">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.translate">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.translate">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.translate">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.translate">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.translate">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.translate">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.translate">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.translate">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="U" class="genindex-section">
+  <h2>U</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.FormattingType.UNDERLINE">UNDERLINE (pymax.static.enum.FormattingType attribute)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.MarkupType.UNDERLINE">(pymax.static.enum.MarkupType attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="clients.html#pymax.MaxClient.update_folder">update_folder() (pymax.MaxClient method)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.AccessType.upper">upper() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.upper">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.upper">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.upper">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.upper">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.upper">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.upper">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.upper">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.upper">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.upper">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.upper">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.types.User">User (class in pymax.types)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.AttachType.VIDEO">VIDEO (pymax.static.enum.AttachType attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.VIDEO_CHAT_HISTORY">VIDEO_CHAT_HISTORY (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.VIDEO_CHAT_MEMBERS">VIDEO_CHAT_MEMBERS (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.VIDEO_CHAT_START">VIDEO_CHAT_START (pymax.static.enum.Opcode attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.VIDEO_PLAY">VIDEO_PLAY (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.static.enum.Opcode.VIDEO_UPLOAD">VIDEO_UPLOAD (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="types.html#pymax.types.VideoAttach">VideoAttach (class in pymax.types)</a>
+</li>
+        <li><a href="types.html#pymax.types.VideoRequest">VideoRequest (class in pymax.types)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="W" class="genindex-section">
+  <h2>W</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.DeviceType.WEB">WEB (pymax.static.enum.DeviceType attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.Opcode.WEB_APP_INIT_DATA">WEB_APP_INIT_DATA (pymax.static.enum.Opcode attribute)</a>
+</li>
+        <li><a href="clients.html#pymax.MaxClient.ws">ws (pymax.MaxClient property)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Z" class="genindex-section">
+  <h2>Z</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="types.html#pymax.static.enum.AccessType.zfill">zfill() (pymax.static.enum.AccessType method)</a>
+
+        <ul>
+          <li><a href="types.html#pymax.static.enum.AttachType.zfill">(pymax.static.enum.AttachType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.AuthType.zfill">(pymax.static.enum.AuthType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ChatType.zfill">(pymax.static.enum.ChatType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ContactAction.zfill">(pymax.static.enum.ContactAction method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.DeviceType.zfill">(pymax.static.enum.DeviceType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.ElementType.zfill">(pymax.static.enum.ElementType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.FormattingType.zfill">(pymax.static.enum.FormattingType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MarkupType.zfill">(pymax.static.enum.MarkupType method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageStatus.zfill">(pymax.static.enum.MessageStatus method)</a>
+</li>
+          <li><a href="types.html#pymax.static.enum.MessageType.zfill">(pymax.static.enum.MessageType method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, ink-developer
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=8eb941aa"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

@@ -1,0 +1,1723 @@
+<!doctype html>
+<html class="no-js" lang="python" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Types" href="types.html"><link rel="prev" title="Quick Start" href="quickstart.html">
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
+        <title>Clients - PyMax 1.1.20 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f0f0f0;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">PyMax 1.1.20 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">PyMax 1.1.20 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Содержание</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/clients.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="clients">
+<h1>Clients<a class="headerlink" href="#clients" title="Link to this heading">¶</a></h1>
+<section id="maxclient">
+<h2>MaxClient<a class="headerlink" href="#maxclient" title="Link to this heading">¶</a></h2>
+<p>Основной асинхронный WebSocket клиент для взаимодействия с Max API.</p>
+<p>Инициализация:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span>
+    <span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">,</span>           <span class="c1"># Номер телефона (обязательно)</span>
+    <span class="n">work_dir</span><span class="o">=</span><span class="s2">&quot;./cache&quot;</span><span class="p">,</span>             <span class="c1"># Папка для кэша сессии</span>
+    <span class="n">reconnect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                 <span class="c1"># Автоматическое переподключение</span>
+    <span class="n">send_fake_telemetry</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>       <span class="c1"># Отправлять телеметрию</span>
+    <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>                    <span class="c1"># Пользовательский логгер</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Основные методы:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Запустить клиент</span>
+<span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># Закрыть клиент</span>
+<span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1"># Получить информацию о чате</span>
+<span class="n">chat</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_chat</span><span class="p">(</span><span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">)</span>
+<span class="n">chats</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_chats</span><span class="p">([</span><span class="mi">123</span><span class="p">,</span> <span class="mi">456</span><span class="p">])</span>
+
+<span class="c1"># Получить информацию о пользователе</span>
+<span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_user</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="mi">789012</span><span class="p">)</span>
+
+<span class="c1"># Отправить сообщение</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Сообщение&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Редактировать сообщение</span>
+<span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">edit_message</span><span class="p">(</span>
+    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
+    <span class="n">message_id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Новый текст&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Удалить сообщение</span>
+<span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">delete_message</span><span class="p">(</span>
+    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
+    <span class="n">message_id</span><span class="o">=</span><span class="n">msg_id</span>
+<span class="p">)</span>
+
+<span class="c1"># Получить историю сообщений</span>
+<span class="n">history</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">fetch_history</span><span class="p">(</span>
+    <span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span>
+    <span class="n">limit</span><span class="o">=</span><span class="mi">50</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Свойства:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="n">me</span>                   <span class="c1"># Информация о себе (Me)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">is_connected</span>         <span class="c1"># Статус подключения (bool)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">chats</span>                <span class="c1"># Список всех чатов (list[Chat])</span>
+<span class="n">client</span><span class="o">.</span><span class="n">dialogs</span>              <span class="c1"># Список диалогов (list[Dialog])</span>
+<span class="n">client</span><span class="o">.</span><span class="n">channels</span>             <span class="c1"># Список каналов (list[Channel])</span>
+<span class="n">client</span><span class="o">.</span><span class="n">phone</span>                <span class="c1"># Номер телефона (str)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">token</span>                <span class="c1"># Токен сессии (str | None)</span>
+</pre></div>
+</div>
+<p>Обработчики событий:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@client</span><span class="o">.</span><span class="n">on_start</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_start</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;При запуске клиента&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;При получении сообщения&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Контекстный менеджер:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="c1"># Клиент автоматически подключён</span>
+    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">chat_id</span><span class="o">=</span><span class="mi">123456</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Привет!&quot;</span><span class="p">)</span>
+    <span class="c1"># Клиент автоматически закроется</span>
+</pre></div>
+</div>
+<p>Автоматическое подключение/отключение:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">,</span> <span class="n">reconnect</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Клиент автоматически переподключится при разрыве соединения</span>
+<span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="api">
+<h2>Документация API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymax.MaxClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pymax.</span></span><span class="sig-name descname"><span class="pre">MaxClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wss://ws-api.oneme.ru/websocket'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">UserAgentPayload(device_type='WEB',</span> <span class="pre">locale='ru',</span> <span class="pre">device_locale='ru',</span> <span class="pre">os_version='Linux',</span> <span class="pre">device_name='Chrome',</span> <span class="pre">header_user_agent='Mozilla/5.0</span> <span class="pre">(X11;</span> <span class="pre">Linux</span> <span class="pre">x86_64)</span> <span class="pre">AppleWebKit/537.36</span> <span class="pre">(KHTML,</span> <span class="pre">like</span> <span class="pre">Gecko)</span> <span class="pre">Chrome/141.0.0.0</span> <span class="pre">Safari/537.36',</span> <span class="pre">app_version='25.12.1',</span> <span class="pre">screen='1080x1920</span> <span class="pre">1.0x',</span> <span class="pre">timezone='Europe/Moscow',</span> <span class="pre">client_session_id=14,</span> <span class="pre">build_number=38859)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_fake_telemetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'api.oneme.ru'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">443</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconnect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconnect_delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/core.html#MaxClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.MaxClient" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ApiMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">WebSocketMixin</span></code></p>
+<p>Основной клиент для работы с WebSocket API сервиса Max.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phone</strong> (<em>str</em>) -- Номер телефона для авторизации.</p></li>
+<li><p><strong>uri</strong> (<em>str</em><em>, </em><em>optional</em>) -- URI WebSocket сервера.</p></li>
+<li><p><strong>work_dir</strong> (<em>str</em><em>, </em><em>optional</em>) -- Рабочая директория для хранения базы данных.</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em><em> | </em><em>None</em>) -- Пользовательский логгер. Если не передан, используется логгер модуля с именем f&quot;{__name__}.MaxClient&quot;.</p></li>
+<li><p><strong>headers</strong> (<em>UserAgentPayload</em>) -- Заголовки для подключения к WebSocket.</p></li>
+<li><p><strong>token</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Токен авторизации. Если не передан, будет выполнен процесс логина по номеру телефона.</p></li>
+<li><p><strong>host</strong> (<em>str</em><em>, </em><em>optional</em>) -- Хост API сервера.</p></li>
+<li><p><strong>port</strong> (<em>int</em><em>, </em><em>optional</em>) -- Порт API сервера.</p></li>
+<li><p><strong>registration</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг регистрации нового пользователя.</p></li>
+<li><p><strong>first_name</strong> (<em>str</em><em>, </em><em>optional</em>) -- Имя пользователя для регистрации. Требуется, если registration=True.</p></li>
+<li><p><strong>last_name</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Фамилия пользователя для регистрации.</p></li>
+<li><p><strong>send_fake_telemetry</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг отправки фейковой телеметрии.</p></li>
+<li><p><strong>proxy</strong> (<em>str</em><em> | </em><em>Literal</em><em>[</em><em>True</em><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) -- Прокси для подключения к WebSocket (см. <a class="reference external" href="https://websockets.readthedocs.io/en/stable/topics/proxies.html">https://websockets.readthedocs.io/en/stable/topics/proxies.html</a>).</p></li>
+<li><p><strong>reconnect</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг автоматического переподключения при потере соединения.</p></li>
+<li><p><strong>device_id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>reconnect_delay</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>InvalidPhoneError</strong> -- Если формат номера телефона неверный.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.add_chat_update_handler">
+<span class="sig-name descname"><span class="pre">add_chat_update_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.add_chat_update_handler" title="Link to this definition">¶</a></dt>
+<dd><p>Добавляет обработчик обновления информации о чате.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handler</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat"><em>Chat</em></a><em>]</em><em>, </em><em>Any</em><em> | </em><em>Awaitable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) -- Функция или coroutine с аргументом (chat: Chat).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Установленный обработчик.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[<a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat">Chat</a>], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.add_contact">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_contact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contact_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.add_contact" title="Link to this definition">¶</a></dt>
+<dd><p>Добавляет контакт в список контактов</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>contact_id</strong> (<em>int</em>) -- ID контакта</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект контакта</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.Contact" title="pymax.types.Contact">Contact</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ResponseStructureError</strong> -- Если структура ответа неверна</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.add_message_handler">
+<span class="sig-name descname"><span class="pre">add_message_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.add_message_handler" title="Link to this definition">¶</a></dt>
+<dd><p>Добавляет обработчик входящих сообщений.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handler</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="types.html#pymax.types.Message" title="pymax.types.Message"><em>Message</em></a><em>]</em><em>, </em><em>Any</em><em> | </em><em>Awaitable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) -- Обработчик.</p></li>
+<li><p><strong>filter</strong> (<em>BaseFilter</em><em>[</em><a class="reference internal" href="types.html#pymax.types.Message" title="pymax.types.Message"><em>Message</em></a><em>] </em><em>| </em><em>None</em>) -- Фильтр. По умолчанию None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Обработчик.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[<a class="reference internal" href="types.html#pymax.types.Message" title="pymax.types.Message">Message</a>], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.add_on_start_handler">
+<span class="sig-name descname"><span class="pre">add_on_start_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.add_on_start_handler" title="Link to this definition">¶</a></dt>
+<dd><p>Добавляет обработчик, вызываемый при старте клиента.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handler</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Any</em><em> | </em><em>Awaitable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) -- Функция или coroutine без аргументов.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Установленный обработчик.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.add_raw_receive_handler">
+<span class="sig-name descname"><span class="pre">add_raw_receive_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.add_raw_receive_handler" title="Link to this definition">¶</a></dt>
+<dd><p>Добавляет обработчик для получения необработанных данных от сервера.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handler</strong> (<em>Callable</em><em>[</em><em>[</em><em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>Any</em><em> | </em><em>Awaitable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) -- Функция или coroutine с аргументом (data: dict).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Установленный обработчик.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[dict[str, Any]], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.add_reaction">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.add_reaction" title="Link to this definition">¶</a></dt>
+<dd><p>Добавляет реакцию к сообщению.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID чата</p></li>
+<li><p><strong>message_id</strong> (<em>str</em>) -- ID сообщения</p></li>
+<li><p><strong>reaction</strong> (<em>str</em><em> (</em><em>emoji</em><em>)</em>) -- Реакция для добавления</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект ReactionInfo или None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.ReactionInfo" title="pymax.types.ReactionInfo">ReactionInfo</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.add_reaction_change_handler">
+<span class="sig-name descname"><span class="pre">add_reaction_change_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.add_reaction_change_handler" title="Link to this definition">¶</a></dt>
+<dd><p>Добавляет обработчик изменения реакций на сообщения.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handler</strong> (<em>Callable</em><em>[</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><a class="reference internal" href="types.html#pymax.types.ReactionInfo" title="pymax.types.ReactionInfo"><em>ReactionInfo</em></a><em>]</em><em>, </em><em>Any</em><em> | </em><em>Awaitable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) -- Функция или coroutine с аргументами (message_id: str, chat_id: int, reaction_info: ReactionInfo).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Установленный обработчик.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[str, int, <a class="reference internal" href="types.html#pymax.types.ReactionInfo" title="pymax.types.ReactionInfo">ReactionInfo</a>], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.add_scheduled_task">
+<span class="sig-name descname"><span class="pre">add_scheduled_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.add_scheduled_task" title="Link to this definition">¶</a></dt>
+<dd><p>Добавляет периодическую задачу.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handler</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Any</em><em> | </em><em>Awaitable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) -- Функция или coroutine без аргументов.</p></li>
+<li><p><strong>interval</strong> (<em>float</em>) -- Интервал выполнения в секундах.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Установленный обработчик.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.change_group_profile">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">change_group_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.change_group_profile" title="Link to this definition">¶</a></dt>
+<dd><p>Изменяет профиль группы</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID группы.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) -- Название группы.</p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Описание группы. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.change_group_settings">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">change_group_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_can_pin_message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_owner_can_change_icon_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_admin_can_add_member</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_admin_can_call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">members_can_see_private_link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.change_group_settings" title="Link to this definition">¶</a></dt>
+<dd><p>Изменяет настройки группы</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID группы.</p></li>
+<li><p><strong>all_can_pin_message</strong> (<em>bool</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Все могут закреплять сообщения. Defaults to None.</p></li>
+<li><p><strong>only_owner_can_change_icon_title</strong> (<em>bool</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Только владелец может менять иконку и название. Defaults to None.</p></li>
+<li><p><strong>only_admin_can_add_member</strong> (<em>bool</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Только администраторы могут добавлять участников. Defaults to None.</p></li>
+<li><p><strong>only_admin_can_call</strong> (<em>bool</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Только администраторы могут звонить. Defaults to None.</p></li>
+<li><p><strong>members_can_see_private_link</strong> (<em>bool</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Участники могут видеть приватную ссылку. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.change_profile">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">change_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">first_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.change_profile" title="Link to this definition">¶</a></dt>
+<dd><p>Изменяет информацию профиля текущего пользователя.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>first_name</strong> (<em>str</em>) -- Имя пользователя.</p></li>
+<li><p><strong>last_name</strong> (<em>str</em><em> | </em><em>None</em>) -- Фамилия пользователя. По умолчанию None.</p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) -- Описание профиля. По умолчанию None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True, если профиль успешно изменен.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.close">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/core.html#MaxClient.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.MaxClient.close" title="Link to this definition">¶</a></dt>
+<dd><p>Закрывает клиент и освобождает ресурсы.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.connect">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_agent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.connect" title="Link to this definition">¶</a></dt>
+<dd><p>Устанавливает соединение WebSocket с сервером и выполняет handshake.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_agent</strong> (<em>UserAgentPayload</em><em> | </em><em>None</em>) -- Пользовательский агент для handshake. Если None, используется значение по умолчанию.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Результат handshake.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, Any] | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.create_folder">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_include</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.create_folder" title="Link to this definition">¶</a></dt>
+<dd><p>Создает новую папку для группировки чатов.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>title</strong> (<em>str</em>) -- Название папки.</p></li>
+<li><p><strong>chat_include</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) -- Список ID чатов для включения в папку.</p></li>
+<li><p><strong>filters</strong> (<em>list</em><em>[</em><em>Any</em><em>] </em><em>| </em><em>None</em>) -- Список фильтров для папки (опциональный параметр).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект FolderUpdate с информацией о созданной папке.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.FolderUpdate" title="pymax.types.FolderUpdate">FolderUpdate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.create_group">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">participant_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.create_group" title="Link to this definition">¶</a></dt>
+<dd><p>Создает группу</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) -- Название группы.</p></li>
+<li><p><strong>participant_ids</strong> (<em>list</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) -- Список идентификаторов участников. Defaults to None.</p></li>
+<li><p><strong>notify</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг оповещения. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект Chat и Message или None при ошибке.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat">Chat</a>, <a class="reference internal" href="types.html#pymax.types.Message" title="pymax.types.Message">Message</a>] | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.delete_folder">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">delete_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.delete_folder" title="Link to this definition">¶</a></dt>
+<dd><p>Удаляет папку.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>folder_id</strong> (<em>str</em>) -- Идентификатор папки для удаления.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект FolderUpdate с результатом операции или None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.FolderUpdate" title="pymax.types.FolderUpdate">FolderUpdate</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.delete_message">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">delete_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_me</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.delete_message" title="Link to this definition">¶</a></dt>
+<dd><p>Удаляет одно или несколько сообщений.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- Идентификатор чата.</p></li>
+<li><p><strong>message_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) -- Список идентификаторов сообщений для удаления.</p></li>
+<li><p><strong>for_me</strong> (<em>bool</em>) -- Удалить только для себя (не видимо другим).</p></li>
+<li><p><strong>use_queue</strong> (<em>bool</em>) -- Использовать очередь для отправки.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True, если сообщения успешно удалены.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.edit_message">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">edit_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attachment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attachments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.edit_message" title="Link to this definition">¶</a></dt>
+<dd><p>Редактирует текст и/или вложения существующего сообщения.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- Идентификатор чата.</p></li>
+<li><p><strong>message_id</strong> (<em>int</em>) -- Идентификатор сообщения для редактирования.</p></li>
+<li><p><strong>text</strong> (<em>str</em>) -- Новый текст сообщения.</p></li>
+<li><p><strong>attachment</strong> (<em>Photo</em><em> | </em><em>File</em><em> | </em><em>Video</em><em> | </em><em>None</em>) -- Новое вложение (фото, файл или видео).</p></li>
+<li><p><strong>attachments</strong> (<em>list</em><em>[</em><em>Photo</em><em> | </em><em>Video</em><em> | </em><em>File</em><em>] </em><em>| </em><em>None</em>) -- Список новых множественных вложений.</p></li>
+<li><p><strong>use_queue</strong> (<em>bool</em>) -- Использовать очередь для отправки.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Отредактированное сообщение или None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.Message" title="pymax.types.Message">Message</a> | None</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Error</strong> -- Если редактирование не удалось.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.fetch_history">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backward</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.fetch_history" title="Link to this definition">¶</a></dt>
+<dd><p>Получает историю сообщений из чата.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- Идентификатор чата.</p></li>
+<li><p><strong>from_time</strong> (<em>int</em><em> | </em><em>None</em>) -- Временная метка для начала выборки.</p></li>
+<li><p><strong>forward</strong> (<em>int</em>) -- Кол-во сообщений вперед от from_time.</p></li>
+<li><p><strong>backward</strong> (<em>int</em>) -- Кол-во сообщений назад от from_time.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Список сообщений или None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="types.html#pymax.types.Message" title="pymax.types.Message">Message</a>] | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.fetch_users">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_users</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_ids</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.fetch_users" title="Link to this definition">¶</a></dt>
+<dd><p>Загружает информацию о пользователях с сервера.</p>
+<p>Запрашивает данные о пользователях по их идентификаторам и добавляет
+их в внутренний кеш.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) -- Список идентификаторов пользователей для загрузки.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Список загруженных объектов User.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="types.html#pymax.types.User" title="pymax.types.User">User</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.find_members">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_members</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.find_members" title="Link to this definition">¶</a></dt>
+<dd><p>Поиск участников канала по строке
+Внимание! веб-клиент всегда возвращает только определённое количество пользователей,
+тоесть пагинация здесь не реализована!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- Идентификатор канала</p></li>
+<li><p><strong>query</strong> (<em>str</em>) -- Строка для поиска участников</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Список участников канала</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[list[<a class="reference internal" href="types.html#pymax.types.Member" title="pymax.types.Member">Member</a>], int | None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_cached_user">
+<span class="sig-name descname"><span class="pre">get_cached_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_cached_user" title="Link to this definition">¶</a></dt>
+<dd><p>Получает пользователя из кеша по его идентификатору.</p>
+<p>Проверяет внутренний кеш пользователей и возвращает объект User
+если пользователь был ранее загружен.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>int</em>) -- Идентификатор пользователя.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект User из кеша или None, если пользователь не найден.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.User" title="pymax.types.User">User</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_chat">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_chat" title="Link to this definition">¶</a></dt>
+<dd><p>Получает информацию о группе по ее ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>chat_id</strong> (<em>int</em>) -- Идентификатор группы.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект Chat.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat">Chat</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_chat_id">
+<span class="sig-name descname"><span class="pre">get_chat_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">first_user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">second_user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_chat_id" title="Link to this definition">¶</a></dt>
+<dd><p>Получение айди лс (диалога)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>first_user_id</strong> (<em>int</em>) -- ID первого пользователя</p></li>
+<li><p><strong>second_user_id</strong> (<em>int</em>) -- ID второго пользователя</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Айди диалога</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_chats">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_chats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_ids</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_chats" title="Link to this definition">¶</a></dt>
+<dd><p>Получает информацию о группах по их ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>chat_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) -- Список идентификаторов групп.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Список объектов Chat.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat">Chat</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_file_by_id">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_file_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_file_by_id" title="Link to this definition">¶</a></dt>
+<dd><p>Получает файл</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID чата</p></li>
+<li><p><strong>message_id</strong> (<em>int</em>) -- ID сообщения</p></li>
+<li><p><strong>file_id</strong> (<em>int</em>) -- ID файла</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект FileRequest или None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.FileRequest" title="pymax.types.FileRequest">FileRequest</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_folders">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_folders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_sync</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_folders" title="Link to this definition">¶</a></dt>
+<dd><p>Получает список всех папок пользователя.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>folder_sync</strong> (<em>int</em>) -- Синхронизационный маркер папок. По умолчанию 0.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект FolderList с информацией о папках.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.FolderList" title="pymax.types.FolderList">FolderList</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_reactions">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_reactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_ids</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_reactions" title="Link to this definition">¶</a></dt>
+<dd><p>Получает реакции на сообщения.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID чата</p></li>
+<li><p><strong>message_ids</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) -- Список ID сообщений</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Словарь с ID сообщений и соответствующими реакциями</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <a class="reference internal" href="types.html#pymax.types.ReactionInfo" title="pymax.types.ReactionInfo">ReactionInfo</a>] | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_sessions">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_sessions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_sessions" title="Link to this definition">¶</a></dt>
+<dd><p>Получает информацию о всех активных сессиях пользователя.</p>
+<p>Возвращает список всех сессий, в которых авторизован пользователь.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Список объектов Session.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="types.html#pymax.types.Session" title="pymax.types.Session">Session</a>]</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Error</strong> -- Если произошла ошибка при получении данных.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_user">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_user" title="Link to this definition">¶</a></dt>
+<dd><p>Получает информацию о пользователе по его идентификатору.</p>
+<p>Метод использует внутренний кеш. Если пользователь уже загружен,
+возвращает его из кеша, иначе выполняет запрос к серверу.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>int</em>) -- Идентификатор пользователя.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект User или None, если пользователь не найден.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.User" title="pymax.types.User">User</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_users">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_users</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_ids</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_users" title="Link to this definition">¶</a></dt>
+<dd><p>Получает информацию о пользователях по их идентификаторам.</p>
+<p>Метод использует внутренний кеш для избежания повторных запросов.
+Если пользователь уже загружен, берется из кеша, иначе выполняется
+сетевой запрос к серверу.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) -- Список идентификаторов пользователей.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Список объектов User в порядке, соответствующем входному списку.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="types.html#pymax.types.User" title="pymax.types.User">User</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.get_video_by_id">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_video_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.get_video_by_id" title="Link to this definition">¶</a></dt>
+<dd><p>Получает видео</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID чата</p></li>
+<li><p><strong>message_id</strong> (<em>int</em>) -- ID сообщения</p></li>
+<li><p><strong>video_id</strong> (<em>int</em>) -- ID видео</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект VideoRequest или None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.VideoRequest" title="pymax.types.VideoRequest">VideoRequest</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.idle">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">idle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/core.html#MaxClient.idle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.MaxClient.idle" title="Link to this definition">¶</a></dt>
+<dd><p>Поддерживает клиента в «ожидающем» состоянии до закрытия клиента или иного прерывающего события.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Никогда не возвращает значение; функция блокирует выполнение.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.inspect">
+<span class="sig-name descname"><span class="pre">inspect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/core.html#MaxClient.inspect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.MaxClient.inspect" title="Link to this definition">¶</a></dt>
+<dd><p>Выводит в лог текущий статус клиента для отладки.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.invite_users_to_channel">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">invite_users_to_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.invite_users_to_channel" title="Link to this definition">¶</a></dt>
+<dd><p>Приглашает пользователей в канал</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID канала.</p></li>
+<li><p><strong>user_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) -- Список идентификаторов пользователей.</p></li>
+<li><p><strong>show_history</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг оповещения. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект Chat или None при ошибке.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat">Chat</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.invite_users_to_group">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">invite_users_to_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.invite_users_to_group" title="Link to this definition">¶</a></dt>
+<dd><p>Приглашает пользователей в группу</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID группы.</p></li>
+<li><p><strong>user_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) -- Список идентификаторов пользователей.</p></li>
+<li><p><strong>show_history</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг оповещения. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект Chat или None при ошибке.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat">Chat</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.join_channel">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.join_channel" title="Link to this definition">¶</a></dt>
+<dd><p>Присоединяется к каналу по ссылке</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>link</strong> (<em>str</em>) -- Ссылка на канал</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект канала, если присоединение прошло успешно, иначе None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.Channel" title="pymax.types.Channel">Channel</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.join_group">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.join_group" title="Link to this definition">¶</a></dt>
+<dd><p>Вступает в группу по ссылке</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>link</strong> (<em>str</em>) -- Ссылка на группу.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект чата группы</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat">Chat</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.leave_channel">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leave_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.leave_channel" title="Link to this definition">¶</a></dt>
+<dd><p>Покидает канал</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>chat_id</strong> (<em>int</em>) -- Идентификатор канала.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.leave_group">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">leave_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.leave_group" title="Link to this definition">¶</a></dt>
+<dd><p>Покидает группу</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>chat_id</strong> (<em>int</em>) -- Идентификатор группы.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.load_members">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_members</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.load_members" title="Link to this definition">¶</a></dt>
+<dd><p>Загружает членов канала</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- Идентификатор канала</p></li>
+<li><p><strong>marker</strong> (<em>int</em><em> | </em><em>None</em>) -- Маркер для пагинации. По умолчанию DEFAULT_MARKER_VALUE</p></li>
+<li><p><strong>count</strong> (<em>int</em>) -- Количество членов для загрузки. По умолчанию DEFAULT_CHAT_MEMBERS_LIMIT.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Список участников канала и маркер для следующей страницы</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[list[<a class="reference internal" href="types.html#pymax.types.Member" title="pymax.types.Member">Member</a>], int | None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.login_with_code">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">login_with_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temp_token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/core.html#MaxClient.login_with_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.MaxClient.login_with_code" title="Link to this definition">¶</a></dt>
+<dd><p>Завершает кастомный login flow: отправляет код, сохраняет токен и запускает пост-логин задачи.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temp_token</strong> (<em>str</em>) -- Временный токен, полученный из request_code.</p></li>
+<li><p><strong>code</strong> (<em>str</em>) -- Код верификации (6 цифр).</p></li>
+<li><p><strong>start</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг запуска пост-логин задач и ожидания навсегда. Если False, только сохраняет токен.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.on_chat_update">
+<span class="sig-name descname"><span class="pre">on_chat_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.on_chat_update" title="Link to this definition">¶</a></dt>
+<dd><p>Устанавливает обработчик обновления информации о чате.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handler</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat"><em>Chat</em></a><em>]</em><em>, </em><em>Any</em><em> | </em><em>Awaitable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) -- Функция или coroutine с аргументом (chat: Chat).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Установленный обработчик.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[<a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat">Chat</a>], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.on_message">
+<span class="sig-name descname"><span class="pre">on_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.on_message" title="Link to this definition">¶</a></dt>
+<dd><p>Декоратор для регистрации обработчика входящих сообщений.</p>
+<p>Позволяет установить функцию-обработчик для всех входящих сообщений
+или только для сообщений, соответствующих заданному фильтру.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filter</strong> (<em>BaseFilter</em><em>[</em><a class="reference internal" href="types.html#pymax.types.Message" title="pymax.types.Message"><em>Message</em></a><em>] </em><em>| </em><em>None</em>) -- Фильтр для обработки сообщений. По умолчанию None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Декоратор для функции-обработчика.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filter</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">))</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_hello</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+        <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat_id</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello!&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.on_message_delete">
+<span class="sig-name descname"><span class="pre">on_message_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.on_message_delete" title="Link to this definition">¶</a></dt>
+<dd><p>Декоратор для установки обработчика удаленных сообщений.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filter</strong> (<em>BaseFilter</em><em>[</em><a class="reference internal" href="types.html#pymax.types.Message" title="pymax.types.Message"><em>Message</em></a><em>] </em><em>| </em><em>None</em>) -- Фильтр для обработки сообщений. По умолчанию None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Декоратор для функции-обработчика.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.on_message_edit">
+<span class="sig-name descname"><span class="pre">on_message_edit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.on_message_edit" title="Link to this definition">¶</a></dt>
+<dd><p>Декоратор для установки обработчика отредактированных сообщений.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filter</strong> (<em>BaseFilter</em><em>[</em><a class="reference internal" href="types.html#pymax.types.Message" title="pymax.types.Message"><em>Message</em></a><em>] </em><em>| </em><em>None</em>) -- Фильтр для обработки сообщений. По умолчанию None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Декоратор для функции-обработчика.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.on_raw_receive">
+<span class="sig-name descname"><span class="pre">on_raw_receive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.on_raw_receive" title="Link to this definition">¶</a></dt>
+<dd><p>Устанавливает обработчик для получения необработанных данных от сервера.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handler</strong> (<em>Callable</em><em>[</em><em>[</em><em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>Any</em><em> | </em><em>Awaitable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) -- Функция или coroutine с аргументом (data: dict).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Установленный обработчик.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[dict[str, Any]], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.on_reaction_change">
+<span class="sig-name descname"><span class="pre">on_reaction_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.on_reaction_change" title="Link to this definition">¶</a></dt>
+<dd><p>Устанавливает обработчик изменения реакций на сообщения.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handler</strong> (<em>Callable</em><em>[</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><a class="reference internal" href="types.html#pymax.types.ReactionInfo" title="pymax.types.ReactionInfo"><em>ReactionInfo</em></a><em>]</em><em>, </em><em>Any</em><em> | </em><em>Awaitable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) -- Функция или coroutine с аргументами (message_id: str, chat_id: int, reaction_info: ReactionInfo).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Установленный обработчик.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[str, int, <a class="reference internal" href="types.html#pymax.types.ReactionInfo" title="pymax.types.ReactionInfo">ReactionInfo</a>], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.on_start">
+<span class="sig-name descname"><span class="pre">on_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.on_start" title="Link to this definition">¶</a></dt>
+<dd><p>Устанавливает обработчик, вызываемый при старте клиента.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handler</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Any</em><em> | </em><em>Awaitable</em><em>[</em><em>Any</em><em>]</em><em>]</em>) -- Функция или coroutine без аргументов.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Установленный обработчик.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.pin_message">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pin_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notify_pin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.pin_message" title="Link to this definition">¶</a></dt>
+<dd><p>Закрепляет сообщение в чате.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- Идентификатор чата.</p></li>
+<li><p><strong>message_id</strong> (<em>int</em>) -- Идентификатор сообщения.</p></li>
+<li><p><strong>notify_pin</strong> (<em>bool</em>) -- Отправить уведомление о закреплении.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True, если сообщение успешно закреплено.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.remove_contact">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_contact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contact_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.remove_contact" title="Link to this definition">¶</a></dt>
+<dd><p>Удаляет контакт из списка контактов</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>contact_id</strong> (<em>int</em>) -- ID контакта</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True если успешно</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Literal[True]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ResponseStructureError</strong> -- Если структура ответа неверна</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.remove_reaction">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.remove_reaction" title="Link to this definition">¶</a></dt>
+<dd><p>Удаляет реакцию с сообщения.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID чата</p></li>
+<li><p><strong>message_id</strong> (<em>str</em>) -- ID сообщения</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект ReactionInfo или None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.ReactionInfo" title="pymax.types.ReactionInfo">ReactionInfo</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.remove_users_from_group">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_users_from_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_msg_period</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.remove_users_from_group" title="Link to this definition">¶</a></dt>
+<dd><p>Удаляет пользователей из группы</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID группы.</p></li>
+<li><p><strong>user_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) -- Список идентификаторов пользователей.</p></li>
+<li><p><strong>clean_msg_period</strong> (<em>int</em>) -- Период очистки сообщений.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True, если удаление прошло успешно, иначе False.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.request_code">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">request_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ru'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.request_code" title="Link to this definition">¶</a></dt>
+<dd><p>Запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.</p>
+<p>Метод отправляет запрос на получение кода верификации на переданный номер телефона.
+Используется в процессе аутентификации или регистрации.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phone</strong> (<em>str</em>) -- Номер телефона в международном формате.</p></li>
+<li><p><strong>language</strong> (<em>str</em>) -- Язык для сообщения с кодом. По умолчанию &quot;ru&quot;.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Временный токен для дальнейшей аутентификации.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> -- Если полученные данные имеют неверный формат.</p></li>
+<li><p><strong>Error</strong> -- Если сервер вернул ошибку.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Используется только в пользовательском flow аутентификации.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.resolve_channel_by_name">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resolve_channel_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.resolve_channel_by_name" title="Link to this definition">¶</a></dt>
+<dd><p>Получает информацию о канале по его имени</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) -- Имя канала</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект Channel или None, если канал не найден</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.Channel" title="pymax.types.Channel">Channel</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.rework_invite_link">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rework_invite_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.rework_invite_link" title="Link to this definition">¶</a></dt>
+<dd><p>Пересоздает ссылку для приглашения в группу</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>chat_id</strong> (<em>int</em>) -- ID группы.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Обновленный объект чата с новой ссылкой.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat">Chat</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.search_by_phone">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">search_by_phone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phone</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.search_by_phone" title="Link to this definition">¶</a></dt>
+<dd><p>Выполняет поиск пользователя по номеру телефона.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>phone</strong> (<em>str</em>) -- Номер телефона пользователя.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект User с найденными данными пользователя.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.User" title="pymax.types.User">User</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Error</strong> -- Если пользователь не найден или произошла ошибка.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.send_message">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attachment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attachments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reply_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.send_message" title="Link to this definition">¶</a></dt>
+<dd><p>Отправляет текстовое сообщение в чат с опциональными вложениями.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<em>str</em>) -- Текст сообщения.</p></li>
+<li><p><strong>chat_id</strong> (<em>int</em>) -- Идентификатор чата, в который отправляется сообщение.</p></li>
+<li><p><strong>notify</strong> (<em>bool</em>) -- Флаг оповещения о новом сообщении. По умолчанию True.</p></li>
+<li><p><strong>attachment</strong> (<em>Photo</em><em> | </em><em>File</em><em> | </em><em>Video</em><em> | </em><em>None</em>) -- Одно вложение (фото, файл или видео).</p></li>
+<li><p><strong>attachments</strong> (<em>list</em><em>[</em><em>Photo</em><em> | </em><em>File</em><em> | </em><em>Video</em><em>] </em><em>| </em><em>None</em>) -- Список множественных вложений.</p></li>
+<li><p><strong>reply_to</strong> (<em>int</em><em> | </em><em>None</em>) -- Идентификатор сообщения для ответа.</p></li>
+<li><p><strong>use_queue</strong> (<em>bool</em>) -- Использовать очередь для отправки. По умолчанию False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект сообщения или None, если используется очередь.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.Message" title="pymax.types.Message">Message</a> | None</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Error</strong> -- Если загрузка вложения или отправка сообщения не удалась.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.start">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/core.html#MaxClient.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.MaxClient.start" title="Link to this definition">¶</a></dt>
+<dd><p>Запускает клиент, подключается к WebSocket, авторизует
+пользователя (если нужно) и запускает фоновый цикл.
+Теперь включает безопасный reconnect-loop, если self.reconnect=True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.task">
+<span class="sig-name descname"><span class="pre">task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minutes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hours</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.task" title="Link to this definition">¶</a></dt>
+<dd><p>Декоратор для планирования периодической задачи.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seconds</strong> (<em>float</em>) -- Интервал выполнения в секундах.</p></li>
+<li><p><strong>minutes</strong> (<em>float</em>) -- Интервал выполнения в минутах. По умолчанию 0.</p></li>
+<li><p><strong>hours</strong> (<em>float</em>) -- Интервал выполнения в часах. По умолчанию 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Декоратор для функции-обработчика.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[[], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@client</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">task</span><span class="p">():</span>
+    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">chat_id</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.update_folder">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.update_folder" title="Link to this definition">¶</a></dt>
+<dd><p>Обновляет параметры существующей папки.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder_id</strong> (<em>str</em>) -- Идентификатор папки.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) -- Название папки.</p></li>
+<li><p><strong>chat_include</strong> (<em>list</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) -- Список ID чатов для включения в папку.</p></li>
+<li><p><strong>filters</strong> (<em>list</em><em>[</em><em>Any</em><em>] </em><em>| </em><em>None</em>) -- Список фильтров для папки.</p></li>
+<li><p><strong>options</strong> (<em>list</em><em>[</em><em>Any</em><em>] </em><em>| </em><em>None</em>) -- Список опций для папки.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект FolderUpdate с результатом или None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.FolderUpdate" title="pymax.types.FolderUpdate">FolderUpdate</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymax.MaxClient.ws">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ws</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClientConnection</span></em><a class="headerlink" href="#pymax.MaxClient.ws" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="socketmaxclient">
+<h2>SocketMaxClient<a class="headerlink" href="#socketmaxclient" title="Link to this heading">¶</a></h2>
+<p>Низкоуровневый WebSocket клиент для прямого взаимодействия с API.
+Обычно не требуется использовать напрямую - используйте MaxClient вместо этого.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Если вам нужны низкоуровневые детали, смотрите исходный код библиотеки.</p>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="types.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Types</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="quickstart.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Quick Start</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, ink-developer
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Clients</a><ul>
+<li><a class="reference internal" href="#maxclient">MaxClient</a></li>
+<li><a class="reference internal" href="#api">Документация API</a><ul>
+<li><a class="reference internal" href="#pymax.MaxClient"><code class="docutils literal notranslate"><span class="pre">MaxClient</span></code></a><ul>
+<li><a class="reference internal" href="#pymax.MaxClient.add_chat_update_handler"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_chat_update_handler()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.add_contact"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_contact()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.add_message_handler"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_message_handler()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.add_on_start_handler"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_on_start_handler()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.add_raw_receive_handler"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_raw_receive_handler()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.add_reaction"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_reaction()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.add_reaction_change_handler"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_reaction_change_handler()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.add_scheduled_task"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_scheduled_task()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.change_group_profile"><code class="docutils literal notranslate"><span class="pre">MaxClient.change_group_profile()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.change_group_settings"><code class="docutils literal notranslate"><span class="pre">MaxClient.change_group_settings()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.change_profile"><code class="docutils literal notranslate"><span class="pre">MaxClient.change_profile()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.close"><code class="docutils literal notranslate"><span class="pre">MaxClient.close()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.connect"><code class="docutils literal notranslate"><span class="pre">MaxClient.connect()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.create_folder"><code class="docutils literal notranslate"><span class="pre">MaxClient.create_folder()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.create_group"><code class="docutils literal notranslate"><span class="pre">MaxClient.create_group()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.delete_folder"><code class="docutils literal notranslate"><span class="pre">MaxClient.delete_folder()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.delete_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.delete_message()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.edit_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.edit_message()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.fetch_history"><code class="docutils literal notranslate"><span class="pre">MaxClient.fetch_history()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.fetch_users"><code class="docutils literal notranslate"><span class="pre">MaxClient.fetch_users()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.find_members"><code class="docutils literal notranslate"><span class="pre">MaxClient.find_members()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_cached_user"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_cached_user()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_chat"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_chat()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_chat_id"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_chat_id()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_chats"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_chats()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_file_by_id"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_file_by_id()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_folders"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_folders()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_reactions"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_reactions()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_sessions"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_sessions()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_user"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_user()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_users"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_users()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.get_video_by_id"><code class="docutils literal notranslate"><span class="pre">MaxClient.get_video_by_id()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.idle"><code class="docutils literal notranslate"><span class="pre">MaxClient.idle()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.inspect"><code class="docutils literal notranslate"><span class="pre">MaxClient.inspect()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.invite_users_to_channel"><code class="docutils literal notranslate"><span class="pre">MaxClient.invite_users_to_channel()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.invite_users_to_group"><code class="docutils literal notranslate"><span class="pre">MaxClient.invite_users_to_group()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.join_channel"><code class="docutils literal notranslate"><span class="pre">MaxClient.join_channel()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.join_group"><code class="docutils literal notranslate"><span class="pre">MaxClient.join_group()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.leave_channel"><code class="docutils literal notranslate"><span class="pre">MaxClient.leave_channel()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.leave_group"><code class="docutils literal notranslate"><span class="pre">MaxClient.leave_group()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.load_members"><code class="docutils literal notranslate"><span class="pre">MaxClient.load_members()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.login_with_code"><code class="docutils literal notranslate"><span class="pre">MaxClient.login_with_code()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.on_chat_update"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_chat_update()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.on_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_message()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.on_message_delete"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_message_delete()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.on_message_edit"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_message_edit()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.on_raw_receive"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_raw_receive()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.on_reaction_change"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_reaction_change()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.on_start"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_start()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.pin_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.pin_message()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.remove_contact"><code class="docutils literal notranslate"><span class="pre">MaxClient.remove_contact()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.remove_reaction"><code class="docutils literal notranslate"><span class="pre">MaxClient.remove_reaction()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.remove_users_from_group"><code class="docutils literal notranslate"><span class="pre">MaxClient.remove_users_from_group()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.request_code"><code class="docutils literal notranslate"><span class="pre">MaxClient.request_code()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.resolve_channel_by_name"><code class="docutils literal notranslate"><span class="pre">MaxClient.resolve_channel_by_name()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.rework_invite_link"><code class="docutils literal notranslate"><span class="pre">MaxClient.rework_invite_link()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.search_by_phone"><code class="docutils literal notranslate"><span class="pre">MaxClient.search_by_phone()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.send_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.send_message()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.start"><code class="docutils literal notranslate"><span class="pre">MaxClient.start()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.task"><code class="docutils literal notranslate"><span class="pre">MaxClient.task()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.update_folder"><code class="docutils literal notranslate"><span class="pre">MaxClient.update_folder()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.ws"><code class="docutils literal notranslate"><span class="pre">MaxClient.ws</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#socketmaxclient">SocketMaxClient</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=8eb941aa"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>
