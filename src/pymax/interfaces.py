@@ -31,7 +31,7 @@ class ClientProtocol(ABC):
         self._users: dict[int, User] = {}
         self.chats: list[Chat] = []
         self._database: Database
-        self._device_id: str
+        self._device_id: UUID
         self.uri: str
         self.is_connected: bool = False
         self.phone: str

@@ -63,6 +63,7 @@ Command Handler
 
     import asyncio
     from pymax import MaxClient
+    from datetime import datetime
     from pymax.filters import Filters
 
     client = MaxClient(phone="+79001234567")

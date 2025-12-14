@@ -1,7 +1,6 @@
 import asyncio
 import time
 from http import HTTPStatus
-from io import BytesIO
 from pathlib import Path
 
 import aiohttp
@@ -40,7 +39,6 @@ from pymax.types import (
     FileRequest,
     Message,
     ReactionInfo,
-    VideoAttach,
     VideoRequest,
 )
 
@@ -257,7 +255,7 @@ class MessageMixin(ClientProtocol):
                             return None
             except OSError as e:
                 if "malloc failure" in str(e) or "BUF" in str(e):
-                    self.logger.error(
+                    self.logger.exception(
                         "Memory error during video upload. File too large or insufficient memory. Try uploading smaller files or free up memory."
                     )
                     self._file_upload_waiters.pop(int(video_id), None)
@@ -416,9 +414,9 @@ class MessageMixin(ClientProtocol):
 
         elements = []
         clean_text = None
-        raw_elements = Formatting.get_elements_from_markdown(text)[0]
+        raw_elements, parsed_text = Formatting.get_elements_from_markdown(text)
         if raw_elements:
-            clean_text = Formatting.get_elements_from_markdown(text)[1]
+            clean_text = parsed_text
         elements = [
             MessageElement(type=e.type, length=e.length, from_=e.from_)
             for e in raw_elements

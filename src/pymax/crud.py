@@ -29,7 +29,7 @@ class Database:
             token = cast(str | None, session.exec(select(Auth.token)).first())
             return token
 
-    def get_device_id(self) -> str:
+    def get_device_id(self) -> UUID:
         with self.get_session() as session:
             device_id = session.exec(select(Auth.device_id)).first()
 

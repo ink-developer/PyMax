@@ -8,10 +8,9 @@ import traceback
 from collections.abc import Awaitable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
+from uuid import UUID
 
 from typing_extensions import Self, override
-
-from pymax.filters import BaseFilter
 
 from .crud import Database
 from .exceptions import (
@@ -29,13 +28,13 @@ from .static.constant import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
-    from typing import Any
-    from uuid import UUID
+    from collections.abc import Callable
 
     import websockets
 
-    from .filters import filters
+    from pymax.filters import BaseFilter
+
+    from .filters import Filters
     from .types import Channel, Chat, Dialog, Me, Message, ReactionInfo, User
 
 
@@ -92,7 +91,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         registration: bool = False,
         first_name: str = "",
         last_name: str | None = None,
-        device_id: str | None = None,
+        device_id: UUID | None = None,
         logger: logging.Logger | None = None,
         reconnect: bool = True,
         reconnect_delay: float = 1.0,
