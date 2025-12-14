@@ -59,7 +59,7 @@ uv add -U maxapi-python
 import asyncio
 
 from pymax import MaxClient, Message
-from pymax.filters import Filter
+from pymax.filters import Filters
 
 client = MaxClient(
     phone="+1234567890",
@@ -68,7 +68,7 @@ client = MaxClient(
 
 
 # Обработка входящих сообщений
-@client.on_message(Filter.chat(0))  # фильтр по ID чата
+@client.on_message(Filters.chat(0))  # фильтр по ID чата
 async def on_message(msg: Message) -> None:
     print(f"[{msg.sender}] {msg.text}")
 

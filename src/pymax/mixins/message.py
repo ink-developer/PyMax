@@ -214,7 +214,7 @@ class MessageMixin(ClientProtocol):
             )  # 15 минут на видео
 
             headers = {
-                "Content-Disposition": f"attachment; filename={file.file_name}",
+                "Content-Disposition": f"attachment; filename={video.file_name}",
                 "Content-Range": f"0-{file_size - 1}/{file_size}",
                 "Content-Length": str(file_size),
                 "Connection": "keep-alive",
