@@ -170,6 +170,7 @@ class AuthType(str, Enum):
     START_AUTH = "START_AUTH"
     CHECK_CODE = "CHECK_CODE"
     REGISTER = "REGISTER"
+    RESEND = "RESEND"
 
 
 class AccessType(str, Enum):

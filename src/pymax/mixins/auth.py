@@ -73,7 +73,7 @@ class AuthMixin(ClientProtocol):
         self.logger.info("Resending auth code")
 
         payload = RequestCodePayload(
-            phone=phone, type=AuthType.START_AUTH, language=language
+            phone=phone, type=AuthType.RESEND, language=language
         ).model_dump(by_alias=True)
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)
