@@ -1,0 +1,6 @@
+reviews:
+  auto_review:
+    enabled: true
+    branches:
+      include:
+        - "*"  
