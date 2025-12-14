@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import contextlib
 import logging
@@ -343,8 +345,10 @@ class MaxClient(ApiMixin, WebSocketMixin):
         """
         resp = await self._send_code(code, temp_token)
         token = resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
+        if not token:
+            raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
         self._token = token
-        self._database.update_auth_token(self._device_id, token)
+        self._database.update_auth_token(str(self._device_id), token)
         if start:
             while True:
                 try:
@@ -381,7 +385,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
                     await self._register(self.first_name, self.last_name)
 
                 if self._token and self._database.get_auth_token() is None:
-                    self._database.update_auth_token(self._device_id, self._token)
+                    self._database.update_auth_token(str(self._device_id), self._token)
 
                 if self._token is None:
                     await self._login()
@@ -424,7 +428,10 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self.logger.info("Pymax")
         self.logger.info("---------")
         self.logger.info(f"Connected: {self.is_connected}")
-        self.logger.info(f"Me: {self.me.names[0].first_name} ({self.me.id})")
+        if self.me is not None:
+            self.logger.info(f"Me: {self.me.names[0].first_name} ({self.me.id})")
+        else:
+            self.logger.info("Me: N/A")
         self.logger.info(f"Dialogs: {len(self.dialogs)}")
         self.logger.info(f"Chats: {len(self.chats)}")
         self.logger.info(f"Channels: {len(self.channels)}")

@@ -152,7 +152,7 @@ class AuthMixin(ClientProtocol):
             raise ValueError("Failed to login, token not received")
 
         self._token = token
-        self._database.update_auth_token(self._device_id, self._token)
+        self._database.update_auth_token(str(self._device_id), self._token)
         self.logger.info("Login successful, token saved to database")
 
     async def _submit_reg_info(
