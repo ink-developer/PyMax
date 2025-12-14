@@ -268,12 +268,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         if sync:
             await self._sync()
 
-        if self._on_start_handler:
-            self.logger.debug("Calling on_start handler")
-            result = self._on_start_handler()
-            if asyncio.iscoroutine(result):
-                await self._safe_execute(result, context="on_start handler")
-
+        self.logger.debug("is_connected=%s before starting ping", self.is_connected)
         ping_task = asyncio.create_task(self._send_interactive_ping())
         ping_task.add_done_callback(self._log_task_exception)
         self._background_tasks.add(ping_task)
@@ -285,6 +280,12 @@ class MaxClient(ApiMixin, WebSocketMixin):
             telemetry_task = asyncio.create_task(self._start())
             telemetry_task.add_done_callback(self._log_task_exception)
             self._background_tasks.add(telemetry_task)
+
+        if self._on_start_handler:
+            self.logger.debug("Calling on_start handler")
+            result = self._on_start_handler()
+            if asyncio.iscoroutine(result):
+                await self._safe_execute(result, context="on_start handler")
 
     async def _cleanup_client(self) -> None:
         for task in list(self._background_tasks):

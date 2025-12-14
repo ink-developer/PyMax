@@ -160,3 +160,35 @@ class SelfMixin(ClientProtocol):
             MixinsUtils.handle_error(data)
 
         return FolderUpdate.from_dict(data.get("payload", {}))
+
+    async def close_all_sessions(self) -> bool:
+        """
+        Закрывает все активные сессии, кроме текущей.
+
+        :return: True, если операция выполнена успешно.
+        :rtype: bool
+        """
+        self.logger.info("Closing all other sessions")
+
+        data = await self._send_and_wait(opcode=Opcode.SESSIONS_CLOSE, payload={})
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        return True
+
+    async def logout(self) -> bool:
+        """
+        Выполняет выход из текущей сессии.
+
+        :return: True, если выход выполнен успешно.
+        :rtype: bool
+        """
+        self.logger.info("Logging out")
+
+        data = await self._send_and_wait(opcode=Opcode.LOGOUT, payload={})
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        return True

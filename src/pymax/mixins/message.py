@@ -1,9 +1,12 @@
 import asyncio
 import time
 from http import HTTPStatus
+from io import BytesIO
+from pathlib import Path
 
 import aiohttp
-from aiohttp import ClientSession
+from aiofiles import open as aio_open
+from aiohttp import ClientSession, TCPConnector
 
 from pymax.exceptions import Error
 from pymax.files import File, Photo, Video
@@ -43,9 +46,12 @@ from pymax.types import (
 
 
 class MessageMixin(ClientProtocol):
+    CHUNK_SIZE = 6 * 1024 * 1024
+
     async def _upload_file(self, file: File) -> None | Attach:
         try:
             self.logger.info("Uploading file")
+
             payload = UploadPayload().model_dump(by_alias=True)
             data = await self._send_and_wait(
                 opcode=Opcode.FILE_UPLOAD,
@@ -60,46 +66,118 @@ class MessageMixin(ClientProtocol):
                 self.logger.error("No upload URL or file ID received")
                 return None
 
-            file_bytes = await file.read()
+            self.logger.debug("Got upload URL and file_id=%s", file_id)
+
+            if file.path:
+                file_size = Path(file.path).stat().st_size
+                self.logger.info(
+                    "File size from path: %.2f MB", file_size / (1024 * 1024)
+                )
+            else:
+                file_bytes = await file.read()
+                file_size = len(file_bytes)
+                self.logger.info(
+                    "File size from URL: %.2f MB", file_size / (1024 * 1024)
+                )
+
+            connector = TCPConnector(limit=0)
+            timeout = aiohttp.ClientTimeout(total=None, sock_read=None, sock_connect=30)
 
             headers = {
                 "Content-Disposition": f"attachment; filename={file.file_name}",
-                "Content-Range": f"0-{len(file_bytes) - 1}/{len(file_bytes)}",
+                "Content-Length": str(file_size),
+                "Content-Range": f"0-{file_size - 1}/{file_size}",
             }
 
             loop = asyncio.get_running_loop()
             fut: asyncio.Future[dict] = loop.create_future()
-            try:
-                self._file_upload_waiters[int(file_id)] = fut
-            except Exception:
-                self.logger.exception("Failed to register file upload waiter")
+            self._file_upload_waiters[int(file_id)] = fut
+
+            async def file_generator():
+                bytes_sent = 0
+                chunk_num = 0
+                self.logger.debug("Starting file streaming from: %s", file.path)
+                async with aio_open(file.path, "rb") as f:
+                    while True:
+                        chunk = await f.read(self.CHUNK_SIZE)
+                        if not chunk:
+                            self.logger.info(
+                                "File streaming complete: %d bytes in %d chunks",
+                                bytes_sent,
+                                chunk_num,
+                            )
+                            break
+
+                        yield chunk
+
+                        bytes_sent += len(chunk)
+                        chunk_num += 1
+                        if chunk_num % 10 == 0:
+                            self.logger.info(
+                                "Upload progress: %.1f MB in %d chunks",
+                                bytes_sent / (1024 * 1024),
+                                chunk_num,
+                            )
+                        if chunk_num % 4 == 0:
+                            await asyncio.sleep(0)
+
+            async def bytes_generator(b: bytes):
+                bytes_sent = 0
+                chunk_num = 0
+                for i in range(0, len(b), self.CHUNK_SIZE):
+                    chunk = b[i : i + self.CHUNK_SIZE]
+                    yield chunk
+                    bytes_sent += len(chunk)
+                    chunk_num += 1
+                    if chunk_num % 10 == 0:
+                        self.logger.info(
+                            "Upload progress: %.1f MB in %d chunks",
+                            bytes_sent / (1024 * 1024),
+                            chunk_num,
+                        )
+                    if chunk_num % 4 == 0:
+                        await asyncio.sleep(0)
+
+            if file.path:
+                data_to_send = file_generator()
+            else:
+                data_to_send = bytes_generator(file_bytes)
+
+            self.logger.info("Starting file upload: %s", file.file_name)
 
             async with (
-                ClientSession() as session,
-                session.post(
-                    url=url,
-                    headers=headers,
-                    data=file_bytes,
-                ) as response,
+                ClientSession(connector=connector, timeout=timeout) as session,
+                session.post(url=url, headers=headers, data=data_to_send) as response,
             ):
+                self.logger.debug("Server response status: %d", response.status)
                 if response.status != HTTPStatus.OK:
-                    self.logger.error(f"Upload failed with status {response.status}")
+                    self.logger.error("Upload failed with status %s", response.status)
                     self._file_upload_waiters.pop(int(file_id), None)
                     return None
 
+                self.logger.debug(
+                    "File sent successfully. Waiting for server confirmation "
+                    "(timeout=%d seconds, fileId=%s)",
+                    DEFAULT_TIMEOUT,
+                    file_id,
+                )
                 try:
                     await asyncio.wait_for(fut, timeout=DEFAULT_TIMEOUT)
+                    self.logger.info(
+                        "File upload completed successfully (fileId=%s)", file_id
+                    )
                     return Attach(_type=AttachType.FILE, file_id=file_id)
                 except asyncio.TimeoutError:
-                    self.logger.error(
+                    self.logger.warning(
                         "Timed out waiting for file processing notification for fileId=%s",
                         file_id,
                     )
                     self._file_upload_waiters.pop(int(file_id), None)
                     return None
-        except Exception as e:
-            self.logger.exception("Upload file failed: %s", str(e))
-            raise e
+
+        except Exception:
+            self.logger.exception("Upload file failed")
+            raise
 
     async def _upload_video(self, video: Video) -> None | Attach:
         try:
@@ -127,10 +205,19 @@ class MessageMixin(ClientProtocol):
                 return None
 
             file_bytes = await video.read()
+            file_size = len(file_bytes)
+
+            # Настройки для ClientSession
+            connector = TCPConnector(limit=0)
+            timeout = aiohttp.ClientTimeout(
+                total=900, sock_read=60
+            )  # 15 минут на видео
 
             headers = {
-                "Content-Disposition": f"attachment; filename={video.file_name}",
-                "Content-Range": f"0-{len(file_bytes) - 1}/{len(file_bytes)}",
+                "Content-Disposition": f"attachment; filename={file.file_name}",
+                "Content-Range": f"0-{file_size - 1}/{file_size}",
+                "Content-Length": str(file_size),
+                "Connection": "keep-alive",
             }
 
             loop = asyncio.get_running_loop()
@@ -140,35 +227,45 @@ class MessageMixin(ClientProtocol):
             except Exception:
                 self.logger.exception("Failed to register file upload waiter")
 
-            async with (
-                ClientSession() as session,
-                session.post(
-                    url=url,
-                    headers=headers,
-                    data=file_bytes,
-                ) as response,
-            ):
-                if response.status != HTTPStatus.OK:
-                    self.logger.error(f"Upload failed with status {response.status}")
-                    self._file_upload_waiters.pop(int(video_id), None)
-                    return None
+            try:
+                async with ClientSession(
+                    connector=connector, timeout=timeout
+                ) as session:
+                    async with session.post(
+                        url=url,
+                        headers=headers,
+                        data=file_bytes,
+                    ) as response:
+                        if response.status != HTTPStatus.OK:
+                            self.logger.error(
+                                "Upload failed with status %s", response.status
+                            )
+                            self._file_upload_waiters.pop(int(video_id), None)
+                            return None
 
-                try:
-                    await asyncio.wait_for(fut, timeout=DEFAULT_TIMEOUT)
-                    return Attach(
-                        _type=AttachType.VIDEO, video_id=video_id, token=token
-                    )
-                except asyncio.TimeoutError:
+                        try:
+                            await asyncio.wait_for(fut, timeout=DEFAULT_TIMEOUT)
+                            return Attach(
+                                _type=AttachType.VIDEO, video_id=video_id, token=token
+                            )
+                        except asyncio.TimeoutError:
+                            self.logger.warning(
+                                "Timed out waiting for video processing notification for videoId=%s",
+                                video_id,
+                            )
+                            self._file_upload_waiters.pop(int(video_id), None)
+                            return None
+            except OSError as e:
+                if "malloc failure" in str(e) or "BUF" in str(e):
                     self.logger.error(
-                        "Timed out waiting for video processing notification for videoId=%s",
-                        video_id,
+                        "Memory error during video upload. File too large or insufficient memory. Try uploading smaller files or free up memory."
                     )
                     self._file_upload_waiters.pop(int(video_id), None)
-                    return None
+                raise
 
-        except Exception as e:
-            self.logger.exception("Upload video failed: %s", str(e))
-            raise e
+        except Exception:
+            self.logger.exception("Upload video failed")
+            raise
 
     async def _upload_photo(self, photo: Photo) -> None | Attach:
         try:

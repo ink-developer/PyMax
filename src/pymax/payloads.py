@@ -336,3 +336,7 @@ class DeleteFolderPayload(CamelModel):
 
 class LeaveChatPayload(CamelModel):
     chat_id: int
+
+
+class FetchChatsPayload(CamelModel):
+    marker: int

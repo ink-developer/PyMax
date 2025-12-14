@@ -57,6 +57,42 @@ class AuthMixin(ClientProtocol):
             self.logger.error("Invalid payload data received")
             raise ValueError("Invalid payload data received")
 
+    async def resend_code(self, phone: str, language: str = "ru") -> str:
+        """
+        Повторно запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.
+
+        :param phone: Номер телефона в международном формате.
+        :type phone: str
+        :param language: Язык для сообщения с кодом. По умолчанию "ru".
+        :type language: str
+        :return: Временный токен для дальнейшей аутентификации.
+        :rtype: str
+        :raises ValueError: Если полученные данные имеют неверный формат.
+        :raises Error: Если сервер вернул ошибку.
+        """
+        self.logger.info("Resending auth code")
+
+        payload = RequestCodePayload(
+            phone=phone, type=AuthType.START_AUTH, language=language
+        ).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        self.logger.debug(
+            "Code resend response opcode=%s seq=%s",
+            data.get("opcode"),
+            data.get("seq"),
+        )
+        payload_data = data.get("payload")
+        if isinstance(payload_data, dict):
+            return payload_data["token"]
+        else:
+            self.logger.error("Invalid payload data received")
+            raise ValueError("Invalid payload data received")
+
     async def _send_code(self, code: str, token: str) -> dict[str, Any]:
         """
         Отправляет код верификации на сервер для подтверждения.

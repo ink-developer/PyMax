@@ -10,6 +10,7 @@ from pymax.payloads import (
     CreateGroupAttach,
     CreateGroupMessage,
     CreateGroupPayload,
+    FetchChatsPayload,
     GetChatInfoPayload,
     InviteUsersPayload,
     JoinChatPayload,
@@ -403,3 +404,36 @@ class GroupMixin(ClientProtocol):
         :rtype: None
         """
         await self.leave_group(chat_id)
+
+    async def fetch_chats(self, marker: int | None = None) -> list[Chat]:
+        """
+        Загружает список чатов
+
+        :param marker: Маркер для пагинации, по умолчанию None
+        :type marker: int | None
+        :return: Список объектов Chat
+        :rtype: list[Chat]
+        """
+        if marker is None:
+            marker = int(time.time() * 1000)
+
+        payload = FetchChatsPayload(marker=marker).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.CHATS_LIST, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        chats_data = data["payload"].get("chats", [])
+        chats: list[Chat] = []
+        for chat_dict in chats_data:
+            chat = Chat.from_dict(chat_dict)
+            chats.append(chat)
+            cached_chat = await self._get_chat(chat.id)
+            if cached_chat is None:
+                self.chats.append(chat)
+            else:
+                idx = self.chats.index(cached_chat)
+                self.chats[idx] = chat
+
+        return chats
