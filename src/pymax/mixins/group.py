@@ -118,6 +118,17 @@ class GroupMixin(ClientProtocol):
         user_ids: list[int],
         show_history: bool = True,
     ) -> Chat | None:
+        """
+        Приглашает пользователей в канал
+
+        Args:
+            chat_id (int): ID канала.
+            user_ids (list[int]): Список идентификаторов пользователей.
+            show_history (bool, optional): Флаг оповещения. Defaults to True.
+
+        Returns:
+            Chat | None: Объект Chat или None при ошибке.
+        """
         return await self.invite_users_to_group(chat_id, user_ids, show_history)
 
     async def remove_users_from_group(
@@ -126,6 +137,17 @@ class GroupMixin(ClientProtocol):
         user_ids: list[int],
         clean_msg_period: int,
     ) -> bool:
+        """
+        Удаляет пользователей из группы
+
+        Args:
+            chat_id (int): ID группы.
+            user_ids (list[int]): Список идентификаторов пользователей.
+            clean_msg_period (int): Период очистки сообщений.
+
+        Returns:
+            bool: True, если удаление прошло успешно, иначе False.
+        """
         payload = RemoveUsersPayload(
             chat_id=chat_id,
             user_ids=user_ids,
@@ -159,6 +181,19 @@ class GroupMixin(ClientProtocol):
         only_admin_can_call: bool | None = None,
         members_can_see_private_link: bool | None = None,
     ) -> None:
+        """
+        Изменяет настройки группы
+
+        Args:
+            chat_id (int): ID группы.
+            all_can_pin_message (bool | None, optional): Все могут закреплять сообщения. Defaults to None.
+            only_owner_can_change_icon_title (bool | None, optional): Только владелец может менять иконку и название. Defaults to None.
+            only_admin_can_add_member (bool | None, optional): Только администраторы могут добавлять участников. Defaults to None.
+            only_admin_can_call (bool | None, optional): Только администраторы могут звонить. Defaults to None.
+            members_can_see_private_link (bool | None, optional): Участники могут видеть приватную ссылку. Defaults to None.
+        Returns:
+            None
+        """
         payload = ChangeGroupSettingsPayload(
             chat_id=chat_id,
             options=ChangeGroupSettingsOptions(
@@ -190,6 +225,17 @@ class GroupMixin(ClientProtocol):
         name: str | None,
         description: str | None = None,
     ) -> None:
+        """
+        Изменяет профиль группы
+
+        Args:
+            chat_id (int): ID группы.
+            name (str | None): Название группы.
+            description (str | None, optional): Описание группы. Defaults to None.
+
+        Returns:
+            None
+        """
         payload = ChangeGroupProfilePayload(
             chat_id=chat_id,
             theme=name,
@@ -273,11 +319,10 @@ class GroupMixin(ClientProtocol):
         """
         Получает информацию о группах по их ID
 
-        Args:
-            chat_ids (list[int]): Список идентификаторов групп.
-
-        Returns:
-            list[Chat]: Список объектов Chat.
+        :param chat_ids: Список идентификаторов групп.
+        :type chat_ids: list[int]
+        :return: Список объектов Chat.
+        :rtype: list[Chat]
         """
         missed_chat_ids = [
             chat_id for chat_id in chat_ids if await self._get_chat(chat_id) is None
@@ -332,8 +377,10 @@ class GroupMixin(ClientProtocol):
         """
         Покидает группу
 
-        Args:
-            chat_id (int): Идентификатор группы.
+        :param chat_id: Идентификатор группы.
+        :type chat_id: int
+        :return: None
+        :rtype: None
         """
         payload = LeaveChatPayload(chat_id=chat_id).model_dump(by_alias=True)
 
@@ -350,7 +397,9 @@ class GroupMixin(ClientProtocol):
         """
         Покидает канал
 
-        Args:
-            chat_id (int): Идентификатор канала.
+        :param chat_id: Идентификатор канала.
+        :type chat_id: int
+        :return: None
+        :rtype: None
         """
         await self.leave_group(chat_id)

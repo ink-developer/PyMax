@@ -265,7 +265,25 @@ class MessageMixin(ClientProtocol):
         use_queue: bool = False,
     ) -> Message | None:
         """
-        Отправляет сообщение в чат.
+        Отправляет текстовое сообщение в чат с опциональными вложениями.
+
+        :param text: Текст сообщения.
+        :type text: str
+        :param chat_id: Идентификатор чата, в который отправляется сообщение.
+        :type chat_id: int
+        :param notify: Флаг оповещения о новом сообщении. По умолчанию True.
+        :type notify: bool
+        :param attachment: Одно вложение (фото, файл или видео).
+        :type attachment: Photo | File | Video | None
+        :param attachments: Список множественных вложений.
+        :type attachments: list[Photo | File | Video] | None
+        :param reply_to: Идентификатор сообщения для ответа.
+        :type reply_to: int | None
+        :param use_queue: Использовать очередь для отправки. По умолчанию False.
+        :type use_queue: bool
+        :return: Объект сообщения или None, если используется очередь.
+        :rtype: Message | None
+        :raises Error: Если загрузка вложения или отправка сообщения не удалась.
         """
 
         self.logger.info("Sending message to chat_id=%s notify=%s", chat_id, notify)
@@ -349,6 +367,25 @@ class MessageMixin(ClientProtocol):
         attachments: list[Photo | Video | File] | None = None,
         use_queue: bool = False,
     ) -> Message | None:
+        """
+        Редактирует текст и/или вложения существующего сообщения.
+
+        :param chat_id: Идентификатор чата.
+        :type chat_id: int
+        :param message_id: Идентификатор сообщения для редактирования.
+        :type message_id: int
+        :param text: Новый текст сообщения.
+        :type text: str
+        :param attachment: Новое вложение (фото, файл или видео).
+        :type attachment: Photo | File | Video | None
+        :param attachments: Список новых множественных вложений.
+        :type attachments: list[Photo | Video | File] | None
+        :param use_queue: Использовать очередь для отправки.
+        :type use_queue: bool
+        :return: Отредактированное сообщение или None.
+        :rtype: Message | None
+        :raises Error: Если редактирование не удалось.
+        """
         self.logger.info(
             "Editing message chat_id=%s message_id=%s", chat_id, message_id
         )
@@ -428,7 +465,18 @@ class MessageMixin(ClientProtocol):
         use_queue: bool = False,
     ) -> bool:
         """
-        Удаляет сообщения.
+        Удаляет одно или несколько сообщений.
+
+        :param chat_id: Идентификатор чата.
+        :type chat_id: int
+        :param message_ids: Список идентификаторов сообщений для удаления.
+        :type message_ids: list[int]
+        :param for_me: Удалить только для себя (не видимо другим).
+        :type for_me: bool
+        :param use_queue: Использовать очередь для отправки.
+        :type use_queue: bool
+        :return: True, если сообщения успешно удалены.
+        :rtype: bool
         """
         self.logger.info(
             "Deleting messages chat_id=%s ids=%s for_me=%s",
@@ -458,15 +506,16 @@ class MessageMixin(ClientProtocol):
         self, chat_id: int, message_id: int, notify_pin: bool
     ) -> bool:
         """
-        Закрепляет сообщение.
+        Закрепляет сообщение в чате.
 
-        Args:
-            chat_id (int): ID чата
-            message_id (int): ID сообщения
-            notify_pin (bool): Оповещать о закреплении
-
-        Returns:
-            bool: True, если сообщение закреплено
+        :param chat_id: Идентификатор чата.
+        :type chat_id: int
+        :param message_id: Идентификатор сообщения.
+        :type message_id: int
+        :param notify_pin: Отправить уведомление о закреплении.
+        :type notify_pin: bool
+        :return: True, если сообщение успешно закреплено.
+        :rtype: bool
         """
         payload = PinMessagePayload(
             chat_id=chat_id,
@@ -490,7 +539,18 @@ class MessageMixin(ClientProtocol):
         backward: int = 200,
     ) -> list[Message] | None:
         """
-        Получает историю сообщений чата.
+        Получает историю сообщений из чата.
+
+        :param chat_id: Идентификатор чата.
+        :type chat_id: int
+        :param from_time: Временная метка для начала выборки.
+        :type from_time: int | None
+        :param forward: Кол-во сообщений вперед от from_time.
+        :type forward: int
+        :param backward: Кол-во сообщений назад от from_time.
+        :type backward: int
+        :return: Список сообщений или None.
+        :rtype: list[Message] | None
         """
         if from_time is None:
             from_time = int(time.time() * 1000)
@@ -534,15 +594,14 @@ class MessageMixin(ClientProtocol):
         """
         Получает видео
 
-        Args:
-            chat_id (int): ID чата
-            message_id (int): ID сообщения
-            video_id (int): ID видео
-
-        Returns:
-            external (str): Странная ссылка из апи
-            cache (bool): True, если видео кэшировано
-            url (str): Ссылка на видео
+        :param chat_id: ID чата
+        :type chat_id: int
+        :param message_id: ID сообщения
+        :type message_id: int
+        :param video_id: ID видео
+        :type video_id: int
+        :return: Объект VideoRequest или None
+        :rtype: VideoRequest | None
         """
         self.logger.info("Getting video_id=%s message_id=%s", video_id, message_id)
 
@@ -578,14 +637,14 @@ class MessageMixin(ClientProtocol):
         """
         Получает файл
 
-        Args:
-            chat_id (int): ID чата
-            message_id (int): ID сообщения
-            file_id (int): ID видео
-
-        Returns:
-            unsafe (bool): Проверка файла на безопасность максом
-            url (str): Ссылка на скачивание файла
+        :param chat_id: ID чата
+        :type chat_id: int
+        :param message_id: ID сообщения
+        :type message_id: int
+        :param file_id: ID файла
+        :type file_id: int
+        :return: Объект FileRequest или None
+        :rtype: FileRequest | None
         """
         self.logger.info("Getting file_id=%s message_id=%s", file_id, message_id)
         if self.is_connected and self._socket is not None:
@@ -620,13 +679,14 @@ class MessageMixin(ClientProtocol):
         """
         Добавляет реакцию к сообщению.
 
-        Args:
-            chat_id (int): ID чата
-            message_id (int): ID сообщения
-            reaction (str): Реакция (эмодзи)
-
-        Returns:
-            ReactionInfo | None: Информация о реакции или None при ошибке.
+        :param chat_id: ID чата
+        :type chat_id: int
+        :param message_id: ID сообщения
+        :type message_id: str
+        :param reaction: Реакция для добавления
+        :type reaction: str (emoji)
+        :return: Объект ReactionInfo или None
+        :rtype: ReactionInfo | None
         """
         try:
             self.logger.info(
@@ -665,13 +725,12 @@ class MessageMixin(ClientProtocol):
         """
         Получает реакции на сообщения.
 
-        Args:
-            chat_id (int): ID чата
-            message_ids (list[str]): Список ID сообщений
-
-        Returns:
-            dict[str, ReactionInfo] | None: Словарь с ID сообщений и информацией
-            о реакциях или None при ошибке.
+        :param chat_id: ID чата
+        :type chat_id: int
+        :param message_ids: Список ID сообщений
+        :type message_ids: list[str]
+        :return: Словарь с ID сообщений и соответствующими реакциями
+        :rtype: dict[str, ReactionInfo] | None
         """
         self.logger.info(
             "Getting reactions for messages chat_id=%s message_ids=%s",
@@ -707,12 +766,12 @@ class MessageMixin(ClientProtocol):
         """
         Удаляет реакцию с сообщения.
 
-        Args:
-            chat_id (int): ID чата
-            message_id (str): ID сообщения
-
-        Returns:
-            ReactionInfo | None: Информация о реакции или None при ошибке.
+        :param chat_id: ID чата
+        :type chat_id: int
+        :param message_id: ID сообщения
+        :type message_id: str
+        :return: Объект ReactionInfo или None
+        :rtype: ReactionInfo | None
         """
         self.logger.info(
             "Removing reaction from message chat_id=%s message_id=%s",

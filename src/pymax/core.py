@@ -46,29 +46,36 @@ class MaxClient(ApiMixin, WebSocketMixin):
     """
     Основной клиент для работы с WebSocket API сервиса Max.
 
+    :param phone: Номер телефона для авторизации.
+    :type phone: str
+    :param uri: URI WebSocket сервера.
+    :type uri: str, optional
+    :param work_dir: Рабочая директория для хранения базы данных.
+    :type work_dir: str, optional
+    :param logger: Пользовательский логгер. Если не передан, используется логгер модуля с именем f"{__name__}.MaxClient".
+    :type logger: logging.Logger | None
+    :param headers: Заголовки для подключения к WebSocket.
+    :type headers: UserAgentPayload
+    :param token: Токен авторизации. Если не передан, будет выполнен процесс логина по номеру телефона.
+    :type token: str | None, optional
+    :param host: Хост API сервера.
+    :type host: str, optional
+    :param port: Порт API сервера.
+    :type port: int, optional
+    :param registration: Флаг регистрации нового пользователя.
+    :type registration: bool, optional
+    :param first_name: Имя пользователя для регистрации. Требуется, если registration=True.
+    :type first_name: str, optional
+    :param last_name: Фамилия пользователя для регистрации.
+    :type last_name: str | None, optional
+    :param send_fake_telemetry: Флаг отправки фейковой телеметрии.
+    :type send_fake_telemetry: bool, optional
+    :param proxy: Прокси для подключения к WebSocket (см. https://websockets.readthedocs.io/en/stable/topics/proxies.html).
+    :type proxy: str | Literal[True] | None, optional
+    :param reconnect: Флаг автоматического переподключения при потере соединения.
+    :type reconnect: bool, optional
 
-    Args:
-        phone (str): Номер телефона для авторизации.
-        uri (str, optional): URI WebSocket сервера. По умолчанию Constants.WEBSOCKET_URI.value.
-        work_dir (str, optional): Рабочая директория для хранения базы данных. По умолчанию ".".
-        logger (logging.Logger | None): Пользовательский логгер. Если не передан — используется
-            логгер модуля с именем f"{__name__}.MaxClient".
-        headers (UserAgentPayload): Заголовки для подключения к WebSocket.
-        token (str | None, optional): Токен авторизации. Если не передан, будет выполнен
-            процесс логина по номеру телефона.
-        host (str, optional): Хост API сервера. По умолчанию Constants.HOST.value.
-        port (int, optional): Порт API сервера. По умолчанию Constants.PORT.value.
-        registration (bool, optional): Флаг регистрации нового пользователя. По умолчанию False.
-        first_name (str, optional): Имя пользователя для регистрации. Требуется, если registration=True.
-        last_name (str | None, optional): Фамилия пользователя для регистрации.
-        send_fake_telemetry (bool, optional): Флаг отправки фейковой телеметрии. По умолчанию True.
-        proxy (str | Literal[True] | None, optional): Прокси для подключения к WebSocket.
-            (См. https://websockets.readthedocs.io/en/stable/topics/proxies.html).
-        reconnect (bool, optional): Флаг автоматического переподключения при потере соединения. По умолчанию True.
-
-
-    Raises:
-        InvalidPhoneError: Если формат номера телефона неверный.
+    :raises InvalidPhoneError: Если формат номера телефона неверный.
     """
 
     def __init__(
@@ -211,6 +218,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
             )
 
     async def close(self) -> None:
+        """
+        Закрывает клиент и освобождает ресурсы.
+
+        :return: None
+        """
         try:
             self.logger.info("Closing client")
             if self._recv_task:
@@ -320,12 +332,14 @@ class MaxClient(ApiMixin, WebSocketMixin):
         """
         Завершает кастомный login flow: отправляет код, сохраняет токен и запускает пост-логин задачи.
 
-        Args:
-            temp_token (str): Временный токен, полученный из request_code()
-            code (str): Код, введённый пользователем
-
-        Returns:
-            str: Токен для входа
+        :param temp_token: Временный токен, полученный из request_code.
+        :type temp_token: str
+        :param code: Код верификации (6 цифр).
+        :type code: str
+        :param start: Флаг запуска пост-логин задач и ожидания навсегда. Если False, только сохраняет токен.
+        :type start: bool, optional
+        :return: None
+        :rtype: None
         """
         resp = await self._send_code(code, temp_token)
         token = resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
@@ -351,6 +365,9 @@ class MaxClient(ApiMixin, WebSocketMixin):
         Запускает клиент, подключается к WebSocket, авторизует
         пользователя (если нужно) и запускает фоновый цикл.
         Теперь включает безопасный reconnect-loop, если self.reconnect=True.
+
+        :return: None
+        :rtype: None
         """
 
         while True:
@@ -392,6 +409,12 @@ class MaxClient(ApiMixin, WebSocketMixin):
             await asyncio.sleep(self.reconnect_delay)
 
     async def idle(self):
+        """
+        Поддерживает клиента в «ожидающем» состоянии до закрытия клиента или иного прерывающего события.
+
+        :return: Никогда не возвращает значение; функция блокирует выполнение.
+        :rtype: None
+        """
         await asyncio.Event().wait()
 
     def inspect(self) -> None:

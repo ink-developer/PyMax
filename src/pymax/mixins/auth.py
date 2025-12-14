@@ -19,15 +19,20 @@ class AuthMixin(ClientProtocol):
         """
         Запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.
 
-        Note:
-            Использовать только в кастомном login flow.
+        Метод отправляет запрос на получение кода верификации на переданный номер телефона.
+        Используется в процессе аутентификации или регистрации.
 
-        Args:
-            phone (str): Номер телефона в международном формате.
-            language (str, optional): Язык для сообщения с кодом. По умолчанию "ru".
+        :param phone: Номер телефона в международном формате.
+        :type phone: str
+        :param language: Язык для сообщения с кодом. По умолчанию "ru".
+        :type language: str
+        :return: Временный токен для дальнейшей аутентификации.
+        :rtype: str
+        :raises ValueError: Если полученные данные имеют неверный формат.
+        :raises Error: Если сервер вернул ошибку.
 
-        Returns:
-            str: Временный токен для дальнейшей аутентификации.
+        .. note::
+            Используется только в пользовательском flow аутентификации.
         """
         self.logger.info("Requesting auth code")
 
@@ -53,6 +58,17 @@ class AuthMixin(ClientProtocol):
             raise ValueError("Invalid payload data received")
 
     async def _send_code(self, code: str, token: str) -> dict[str, Any]:
+        """
+        Отправляет код верификации на сервер для подтверждения.
+
+        :param code: Код верификации (6 цифр).
+        :type code: str
+        :param token: Временный токен, полученный из request_code.
+        :type token: str
+        :return: Словарь с данными ответа сервера, содержащий токены аутентификации.
+        :rtype: dict[str, Any]
+        :raises Error: Если сервер вернул ошибку.
+        """
         self.logger.info("Sending verification code")
 
         payload = SendCodePayload(

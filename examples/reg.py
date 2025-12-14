@@ -1,12 +1,34 @@
 import asyncio
 
-from pymax import SocketMaxClient
+from pymax import MaxClient, Message
+from pymax.filters import Filters
 
-token = "An_Sx6HQ9HDiZAprtYuTKmILHpack4RuTBTa0El5iS8V8OhvFDapHKOiCLRuXcO1PdiEKhKDvWiO4Bc13DnLtrU3h1gAF4cb0k8CzZY6wlm5JxyGfVY_DKNc2whQ8j-XeXv-vkqmFfpd4zwwDGRPhA0BfT4JdKiueZDmb6SKrWlELBO_JHyfBwUR6J6EPZsrfWrd-eFd5unsQ6rGjbswNCi8IAyIVlqNQgAHgjr2nma5qV-62CDrQSpeMXpVv577jeeKf5092__MmoqaYWZ6vObhmbBth_KFOB1EWmFco2ffjh3jVNPnjdd9kLwS8nbbVc5i2JE0BPUkSs_FlzI4mQUA6ZQH2zlfoby0qq6dsrj8Q-PWXhxyCi3WKN_YSBsXvLRTIEnoP4l_PhQiMMV6fMvdDKewpRmLPTgpCL-NNC18es7RvSuAS9FNQrbZ9E_KSKVo9n-eSI1wipr7QaZqkyN5PbrmvKuX8CAwoLIfdFSvcNos0BOXDfFNrW7paGd5xDMLvX2wBwbimDOTl35n8C2m6y3E2Bm0m5vMpiYglw3z3_6cRcOvJe9vVQV-_B9JecrZNhH6b7q_h8GAfUGlj1k0e90VahiviFurRixgKwB1i5BnEvClq8jSWEl8Ph8-xxXvbVsXhtHvjJxkeA"
-phone = "+79991234567"
+client = MaxClient(
+    phone="+1234567890",
+    work_dir="cache",
+)
 
 
-client = SocketMaxClient(token=token, phone=phone)
+@client.on_message(Filters.chat(0))
+async def on_message(msg: Message):
+    print(f"[{msg.sender}] {msg.text}")
+    await client.send_message(chat_id=msg.chat_id, text="Привет!")
+    await client.add_reaction(
+        chat_id=msg.chat_id, message_id=str(msg.id), reaction="👍"
+    )
 
 
-asyncio.run(client.start())
+@client.on_start
+async def on_start():
+    print(f"Клиент запущен. Ваш ID: {client.me.id}")
+    history = await client.fetch_history(chat_id=0)
+    for m in history:
+        print(f"- {m.text}")
+
+
+async def main():
+    await client.start()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

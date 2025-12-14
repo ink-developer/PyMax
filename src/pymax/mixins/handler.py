@@ -14,13 +14,24 @@ class HandlerMixin(ClientProtocol):
         Callable[[Any], Any | Awaitable[Any]],
     ]:
         """
-        Декоратор для установки обработчика входящих сообщений.
+        Декоратор для регистрации обработчика входящих сообщений.
 
-        Args:
-            filter: Фильтр для обработки сообщений.
+        Позволяет установить функцию-обработчик для всех входящих сообщений
+        или только для сообщений, соответствующих заданному фильтру.
 
-        Returns:
-            Декоратор.
+        :param filter: Фильтр для обработки сообщений. По умолчанию None.
+        :type filter: BaseFilter[Message] | None
+        :return: Декоратор для функции-обработчика.
+        :rtype: Callable
+
+        Example::
+
+            @client.on_message(Filter.text("hello"))
+            async def handle_hello(message: Message):
+                await client.send_message(
+                    chat_id=message.chat_id,
+                    text="Hello!"
+                )
         """
 
         def decorator(
@@ -41,11 +52,10 @@ class HandlerMixin(ClientProtocol):
         """
         Декоратор для установки обработчика отредактированных сообщений.
 
-        Args:
-            filter: Фильтр для обработки сообщений.
-
-        Returns:
-            Декоратор.
+        :param filter: Фильтр для обработки сообщений. По умолчанию None.
+        :type filter: BaseFilter[Message] | None
+        :return: Декоратор для функции-обработчика.
+        :rtype: Callable
         """
 
         def decorator(
@@ -68,11 +78,10 @@ class HandlerMixin(ClientProtocol):
         """
         Декоратор для установки обработчика удаленных сообщений.
 
-        Args:
-            filter: Фильтр для обработки сообщений.
-
-        Returns:
-            Декоратор.
+        :param filter: Фильтр для обработки сообщений. По умолчанию None.
+        :type filter: BaseFilter[Message] | None
+        :return: Декоратор для функции-обработчика.
+        :rtype: Callable
         """
 
         def decorator(
@@ -93,11 +102,10 @@ class HandlerMixin(ClientProtocol):
         """
         Устанавливает обработчик изменения реакций на сообщения.
 
-        Args:
-            handler: Функция или coroutine с аргументами (message_id: str, chat_id: int, reaction_info: ReactionInfo).
-
-        Returns:
-            Установленный обработчик.
+        :param handler: Функция или coroutine с аргументами (message_id: str, chat_id: int, reaction_info: ReactionInfo).
+        :type handler: Callable[[str, int, ReactionInfo], Any | Awaitable[Any]]
+        :return: Установленный обработчик.
+        :rtype: Callable[[str, int, ReactionInfo], Any | Awaitable[Any]]
         """
         self._on_reaction_change_handlers.append(handler)
         self.logger.debug("on_reaction_change handler set: %r", handler)
@@ -109,11 +117,10 @@ class HandlerMixin(ClientProtocol):
         """
         Устанавливает обработчик обновления информации о чате.
 
-        Args:
-            handler: Функция или coroutine с аргументом (chat: Chat).
-
-        Returns:
-            Установленный обработчик.
+        :param handler: Функция или coroutine с аргументом (chat: Chat).
+        :type handler: Callable[[Chat], Any | Awaitable[Any]]
+        :return: Установленный обработчик.
+        :rtype: Callable[[Chat], Any | Awaitable[Any]]
         """
         self._on_chat_update_handlers.append(handler)
         self.logger.debug("on_chat_update handler set: %r", handler)
@@ -125,11 +132,10 @@ class HandlerMixin(ClientProtocol):
         """
         Устанавливает обработчик для получения необработанных данных от сервера.
 
-        Args:
-            handler: Функция или coroutine с аргументом (data: dict).
-
-        Returns:
-            Установленный обработчик.
+        :param handler: Функция или coroutine с аргументом (data: dict).
+        :type handler: Callable[[dict[str, Any]], Any | Awaitable[Any]]
+        :return: Установленный обработчик.
+        :rtype: Callable[[dict[str, Any]], Any | Awaitable[Any]]
         """
         self._on_raw_receive_handlers.append(handler)
         self.logger.debug("on_raw_receive handler set: %r", handler)
@@ -141,11 +147,10 @@ class HandlerMixin(ClientProtocol):
         """
         Устанавливает обработчик, вызываемый при старте клиента.
 
-        Args:
-            handler: Функция или coroutine без аргументов.
-
-        Returns:
-            Установленный обработчик.
+        :param handler: Функция или coroutine без аргументов.
+        :type handler: Callable[[], Any | Awaitable[Any]]
+        :return: Установленный обработчик.
+        :rtype: Callable[[], Any | Awaitable[Any]]
         """
         self._on_start_handler = handler
         self.logger.debug("on_start handler set: %r", handler)
@@ -155,13 +160,20 @@ class HandlerMixin(ClientProtocol):
         """
         Декоратор для планирования периодической задачи.
 
-        Args:
-            seconds (float): Интервал в секундах.
-            minutes (float, optional): Интервал в минутах. По умолчанию 0.
-            hours (float, optional): Интервал в часах. По умолчанию 0.
+        :param seconds: Интервал выполнения в секундах.
+        :type seconds: float
+        :param minutes: Интервал выполнения в минутах. По умолчанию 0.
+        :type minutes: float
+        :param hours: Интервал выполнения в часах. По умолчанию 0.
+        :type hours: float
+        :return: Декоратор для функции-обработчика.
+        :rtype: Callable[[], Any | Awaitable[Any]]
 
-        Returns:
-            Декоратор.
+        Example::
+
+            @client.task(seconds=10)
+            async def task():
+                await client.send_message(chat_id=123, text="Hello!")
         """
 
         def decorator(
@@ -182,6 +194,16 @@ class HandlerMixin(ClientProtocol):
         handler: Callable[[Message], Any | Awaitable[Any]],
         filter: BaseFilter[Message] | None = None,
     ) -> Callable[[Message], Any | Awaitable[Any]]:
+        """
+        Добавляет обработчик входящих сообщений.
+
+        :param handler: Обработчик.
+        :type handler: Callable[[Message], Any | Awaitable[Any]]
+        :param filter: Фильтр. По умолчанию None.
+        :type filter: BaseFilter[Message] | None
+        :return: Обработчик.
+        :rtype: Callable[[Message], Any | Awaitable[Any]]
+        """
         self.logger.debug("add_message_handler (alias) used")
         self._on_message_handlers.append((handler, filter))
         return handler
@@ -189,6 +211,14 @@ class HandlerMixin(ClientProtocol):
     def add_on_start_handler(
         self, handler: Callable[[], Any | Awaitable[Any]]
     ) -> Callable[[], Any | Awaitable[Any]]:
+        """
+        Добавляет обработчик, вызываемый при старте клиента.
+
+        :param handler: Функция или coroutine без аргументов.
+        :type handler: Callable[[], Any | Awaitable[Any]]
+        :return: Установленный обработчик.
+        :rtype: Callable[[], Any | Awaitable[Any]]
+        """
         self.logger.debug("add_on_start_handler (alias) used")
         self._on_start_handler = handler
         return handler
@@ -197,6 +227,14 @@ class HandlerMixin(ClientProtocol):
         self,
         handler: Callable[[str, int, ReactionInfo], Any | Awaitable[Any]],
     ) -> Callable[[str, int, ReactionInfo], Any | Awaitable[Any]]:
+        """
+        Добавляет обработчик изменения реакций на сообщения.
+
+        :param handler: Функция или coroutine с аргументами (message_id: str, chat_id: int, reaction_info: ReactionInfo).
+        :type handler: Callable[[str, int, ReactionInfo], Any | Awaitable[Any]]
+        :return: Установленный обработчик.
+        :rtype: Callable[[str, int, ReactionInfo], Any | Awaitable[Any]]
+        """
         self.logger.debug("add_reaction_change_handler (alias) used")
         self._on_reaction_change_handlers.append(
             handler,
@@ -206,6 +244,14 @@ class HandlerMixin(ClientProtocol):
     def add_chat_update_handler(
         self, handler: Callable[[Chat], Any | Awaitable[Any]]
     ) -> Callable[[Chat], Any | Awaitable[Any]]:
+        """
+        Добавляет обработчик обновления информации о чате.
+
+        :param handler: Функция или coroutine с аргументом (chat: Chat).
+        :type handler: Callable[[Chat], Any | Awaitable[Any]]
+        :return: Установленный обработчик.
+        :rtype: Callable[[Chat], Any | Awaitable[Any]]
+        """
         self.logger.debug("add_chat_update_handler (alias) used")
         self._on_chat_update_handlers.append(handler)
         return handler
@@ -213,6 +259,14 @@ class HandlerMixin(ClientProtocol):
     def add_raw_receive_handler(
         self, handler: Callable[[dict[str, Any]], Any | Awaitable[Any]]
     ) -> Callable[[dict[str, Any]], Any | Awaitable[Any]]:
+        """
+        Добавляет обработчик для получения необработанных данных от сервера.
+
+        :param handler: Функция или coroutine с аргументом (data: dict).
+        :type handler: Callable[[dict[str, Any]], Any | Awaitable[Any]]
+        :return: Установленный обработчик.
+        :rtype: Callable[[dict[str, Any]], Any | Awaitable[Any]]
+        """
         self.logger.debug("add_raw_receive_handler (alias) used")
         self._on_raw_receive_handlers.append(handler)
         return handler
@@ -222,6 +276,16 @@ class HandlerMixin(ClientProtocol):
         handler: Callable[[], Any | Awaitable[Any]],
         interval: float,
     ) -> Callable[[], Any | Awaitable[Any]]:
+        """
+        Добавляет периодическую задачу.
+
+        :param handler: Функция или coroutine без аргументов.
+        :type handler: Callable[[], Any | Awaitable[Any]]
+        :param interval: Интервал выполнения в секундах.
+        :type interval: float
+        :return: Установленный обработчик.
+        :rtype: Callable[[], Any | Awaitable[Any]]
+        """
         self.logger.debug("add_scheduled_task (alias) used")
         self._scheduled_tasks.append((handler, interval))
         return handler

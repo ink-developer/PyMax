@@ -23,15 +23,16 @@ class SelfMixin(ClientProtocol):
         description: str | None = None,
     ) -> bool:
         """
-        Изменяет профиль
+        Изменяет информацию профиля текущего пользователя.
 
-        Args:
-            first_name (str): Имя.
-            last_name (str | None, optional): Фамилия. Defaults to None.
-            description (str | None, optional): Описание. Defaults to None.
-
-        Returns:
-            bool: True, если профиль изменен
+        :param first_name: Имя пользователя.
+        :type first_name: str
+        :param last_name: Фамилия пользователя. По умолчанию None.
+        :type last_name: str | None
+        :param description: Описание профиля. По умолчанию None.
+        :type description: str | None
+        :return: True, если профиль успешно изменен.
+        :rtype: bool
         """
 
         payload = ChangeProfilePayload(
@@ -54,15 +55,16 @@ class SelfMixin(ClientProtocol):
         self, title: str, chat_include: list[int], filters: list[Any] | None = None
     ) -> FolderUpdate:
         """
-        Создает папку для чатов
+        Создает новую папку для группировки чатов.
 
-        Args:
-            title (str): Название папки
-            chat_include (list[int]): Список ID чатов для включения в папку
-            filters (list[Any] | None, optional): Список фильтров для папки (Неизвестный параметр, использование на свой страх и риск)
-
-        Returns:
-            bool: True, если папка создана
+        :param title: Название папки.
+        :type title: str
+        :param chat_include: Список ID чатов для включения в папку.
+        :type chat_include: list[int]
+        :param filters: Список фильтров для папки (опциональный параметр).
+        :type filters: list[Any] | None
+        :return: Объект FolderUpdate с информацией о созданной папке.
+        :rtype: FolderUpdate
         """
         self.logger.info("Creating folder")
 
@@ -82,11 +84,12 @@ class SelfMixin(ClientProtocol):
 
     async def get_folders(self, folder_sync: int = 0) -> FolderList:
         """
-        Получает список папок
-        Args:
-            folder_sync (int, optional): Синхронизационный маркер папок. По умолчанию 0. (Неизвестный параметр, использование на свой страх и риск)
-        Returns:
-            FolderList: Список папок
+        Получает список всех папок пользователя.
+
+        :param folder_sync: Синхронизационный маркер папок. По умолчанию 0.
+        :type folder_sync: int
+        :return: Объект FolderList с информацией о папках.
+        :rtype: FolderList
         """
         self.logger.info("Fetching folders")
 
@@ -106,17 +109,22 @@ class SelfMixin(ClientProtocol):
         chat_include: list[int] | None = None,
         filters: list[Any] | None = None,
         options: list[Any] | None = None,
-    ):
+    ) -> FolderUpdate | None:
         """
-        Обновляет папку для чатов
+        Обновляет параметры существующей папки.
 
-        Args:
-            folder_id (str): ID папки
-            title (str): Название папки
-            chat_include (list[int] | None, optional): Список ID чатов для включения в папку. По умолчанию None.
-            filters (list[Any] | None, optional): Список фильтров для папки. По умолчанию None.
-            options (list[Any] | None, optional): Список опций для папки. По умолчанию None.
-        Returns:
+        :param folder_id: Идентификатор папки.
+        :type folder_id: str
+        :param title: Название папки.
+        :type title: str
+        :param chat_include: Список ID чатов для включения в папку.
+        :type chat_include: list[int] | None
+        :param filters: Список фильтров для папки.
+        :type filters: list[Any] | None
+        :param options: Список опций для папки.
+        :type options: list[Any] | None
+        :return: Объект FolderUpdate с результатом или None.
+        :rtype: FolderUpdate | None
         """
         self.logger.info("Updating folder")
 
@@ -135,15 +143,14 @@ class SelfMixin(ClientProtocol):
 
         return FolderUpdate.from_dict(data.get("payload", {}))
 
-    async def delete_folder(self, folder_id: str) -> FolderUpdate:
+    async def delete_folder(self, folder_id: str) -> FolderUpdate | None:
         """
-        Удаляет папку для чатов
+        Удаляет папку.
 
-        Args:
-            folder_id (str): ID папки
-
-        Returns:
-            bool: True, если папка удалена
+        :param folder_id: Идентификатор папки для удаления.
+        :type folder_id: str
+        :return: Объект FolderUpdate с результатом операции или None.
+        :rtype: FolderUpdate | None
         """
         self.logger.info("Deleting folder")
 

@@ -18,17 +18,12 @@ from pymax.types import Channel, Member
 class ChannelMixin(ClientProtocol):
     async def resolve_channel_by_name(self, name: str) -> Channel | None:
         """
-        Пытается найти канал по его имени
+        Получает информацию о канале по его имени
 
-        Args:
-            name (str): Имя канала
-
-        Exceptions:
-            ResponseError: Ошибка в ответе сервера
-            ResponseStructureError: Ошибка структуры ответа сервера
-
-        Returns:
-            Channel | None: Объект канала, если канал найден, иначе None
+        :param name: Имя канала
+        :type name: str
+        :return: Объект Channel или None, если канал не найден
+        :rtype: Channel | None
         """
         payload = ResolveLinkPayload(
             link=f"https://max.ru/{name}",
@@ -47,15 +42,10 @@ class ChannelMixin(ClientProtocol):
         """
         Присоединяется к каналу по ссылке
 
-        Args:
-            link (str): Ссылка на канал
-
-        Exceptions:
-            ResponseError: Ошибка в ответе сервера
-            ResponseStructureError: Ошибка структуры ответа сервера
-
-        Returns:
-            Channel | None: Объект канала, если присоединение прошло успешно, иначе None
+        :param link: Ссылка на канал
+        :type link: str
+        :return: Объект канала, если присоединение прошло успешно, иначе None
+        :rtype: Channel | None
         """
         payload = JoinChatPayload(
             link=link,
@@ -110,13 +100,14 @@ class ChannelMixin(ClientProtocol):
         """
         Загружает членов канала
 
-        Args:
-            chat_id (int): Идентификатор канала
-            marker (int, optional): Маркер для пагинации. По умолчанию DEFAULT_MARKER_VALUE
-            count (int, optional): Количество членов для загрузки. По умолчанию DEFAULT_CHAT_MEMBERS_LIMIT.
-
-        Returns:
-            tuple[list[Member], int | None]: Список участников канала и маркер для следующей страницы
+        :param chat_id: Идентификатор канала
+        :type chat_id: int
+        :param marker: Маркер для пагинации. По умолчанию DEFAULT_MARKER_VALUE
+        :type marker: int | None
+        :param count: Количество членов для загрузки. По умолчанию DEFAULT_CHAT_MEMBERS_LIMIT.
+        :type count: int
+        :return: Список участников канала и маркер для следующей страницы
+        :rtype: tuple[list[Member], int | None]
         """
 
         payload = GetGroupMembersPayload(chat_id=chat_id, marker=marker, count=count)
@@ -130,12 +121,12 @@ class ChannelMixin(ClientProtocol):
         Внимание! веб-клиент всегда возвращает только определённое количество пользователей,
         тоесть пагинация здесь не реализована!
 
-        Args:
-            chat_id (int): Идентификатор канала
-            query (str): Строка для поиска участников
-
-        Returns:
-            list[Member]: Список участников канала
+        :param chat_id: Идентификатор канала
+        :type chat_id: int
+        :param query: Строка для поиска участников
+        :type query: str
+        :return: Список участников канала
+        :rtype: tuple[list[Member], int | None]
         """
         payload = SearchGroupMembersPayload(chat_id=chat_id, query=query)
         return await self._query_members(payload)

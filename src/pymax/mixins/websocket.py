@@ -73,6 +73,11 @@ class WebSocketMixin(ClientProtocol):
     ) -> dict[str, Any] | None:
         """
         Устанавливает соединение WebSocket с сервером и выполняет handshake.
+
+        :param user_agent: Пользовательский агент для handshake. Если None, используется значение по умолчанию.
+        :type user_agent: UserAgentPayload | None
+        :return: Результат handshake.
+        :rtype: dict[str, Any] | None
         """
         if user_agent is None:
             user_agent = UserAgentPayload()

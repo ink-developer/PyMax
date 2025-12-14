@@ -15,13 +15,15 @@ from pymax.types import Contact, Session, User
 class UserMixin(ClientProtocol):
     def get_cached_user(self, user_id: int) -> User | None:
         """
-        Получает юзера из кеша по его ID
+        Получает пользователя из кеша по его идентификатору.
 
-        Args:
-            user_id (int): ID пользователя.
+        Проверяет внутренний кеш пользователей и возвращает объект User
+        если пользователь был ранее загружен.
 
-        Returns:
-            User | None: Объект User или None при ошибке.
+        :param user_id: Идентификатор пользователя.
+        :type user_id: int
+        :return: Объект User из кеша или None, если пользователь не найден.
+        :rtype: User | None
         """
         user = self._users.get(user_id)
         self.logger.debug("get_cached_user id=%s hit=%s", user_id, bool(user))
@@ -29,7 +31,16 @@ class UserMixin(ClientProtocol):
 
     async def get_users(self, user_ids: list[int]) -> list[User]:
         """
-        Получает информацию о пользователях по их ID (с кешем).
+        Получает информацию о пользователях по их идентификаторам.
+
+        Метод использует внутренний кеш для избежания повторных запросов.
+        Если пользователь уже загружен, берется из кеша, иначе выполняется
+        сетевой запрос к серверу.
+
+        :param user_ids: Список идентификаторов пользователей.
+        :type user_ids: list[int]
+        :return: Список объектов User в порядке, соответствующем входному списку.
+        :rtype: list[User]
         """
         self.logger.debug("get_users ids=%s", user_ids)
         cached = {uid: self._users[uid] for uid in user_ids if uid in self._users}
@@ -49,7 +60,15 @@ class UserMixin(ClientProtocol):
 
     async def get_user(self, user_id: int) -> User | None:
         """
-        Получает информацию о пользователе по его ID (с кешем).
+        Получает информацию о пользователе по его идентификатору.
+
+        Метод использует внутренний кеш. Если пользователь уже загружен,
+        возвращает его из кеша, иначе выполняет запрос к серверу.
+
+        :param user_id: Идентификатор пользователя.
+        :type user_id: int
+        :return: Объект User или None, если пользователь не найден.
+        :rtype: User | None
         """
         self.logger.debug("get_user id=%s", user_id)
         if user_id in self._users:
@@ -63,7 +82,15 @@ class UserMixin(ClientProtocol):
 
     async def fetch_users(self, user_ids: list[int]) -> list[User]:
         """
-        Получает информацию о пользователях по их ID.
+        Загружает информацию о пользователях с сервера.
+
+        Запрашивает данные о пользователях по их идентификаторам и добавляет
+        их в внутренний кеш.
+
+        :param user_ids: Список идентификаторов пользователей для загрузки.
+        :type user_ids: list[int]
+        :return: Список загруженных объектов User.
+        :rtype: list[User]
         """
         self.logger.info("Fetching users count=%d", len(user_ids))
 
@@ -83,13 +110,13 @@ class UserMixin(ClientProtocol):
 
     async def search_by_phone(self, phone: str) -> User:
         """
-        Ищет пользователя по номеру телефона.
+        Выполняет поиск пользователя по номеру телефона.
 
-        Args:
-            phone (str): Номер телефона.
-
-        Returns:
-            User: Объект User.
+        :param phone: Номер телефона пользователя.
+        :type phone: str
+        :return: Объект User с найденными данными пользователя.
+        :rtype: User
+        :raises Error: Если пользователь не найден или произошла ошибка.
         """
         self.logger.info("Searching user by phone: %s", phone)
 
@@ -115,10 +142,13 @@ class UserMixin(ClientProtocol):
 
     async def get_sessions(self) -> list[Session]:
         """
-        Получает информацию о сессиях.
+        Получает информацию о всех активных сессиях пользователя.
 
-        Returns:
-            list[Session]: Список объектов Session.
+        Возвращает список всех сессий, в которых авторизован пользователь.
+
+        :return: Список объектов Session.
+        :rtype: list[Session]
+        :raises Error: Если произошла ошибка при получении данных.
         """
         self.logger.info("Fetching sessions")
 
@@ -133,15 +163,6 @@ class UserMixin(ClientProtocol):
         return [Session.from_dict(s) for s in data["payload"].get("sessions", [])]
 
     async def _contact_action(self, payload: ContactActionPayload) -> dict[str, Any]:
-        """
-        Действия с контактом
-
-        Args:
-            payload (ContactActionPayload): Полезная нагрузка
-
-        Return:
-            Полезная нагрузка ответа
-        """
         data = await self._send_and_wait(
             opcode=Opcode.CONTACT_UPDATE,  # 34
             payload=payload.model_dump(by_alias=True),
@@ -157,11 +178,11 @@ class UserMixin(ClientProtocol):
         """
         Добавляет контакт в список контактов
 
-        Args:
-            contact_id (int): ID контакта
-
-        Returns:
-            Contact: Объект контакта, иначе будут выброшены исключения
+        :param contact_id: ID контакта
+        :type contact_id: int
+        :return: Объект контакта
+        :rtype: Contact
+        :raises ResponseStructureError: Если структура ответа неверна
         """
         payload = await self._contact_action(
             ContactActionPayload(contact_id=contact_id, action=ContactAction.ADD)
@@ -175,11 +196,11 @@ class UserMixin(ClientProtocol):
         """
         Удаляет контакт из списка контактов
 
-        Args:
-            contact_id (int): ID контакта
-
-        Returns:
-            True если успешно, иначе будут выброшены исключения
+        :param contact_id: ID контакта
+        :type contact_id: int
+        :return: True если успешно
+        :rtype: Literal[True]
+        :raises ResponseStructureError: Если структура ответа неверна
         """
         await self._contact_action(
             ContactActionPayload(contact_id=contact_id, action=ContactAction.REMOVE)
@@ -190,11 +211,11 @@ class UserMixin(ClientProtocol):
         """
         Получение айди лс (диалога)
 
-        Args:
-            first_user_id (int): ID первого пользователя
-            second_user_id (int): ID второго пользователя
-
-        Returns:
-            int: Айди диалога
+        :param first_user_id: ID первого пользователя
+        :type first_user_id: int
+        :param second_user_id: ID второго пользователя
+        :type second_user_id: int
+        :return: Айди диалога
+        :rtype: int
         """
         return first_user_id ^ second_user_id
