@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Guides" href="guides.html"><link rel="prev" title="Decorators" href="decorators.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>Examples - PyMax 1.1.20 documentation</title>
+        <title>Examples - PyMax 1.1.21 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">PyMax 1.1.20 documentation</div></a>
+      <a href="index.html"><div class="brand">PyMax 1.1.21 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">PyMax 1.1.20 documentation</span>
+  <span class="sidebar-brand-text">PyMax 1.1.21 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -265,11 +265,11 @@
 <p>Приветствует новых пользователей:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">)</span>
 
-<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filter</span><span class="o">.</span><span class="n">private</span><span class="p">())</span>
+<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filters</span><span class="o">.</span><span class="n">private</span><span class="p">())</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">greet</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_user</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">sender</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">user</span> <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
@@ -292,7 +292,8 @@
 <p>Обработка команд с префиксом:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">)</span>
 
@@ -328,11 +329,11 @@
 <p>Отправляет сообщение во все чаты:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">)</span>
 
-<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filter</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;рассылка&quot;</span><span class="p">))</span>
+<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filters</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;рассылка&quot;</span><span class="p">))</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">broadcast</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;рассылка &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
@@ -362,7 +363,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">File</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax.static.enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttachType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">)</span>
 
@@ -382,7 +383,7 @@
             <span class="k">if</span> <span class="n">file_info</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;URL: </span><span class="si">{</span><span class="n">file_info</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filter</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;файл&quot;</span><span class="p">))</span>
+<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filters</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;файл&quot;</span><span class="p">))</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_file</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="n">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;document.pdf&quot;</span><span class="p">)</span>
     <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
@@ -401,7 +402,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">)</span>
 <span class="n">user_messages</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
@@ -410,7 +411,7 @@
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">count_messages</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="n">user_messages</span><span class="p">[</span><span class="n">message</span><span class="o">.</span><span class="n">sender</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 
-<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filter</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;статистика&quot;</span><span class="p">))</span>
+<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filters</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;статистика&quot;</span><span class="p">))</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">show_stats</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="c1"># Топ-5 активные пользователи</span>
     <span class="n">top</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">user_messages</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
@@ -435,7 +436,7 @@
 <p>Автоматический ответ на определённые фразы:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">)</span>
 
@@ -556,12 +557,12 @@
 <p>Комбинирование фильтров:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">)</span>
 
 <span class="c1"># AND - оба условия должны быть верны</span>
-<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filter</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">Filter</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;важное&quot;</span><span class="p">))</span>
+<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filters</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">Filters</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;важное&quot;</span><span class="p">))</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">important_in_chat</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
         <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat_id</span><span class="p">,</span>
@@ -569,12 +570,12 @@
     <span class="p">)</span>
 
 <span class="c1"># OR - одно из условий должно быть верно</span>
-<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filter</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span> <span class="o">|</span> <span class="n">Filter</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="mi">789012</span><span class="p">))</span>
+<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filters</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="mi">123456</span><span class="p">)</span> <span class="o">|</span> <span class="n">Filters</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="mi">789012</span><span class="p">))</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">in_my_chats</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Это в одном из моих чатов&quot;</span><span class="p">)</span>
 
 <span class="c1"># NOT - условие должно быть неверно</span>
-<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="o">~</span><span class="n">Filter</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;реклама&quot;</span><span class="p">))</span>
+<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="o">~</span><span class="n">Filters</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;реклама&quot;</span><span class="p">))</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">not_ads</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Это не реклама&quot;</span><span class="p">)</span>
 
@@ -667,7 +668,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8eb941aa"></script>
+</div><script src="_static/documentation_options.js?v=9c7f7db0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

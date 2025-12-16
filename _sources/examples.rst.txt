@@ -34,11 +34,11 @@ Greeter Bot
 
     import asyncio
     from pymax import MaxClient
-    from pymax.filters import Filter
+    from pymax.filters import Filters
 
     client = MaxClient(phone="+79001234567")
 
-    @client.on_message(Filter.private())
+    @client.on_message(Filters.private())
     async def greet(message):
         user = await client.get_user(message.sender)
         if user and user.names:
@@ -63,7 +63,8 @@ Command Handler
 
     import asyncio
     from pymax import MaxClient
-    from pymax.filters import Filter
+    from datetime import datetime
+    from pymax.filters import Filters
 
     client = MaxClient(phone="+79001234567")
 
@@ -101,11 +102,11 @@ Broadcast Bot
 
     import asyncio
     from pymax import MaxClient
-    from pymax.filters import Filter
+    from pymax.filters import Filters
 
     client = MaxClient(phone="+79001234567")
 
-    @client.on_message(Filter.text("рассылка"))
+    @client.on_message(Filters.text("рассылка"))
     async def broadcast(message):
         text = message.text.replace("рассылка ", "")
 
@@ -137,7 +138,7 @@ File Manager
     from pymax import MaxClient
     from pymax.files import File
     from pymax.static.enum import AttachType
-    from pymax.filters import Filter
+    from pymax.filters import Filters
 
     client = MaxClient(phone="+79001234567")
 
@@ -157,7 +158,7 @@ File Manager
                 if file_info:
                     print(f"URL: {file_info.url}")
 
-    @client.on_message(Filter.text("файл"))
+    @client.on_message(Filters.text("файл"))
     async def send_file(message):
         file = File(path="document.pdf")
         await client.send_message(
@@ -178,7 +179,7 @@ Message Counter
     import asyncio
     from collections import defaultdict
     from pymax import MaxClient
-    from pymax.filters import Filter
+    from pymax.filters import Filters
 
     client = MaxClient(phone="+79001234567")
     user_messages = defaultdict(int)
@@ -187,7 +188,7 @@ Message Counter
     async def count_messages(message):
         user_messages[message.sender] += 1
 
-    @client.on_message(Filter.text("статистика"))
+    @client.on_message(Filters.text("статистика"))
     async def show_stats(message):
         # Топ-5 активные пользователи
         top = sorted(user_messages.items(), key=lambda x: x[1], reverse=True)[:5]
@@ -214,7 +215,7 @@ Auto-Replier
 
     import asyncio
     from pymax import MaxClient
-    from pymax.filters import Filter
+    from pymax.filters import Filters
 
     client = MaxClient(phone="+79001234567")
 
@@ -343,12 +344,12 @@ Filter Combinations
 
     import asyncio
     from pymax import MaxClient
-    from pymax.filters import Filter
+    from pymax.filters import Filters
 
     client = MaxClient(phone="+79001234567")
 
     # AND - оба условия должны быть верны
-    @client.on_message(Filter.chat(123456) & Filter.text("важное"))
+    @client.on_message(Filters.chat(123456) & Filters.text("важное"))
     async def important_in_chat(message):
         await client.send_message(
             chat_id=message.chat_id,
@@ -356,12 +357,12 @@ Filter Combinations
         )
 
     # OR - одно из условий должно быть верно
-    @client.on_message(Filter.chat(123456) | Filter.chat(789012))
+    @client.on_message(Filters.chat(123456) | Filters.chat(789012))
     async def in_my_chats(message):
         print("Это в одном из моих чатов")
 
     # NOT - условие должно быть неверно
-    @client.on_message(~Filter.text("реклама"))
+    @client.on_message(~Filters.text("реклама"))
     async def not_ads(message):
         print("Это не реклама")
 

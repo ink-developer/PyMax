@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Types" href="types.html"><link rel="prev" title="Quick Start" href="quickstart.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>Clients - PyMax 1.1.20 documentation</title>
+        <title>Clients - PyMax 1.1.21 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">PyMax 1.1.20 documentation</div></a>
+      <a href="index.html"><div class="brand">PyMax 1.1.21 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">PyMax 1.1.20 documentation</span>
+  <span class="sidebar-brand-text">PyMax 1.1.21 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -356,7 +356,7 @@
 <li><p><strong>send_fake_telemetry</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг отправки фейковой телеметрии.</p></li>
 <li><p><strong>proxy</strong> (<em>str</em><em> | </em><em>Literal</em><em>[</em><em>True</em><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) -- Прокси для подключения к WebSocket (см. <a class="reference external" href="https://websockets.readthedocs.io/en/stable/topics/proxies.html">https://websockets.readthedocs.io/en/stable/topics/proxies.html</a>).</p></li>
 <li><p><strong>reconnect</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг автоматического переподключения при потере соединения.</p></li>
-<li><p><strong>device_id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>device_id</strong> (<em>UUID</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>reconnect_delay</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
@@ -364,6 +364,11 @@
 <dd class="field-even"><p><strong>InvalidPhoneError</strong> -- Если формат номера телефона неверный.</p>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.MaxClient.CHUNK_SIZE">
+<span class="sig-name descname"><span class="pre">CHUNK_SIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6291456</span></em><a class="headerlink" href="#pymax.MaxClient.CHUNK_SIZE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="pymax.MaxClient.add_chat_update_handler">
 <span class="sig-name descname"><span class="pre">add_chat_update_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.add_chat_update_handler" title="Link to this definition">¶</a></dt>
@@ -594,6 +599,20 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.close_all_sessions">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close_all_sessions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.close_all_sessions" title="Link to this definition">¶</a></dt>
+<dd><p>Закрывает все активные сессии, кроме текущей.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True, если операция выполнена успешно.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pymax.MaxClient.connect">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_agent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.connect" title="Link to this definition">¶</a></dt>
 <dd><p>Устанавливает соединение WebSocket с сервером и выполняет handshake.</p>
@@ -714,6 +733,23 @@
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>Error</strong> -- Если редактирование не удалось.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.fetch_chats">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_chats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.fetch_chats" title="Link to this definition">¶</a></dt>
+<dd><p>Загружает список чатов</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>marker</strong> (<em>int</em><em> | </em><em>None</em>) -- Маркер для пагинации, по умолчанию None</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Список объектов Chat</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="types.html#pymax.types.Chat" title="pymax.types.Chat">Chat</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1168,6 +1204,20 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.logout">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">logout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.logout" title="Link to this definition">¶</a></dt>
+<dd><p>Выполняет выход из текущей сессии.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True, если выход выполнен успешно.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pymax.MaxClient.on_chat_update">
 <span class="sig-name descname"><span class="pre">on_chat_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.on_chat_update" title="Link to this definition">¶</a></dt>
 <dd><p>Устанавливает обработчик обновления информации о чате.</p>
@@ -1412,6 +1462,32 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.resend_code">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resend_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ru'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.resend_code" title="Link to this definition">¶</a></dt>
+<dd><p>Повторно запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phone</strong> (<em>str</em>) -- Номер телефона в международном формате.</p></li>
+<li><p><strong>language</strong> (<em>str</em>) -- Язык для сообщения с кодом. По умолчанию &quot;ru&quot;.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Временный токен для дальнейшей аутентификации.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> -- Если полученные данные имеют неверный формат.</p></li>
+<li><p><strong>Error</strong> -- Если сервер вернул ошибку.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pymax.MaxClient.resolve_channel_by_name">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resolve_channel_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.resolve_channel_by_name" title="Link to this definition">¶</a></dt>
 <dd><p>Получает информацию о канале по его имени</p>
@@ -1637,6 +1713,7 @@
 <li><a class="reference internal" href="#maxclient">MaxClient</a></li>
 <li><a class="reference internal" href="#api">Документация API</a><ul>
 <li><a class="reference internal" href="#pymax.MaxClient"><code class="docutils literal notranslate"><span class="pre">MaxClient</span></code></a><ul>
+<li><a class="reference internal" href="#pymax.MaxClient.CHUNK_SIZE"><code class="docutils literal notranslate"><span class="pre">MaxClient.CHUNK_SIZE</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.add_chat_update_handler"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_chat_update_handler()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.add_contact"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_contact()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.add_message_handler"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_message_handler()</span></code></a></li>
@@ -1649,12 +1726,14 @@
 <li><a class="reference internal" href="#pymax.MaxClient.change_group_settings"><code class="docutils literal notranslate"><span class="pre">MaxClient.change_group_settings()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.change_profile"><code class="docutils literal notranslate"><span class="pre">MaxClient.change_profile()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.close"><code class="docutils literal notranslate"><span class="pre">MaxClient.close()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.close_all_sessions"><code class="docutils literal notranslate"><span class="pre">MaxClient.close_all_sessions()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.connect"><code class="docutils literal notranslate"><span class="pre">MaxClient.connect()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.create_folder"><code class="docutils literal notranslate"><span class="pre">MaxClient.create_folder()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.create_group"><code class="docutils literal notranslate"><span class="pre">MaxClient.create_group()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.delete_folder"><code class="docutils literal notranslate"><span class="pre">MaxClient.delete_folder()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.delete_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.delete_message()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.edit_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.edit_message()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.fetch_chats"><code class="docutils literal notranslate"><span class="pre">MaxClient.fetch_chats()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.fetch_history"><code class="docutils literal notranslate"><span class="pre">MaxClient.fetch_history()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.fetch_users"><code class="docutils literal notranslate"><span class="pre">MaxClient.fetch_users()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.find_members"><code class="docutils literal notranslate"><span class="pre">MaxClient.find_members()</span></code></a></li>
@@ -1679,6 +1758,7 @@
 <li><a class="reference internal" href="#pymax.MaxClient.leave_group"><code class="docutils literal notranslate"><span class="pre">MaxClient.leave_group()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.load_members"><code class="docutils literal notranslate"><span class="pre">MaxClient.load_members()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.login_with_code"><code class="docutils literal notranslate"><span class="pre">MaxClient.login_with_code()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.logout"><code class="docutils literal notranslate"><span class="pre">MaxClient.logout()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.on_chat_update"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_chat_update()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.on_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_message()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.on_message_delete"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_message_delete()</span></code></a></li>
@@ -1691,6 +1771,7 @@
 <li><a class="reference internal" href="#pymax.MaxClient.remove_reaction"><code class="docutils literal notranslate"><span class="pre">MaxClient.remove_reaction()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.remove_users_from_group"><code class="docutils literal notranslate"><span class="pre">MaxClient.remove_users_from_group()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.request_code"><code class="docutils literal notranslate"><span class="pre">MaxClient.request_code()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.resend_code"><code class="docutils literal notranslate"><span class="pre">MaxClient.resend_code()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.resolve_channel_by_name"><code class="docutils literal notranslate"><span class="pre">MaxClient.resolve_channel_by_name()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.rework_invite_link"><code class="docutils literal notranslate"><span class="pre">MaxClient.rework_invite_link()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.search_by_phone"><code class="docutils literal notranslate"><span class="pre">MaxClient.search_by_phone()</span></code></a></li>
@@ -1715,7 +1796,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8eb941aa"></script>
+</div><script src="_static/documentation_options.js?v=9c7f7db0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

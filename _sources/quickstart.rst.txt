@@ -49,11 +49,11 @@ Quick Start
 
 .. code-block:: python
 
-    from pymax.filters import Filter
+    from pymax.filters import Filters
     from pymax.types import Message
 
     # Только из конкретного чата
-    @client.on_message(Filter.chat(123456))
+    @client.on_message(Filters.chat(123456))
     async def handle_chat(message: Message) -> None:
         await client.send_message(
             chat_id=message.chat_id,
@@ -61,7 +61,7 @@ Quick Start
         )
 
     # Только с определённым текстом
-    @client.on_message(Filter.text("привет"))
+    @client.on_message(Filters.text("привет"))
     async def greet(message: Message) -> None:
         await client.send_message(
             chat_id=message.chat_id,
@@ -69,7 +69,7 @@ Quick Start
         )
 
     # Только личные сообщения
-    @client.on_message(Filter.dialog())
+    @client.on_message(Filters.dialog())
     async def private_handler(message: Message) -> None:
         print(f"Личное сообщение: {message.text}")
 
@@ -132,10 +132,10 @@ Quick Start
 
 .. code-block:: python
 
-    from pymax.filters import Filter
+    from pymax.filters import Filters
     from pymax.types import Message
 
-    @client.on_message(Filter.text("история"))
+    @client.on_message(Filters.text("история"))
     async def fetch_history(message: Message) -> None:
         history = await client.fetch_history(
             chat_id=message.chat_id,
@@ -156,11 +156,11 @@ Quick Start
 
 .. code-block:: python
 
-    from pymax.filters import Filter
+    from pymax.filters import Filters
     from pymax.files import File
     from pymax.types import Message
 
-    @client.on_message(Filter.text("файл"))
+    @client.on_message(Filters.text("файл"))
     async def send_file(message: Message) -> None:
         file = File(path="document.pdf")
         await client.send_message(
@@ -176,7 +176,7 @@ Quick Start
 
     import asyncio
     from pymax import MaxClient
-    from pymax.filters import Filter
+    from pymax.filters import Filters
     from pymax.types import Message, User
 
     client = MaxClient(
@@ -198,7 +198,7 @@ Quick Start
         """Проверка статуса каждую минуту"""
         print("Помощник все еще работает!")
 
-    @client.on_message(Filter.text("привет"))
+    @client.on_message(Filters.text("привет"))
     async def hello(message: Message) -> None:
         user: User | None = await client.get_user(message.sender)
         name = user.names[0].first_name if user and user.names else "друг"
@@ -208,7 +208,7 @@ Quick Start
             text=f"Привет, {name}! 👋"
         )
 
-    @client.on_message(Filter.text("помощь"))
+    @client.on_message(Filters.text("помощь"))
     async def help_command(message: Message) -> None:
         help_text = """Доступные команды:
     - привет — приветствие
@@ -220,7 +220,7 @@ Quick Start
             text=help_text
         )
 
-    @client.on_message(Filter.text("время"))
+    @client.on_message(Filters.text("время"))
     async def time_command(message: Message) -> None:
         from datetime import datetime
         current_time = datetime.now().strftime("%H:%M:%S")

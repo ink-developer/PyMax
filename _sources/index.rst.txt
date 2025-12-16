@@ -5,6 +5,7 @@
 .. image:: _static/logo.svg
    :align: center
    :width: 320px
+
 PyMax
 =====
 

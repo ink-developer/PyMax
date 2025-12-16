@@ -75,31 +75,31 @@ Guides
 
 .. code-block:: python
 
-    from pymax.filters import Filter
+    from pymax.filters import Filters
     from pymax.types import Message
 
     # По чату
-    @client.on_message(Filter.chat(123456))
+    @client.on_message(Filters.chat(123456))
     async def in_chat(message: Message) -> None:
         pass
 
     # По пользователю
-    @client.on_message(Filter.user(789012))
+    @client.on_message(Filters.user(789012))
     async def from_user(message: Message) -> None:
         pass
 
     # По тексту
-    @client.on_message(Filter.text("привет"))
+    @client.on_message(Filters.text("привет"))
     async def greeting(message: Message) -> None:
         pass
 
     # Только личные
-    @client.on_message(Filter.dialog())
+    @client.on_message(Filters.dialog())
     async def private(message: Message) -> None:
         pass
 
     # Только группы
-    @client.on_message(Filter.chat())
+    @client.on_message(Filters.chat())
     async def in_group(message: Message) -> None:
         pass
 
@@ -107,21 +107,21 @@ Guides
 
 .. code-block:: python
 
-    from pymax.filters import Filter
+    from pymax.filters import Filters
     from pymax.types import Message
 
     # AND (&)
-    @client.on_message(Filter.chat(123) & Filter.text("привет"))
+    @client.on_message(Filters.chat(123) & Filters.text("привет"))
     async def specific(message: Message) -> None:
         pass
 
     # OR (|)
-    @client.on_message(Filter.chat(123) | Filter.chat(456))
+    @client.on_message(Filters.chat(123) | Filters.chat(456))
     async def any_chat(message: Message) -> None:
         pass
 
     # NOT (~)
-    @client.on_message(~Filter.text("спам"))
+    @client.on_message(~Filters.text("спам"))
     async def no_spam(message: Message) -> None:
         pass
 
@@ -446,10 +446,10 @@ Retry с повторными попытками:
 .. code-block:: python
 
     from pymax.types import Message
-    from pymax.filters import Filter
+    from pymax.filters import Filters
 
     # Хорошо
-    @client.on_message(Filter.text("привет"))
+    @client.on_message(Filters.text("привет"))
     async def handler(message: Message) -> None:
         pass
 
