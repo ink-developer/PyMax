@@ -20,7 +20,7 @@ Guides
         message.text            # Текст сообщения
         message.type            # Тип (TEXT, SYSTEM, SERVICE)
         message.status          # Статус (SENT, DELIVERED, READ)
-        message.timestamp       # Время отправки
+        message.time            # Время отправки
         message.attaches        # Вложения
 
 Отправка сообщений:
