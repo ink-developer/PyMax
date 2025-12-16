@@ -27,4 +27,5 @@ class ColoredFormatter(logging.Formatter):
             f"{name_color}{record.name}{self.RESET}: "
             f"{message_color}{record.getMessage()}{self.RESET}"
         )
+
         return log

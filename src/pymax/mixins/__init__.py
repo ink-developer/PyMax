@@ -3,6 +3,7 @@ from .channel import ChannelMixin
 from .group import GroupMixin
 from .handler import HandlerMixin
 from .message import MessageMixin
+from .scheduler import SchedulerMixin
 from .self import SelfMixin
 from .socket import SocketMixin
 from .telemetry import TelemetryMixin
@@ -19,6 +20,7 @@ class ApiMixin(
     MessageMixin,
     TelemetryMixin,
     GroupMixin,
+    SchedulerMixin,
 ):
     pass
 
@@ -29,6 +31,7 @@ __all__ = [
     "ChannelMixin",
     "HandlerMixin",
     "MessageMixin",
+    "SchedulerMixin",
     "SelfMixin",
     "SocketMixin",
     "TelemetryMixin",

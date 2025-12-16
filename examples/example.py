@@ -1,26 +1,75 @@
 import asyncio
 import datetime
+import logging
+from time import time
+from typing import Any
 
+import pymax
 from pymax import MaxClient, Message, ReactionInfo, SocketMaxClient
 from pymax.files import File, Video
-from pymax.filters import Filter
+from pymax.payloads import UserAgentPayload
 from pymax.static.enum import AttachType, Opcode
 from pymax.types import Chat
 
-phone = "+7903223423"
+phone = "+7903223111"
+headers = UserAgentPayload(device_type="WEB")
+
+client = MaxClient(
+    phone=phone,
+    work_dir="cache",
+    reconnect=False,
+    logger=None,
+    headers=headers,
+)
+client.logger.setLevel(logging.INFO)
 
 
-client = MaxClient(phone=phone, work_dir="cache", reconnect=False, logger=None)
+@client.on_raw_receive
+async def handle_raw_receive(data: dict[str, Any]) -> None:
+    print(f"Raw data received: {data}")
+
+
+@client.task(seconds=10)
+async def periodic_task() -> None:
+    # print(f"Periodic task executed at {datetime.datetime.now()}")
+    ...
 
 
 @client.on_start
 async def handle_start() -> None:
     print(f"Client started as {client.me.names[0].first_name}!")
-    folder_list = await client.get_folders()
-    for folder in folder_list.folders:
-        if folder.title == "My Folder Renamed":
-            folder_update = await client.delete_folder(folder_id=folder.id)
-            print(f"Folder deleted: {folder_update.folder_sync}")
+
+    chat_id = -1
+    max_messages = 1000
+    messages = []
+    from_time = int(time() * 1000)
+    while len(messages) < max_messages:
+        r = await client.fetch_history(
+            chat_id=chat_id, from_time=from_time, backward=30
+        )
+        if not r:
+            break
+        from_time = r[0].time
+        messages.extend(r)
+        print(f"First message time: {from_time}, id: {r[0].id}, text: {r[0].text}")
+        print(f"Last message time: {from_time}, id: {r[-1].id}, text: {r[-1].text}")
+        print(f"Loaded {len(messages)}/{max_messages} messages...")
+    # channel = await client.resolve_channel_by_name("fm92")
+    # if channel:
+    #     print(f"Resolved channel by name: {channel.title}, ID: {channel.id}")
+    # else:
+    #     print("Channel not found by name.")
+
+    # channel = await client.join_channel(link)
+    # if channel:
+    #     print(f"Joined channel: {channel.title}, ID: {channel.id}")
+    # else:
+    #     print("Failed to join channel.")
+    # await client.send_message(
+    #     "Hello! The client has started successfully.",
+    #     chat_id=2265456546456,
+    #     notify=True,
+    # )
     # folder_update = await client.create_folder(
     #     title="My Folder",
     #     chat_include=[0],
@@ -63,21 +112,41 @@ async def handle_start() -> None:
     #     print(f"Member {member.contact.names[0].first_name}, ID: {member.contact.id}")
 
 
-@client.on_reaction_change
-async def handle_reaction_change(
-    message_id: str, chat_id: int, reaction_info: ReactionInfo
-) -> None:
+# @client.on_reaction_change
+# async def handle_reaction_change(
+#     message_id: str, chat_id: int, reaction_info: ReactionInfo
+# ) -> None:
+#     print(
+#         f"Reaction changed on message {message_id} in chat {chat_id}: "
+#         f"Total count: {reaction_info.total_count}, "
+#         f"Your reaction: {reaction_info.your_reaction}, "
+#         f"Counters: {reaction_info.counters[0].reaction}={reaction_info.counters[0].count}"
+#     )
+
+
+# @client.on_chat_update
+# async def handle_chat_update(chat: Chat) -> None:
+#     print(f"Chat updated: {chat.id}, new title: {chat.title}")
+
+
+@client.on_message()
+async def handle_message(message: Message) -> None:
     print(
-        f"Reaction changed on message {message_id} in chat {chat_id}: "
-        f"Total count: {reaction_info.total_count}, "
-        f"Your reaction: {reaction_info.your_reaction}, "
-        f"Counters: {reaction_info.counters[0].reaction}={reaction_info.counters[0].count}"
+        f"New message in chat {message.chat_id} from {message.sender}: {message.text}"
     )
+    # if message.link and message.link.message.attaches:
+    #     for attach in message.link.message.attaches:
+    #         print(f"Link attach type: {attach.type}")
 
 
-@client.on_chat_update
-async def handle_chat_update(chat: Chat) -> None:
-    print(f"Chat updated: {chat.id}, new title: {chat.title}")
+@client.on_message_edit()
+async def handle_edited_message(message: Message) -> None:
+    print(f"Edited message in chat {message.chat_id}: {message.text}")
+
+
+@client.on_message_delete()
+async def handle_deleted_message(message: Message) -> None:
+    print(f"Deleted message in chat {message.chat_id}: {message.id}")
 
 
 # async def login_flow_test():

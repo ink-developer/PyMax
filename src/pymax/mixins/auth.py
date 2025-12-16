@@ -19,15 +19,20 @@ class AuthMixin(ClientProtocol):
         """
         Запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.
 
-        Note:
-            Использовать только в кастомном login flow.
+        Метод отправляет запрос на получение кода верификации на переданный номер телефона.
+        Используется в процессе аутентификации или регистрации.
 
-        Args:
-            phone (str): Номер телефона в международном формате.
-            language (str, optional): Язык для сообщения с кодом. По умолчанию "ru".
+        :param phone: Номер телефона в международном формате.
+        :type phone: str
+        :param language: Язык для сообщения с кодом. По умолчанию "ru".
+        :type language: str
+        :return: Временный токен для дальнейшей аутентификации.
+        :rtype: str
+        :raises ValueError: Если полученные данные имеют неверный формат.
+        :raises Error: Если сервер вернул ошибку.
 
-        Returns:
-            str: Временный токен для дальнейшей аутентификации.
+        .. note::
+            Используется только в пользовательском flow аутентификации.
         """
         self.logger.info("Requesting auth code")
 
@@ -52,7 +57,54 @@ class AuthMixin(ClientProtocol):
             self.logger.error("Invalid payload data received")
             raise ValueError("Invalid payload data received")
 
+    async def resend_code(self, phone: str, language: str = "ru") -> str:
+        """
+        Повторно запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.
+
+        :param phone: Номер телефона в международном формате.
+        :type phone: str
+        :param language: Язык для сообщения с кодом. По умолчанию "ru".
+        :type language: str
+        :return: Временный токен для дальнейшей аутентификации.
+        :rtype: str
+        :raises ValueError: Если полученные данные имеют неверный формат.
+        :raises Error: Если сервер вернул ошибку.
+        """
+        self.logger.info("Resending auth code")
+
+        payload = RequestCodePayload(
+            phone=phone, type=AuthType.RESEND, language=language
+        ).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        self.logger.debug(
+            "Code resend response opcode=%s seq=%s",
+            data.get("opcode"),
+            data.get("seq"),
+        )
+        payload_data = data.get("payload")
+        if isinstance(payload_data, dict):
+            return payload_data["token"]
+        else:
+            self.logger.error("Invalid payload data received")
+            raise ValueError("Invalid payload data received")
+
     async def _send_code(self, code: str, token: str) -> dict[str, Any]:
+        """
+        Отправляет код верификации на сервер для подтверждения.
+
+        :param code: Код верификации (6 цифр).
+        :type code: str
+        :param token: Временный токен, полученный из request_code.
+        :type token: str
+        :return: Словарь с данными ответа сервера, содержащий токены аутентификации.
+        :rtype: dict[str, Any]
+        :raises Error: Если сервер вернул ошибку.
+        """
         self.logger.info("Sending verification code")
 
         payload = SendCodePayload(
@@ -93,15 +145,14 @@ class AuthMixin(ClientProtocol):
             raise ValueError("Invalid code format")
 
         login_resp = await self._send_code(code, temp_token)
-        token: str | None = (
-            login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
-        )
+        token = login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token", "")
+
         if not token:
             self.logger.critical("Failed to login, token not received")
             raise ValueError("Failed to login, token not received")
 
         self._token = token
-        self._database.update_auth_token(self._device_id, self._token)
+        self._database.update_auth_token(str(self._device_id), self._token)
         self.logger.info("Login successful, token saved to database")
 
     async def _submit_reg_info(
@@ -152,8 +203,10 @@ class AuthMixin(ClientProtocol):
             raise ValueError("Invalid code format")
 
         registration_response = await self._send_code(code, temp_token)
-        token: str | None = (
-            registration_response.get("tokenAttrs", {}).get("REGISTER", {}).get("token")
+        token = (
+            registration_response.get("tokenAttrs", {})
+            .get("REGISTER", {})
+            .get("token", "")
         )
         if not token:
             self.logger.critical("Failed to register, token not received")
@@ -165,5 +218,9 @@ class AuthMixin(ClientProtocol):
             self.logger.critical("Failed to register, token not received")
             raise ValueError("Failed to register, token not received")
 
-        self._database.update_auth_token(self._device_id, self._token)
-        self.logger.info("Registration successful, token saved to database")
+        self.logger.info("Registration successful")
+        self.logger.info("Token: %s", self._token)
+        self.logger.warning(
+            "IMPORTANT: Use this token ONLY with device_type='DESKTOP' and the special init user agent"
+        )
+        self.logger.warning("This token MUST NOT be used in web clients")

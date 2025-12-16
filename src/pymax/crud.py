@@ -31,9 +31,8 @@ class Database:
 
     def get_device_id(self) -> UUID:
         with self.get_session() as session:
-            device_id = cast(
-                UUID | None, session.exec(select(Auth.device_id)).first()
-            )
+            device_id = session.exec(select(Auth.device_id)).first()
+
             if device_id is None:
                 auth = Auth()
                 session.add(auth)
@@ -49,11 +48,9 @@ class Database:
             session.refresh(auth)
             return auth
 
-    def update_auth_token(self, device_id: UUID, token: str) -> None:
+    def update_auth_token(self, device_id: str, token: str) -> None:
         with self.get_session() as session:
-            auth = session.exec(
-                select(Auth).where(Auth.device_id == device_id)
-            ).first()
+            auth = session.exec(select(Auth).where(Auth.device_id == device_id)).first()
             if auth:
                 auth.token = token
                 session.add(auth)
@@ -86,7 +83,6 @@ class Database:
         with self.get_session() as session:
             rows = session.exec(select(Auth)).all()
             if not rows:
-                # Create default Auth with device type from enum
                 auth = Auth(device_type=DeviceType.WEB.value)
                 session.add(auth)
                 session.commit()

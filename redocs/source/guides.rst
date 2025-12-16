@@ -1,0 +1,483 @@
+Guides
+======
+
+Подробные гайды по использованию PyMax.
+
+Работа с сообщениями
+---------------------
+
+Получение сообщений:
+
+.. code-block:: python
+
+    from pymax.types import Message
+
+    @client.on_message()
+    async def handle_message(message: Message) -> None:
+        message.id              # ID сообщения
+        message.chat_id         # ID чата
+        message.sender          # ID отправителя
+        message.text            # Текст сообщения
+        message.type            # Тип (TEXT, SYSTEM, SERVICE)
+        message.status          # Статус (SENT, DELIVERED, READ)
+        message.timestamp       # Время отправки
+        message.attaches        # Вложения
+
+Отправка сообщений:
+
+.. code-block:: python
+
+    from pymax.types import Message
+
+    # Простое сообщение
+    await client.send_message(
+        chat_id=123456,
+        text="Привет!"
+    )
+
+    # С уведомлением
+    await client.send_message(
+        chat_id=123456,
+        text="Важное!",
+        notify=True
+    )
+
+    # Ответить на сообщение
+    async def reply_to_message(message: Message) -> None:
+        await client.send_message(
+            chat_id=message.chat_id,
+            text="Ответ",
+            reply_to=message.id
+        )
+
+Редактирование и удаление:
+
+.. code-block:: python
+
+    # Отредактировать сообщение
+    await client.edit_message(
+        chat_id=123456,
+        message_id=msg_id,
+        text="Новый текст"
+    )
+
+    # Удалить сообщение
+    await client.delete_message(
+        chat_id=123456,
+        message_ids=[msg_id],
+        for_me=False
+    )
+
+Работа с фильтрами
+-------------------
+
+Базовые фильтры:
+
+.. code-block:: python
+
+    from pymax.filters import Filters
+    from pymax.types import Message
+
+    # По чату
+    @client.on_message(Filters.chat(123456))
+    async def in_chat(message: Message) -> None:
+        pass
+
+    # По пользователю
+    @client.on_message(Filters.user(789012))
+    async def from_user(message: Message) -> None:
+        pass
+
+    # По тексту
+    @client.on_message(Filters.text("привет"))
+    async def greeting(message: Message) -> None:
+        pass
+
+    # Только личные
+    @client.on_message(Filters.dialog())
+    async def private(message: Message) -> None:
+        pass
+
+    # Только группы
+    @client.on_message(Filters.chat())
+    async def in_group(message: Message) -> None:
+        pass
+
+Комбинирование фильтров:
+
+.. code-block:: python
+
+    from pymax.filters import Filters
+    from pymax.types import Message
+
+    # AND (&)
+    @client.on_message(Filters.chat(123) & Filters.text("привет"))
+    async def specific(message: Message) -> None:
+        pass
+
+    # OR (|)
+    @client.on_message(Filters.chat(123) | Filters.chat(456))
+    async def any_chat(message: Message) -> None:
+        pass
+
+    # NOT (~)
+    @client.on_message(~Filters.text("спам"))
+    async def no_spam(message: Message) -> None:
+        pass
+
+Получение информации о пользователях
+-------------------------------------
+
+Получить профиль:
+
+.. code-block:: python
+
+    from pymax.types import User
+
+    user: User | None = await client.get_user(user_id=789012)
+
+    if user:
+        user.id                 # ID пользователя
+        user.names              # Список имён
+        user.account_status     # Статус аккаунта
+        user.photo_id           # ID фото профиля
+        user.description        # Описание профиля
+        user.gender             # Пол
+        user.base_url           # URL для получения аватара
+        user.options            # Опции пользователя
+
+Получить имя пользователя:
+
+.. code-block:: python
+
+    from pymax.types import User
+
+    def get_user_name(user: User | None) -> str:
+        if not user or not user.names:
+            return "Неизвестно"
+
+        name = user.names[0]
+        full = f"{name.first_name} {name.last_name}" if name.last_name else name.first_name
+        return full
+
+Информация о себе:
+
+.. code-block:: python
+
+    from pymax.types import Me
+
+    @client.on_start
+    async def on_start() -> None:
+        me: Me | None = client.me
+        if me:
+            print(f"Мой ID: {me.id}")
+            print(f"Мое имя: {get_user_name(me)}")
+
+Работа с чатами и группами
+---------------------------
+
+Получить чаты:
+
+.. code-block:: python
+
+    from pymax.types import Chat
+
+    # Все чаты
+    chats: list[Chat] = client.chats
+    for chat in chats:
+        print(f"{chat.title}: {chat.id}")
+
+    # Конкретный чат
+    chat: Chat | None = await client.get_chat(chat_id=123456)
+
+    # Несколько чатов
+    chats: list[Chat] = await client.get_chats([123, 456, 789])
+
+Информация о чате:
+
+.. code-block:: python
+
+    chat.id                     # ID чата
+    chat.title                  # Название
+    chat.description            # Описание
+    chat.type                   # Тип (DIALOG, CHAT, CHANNEL)
+    chat.participants_count     # Количество участников
+    chat.owner                  # ID владельца
+    chat.admins                 # Список ID администраторов
+    chat.base_icon_url          # URL для получения иконки чата
+    chat.access                 # Тип доступа (OPEN, CLOSED, PRIVATE)
+
+Управление чатами:
+
+.. code-block:: python
+
+    from pymax.types import Chat, Message
+
+    # Создать группу
+    result: tuple[Chat, Message] | None = await client.create_group(
+        name="Новая группа",
+        participant_ids=[user_id1, user_id2]
+    )
+
+    # Редактировать
+    await client.change_group_profile(
+        chat_id=123456,
+        name="Новое название",
+        description="Новое описание"
+    )
+
+    # Добавить участников
+    updated_chat: Chat | None = await client.invite_users_to_group(
+        chat_id=123456,
+        user_ids=[789012, 345678],
+        show_history=True
+    )
+
+    # Удалить участников
+    removed: bool = await client.remove_users_from_group(
+        chat_id=123456,
+        user_ids=[789012],
+        clean_msg_period=0
+    )
+
+Каналы:
+
+.. code-block:: python
+
+    from pymax.types import Chat
+
+    # Найти канал
+    found: Chat | None = await client.resolve_channel_by_name("my_channel")
+
+    # Присоединиться
+    joined: bool = await client.join_channel(link="https://max.ru/my_channel")
+
+    # Выйти
+    left: bool = await client.leave_channel(chat_id=123456)
+
+История сообщений
+------------------
+
+Получить историю:
+
+.. code-block:: python
+
+    from pymax.types import Message
+
+    # Последние 50 сообщений
+    history: list[Message] = await client.fetch_history(
+        chat_id=123456,
+        limit=50
+    )
+
+    for msg in history:
+        print(f"{msg.sender}: {msg.text}")
+
+Поиск в истории:
+
+.. code-block:: python
+
+    from pymax.types import Message
+
+    history: list[Message] = await client.fetch_history(chat_id=123456, limit=100)
+
+    # Найти сообщения с текстом
+    important: list[Message] = [m for m in history if "важно" in m.text.lower()]
+
+    # Сообщения от конкретного пользователя
+    from_user: list[Message] = [m for m in history if m.sender == user_id]
+
+Асинхронность и параллелизм
+----------------------------
+
+Параллельное выполнение:
+
+.. code-block:: python
+
+    import asyncio
+    from pymax.types import Message
+
+    # Несколько операций одновременно
+    results: tuple[Message | None, ...] = await asyncio.gather(
+        client.send_message(chat_id=1, text="1"),
+        client.send_message(chat_id=2, text="2"),
+        client.send_message(chat_id=3, text="3"),
+    )
+
+Фоновые задачи:
+
+.. code-block:: python
+
+    import asyncio
+
+    async def background_task() -> None:
+        while True:
+            await client.send_message(
+                chat_id=123456,
+                text="Периодическое сообщение"
+            )
+            await asyncio.sleep(3600)  # Каждый час
+
+    @client.on_start
+    async def on_start(me: Me | None) -> None:
+        asyncio.create_task(background_task())
+
+Обработка ошибок:
+
+.. code-block:: python
+
+    from pymax.types import Message
+
+    try:
+        msg: Message | None = await client.send_message(chat_id=123456, text="Сообщение")
+    except Exception as e:
+        print(f"Ошибка: {e}")
+
+Retry с повторными попытками:
+
+.. code-block:: python
+
+    import asyncio
+    from pymax.types import Message
+
+    async def send_with_retry(chat_id: int, text: str, max_retries: int = 3) -> Message | None:
+        for attempt in range(max_retries):
+            try:
+                return await client.send_message(
+                    chat_id=chat_id,
+                    text=text
+                )
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise
+                await asyncio.sleep(2 ** attempt)
+
+Работа с файлами и вложениями
+------------------------------
+
+Отправить файл:
+
+.. code-block:: python
+
+    from pymax.types import Message
+    from pymax.files import File
+
+    file: File = File(path="document.pdf")
+    msg: Message | None = await client.send_message(
+        chat_id=123456,
+        text="Вот файл",
+        attachment=file
+    )
+
+Получить информацию о файле:
+
+.. code-block:: python
+
+    from pymax.types import Message, File as FileInfo
+
+    @client.on_message()
+    async def handle_attachments(message: Message) -> None:
+        if not message.attaches:
+            return
+
+        for attach in message.attaches:
+            file_info: FileInfo | None = await client.get_file_by_id(
+                chat_id=message.chat_id,
+                message_id=message.id,
+                file_id=attach.file_id
+            )
+
+            if file_info:
+                print(f"URL: {file_info.url}")
+
+События клиента
+---------------
+
+.. code-block:: python
+
+    from pymax.types import Message, Chat, Me
+
+    @client.on_start
+    async def on_start(me: Me | None) -> None:
+        print("Клиент запущен")
+
+    @client.on_message()
+    async def on_message(message: Message) -> None:
+        print(f"Новое сообщение: {message.text}")
+
+    @client.on_message_edit()
+    async def on_message_edit(message: Message) -> None:
+        print(f"Сообщение отредактировано: {message.text}")
+
+    @client.on_message_delete()
+    async def on_message_delete(message: Message) -> None:
+        print(f"Сообщение удалено: {message.id}")
+
+    @client.on_chat_update()
+    async def on_chat_update(chat: Chat) -> None:
+        print(f"Информация о чате обновлена: {chat.title}")
+
+Периодические задачи:
+
+.. code-block:: python
+
+    @client.task(seconds=3600)  # Каждый час
+    async def send_periodic_message() -> None:
+        await client.send_message(
+            chat_id=123456,
+            text="Периодическое сообщение"
+        )
+
+Лучшие практики
+---------------
+
+✅ Всегда проверяйте None перед использованием:
+
+.. code-block:: python
+
+    from pymax.types import User
+
+    user: User | None = await client.get_user(user_id)
+    if user and user.names:
+        name: str = user.names[0].first_name
+
+✅ Используйте фильтры вместо if-проверок:
+
+.. code-block:: python
+
+    from pymax.types import Message
+    from pymax.filters import Filters
+
+    # Хорошо
+    @client.on_message(Filters.text("привет"))
+    async def handler(message: Message) -> None:
+        pass
+
+    # Плохо
+    @client.on_message()
+    async def handler(message: Message) -> None:
+        if message.text and "привет" in message.text:
+            pass
+
+✅ Обрабатывайте ошибки в асинхронном коде:
+
+.. code-block:: python
+
+    import asyncio
+    from typing import Any
+
+    results: list[Any] = await asyncio.gather(
+        *tasks,
+        return_exceptions=True
+    )
+
+✅ Используйте логирование для отладки:
+
+.. code-block:: python
+
+    import logging
+
+    logger: logging.Logger = logging.getLogger("bot")
+    logger.info("Сообщение")
+
+✅ Не отправляйте слишком много сообщений сразу (rate limiting)

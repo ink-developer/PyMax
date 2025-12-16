@@ -10,9 +10,11 @@ from pymax.payloads import (
     CreateGroupAttach,
     CreateGroupMessage,
     CreateGroupPayload,
+    FetchChatsPayload,
     GetChatInfoPayload,
     InviteUsersPayload,
     JoinChatPayload,
+    LeaveChatPayload,
     RemoveUsersPayload,
     ReworkInviteLinkPayload,
 )
@@ -74,7 +76,7 @@ class GroupMixin(ClientProtocol):
         chat_id: int,
         user_ids: list[int],
         show_history: bool = True,
-    ) -> bool:
+    ) -> Chat | None:
         """
         Приглашает пользователей в группу
 
@@ -84,7 +86,7 @@ class GroupMixin(ClientProtocol):
             show_history (bool, optional): Флаг оповещения. Defaults to True.
 
         Returns:
-            bool: True, если пользователи успешно приглашены
+            Chat | None: Объект Chat или None при ошибке.
         """
         payload = InviteUsersPayload(
             chat_id=chat_id,
@@ -109,7 +111,26 @@ class GroupMixin(ClientProtocol):
                 idx = self.chats.index(cached_chat)
                 self.chats[idx] = chat
 
-        return True
+        return chat
+
+    async def invite_users_to_channel(
+        self,
+        chat_id: int,
+        user_ids: list[int],
+        show_history: bool = True,
+    ) -> Chat | None:
+        """
+        Приглашает пользователей в канал
+
+        Args:
+            chat_id (int): ID канала.
+            user_ids (list[int]): Список идентификаторов пользователей.
+            show_history (bool, optional): Флаг оповещения. Defaults to True.
+
+        Returns:
+            Chat | None: Объект Chat или None при ошибке.
+        """
+        return await self.invite_users_to_group(chat_id, user_ids, show_history)
 
     async def remove_users_from_group(
         self,
@@ -117,6 +138,17 @@ class GroupMixin(ClientProtocol):
         user_ids: list[int],
         clean_msg_period: int,
     ) -> bool:
+        """
+        Удаляет пользователей из группы
+
+        Args:
+            chat_id (int): ID группы.
+            user_ids (list[int]): Список идентификаторов пользователей.
+            clean_msg_period (int): Период очистки сообщений.
+
+        Returns:
+            bool: True, если удаление прошло успешно, иначе False.
+        """
         payload = RemoveUsersPayload(
             chat_id=chat_id,
             user_ids=user_ids,
@@ -150,6 +182,19 @@ class GroupMixin(ClientProtocol):
         only_admin_can_call: bool | None = None,
         members_can_see_private_link: bool | None = None,
     ) -> None:
+        """
+        Изменяет настройки группы
+
+        Args:
+            chat_id (int): ID группы.
+            all_can_pin_message (bool | None, optional): Все могут закреплять сообщения. Defaults to None.
+            only_owner_can_change_icon_title (bool | None, optional): Только владелец может менять иконку и название. Defaults to None.
+            only_admin_can_add_member (bool | None, optional): Только администраторы могут добавлять участников. Defaults to None.
+            only_admin_can_call (bool | None, optional): Только администраторы могут звонить. Defaults to None.
+            members_can_see_private_link (bool | None, optional): Участники могут видеть приватную ссылку. Defaults to None.
+        Returns:
+            None
+        """
         payload = ChangeGroupSettingsPayload(
             chat_id=chat_id,
             options=ChangeGroupSettingsOptions(
@@ -181,6 +226,17 @@ class GroupMixin(ClientProtocol):
         name: str | None,
         description: str | None = None,
     ) -> None:
+        """
+        Изменяет профиль группы
+
+        Args:
+            chat_id (int): ID группы.
+            name (str | None): Название группы.
+            description (str | None, optional): Описание группы. Defaults to None.
+
+        Returns:
+            None
+        """
         payload = ChangeGroupProfilePayload(
             chat_id=chat_id,
             theme=name,
@@ -264,11 +320,10 @@ class GroupMixin(ClientProtocol):
         """
         Получает информацию о группах по их ID
 
-        Args:
-            chat_ids (list[int]): Список идентификаторов групп.
-
-        Returns:
-            list[Chat]: Список объектов Chat.
+        :param chat_ids: Список идентификаторов групп.
+        :type chat_ids: list[int]
+        :return: Список объектов Chat.
+        :rtype: list[Chat]
         """
         missed_chat_ids = [
             chat_id for chat_id in chat_ids if await self._get_chat(chat_id) is None
@@ -318,3 +373,67 @@ class GroupMixin(ClientProtocol):
         if not chats:
             raise Error("no_chat", "Chat not found in response", "Chat Error")
         return chats[0]
+
+    async def leave_group(self, chat_id: int) -> None:
+        """
+        Покидает группу
+
+        :param chat_id: Идентификатор группы.
+        :type chat_id: int
+        :return: None
+        :rtype: None
+        """
+        payload = LeaveChatPayload(chat_id=chat_id).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.CHAT_LEAVE, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        cached_chat = await self._get_chat(chat_id)
+        if cached_chat is not None:
+            self.chats.remove(cached_chat)
+
+    async def leave_channel(self, chat_id: int) -> None:
+        """
+        Покидает канал
+
+        :param chat_id: Идентификатор канала.
+        :type chat_id: int
+        :return: None
+        :rtype: None
+        """
+        await self.leave_group(chat_id)
+
+    async def fetch_chats(self, marker: int | None = None) -> list[Chat]:
+        """
+        Загружает список чатов
+
+        :param marker: Маркер для пагинации, по умолчанию None
+        :type marker: int | None
+        :return: Список объектов Chat
+        :rtype: list[Chat]
+        """
+        if marker is None:
+            marker = int(time.time() * 1000)
+
+        payload = FetchChatsPayload(marker=marker).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.CHATS_LIST, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        chats_data = data["payload"].get("chats", [])
+        chats: list[Chat] = []
+        for chat_dict in chats_data:
+            chat = Chat.from_dict(chat_dict)
+            chats.append(chat)
+            cached_chat = await self._get_chat(chat.id)
+            if cached_chat is None:
+                self.chats.append(chat)
+            else:
+                idx = self.chats.index(cached_chat)
+                self.chats[idx] = chat
+
+        return chats

@@ -4,6 +4,8 @@ from pydantic import AliasChoices, BaseModel, Field
 
 from pymax.static.constant import (
     DEFAULT_APP_VERSION,
+    DEFAULT_BUILD_NUMBER,
+    DEFAULT_CLIENT_SESSION_ID,
     DEFAULT_DEVICE_LOCALE,
     DEFAULT_DEVICE_NAME,
     DEFAULT_DEVICE_TYPE,
@@ -284,6 +286,8 @@ class UserAgentPayload(CamelModel):
     app_version: str = Field(default=DEFAULT_APP_VERSION)
     screen: str = Field(default=DEFAULT_SCREEN)
     timezone: str = Field(default=DEFAULT_TIMEZONE)
+    client_session_id: int = Field(default=DEFAULT_CLIENT_SESSION_ID)
+    build_number: int = Field(default=DEFAULT_BUILD_NUMBER)
 
 
 class ReworkInviteLinkPayload(CamelModel):
@@ -328,3 +332,11 @@ class UpdateFolderPayload(CamelModel):
 
 class DeleteFolderPayload(CamelModel):
     folder_ids: list[str]
+
+
+class LeaveChatPayload(CamelModel):
+    chat_id: int
+
+
+class FetchChatsPayload(CamelModel):
+    marker: int

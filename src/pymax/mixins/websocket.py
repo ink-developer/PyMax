@@ -8,7 +8,7 @@ import websockets
 from typing_extensions import override
 
 from pymax.exceptions import LoginError, WebSocketNotConnectedError
-from pymax.filters import Filter
+from pymax.filters import BaseFilter
 from pymax.interfaces import ClientProtocol
 from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
@@ -73,6 +73,11 @@ class WebSocketMixin(ClientProtocol):
     ) -> dict[str, Any] | None:
         """
         Устанавливает соединение WebSocket с сервером и выполняет handshake.
+
+        :param user_agent: Пользовательский агент для handshake. Если None, используется значение по умолчанию.
+        :type user_agent: UserAgentPayload | None
+        :return: Результат handshake.
+        :rtype: dict[str, Any] | None
         """
         if user_agent is None:
             user_agent = UserAgentPayload()
@@ -101,14 +106,13 @@ class WebSocketMixin(ClientProtocol):
     async def _handshake(self, user_agent: UserAgentPayload) -> dict[str, Any]:
         self.logger.debug(
             "Sending handshake with user_agent keys=%s",
-            user_agent.model_dump().keys(),
+            user_agent.model_dump(by_alias=True).keys(),
         )
+
+        user_agent_json = user_agent.model_dump(by_alias=True)
         resp = await self._send_and_wait(
             opcode=Opcode.SESSION_INIT,
-            payload={
-                "deviceId": str(self._device_id),
-                "userAgent": user_agent,  # TODO: вынести в статик мб
-            },
+            payload={"deviceId": str(self._device_id), "userAgent": user_agent_json},
         )
 
         if resp.get("payload", {}).get("error"):
@@ -120,12 +124,12 @@ class WebSocketMixin(ClientProtocol):
     async def _process_message_handler(
         self,
         handler: Callable[[Message], Any],
-        filter: Filter | None,
+        filter: BaseFilter[Message] | None,
         message: Message,
     ):
         result = None
         if filter:
-            if filter.match(message):
+            if filter(message):
                 result = handler(message)
             else:
                 return
@@ -133,6 +137,126 @@ class WebSocketMixin(ClientProtocol):
             result = handler(message)
         if asyncio.iscoroutine(result):
             self._create_safe_task(result, name=f"handler-{handler.__name__}")
+
+    def _parse_json(self, raw: Any) -> dict[str, Any] | None:
+        try:
+            return json.loads(raw)
+        except Exception:
+            self.logger.warning("JSON parse error", exc_info=True)
+            return None
+
+    def _handle_pending(self, seq: int | None, data: dict) -> bool:
+        if isinstance(seq, int):
+            fut = self._pending.get(seq)
+            if fut and not fut.done():
+                fut.set_result(data)
+                self.logger.debug("Matched response for pending seq=%s", seq)
+                return True
+        return False
+
+    async def _handle_incoming_queue(self, data: dict[str, Any]) -> None:
+        if self._incoming:
+            try:
+                self._incoming.put_nowait(data)
+            except asyncio.QueueFull:
+                self.logger.warning(
+                    "Incoming queue full; dropping message seq=%s", data.get("seq")
+                )
+
+    async def _handle_file_upload(self, data: dict[str, Any]) -> None:
+        if data.get("opcode") != Opcode.NOTIF_ATTACH:
+            return
+        payload = data.get("payload", {})
+        for key in ("fileId", "videoId"):
+            id_ = payload.get(key)
+            if id_ is not None:
+                fut = self._file_upload_waiters.pop(id_, None)
+                if fut and not fut.done():
+                    fut.set_result(data)
+                    self.logger.debug(
+                        "Fulfilled file upload waiter for %s=%s", key, id_
+                    )
+
+    async def _handle_message_notifications(self, data: dict) -> None:
+        if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
+            return
+        payload = data.get("payload", {})
+        msg = Message.from_dict(payload)
+        if not msg:
+            return
+        handlers_map = {
+            MessageStatus.EDITED: self._on_message_edit_handlers,
+            MessageStatus.REMOVED: self._on_message_delete_handlers,
+        }
+        if msg.status and msg.status in handlers_map:
+            for handler, filter in handlers_map[msg.status]:
+                await self._process_message_handler(handler, filter, msg)
+        if msg.status is None:
+            for handler, filter in self._on_message_handlers:
+                await self._process_message_handler(handler, filter, msg)
+
+    async def _handle_reactions(self, data: dict):
+        if data.get("opcode") != Opcode.NOTIF_MSG_REACTIONS_CHANGED:
+            return
+
+        payload = data.get("payload", {})
+        chat_id = payload.get("chatId")
+        message_id = payload.get("messageId")
+
+        if not (chat_id and message_id):
+            return
+
+        total_count = payload.get("totalCount")
+        your_reaction = payload.get("yourReaction")
+        counters = [ReactionCounter.from_dict(c) for c in payload.get("counters", [])]
+
+        reaction_info = ReactionInfo(
+            total_count=total_count,
+            your_reaction=your_reaction,
+            counters=counters,
+        )
+
+        for handler in self._on_reaction_change_handlers:
+            try:
+                result = handler(message_id, chat_id, reaction_info)
+                if asyncio.iscoroutine(result):
+                    await result
+            except Exception as e:
+                self.logger.exception("Error in on_reaction_change_handler: %s", e)
+
+    async def _handle_chat_updates(self, data: dict) -> None:
+        if data.get("opcode") != Opcode.NOTIF_CHAT:
+            return
+
+        payload = data.get("payload", {})
+        chat_data = payload.get("chat", {})
+        chat = Chat.from_dict(chat_data)
+        if not chat:
+            return
+
+        for handler in self._on_chat_update_handlers:
+            try:
+                result = handler(chat)
+                if asyncio.iscoroutine(result):
+                    await result
+            except Exception as e:
+                self.logger.exception("Error in on_chat_update_handler: %s", e)
+
+    async def _handle_raw_receive(self, data: dict[str, Any]) -> None:
+        for handler in self._on_raw_receive_handlers:
+            try:
+                result = handler(data)
+                if asyncio.iscoroutine(result):
+                    await result
+            except Exception as e:
+                self.logger.exception("Error in on_raw_receive_handler: %s", e)
+
+    async def _dispatch_incoming(self, data: dict[str, Any]) -> None:
+        await self._handle_raw_receive(data)
+        await self._handle_file_upload(data)
+        await self._handle_message_notifications(data)
+        await self._handle_reactions(data)
+        await self._handle_chat_updates(data)
 
     async def _recv_loop(self) -> None:
         if self._ws is None:
@@ -143,145 +267,22 @@ class WebSocketMixin(ClientProtocol):
         while True:
             try:
                 raw = await self._ws.recv()
-                try:
-                    data = json.loads(raw)
-                except Exception:
-                    self.logger.warning("JSON parse error", exc_info=True)
+                data = self._parse_json(raw)
+
+                if data is None:
                     continue
+
                 seq = data.get("seq")
-                fut = self._pending.get(seq) if isinstance(seq, int) else None
+                if self._handle_pending(seq, data):
+                    continue
 
-                if fut and not fut.done():
-                    fut.set_result(data)
-                    self.logger.debug("Matched response for pending seq=%s", seq)
-                else:
-                    if self._incoming is not None:
-                        try:
-                            self._incoming.put_nowait(data)
-                        except asyncio.QueueFull:
-                            self.logger.warning(
-                                "Incoming queue full; dropping message seq=%s",
-                                data.get("seq"),
-                            )
+                await self._handle_incoming_queue(data)
+                await self._dispatch_incoming(data)
 
-                    try:  # TODO: переделать, временное решение
-                        if data.get("opcode") == Opcode.NOTIF_ATTACH:
-                            file_id = data.get("payload", {}).get("fileId", None)
-                            video_id = data.get("payload", {}).get("videoId", None)
-                            if file_id is not None:
-                                fut = self._file_upload_waiters.pop(file_id, None)
-                                if fut and not fut.done():
-                                    fut.set_result(data)
-                                    self.logger.debug(
-                                        "Fulfilled file upload waiter for fileId=%s",
-                                        file_id,
-                                    )
-                            elif video_id is not None:
-                                fut = self._file_upload_waiters.pop(video_id, None)
-                                if fut and not fut.done():
-                                    fut.set_result(data)
-                                    self.logger.debug(
-                                        "Fulfilled file upload waiter for videoId=%s",
-                                        video_id,
-                                    )
-                    except Exception:
-                        self.logger.exception("Error handling file upload notification")
-
-                    if data.get("opcode") == Opcode.NOTIF_MESSAGE.value and (
-                        self._on_message_handlers
-                        or self._on_message_edit_handlers
-                        or self._on_message_delete_handlers
-                    ):
-                        try:
-                            for handler, filter in self._on_message_handlers:
-                                payload = data.get("payload", {})
-                                msg = Message.from_dict(payload)
-                                if msg:
-                                    if msg.status:
-                                        if msg.status == MessageStatus.EDITED:
-                                            for (
-                                                edit_handler,
-                                                edit_filter,
-                                            ) in self._on_message_edit_handlers:
-                                                await self._process_message_handler(
-                                                    edit_handler,
-                                                    edit_filter,
-                                                    msg,
-                                                )
-                                        elif msg.status == MessageStatus.REMOVED:
-                                            for (
-                                                remove_handler,
-                                                remove_filter,
-                                            ) in self._on_message_delete_handlers:
-                                                await self._process_message_handler(
-                                                    remove_handler,
-                                                    remove_filter,
-                                                    msg,
-                                                )
-                                    await self._process_message_handler(
-                                        handler, filter, msg
-                                    )
-                        except Exception:
-                            self.logger.exception("Error in on_message_handler")
-
-                    if data.get("opcode") == Opcode.NOTIF_MSG_REACTIONS_CHANGED:
-                        try:
-                            for (
-                                reaction_handler,
-                            ) in self._on_reaction_change_handlers:
-                                payload = data.get("payload", {})
-
-                                chat_id = payload.get("chatId")
-                                message_id = payload.get("messageId")
-
-                                total_count = payload.get("totalCount")
-                                your_reaction = payload.get("yourReaction")
-                                counters = [
-                                    ReactionCounter.from_dict(c)
-                                    for c in payload.get("counters", [])
-                                ]
-
-                                if (
-                                    chat_id
-                                    and message_id
-                                    and (
-                                        total_count is not None
-                                        or your_reaction
-                                        or counters
-                                    )
-                                ):
-                                    reaction_info = ReactionInfo(
-                                        total_count=total_count,
-                                        your_reaction=your_reaction,
-                                        counters=counters,
-                                    )
-                                    result = reaction_handler(
-                                        message_id, chat_id, reaction_info
-                                    )
-                                    if asyncio.iscoroutine(result):
-                                        await result
-
-                        except Exception as e:
-                            self.logger.exception(
-                                "Error in on_reaction_change_handler: %s", e
-                            )
-
-                    if data.get("opcode") == Opcode.NOTIF_CHAT:
-                        try:
-                            for (chat_update_handler,) in self._on_chat_update_handlers:
-                                payload = data.get("payload", {})
-                                chat = Chat.from_dict(payload.get("chat", {}))
-                                if chat:
-                                    result = chat_update_handler(chat)
-                                    if asyncio.iscoroutine(result):
-                                        await result
-                        except Exception as e:
-                            self.logger.exception(
-                                "Error in on_chat_update_handler: %s", e
-                            )
-
-            except websockets.exceptions.ConnectionClosed:
-                self.logger.info("WebSocket connection closed; exiting recv loop")
+            except websockets.exceptions.ConnectionClosed as e:
+                self.logger.info(
+                    f"WebSocket connection closed with error: {e.code}, {e.reason}; exiting recv loop"
+                )
                 for fut in self._pending.values():
                     if not fut.done():
                         fut.set_exception(WebSocketNotConnectedError)
@@ -303,7 +304,6 @@ class WebSocketMixin(ClientProtocol):
             pass
         except Exception as e:
             self.logger.exception("Error retrieving task exception: %s", e)
-            pass
 
     async def _queue_message(
         self,

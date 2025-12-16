@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import contextlib
 import logging
@@ -8,6 +10,7 @@ import traceback
 from collections.abc import Awaitable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
+from uuid import UUID
 
 from typing_extensions import Self, override
 
@@ -27,12 +30,13 @@ from .static.constant import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
-    from typing import Any
+    from collections.abc import Callable
 
     import websockets
 
-    from .filters import Filter
+    from pymax.filters import BaseFilter
+
+    from .filters import Filters
     from .types import Channel, Chat, Dialog, Me, Message, ReactionInfo, User
 
 
@@ -43,29 +47,36 @@ class MaxClient(ApiMixin, WebSocketMixin):
     """
     Основной клиент для работы с WebSocket API сервиса Max.
 
+    :param phone: Номер телефона для авторизации.
+    :type phone: str
+    :param uri: URI WebSocket сервера.
+    :type uri: str, optional
+    :param work_dir: Рабочая директория для хранения базы данных.
+    :type work_dir: str, optional
+    :param logger: Пользовательский логгер. Если не передан, используется логгер модуля с именем f"{__name__}.MaxClient".
+    :type logger: logging.Logger | None
+    :param headers: Заголовки для подключения к WebSocket.
+    :type headers: UserAgentPayload
+    :param token: Токен авторизации. Если не передан, будет выполнен процесс логина по номеру телефона.
+    :type token: str | None, optional
+    :param host: Хост API сервера.
+    :type host: str, optional
+    :param port: Порт API сервера.
+    :type port: int, optional
+    :param registration: Флаг регистрации нового пользователя.
+    :type registration: bool, optional
+    :param first_name: Имя пользователя для регистрации. Требуется, если registration=True.
+    :type first_name: str, optional
+    :param last_name: Фамилия пользователя для регистрации.
+    :type last_name: str | None, optional
+    :param send_fake_telemetry: Флаг отправки фейковой телеметрии.
+    :type send_fake_telemetry: bool, optional
+    :param proxy: Прокси для подключения к WebSocket (см. https://websockets.readthedocs.io/en/stable/topics/proxies.html).
+    :type proxy: str | Literal[True] | None, optional
+    :param reconnect: Флаг автоматического переподключения при потере соединения.
+    :type reconnect: bool, optional
 
-    Args:
-        phone (str): Номер телефона для авторизации.
-        uri (str, optional): URI WebSocket сервера. По умолчанию Constants.WEBSOCKET_URI.value.
-        work_dir (str, optional): Рабочая директория для хранения базы данных. По умолчанию ".".
-        logger (logging.Logger | None): Пользовательский логгер. Если не передан — используется
-            логгер модуля с именем f"{__name__}.MaxClient".
-        headers (UserAgentPayload): Заголовки для подключения к WebSocket.
-        token (str | None, optional): Токен авторизации. Если не передан, будет выполнен
-            процесс логина по номеру телефона.
-        host (str, optional): Хост API сервера. По умолчанию Constants.HOST.value.
-        port (int, optional): Порт API сервера. По умолчанию Constants.PORT.value.
-        registration (bool, optional): Флаг регистрации нового пользователя. По умолчанию False.
-        first_name (str, optional): Имя пользователя для регистрации. Требуется, если registration=True.
-        last_name (str | None, optional): Фамилия пользователя для регистрации.
-        send_fake_telemetry (bool, optional): Флаг отправки фейковой телеметрии. По умолчанию True.
-        proxy (str | Literal[True] | None, optional): Прокси для подключения к WebSocket.
-            (См. https://websockets.readthedocs.io/en/stable/topics/proxies.html).
-        reconnect (bool, optional): Флаг автоматического переподключения при потере соединения. По умолчанию True.
-
-
-    Raises:
-        InvalidPhoneError: Если формат номера телефона неверный.
+    :raises InvalidPhoneError: Если формат номера телефона неверный.
     """
 
     def __init__(
@@ -82,6 +93,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         registration: bool = False,
         first_name: str = "",
         last_name: str | None = None,
+        device_id: UUID | None = None,
         logger: logging.Logger | None = None,
         reconnect: bool = True,
         reconnect_delay: float = 1.0,
@@ -127,7 +139,9 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
 
-        self._device_id = self._database.get_device_id()
+        self._device_id = (
+            device_id if device_id is not None else self._database.get_device_id()
+        )
         self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
 
         self._token = self._database.get_auth_token() or token
@@ -138,19 +152,25 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._current_screen: str = "chats_list_tab"
 
         self._on_message_handlers: list[
-            tuple[Callable[[Message], Any], Filter | None]
+            tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_message_edit_handlers: list[
-            tuple[Callable[[Message], Any], Filter | None]
+            tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_message_delete_handlers: list[
-            tuple[Callable[[Message], Any], Filter | None]
+            tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
         self._on_reaction_change_handlers: list[
             tuple[Callable[[str, int, ReactionInfo], Any]]
         ] = []
         self._on_chat_update_handlers: list[tuple[Callable[[Chat], Any]]] = []
+        self._on_raw_receive_handlers: list[
+            Callable[[dict[str, Any]], Any | Awaitable[Any]]
+        ] = []
+        self._scheduled_tasks: list[
+            tuple[Callable[[], Any | Awaitable[Any]], float]
+        ] = []
 
         self._ssl_context = ssl.create_default_context()
         self._ssl_context.set_ciphers("DEFAULT")
@@ -199,6 +219,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
             )
 
     async def close(self) -> None:
+        """
+        Закрывает клиент и освобождает ресурсы.
+
+        :return: None
+        """
         try:
             self.logger.info("Closing client")
             if self._recv_task:
@@ -230,11 +255,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
             except asyncio.CancelledError:
                 raise
             except Exception as e:
-                self.logger.exception(
-                    f"Unhandled exception in task {name or coro}: {e}",
-                    exc_info=e,
+                tb = traceback.format_exc()
+                self.logger.error(
+                    f"Unhandled exception in task {name or coro}: {e}\n{tb}"
                 )
-                return None
+                raise
 
         task = asyncio.create_task(runner(), name=name)
         self._background_tasks.add(task)
@@ -244,20 +269,24 @@ class MaxClient(ApiMixin, WebSocketMixin):
         if sync:
             await self._sync()
 
-        if self._on_start_handler:
-            self.logger.debug("Calling on_start handler")
-            result = self._on_start_handler()
-            if asyncio.iscoroutine(result):
-                await self._safe_execute(result, context="on_start handler")
-
+        self.logger.debug("is_connected=%s before starting ping", self.is_connected)
         ping_task = asyncio.create_task(self._send_interactive_ping())
         ping_task.add_done_callback(self._log_task_exception)
         self._background_tasks.add(ping_task)
+
+        start_scheduled_task = asyncio.create_task(self._start_scheduled_tasks())
+        start_scheduled_task.add_done_callback(self._log_task_exception)
 
         if self._send_fake_telemetry:
             telemetry_task = asyncio.create_task(self._start())
             telemetry_task.add_done_callback(self._log_task_exception)
             self._background_tasks.add(telemetry_task)
+
+        if self._on_start_handler:
+            self.logger.debug("Calling on_start handler")
+            result = self._on_start_handler()
+            if asyncio.iscoroutine(result):
+                await self._safe_execute(result, context="on_start handler")
 
     async def _cleanup_client(self) -> None:
         for task in list(self._background_tasks):
@@ -305,17 +334,21 @@ class MaxClient(ApiMixin, WebSocketMixin):
         """
         Завершает кастомный login flow: отправляет код, сохраняет токен и запускает пост-логин задачи.
 
-        Args:
-            temp_token (str): Временный токен, полученный из request_code()
-            code (str): Код, введённый пользователем
-
-        Returns:
-            str: Токен для входа
+        :param temp_token: Временный токен, полученный из request_code.
+        :type temp_token: str
+        :param code: Код верификации (6 цифр).
+        :type code: str
+        :param start: Флаг запуска пост-логин задач и ожидания навсегда. Если False, только сохраняет токен.
+        :type start: bool, optional
+        :return: None
+        :rtype: None
         """
         resp = await self._send_code(code, temp_token)
         token = resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
+        if not token:
+            raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
         self._token = token
-        self._database.update_auth_token(self._device_id, token)
+        self._database.update_auth_token(str(self._device_id), token)
         if start:
             while True:
                 try:
@@ -336,6 +369,9 @@ class MaxClient(ApiMixin, WebSocketMixin):
         Запускает клиент, подключается к WebSocket, авторизует
         пользователя (если нужно) и запускает фоновый цикл.
         Теперь включает безопасный reconnect-loop, если self.reconnect=True.
+
+        :return: None
+        :rtype: None
         """
 
         while True:
@@ -349,7 +385,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
                     await self._register(self.first_name, self.last_name)
 
                 if self._token and self._database.get_auth_token() is None:
-                    self._database.update_auth_token(self._device_id, self._token)
+                    self._database.update_auth_token(str(self._device_id), self._token)
 
                 if self._token is None:
                     await self._login()
@@ -377,7 +413,32 @@ class MaxClient(ApiMixin, WebSocketMixin):
             await asyncio.sleep(self.reconnect_delay)
 
     async def idle(self):
+        """
+        Поддерживает клиента в «ожидающем» состоянии до закрытия клиента или иного прерывающего события.
+
+        :return: Никогда не возвращает значение; функция блокирует выполнение.
+        :rtype: None
+        """
         await asyncio.Event().wait()
+
+    def inspect(self) -> None:
+        """
+        Выводит в лог текущий статус клиента для отладки.
+        """
+        self.logger.info("Pymax")
+        self.logger.info("---------")
+        self.logger.info(f"Connected: {self.is_connected}")
+        if self.me is not None:
+            self.logger.info(f"Me: {self.me.names[0].first_name} ({self.me.id})")
+        else:
+            self.logger.info("Me: N/A")
+        self.logger.info(f"Dialogs: {len(self.dialogs)}")
+        self.logger.info(f"Chats: {len(self.chats)}")
+        self.logger.info(f"Channels: {len(self.channels)}")
+        self.logger.info(f"Users cached: {len(self._users)}")
+        self.logger.info(f"Background tasks: {len(self._background_tasks)}")
+        self.logger.info(f"Scheduled tasks: {len(self._scheduled_tasks)}")
+        self.logger.info("---------")
 
     async def __aenter__(self) -> Self:
         self._create_safe_task(self.start(), name="start")
