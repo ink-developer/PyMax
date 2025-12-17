@@ -59,7 +59,6 @@ MaxClient
     # Получить историю сообщений
     history = await client.fetch_history(
         chat_id=123456,
-        limit=50
     )
 
 Свойства:

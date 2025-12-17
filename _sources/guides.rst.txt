@@ -267,7 +267,6 @@ Guides
     # Последние 50 сообщений
     history: list[Message] = await client.fetch_history(
         chat_id=123456,
-        limit=50
     )
 
     for msg in history:

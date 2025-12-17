@@ -358,7 +358,6 @@
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_history</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">history</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">fetch_history</span><span class="p">(</span>
         <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat_id</span><span class="p">,</span>
-        <span class="n">limit</span><span class="o">=</span><span class="mi">10</span>
     <span class="p">)</span>
 
     <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Последние 10 сообщений:</span><span class="se">\n</span><span class="s2">&quot;</span>
