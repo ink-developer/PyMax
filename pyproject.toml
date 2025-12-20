@@ -37,6 +37,14 @@ where = ["src"]
 "" = "src"
 
 [dependency-groups]
+test = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.24.0",
+  "pytest-cov>=5.0.0",
+  "pytest-timeout>=2.1.0",
+  "flake8",
+  "mypy",
+]
 dev = [
   "furo>=2025.9.25",
   "ghp-import>=2.1.0",
