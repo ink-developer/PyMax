@@ -198,7 +198,7 @@ class AuthMixin(ClientProtocol):
         self._database.update_auth_token((self._device_id), self._token)
         self.logger.info("Login successful, token saved to database")
 
-    async def poll_qr_login(self, track_id: str, poll_interval: int) -> bool:
+    async def _poll_qr_login(self, track_id: str, poll_interval: int) -> bool:
         self.logger.info("Polling for QR login confirmation")
 
         while True:
@@ -259,7 +259,7 @@ class AuthMixin(ClientProtocol):
         self.logger.info("Starting QR login flow")
         self._print_qr(link)
 
-        poll_qr_task = asyncio.create_task(self.poll_qr_login(track_id, poll_interval))
+        poll_qr_task = asyncio.create_task(self._poll_qr_login(track_id, poll_interval))
 
         while True:
             now_ms = datetime.datetime.now().timestamp() * 1000

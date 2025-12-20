@@ -92,7 +92,7 @@ class SocketMixin(ClientProtocol):
         payload_len_b = payload_len.to_bytes(4, "big")
         return ver_b + cmd_b + seq_b + opcode_b + payload_len_b + payload_bytes
 
-    async def connect(self, user_agent: UserAgentPayload) -> dict[str, Any]:
+    async def connect(self, user_agent: UserAgentPayload | None = None) -> dict[str, Any]:
         """
         Устанавливает соединение с сервером и выполняет handshake.
 
@@ -101,6 +101,8 @@ class SocketMixin(ClientProtocol):
         :return: Результат handshake.
         :rtype: dict[str, Any] | None
         """
+        if user_agent is None:
+            user_agent = UserAgentPayload()
         if sys.version_info[:2] == (3, 12):
             self.logger.warning(
                 """
