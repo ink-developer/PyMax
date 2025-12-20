@@ -54,6 +54,41 @@ uv add -U maxapi-python
 
 ## Быстрый старт
 
+### Аутентификация (`device_type`)
+
+> [!IMPORTANT]
+> Параметр `device_type` в `UserAgentPayload` **критически важен** для выбора способа авторизации:
+
+**Вход по номеру телефона (DESKTOP):**
+
+```python
+from pymax import MaxClient
+from pymax.payloads import UserAgentPayload
+
+ua = UserAgentPayload(device_type="DESKTOP", app_version="25.12.13")
+
+client = MaxClient(
+    phone="+79111111111",
+    work_dir="cache",
+    headers=ua,
+)
+```
+
+**Вход через QR-код (WEB)** — токен совместим с веб-версией Max:
+
+```python
+from pymax import MaxClient
+from pymax.payloads import UserAgentPayload
+
+ua = UserAgentPayload(device_type="WEB", app_version="25.12.13")
+
+client = MaxClient(
+    phone="+7911111111",
+    work_dir="cache",
+    headers=ua,
+)
+```
+
 ### Базовый пример использования
 
 ```python
