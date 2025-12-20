@@ -42,6 +42,15 @@ class Database:
             return device_id
 
     def insert_auth(self, auth: Auth) -> Auth:
+        """
+        Insert an Auth record into the database and return the persisted instance.
+        
+        Parameters:
+            auth (Auth): Auth model instance to persist.
+        
+        Returns:
+            Auth: The persisted Auth instance refreshed with any database-generated values.
+        """
         with self.get_session() as session:
             session.add(auth)
             session.commit()
@@ -49,6 +58,15 @@ class Database:
             return auth
 
     def update_auth_token(self, device_id: UUID, token: str) -> None:
+        """
+        Ensure an Auth row exists for the given device_id and set its token.
+        
+        Updates the token for the Auth row matching device_id if present; otherwise assigns the device_id and token to the first existing Auth row or creates a new Auth record with those values. All changes are persisted to the database.
+        
+        Parameters:
+            device_id (UUID): The device identifier to associate with the Auth record.
+            token (str): The authentication token to store for the device.
+        """
         with self.get_session() as session:
             auth = session.exec(select(Auth).where(Auth.device_id == device_id)).first()
             if auth:

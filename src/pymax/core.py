@@ -96,6 +96,30 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         reconnect: bool = True,
         reconnect_delay: float = 1.0,
     ) -> None:
+        """
+        Initialize a MaxClient instance and set up connection, state, storage, and background task containers.
+        
+        Parameters:
+        	phone (str): Phone number for the account; validated on init and will raise on invalid format.
+        	uri (str): WebSocket URI to connect to.
+        	headers (UserAgentPayload): User agent payload sent to the server.
+        	token (str | None): Optional authentication token to use or persist.
+        	send_fake_telemetry (bool): Whether to emit fake telemetry events after login.
+        	host (str): Host for socket connections.
+        	port (int): Port for socket connections.
+        	proxy (str | True | None): Proxy URL or True to enable proxy discovery; None to disable.
+        	work_dir (str): Directory used to store session database and files.
+        	registration (bool): If True, client will perform a registration flow on start.
+        	first_name (str): First name used during registration; required when registration is True.
+        	last_name (str | None): Optional last name used during registration.
+        	device_id (UUID | None): Device identifier to use; if None one is loaded from the session database.
+        	logger (logging.Logger | None): Logger to use; a default logger is created when None.
+        	reconnect (bool): Whether the client should attempt automatic reconnects after disconnect.
+        	reconnect_delay (float): Seconds to wait between reconnect attempts.
+        
+        Raises:
+        	InvalidPhoneError: If the provided phone number fails validation.
+        """
         self.logger = logger or logging.getLogger(f"{__name__}")
         self.uri: str = uri
         self.phone: str = phone
@@ -180,6 +204,11 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         )
 
     async def _wait_forever(self) -> None:
+        """
+        Block until the WebSocket connection is closed.
+        
+        If the wait is cancelled, a debug message is logged.
+        """
         try:
             await self.ws.wait_closed()
         except asyncio.CancelledError:
@@ -187,9 +216,9 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
 
     async def close(self) -> None:
         """
-        Закрывает клиент и освобождает ресурсы.
-
-        :return: None
+        Close the client and release connection resources.
+        
+        Cancels any active receive and outgoing tasks, closes the WebSocket if open, and marks the client as not connected. Errors encountered during shutdown are logged.
         """
         try:
             self.logger.info("Closing client")
@@ -213,6 +242,17 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
             self.logger.exception("Error closing client")
 
     async def _post_login_tasks(self, sync: bool = True) -> None:
+        """
+        Run post-login work: optionally synchronize state, start recurring background jobs, and invoke the configured start handler.
+        
+        Parameters:
+            sync (bool): If True, perform a full synchronization before scheduling background tasks.
+        
+        Details:
+            - Schedules an interactive ping loop and the scheduled-task runner as background tasks.
+            - If fake telemetry is enabled, schedules the telemetry sender as a background task.
+            - If an on-start handler is configured, calls it; if it returns a coroutine, the coroutine is executed and awaited.
+        """
         if sync:
             await self._sync()
 
@@ -237,16 +277,15 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
 
     async def login_with_code(self, temp_token: str, code: str, start: bool = False) -> None:
         """
-        Завершает кастомный login flow: отправляет код, сохраняет токен и запускает пост-логин задачи.
-
-        :param temp_token: Временный токен, полученный из request_code.
-        :type temp_token: str
-        :param code: Код верификации (6 цифр).
-        :type code: str
-        :param start: Флаг запуска пост-логин задач и ожидания навсегда. Если False, только сохраняет токен.
-        :type start: bool, optional
-        :return: None
-        :rtype: None
+        Complete a login using a verification code, persist the resulting auth token, and optionally start post-login tasks and keep the client running.
+        
+        Parameters:
+            temp_token (str): Temporary token obtained from a prior request_code call.
+            code (str): Verification code (expected to be 6 digits).
+            start (bool): If True, run post-login tasks and enter the client's run loop; if False, only save the token.
+        
+        Raises:
+            ValueError: If the login response does not contain the expected token.
         """
         resp = await self._send_code(code, temp_token)
         token = resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
@@ -271,12 +310,9 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
 
     async def start(self) -> None:
         """
-        Запускает клиент, подключается к WebSocket, авторизует
-        пользователя (если нужно) и запускает фоновый цикл.
-        Теперь включает безопасный reconnect-loop, если self.reconnect=True.
-
-        :return: None
-        :rtype: None
+        Run the client lifecycle: connect to the WebSocket, perform registration or login if needed, synchronize state, start post-login background tasks, and keep the connection open with optional automatic reconnect.
+        
+        If registration is enabled, a missing `first_name` raises a ValueError. Other exceptions raised during a start iteration are propagated after cleanup.
         """
 
         while True:
@@ -331,6 +367,11 @@ class SocketMaxClient(SocketMixin, MaxClient):
 
     @override
     async def _cleanup_client(self):
+        """
+        Cancel background and I/O tasks, fail pending requests, close the socket, and mark the client disconnected.
+        
+        This method cancels and awaits all registered background tasks and the receive/outgoing tasks (suppressing cancellation errors), sets a SocketNotConnectedError on any unresolved pending futures, attempts to close the underlying socket, clears related resources, and sets the client's connection state to disconnected. It logs debug information for errors encountered while cancelling tasks or closing the socket and an informational message when cleanup completes.
+        """
         for task in list(self._background_tasks):
             task.cancel()
             try:

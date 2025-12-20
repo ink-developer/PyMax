@@ -37,6 +37,11 @@ async def periodic_task() -> None:
 
 @client.on_start
 async def handle_start() -> None:
+    """
+    Handle client startup tasks and retrieve recent message history.
+    
+    Prints a startup message showing the client's first name, then fetches message history from chat ID -1 in batches until no more messages are returned or the built-in limit (1000) is reached. Appends fetched messages to an internal list and prints the first and last message time, ID, text for each batch along with loading progress. The function includes commented examples for channel resolution, joining, sending messages, creating folders, sending media, and loading members.
+    """
     print(f"Client started as {client.me.names[0].first_name}!")
 
     chat_id = -1
@@ -129,6 +134,12 @@ async def handle_start() -> None:
 
 @client.on_message()
 async def handle_message(message: Message) -> None:
+    """
+    Handle an incoming Message event by printing its chat ID, sender, and text.
+    
+    Parameters:
+        message (Message): The incoming message object; its `chat_id`, `sender`, and `text` fields are used and printed to stdout.
+    """
     print(f"New message in chat {message.chat_id} from {message.sender}: {message.text}")
     # if message.link and message.link.message.attaches:
     #     for attach in message.link.message.attaches:

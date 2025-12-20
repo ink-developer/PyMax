@@ -98,15 +98,14 @@ class AuthMixin(ClientProtocol):
 
     async def _send_code(self, code: str, token: str) -> dict[str, Any]:
         """
-        Отправляет код верификации на сервер для подтверждения.
-
-        :param code: Код верификации (6 цифр).
-        :type code: str
-        :param token: Временный токен, полученный из request_code.
-        :type token: str
-        :return: Словарь с данными ответа сервера, содержащий токены аутентификации.
-        :rtype: dict[str, Any]
-        :raises Error: Если сервер вернул ошибку.
+        Send a verification code to the server to validate it and obtain authentication data.
+        
+        Parameters:
+            code (str): 6-digit verification code provided by the user.
+            token (str): Temporary token obtained from request_code used to authorize the verification.
+        
+        Returns:
+            dict[str, Any]: Server response payload as a dictionary, typically containing authentication token attributes.
         """
         self.logger.info("Sending verification code")
 
@@ -134,6 +133,12 @@ class AuthMixin(ClientProtocol):
             raise ValueError("Invalid payload data received")
 
     def _print_qr(self, qr_link: str) -> None:
+        """
+        Render a QR code for the given link to standard output as ASCII.
+        
+        Parameters:
+            qr_link (str): The string (typically a URL) to encode into the QR code.
+        """
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.ERROR_CORRECT_L,
@@ -146,6 +151,17 @@ class AuthMixin(ClientProtocol):
         qr.print_ascii()
 
     async def _request_qr_login(self) -> dict[str, Any]:
+        """
+        Request QR login metadata from the server.
+        
+        Sends a GET_QR request and returns the response payload.
+        
+        Returns:
+            payload (dict[str, Any]): The payload dictionary from the server.
+        
+        Raises:
+            ValueError: If the response payload is not a dictionary.
+        """
         self.logger.info("Requesting QR login data")
 
         data = await self._send_and_wait(opcode=Opcode.GET_QR, payload={})
@@ -166,6 +182,14 @@ class AuthMixin(ClientProtocol):
             raise ValueError("Invalid payload data received")
 
     async def _login(self) -> None:
+        """
+        Perform the login flow, either via QR for web clients or by verification code for other clients.
+        
+        This method obtains and validates authentication credentials, sets self._token on success, and persists the token to the database. For web/Desktop clients with a websocket it initiates a QR-based login; otherwise it requests a verification code, prompts for user input, and verifies the code.
+        
+        Raises:
+            ValueError: if app version is unsupported, token request fails, an invalid code is entered, or no authentication token is received.
+        """
         self.logger.info("Starting login flow")
 
         if self.user_agent.device_type == DeviceType.WEB.value and self._ws:
@@ -199,6 +223,16 @@ class AuthMixin(ClientProtocol):
         self.logger.info("Login successful, token saved to database")
 
     async def _poll_qr_login(self, track_id: str, poll_interval: int) -> bool:
+        """
+        Polls the server for the QR login status until the QR is confirmed or expires.
+        
+        Parameters:
+            track_id (str): Identifier of the QR login session to poll.
+            poll_interval (int): Time between polls in milliseconds.
+        
+        Returns:
+            `true` if the QR login was confirmed, `false` if the QR code expired.
+        """
         self.logger.info("Polling for QR login confirmation")
 
         while True:
@@ -225,6 +259,18 @@ class AuthMixin(ClientProtocol):
             await asyncio.sleep(poll_interval / 1000)
 
     async def _get_qr_login_data(self, track_id: str) -> dict[str, Any]:
+        """
+        Retrieve server-side login data associated with a QR track identifier.
+        
+        Parameters:
+            track_id (str): The QR session tracking identifier returned by the server when the QR was generated.
+        
+        Returns:
+            dict[str, Any]: The payload dictionary containing QR login data.
+        
+        Raises:
+            ValueError: If the server response payload is missing or not a dictionary.
+        """
         self.logger.info("Getting QR login data")
 
         data = await self._send_and_wait(
@@ -245,6 +291,17 @@ class AuthMixin(ClientProtocol):
             raise ValueError("Invalid payload data received")
 
     async def _login_by_qr(self) -> dict[str, Any]:
+        """
+        Perform a QR-based login: display the QR, poll for user confirmation, and retrieve the server's login data.
+        
+        Returns:
+            dict[str, Any]: Server response containing login data for the confirmed QR.
+        
+        Raises:
+            ValueError: If required QR metadata (pollingInterval, qrLink, trackId, expiresAt) is missing.
+            RuntimeError: If the QR code expires before confirmation or if the QR login fails or expires after polling.
+            Exception: Propagates any exception raised by the background polling task.
+        """
         data = await self._request_qr_login()
 
         poll_interval = data.get("pollingInterval")
@@ -292,6 +349,20 @@ class AuthMixin(ClientProtocol):
     async def _submit_reg_info(
         self, first_name: str, last_name: str | None, token: str
     ) -> dict[str, Any]:
+        """
+        Submit registration information to the authentication service and return the server response payload.
+        
+        Parameters:
+            first_name (str): User's first name to register.
+            last_name (str | None): Optional user's last name.
+            token (str): Temporary registration token used to confirm the registration.
+        
+        Returns:
+            dict[str, Any]: The response payload returned by the server.
+        
+        Raises:
+            RuntimeError: If submission fails or an invalid response payload is received.
+        """
         try:
             self.logger.info("Submitting registration info")
 
@@ -319,6 +390,16 @@ class AuthMixin(ClientProtocol):
             raise RuntimeError("Submit registration info failed")
 
     async def _register(self, first_name: str, last_name: str | None = None) -> None:
+        """
+        Performs interactive user registration by requesting a verification code, validating it, submitting registration info, and storing the returned auth token.
+        
+        Parameters:
+        	first_name (str): User's first name to submit during registration.
+        	last_name (str | None): Optional user's last name to submit during registration.
+        
+        Raises:
+        	ValueError: If requesting the verification token fails, the entered code is invalid, or no auth token is returned at any step.
+        """
         self.logger.info("Starting registration flow")
 
         request_code_payload = await self.request_code(self.phone)

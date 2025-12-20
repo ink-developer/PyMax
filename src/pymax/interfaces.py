@@ -34,6 +34,13 @@ if TYPE_CHECKING:
 
 class ClientProtocol(ABC):
     def __init__(self, logger: Logger) -> None:
+        """
+        Initialize the client with the provided logger and prepare internal state.
+        
+        Sets up internal caches, connection and session fields, placeholders for WebSocket,
+        queues and tasks, event handler registries, and default control flags used by the
+        client lifecycle.
+        """
         super().__init__()
         self.logger = logger
         self._users: dict[int, User] = {}
@@ -121,11 +128,29 @@ class ClientProtocol(ABC):
     def _create_safe_task(
         self, coro: Awaitable[Any], name: str | None = None
     ) -> asyncio.Task[Any]:
+        """
+        Create and schedule a background task that runs the given coroutine with guarded exception handling.
+        
+        The returned task is added to the client's internal background task set. Any exception raised by the coroutine (other than cancellation) is logged along with the task name and traceback; cancellation is propagated so callers can cancel the task normally.
+        
+        Parameters:
+            coro (Awaitable[Any]): Coroutine or awaitable to run in the background.
+            name (str | None): Optional human-readable name used in logs to identify the task.
+        
+        Returns:
+            asyncio.Task[Any]: The scheduled background task.
+        """
         pass
 
 
 class BaseClient(ClientProtocol):
     def _setup_logger(self) -> None:
+        """
+        Configure the client's logger when no handlers are present.
+        
+        Sets the logger level to INFO if it is unset and attaches a StreamHandler using a ColoredFormatter
+        with a timestamped "[LEVEL] name: message" format.
+        """
         if not self.logger.handlers:
             if not self.logger.level:
                 self.logger.setLevel(logging.INFO)
@@ -138,6 +163,16 @@ class BaseClient(ClientProtocol):
             self.logger.addHandler(handler)
 
     async def _safe_execute(self, coro, *, context: str = "unknown") -> Any:
+        """
+        Execute the given coroutine and log any unhandled exceptions with context.
+        
+        Parameters:
+            coro: The awaitable to execute.
+            context (str): Short label used in the logged message to identify where the error occurred.
+        
+        Returns:
+            The value returned by `coro`, or `None` if an exception was raised (the exception is logged).
+        """
         try:
             return await coro
         except Exception as e:
@@ -146,6 +181,16 @@ class BaseClient(ClientProtocol):
     def _create_safe_task(
         self, coro: Awaitable[Any], name: str | None = None
     ) -> asyncio.Task[Any | None]:
+        """
+        Create and schedule a background task that captures and logs unhandled exceptions.
+        
+        Parameters:
+            coro (Awaitable[Any]): The awaitable to run inside the created background task.
+            name (str | None): Optional name for the task used for identification in logs and the event loop.
+        
+        Returns:
+            asyncio.Task[Any | None]: The scheduled task instance; it is tracked in the client's background task set. The task returns the result of `coro`. If the task raises an exception (other than `asyncio.CancelledError`), the exception is logged and re-raised. 
+        """
         async def runner():
             try:
                 return await coro
@@ -161,6 +206,11 @@ class BaseClient(ClientProtocol):
         return task
 
     async def _cleanup_client(self) -> None:
+        """
+        Cleanly shuts down the client's background work and resets connection state.
+        
+        Cancels and awaits all tracked background tasks as well as the receive and outgoing tasks, sets any unresolved pending futures to WebSocketNotConnectedError, closes the active WebSocket if present, marks the client as disconnected, and logs completion.
+        """
         for task in list(self._background_tasks):
             task.cancel()
             try:
@@ -200,16 +250,18 @@ class BaseClient(ClientProtocol):
 
     async def idle(self):
         """
-        Поддерживает клиента в «ожидающем» состоянии до закрытия клиента или иного прерывающего события.
-
-        :return: Никогда не возвращает значение; функция блокирует выполнение.
-        :rtype: None
+        Block indefinitely until the client is closed or the task is cancelled.
+        
+        Awaiting this coroutine suspends the caller and keeps the client in a waiting state; it does not return under normal operation.
         """
         await asyncio.Event().wait()
 
     def inspect(self) -> None:
         """
-        Выводит в лог текущий статус клиента для отладки.
+        Log a brief diagnostic summary of the client's current runtime state.
+        
+        Logs the connection status, the current user's identity when available, and counts for dialogs,
+        chats, channels, cached users, background tasks, and scheduled tasks to aid debugging.
         """
         self.logger.info("Pymax")
         self.logger.info("---------")
@@ -227,30 +279,79 @@ class BaseClient(ClientProtocol):
         self.logger.info("---------")
 
     async def __aenter__(self) -> Self:
+        """
+        Start the client in a background task and wait until it becomes connected for use as an async context manager.
+        
+        Returns:
+            Self: The client instance once a connection is established.
+        """
         self._create_safe_task(self.start(), name="start")
         while not self.is_connected:
             await asyncio.sleep(0.05)
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
+        """
+        Exit the asynchronous context by closing the client.
+        
+        Calls and awaits self.close() when the context manager exits. Does not suppress any exception raised within the context.
+        
+        Parameters:
+            exc_type: The exception type if an exception was raised inside the context, otherwise None.
+            exc: The exception instance if an exception was raised inside the context, otherwise None.
+            tb: The traceback object associated with the exception, otherwise None.
+        """
         await self.close()
 
     @abstractmethod
     async def login_with_code(self, temp_token: str, code: str, start: bool = False) -> None:
+        """
+        Authenticate the client using a temporary token and a verification code.
+        
+        Parameters:
+            temp_token (str): Temporary authentication token issued by the server for this login attempt.
+            code (str): Verification code (e.g., SMS or two-factor code) required to complete authentication.
+            start (bool): If True, begin the client's session lifecycle (call start) after successful authentication.
+        """
         pass
 
     @abstractmethod
     async def _post_login_tasks(self, sync: bool = True) -> None:
+        """
+        Perform client initialization tasks that must run immediately after a successful login.
+        
+        When `sync` is True, wait for all critical post-login tasks to complete before returning.
+        When `sync` is False, schedule noncritical tasks to run in the background and return immediately.
+        
+        Parameters:
+            sync (bool): If True, run post-login tasks to completion before returning; if False, run noncritical tasks asynchronously.
+        
+        Returns:
+            None
+        """
         pass
 
     @abstractmethod
     async def _wait_forever(self) -> None:
+        """
+        Block until the client should terminate.
+        
+        Concrete implementations must suspend execution until the client is requested to stop (for example via close() or an external shutdown signal) and return only when shutdown has begun.
+        """
         pass
 
     @abstractmethod
     async def start(self) -> None:
+        """
+        Start the client's lifecycle: establish connection, initialize session state, and run until closed.
+        
+        This method is responsible for bringing the client to an operational state (e.g., connecting to the server, performing any login or post-login initialization, and starting background tasks) and keeping it running until close() is invoked or the client shuts down.
+        """
         pass
 
     @abstractmethod
     async def close(self) -> None:
+        """
+        Shut down the client and release its resources, ensuring any active connections are closed and background tasks are stopped.
+        """
         pass

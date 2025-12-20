@@ -17,6 +17,17 @@ class Formatting:
 
     @staticmethod
     def get_elements_from_markdown(text: str) -> tuple[list[Element], str]:
+        """
+        Extracts formatting spans from Markdown-style markup and returns structured elements alongside the plain text with markup removed.
+        
+        Parses the input for bold (`**text**`), italic (`*text*`), underline (`__text__`), and strikethrough (`~~text~~`) blocks, producing Element records that indicate the formatting type, start offset in the cleaned text, and span length. When a formatted block is immediately followed by a newline or ends the string, the element's length includes that single trailing newline and the newline is preserved in the cleaned text.
+        
+        Parameters:
+            text (str): Input text potentially containing Markdown-style formatting.
+        
+        Returns:
+            tuple[list[Element], str]: A pair where the first item is a list of Elements describing formatted spans in the cleaned text, and the second item is the cleaned text with markup removed (preserving single newlines that followed formatted blocks).
+        """
         text = text.strip("\n")
         elements: list[Element] = []
         clean_parts: list[str] = []

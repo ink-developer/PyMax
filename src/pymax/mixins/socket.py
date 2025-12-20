@@ -80,6 +80,15 @@ class SocketMixin(ClientProtocol):
         opcode: int,
         payload: dict[str, Any],
     ) -> bytes:
+        """
+        Builds a binary wire-format packet containing header fields and a MessagePack-encoded payload.
+        
+        Parameters:
+            payload (dict[str, Any]): The payload to include; it will be encoded with MessagePack.
+        
+        Returns:
+            bytes: Packet bytes structured as: version (1 byte), command (2 bytes), sequence (1 byte), opcode (2 bytes), payload length (4 bytes, big-endian), followed by the MessagePack-encoded payload.
+        """
         ver_b = ver.to_bytes(1, "big")
         cmd_b = cmd.to_bytes(2, "big")
         seq_b = seq.to_bytes(1, "big")
@@ -94,12 +103,13 @@ class SocketMixin(ClientProtocol):
 
     async def connect(self, user_agent: UserAgentPayload | None = None) -> dict[str, Any]:
         """
-        Устанавливает соединение с сервером и выполняет handshake.
-
-        :param user_agent: Пользовательский агент для handshake. Если None, используется значение по умолчанию.
-        :type user_agent: UserAgentPayload | None
-        :return: Результат handshake.
-        :rtype: dict[str, Any] | None
+        Establishes a TLS-wrapped socket connection to the configured host/port, initializes connection state and background IO loops, and performs the handshake.
+        
+        Parameters:
+            user_agent (UserAgentPayload | None): Optional user agent sent during handshake. If `None`, a default UserAgentPayload is created.
+        
+        Returns:
+            dict[str, Any]: Handshake response payload from the server.
         """
         if user_agent is None:
             user_agent = UserAgentPayload()
@@ -159,6 +169,16 @@ Socket connections may be unstable, SSL issues are possible.
     async def _parse_header(
         self, loop: asyncio.AbstractEventLoop, sock: socket.socket
     ) -> bytes | None:
+        """
+        Read a 10-byte packet header from the given socket via the event loop's executor.
+        
+        Parameters:
+            loop (asyncio.AbstractEventLoop): Event loop whose executor is used to perform the blocking read.
+            sock (socket.socket): Connected socket to read the header from.
+        
+        Returns:
+            bytes | None: The 10-byte header if fully read, or `None` if the connection was closed or the header was incomplete.
+        """
         header = await loop.run_in_executor(None, lambda: self._recv_exactly(sock=sock, n=10))
         if not header or len(header) < 10:
             self.logger.info("Socket connection closed; exiting recv loop")
@@ -173,6 +193,19 @@ Socket connections may be unstable, SSL issues are possible.
     async def _recv_data(
         self, loop: asyncio.AbstractEventLoop, header: bytes, sock: socket.socket
     ) -> list[dict[str, Any]] | None:
+        """
+        Read and assemble the packet payload following a 10-byte header and return unpacked message objects.
+        
+        Reads the payload length from the header, reads that many bytes from the socket via the provided event loop, validates and combines header+payload, and converts the raw packet into one or more unpacked message dictionaries.
+        
+        Parameters:
+            loop (asyncio.AbstractEventLoop): Event loop used to perform blocking socket reads in an executor.
+            header (bytes): The 10-byte packet header containing metadata including the payload length.
+            sock (socket.socket): Connected socket to read the payload from.
+        
+        Returns:
+            list[dict[str, Any]] | None: A list of unpacked packet dicts (one per payload item) when successful, or `None` if the payload is incomplete or unpacking fails.
+        """
         packed_len = int.from_bytes(header[6:10], "big", signed=False)
         payload_length = packed_len & 0xFFFFFF
         remaining = payload_length
@@ -232,6 +265,14 @@ Socket connections may be unstable, SSL issues are possible.
                 )
 
     async def _handle_file_upload(self, data: dict[str, Any]) -> None:
+        """
+        Handle attachment upload notifications by resolving any waiter awaiting the uploaded file or video.
+        
+        Checks that the incoming `data` has an `opcode` of `Opcode.NOTIF_ATTACH`; if so, inspects `data["payload"]` for `fileId` or `videoId` and, for each found id, completes and removes the corresponding future from `self._file_upload_waiters` with the full `data`.
+        
+        Parameters:
+            data (dict[str, Any]): Incoming message containing at least an `opcode` key and an optional `payload` mapping where `fileId` or `videoId` may appear.
+        """
         if data.get("opcode") != Opcode.NOTIF_ATTACH:
             return
         payload = data.get("payload", {})
@@ -244,6 +285,16 @@ Socket connections may be unstable, SSL issues are possible.
                     self.logger.debug("Fulfilled file upload waiter for %s=%s", key, id_)
 
     async def _handle_message_notifications(self, data: dict) -> None:
+        """
+        Dispatches incoming message notification events to registered message handlers.
+        
+        Parses `data` for a message payload when the opcode indicates a message notification, converts the payload to a Message object, and invokes:
+        - edit/remove-specific handlers when the message status indicates an edit or removal,
+        - all general message handlers for every message.
+        
+        Parameters:
+            data (dict): Incoming packet dictionary expected to contain an "opcode" key and a "payload" key with the message data. Handlers registered on the instance may be regular functions or coroutines and will be scheduled/executed accordingly.
+        """
         if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
             return
         payload = data.get("payload", {})
@@ -324,6 +375,16 @@ Socket connections may be unstable, SSL issues are possible.
         await self._handle_chat_updates(data)
 
     async def _recv_loop(self) -> None:
+        """
+        Continuously read and process incoming packets from the socket.
+        
+        Reads message headers and payloads in a loop, parses each packet, and for each resulting data item:
+        - resolves any matching pending future by sequence number,
+        - enqueues the item to the incoming queue if configured,
+        - dispatches the item to registered handlers.
+        
+        The loop stops when the socket is absent or a header read indicates the connection is closed. A CancelledError is propagated to allow cooperative shutdown. On other exceptions the error is logged and the loop pauses for RECV_LOOP_BACKOFF_DELAY before retrying.
+        """
         if self._socket is None:
             self.logger.warning("Recv loop started without socket instance")
             return
@@ -362,6 +423,14 @@ Socket connections may be unstable, SSL issues are possible.
                 await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
 
     def _log_task_exception(self, fut: asyncio.Future[Any]) -> None:
+        """
+        Log and consume any exception produced by an asyncio Future or Task.
+        
+        Attempts to retrieve the future's result; if the future raised an exception, logs it at exception level and prevents it from propagating. Ignores asyncio.CancelledError.
+        
+        Parameters:
+            fut (asyncio.Future[Any]): Future or task to inspect and log any raised exception.
+        """
         try:
             fut.result()
         except asyncio.CancelledError:
@@ -401,6 +470,18 @@ Socket connections may be unstable, SSL issues are possible.
     def _make_message(
         self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0
     ) -> dict[str, Any]:
+        """
+        Builds a websocket message dictionary with an incremented sequence number.
+        
+        Parameters:
+            opcode (Opcode): The message opcode to set on the websocket message.
+            payload (dict[str, Any]): The message payload; must be serializable by the message model.
+            cmd (int): Optional command identifier included in the message.
+        
+        Returns:
+            dict[str, Any]: A dictionary representation of a BaseWebSocketMessage containing fields
+            such as `ver`, `cmd`, `seq`, `opcode`, and `payload`.
+        """
         self._seq += 1
         msg = BaseWebSocketMessage(
             ver=10,
@@ -420,6 +501,16 @@ Socket connections may be unstable, SSL issues are possible.
         cmd: int = 0,
         timeout: float = DEFAULT_TIMEOUT,
     ) -> dict[str, Any]:
+        """
+        Send a message frame and wait for the matching response.
+        
+        Returns:
+            dict[str, Any]: The response payload dictionary from the server (contains fields such as `seq` and `opcode`).
+        
+        Raises:
+            SocketNotConnectedError: If the socket is not connected or a reconnect attempt fails.
+            SocketSendError: If sending the packet or waiting for the response fails for any other reason.
+        """
         if not self.is_connected or self._socket is None:
             raise SocketNotConnectedError
 

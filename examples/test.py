@@ -12,6 +12,11 @@ client = MaxClient(
 
 @client.on_start
 async def on_start() -> None:
+    """
+    Print the client's first name when the client has started.
+    
+    Prints a startup message to standard output containing the client's primary first name.
+    """
     print(f"MaxClient started as {client.me.names[0].first_name}!")
 
 
