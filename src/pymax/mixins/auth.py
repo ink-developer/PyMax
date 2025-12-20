@@ -165,11 +165,17 @@ class AuthMixin(ClientProtocol):
             self.logger.error("Invalid payload data received")
             raise ValueError("Invalid payload data received")
 
+    def _validate_version(self, version: str, min_version: str) -> bool:
+        def version_tuple(v: str) -> tuple[int, ...]:
+            return tuple(map(int, (v.split("."))))
+
+        return version_tuple(version) >= version_tuple(min_version)
+
     async def _login(self) -> None:
         self.logger.info("Starting login flow")
 
         if self.user_agent.device_type == DeviceType.WEB.value and self._ws:
-            if self.user_agent.app_version < "25.12.13":
+            if not self._validate_version(self.user_agent.app_version, "25.12.13"):
                 self.logger.error("Your app version is too old")
                 raise ValueError("Your app version is too old")
 
@@ -213,12 +219,20 @@ class AuthMixin(ClientProtocol):
                 MixinsUtils.handle_error(data)
             status = payload.get("status")
 
+            if not status:
+                self.logger.warning("No status in QR login response")
+                continue
+
             if status.get("loginAvailable"):
                 self.logger.info("QR login confirmed")
                 return True
             else:
                 exp_at = status.get("expiresAt")
-                if exp_at and exp_at < datetime.datetime.now().timestamp() * 1000:
+                if (
+                    exp_at
+                    and isinstance(exp_at, (int, float))
+                    and exp_at < datetime.datetime.now().timestamp() * 1000
+                ):
                     self.logger.warning("QR code expired")
                     return False
 

@@ -1,12 +1,14 @@
 import asyncio
 
-from pymax import MaxClient, SocketMaxClient
+from pymax import MaxClient
 from pymax.payloads import UserAgentPayload
-from pymax.static.enum import Opcode
+
+ua = UserAgentPayload(device_type="WEB")
 
 client = MaxClient(
     phone="+79911111111",
     work_dir="cache",
+    headers=ua,
 )
 
 

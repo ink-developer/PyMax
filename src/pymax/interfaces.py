@@ -185,7 +185,7 @@ class BaseClient(ClientProtocol):
 
         for fut in self._pending.values():
             if not fut.done():
-                fut.set_exception(WebSocketNotConnectedError)
+                fut.set_exception(WebSocketNotConnectedError())
         self._pending.clear()
 
         if self._ws:
