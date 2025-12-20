@@ -141,6 +141,10 @@ class Opcode(int, Enum):
     FOLDERS_DELETE = 276
     NOTIF_FOLDERS = 277
 
+    GET_QR = 288
+    GET_QR_STATUS = 289
+    LOGIN_BY_QR = 291
+
 
 class ChatType(str, Enum):
     DIALOG = "DIALOG"

@@ -139,9 +139,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
 
-        self._device_id = (
-            device_id if device_id is not None else self._database.get_device_id()
-        )
+        self._device_id = device_id if device_id is not None else self._database.get_device_id()
         self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
 
         self._token = self._database.get_auth_token() or token
@@ -161,16 +159,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
             tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
-        self._on_reaction_change_handlers: list[
-            tuple[Callable[[str, int, ReactionInfo], Any]]
-        ] = []
-        self._on_chat_update_handlers: list[tuple[Callable[[Chat], Any]]] = []
-        self._on_raw_receive_handlers: list[
-            Callable[[dict[str, Any]], Any | Awaitable[Any]]
-        ] = []
-        self._scheduled_tasks: list[
-            tuple[Callable[[], Any | Awaitable[Any]], float]
-        ] = []
+        self._on_stop_handler: Callable[[], Any | Awaitable[Any]] | None = None
+        self._on_reaction_change_handlers: list[Callable[[str, int, ReactionInfo], Any]] = []
+        self._on_chat_update_handlers: list[Callable[[Chat], Any | Awaitable[Any]]] = []
+        self._on_raw_receive_handlers: list[Callable[[dict[str, Any]], Any | Awaitable[Any]]] = []
+        self._scheduled_tasks: list[tuple[Callable[[], Any | Awaitable[Any]], float]] = []
 
         self._ssl_context = ssl.create_default_context()
         self._ssl_context.set_ciphers("DEFAULT")
@@ -214,9 +207,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         try:
             return await coro
         except Exception as e:
-            self.logger.error(
-                f"Unhandled exception in {context}: {e}\n{traceback.format_exc()}"
-            )
+            self.logger.error(f"Unhandled exception in {context}: {e}\n{traceback.format_exc()}")
 
     async def close(self) -> None:
         """
@@ -256,9 +247,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
                 raise
             except Exception as e:
                 tb = traceback.format_exc()
-                self.logger.error(
-                    f"Unhandled exception in task {name or coro}: {e}\n{tb}"
-                )
+                self.logger.error(f"Unhandled exception in task {name or coro}: {e}\n{tb}")
                 raise
 
         task = asyncio.create_task(runner(), name=name)
@@ -296,9 +285,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
             except asyncio.CancelledError:
                 pass
             except Exception:
-                self.logger.debug(
-                    "Background task raised during cancellation", exc_info=True
-                )
+                self.logger.debug("Background task raised during cancellation", exc_info=True)
             self._background_tasks.discard(task)
 
         if self._recv_task:
@@ -328,9 +315,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self.is_connected = False
         self.logger.info("Client start() cleaned up")
 
-    async def login_with_code(
-        self, temp_token: str, code: str, start: bool = False
-    ) -> None:
+    async def login_with_code(self, temp_token: str, code: str, start: bool = False) -> None:
         """
         Завершает кастомный login flow: отправляет код, сохраняет токен и запускает пост-логин задачи.
 
@@ -348,7 +333,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         if not token:
             raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
         self._token = token
-        self._database.update_auth_token(str(self._device_id), token)
+        self._database.update_auth_token(self._device_id, token)
         if start:
             while True:
                 try:
@@ -385,12 +370,12 @@ class MaxClient(ApiMixin, WebSocketMixin):
                     await self._register(self.first_name, self.last_name)
 
                 if self._token and self._database.get_auth_token() is None:
-                    self._database.update_auth_token(str(self._device_id), self._token)
+                    self._database.update_auth_token(self._device_id, self._token)
 
                 if self._token is None:
                     await self._login()
-                else:
-                    await self._sync()
+
+                await self._sync()
 
                 await self._post_login_tasks(sync=False)
 
