@@ -50,9 +50,7 @@ class WebSocketMixin(ClientProtocol):
             payload=payload,
         ).model_dump(by_alias=True)
 
-        self.logger.debug(
-            "make_message opcode=%s cmd=%s seq=%s", opcode, cmd, self._seq
-        )
+        self.logger.debug("make_message opcode=%s cmd=%s seq=%s", opcode, cmd, self._seq)
         return msg
 
     async def _send_interactive_ping(self) -> None:
@@ -68,9 +66,7 @@ class WebSocketMixin(ClientProtocol):
                 self.logger.warning("Interactive ping failed", exc_info=True)
             await asyncio.sleep(DEFAULT_PING_INTERVAL)
 
-    async def connect(
-        self, user_agent: UserAgentPayload | None = None
-    ) -> dict[str, Any] | None:
+    async def connect(self, user_agent: UserAgentPayload | None = None) -> dict[str, Any] | None:
         """
         Устанавливает соединение WebSocket с сервером и выполняет handshake.
 
@@ -173,9 +169,7 @@ class WebSocketMixin(ClientProtocol):
                 fut = self._file_upload_waiters.pop(id_, None)
                 if fut and not fut.done():
                     fut.set_result(data)
-                    self.logger.debug(
-                        "Fulfilled file upload waiter for %s=%s", key, id_
-                    )
+                    self.logger.debug("Fulfilled file upload waiter for %s=%s", key, id_)
 
     async def _handle_message_notifications(self, data: dict) -> None:
         if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
@@ -359,9 +353,7 @@ class WebSocketMixin(ClientProtocol):
             )
             return data
         except Exception:
-            self.logger.exception(
-                "Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"]
-            )
+            self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
             raise RuntimeError("Send and wait failed")
         finally:
             self._pending.pop(msg["seq"], None)
@@ -442,7 +434,7 @@ class WebSocketMixin(ClientProtocol):
         else:
             return float(2**retry_count)
 
-    async def _sync(self) -> None:
+    async def _sync(self, user_agent: UserAgentPayload) -> None:
         self.logger.info("Starting initial sync")
 
         payload = SyncPayload(
@@ -453,6 +445,7 @@ class WebSocketMixin(ClientProtocol):
             presence_sync=0,
             drafts_sync=0,
             chats_count=40,
+            user_agent=user_agent,
         ).model_dump(by_alias=True)
         try:
             data = await self._send_and_wait(opcode=Opcode.LOGIN, payload=payload)
@@ -473,9 +466,7 @@ class WebSocketMixin(ClientProtocol):
                     self.logger.exception("Error parsing chat entry")
 
             if raw_payload.get("profile", {}).get("contact"):
-                self.me = Me.from_dict(
-                    raw_payload.get("profile", {}).get("contact", {})
-                )
+                self.me = Me.from_dict(raw_payload.get("profile", {}).get("contact", {}))
 
             self.logger.info(
                 "Sync completed: dialogs=%d chats=%d channels=%d",

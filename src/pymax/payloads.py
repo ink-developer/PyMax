@@ -39,6 +39,20 @@ class BaseWebSocketMessage(BaseModel):
     payload: dict[str, Any]
 
 
+class UserAgentPayload(CamelModel):
+    device_type: str = Field(default=DEFAULT_DEVICE_TYPE)
+    locale: str = Field(default=DEFAULT_LOCALE)
+    device_locale: str = Field(default=DEFAULT_DEVICE_LOCALE)
+    os_version: str = Field(default=DEFAULT_OS_VERSION)
+    device_name: str = Field(default=DEFAULT_DEVICE_NAME)
+    header_user_agent: str = Field(default=DEFAULT_USER_AGENT)
+    app_version: str = Field(default=DEFAULT_APP_VERSION)
+    screen: str = Field(default=DEFAULT_SCREEN)
+    timezone: str = Field(default=DEFAULT_TIMEZONE)
+    client_session_id: int = Field(default=DEFAULT_CLIENT_SESSION_ID)
+    build_number: int = Field(default=DEFAULT_BUILD_NUMBER)
+
+
 class RequestCodePayload(CamelModel):
     phone: str
     type: AuthType = AuthType.START_AUTH
@@ -59,6 +73,21 @@ class SyncPayload(CamelModel):
     presence_sync: int = 0
     drafts_sync: int = 0
     chats_count: int = 40
+    user_agent: UserAgentPayload = Field(
+        default_factory=lambda: UserAgentPayload(
+            device_type=DEFAULT_DEVICE_TYPE,
+            locale=DEFAULT_LOCALE,
+            device_locale=DEFAULT_DEVICE_LOCALE,
+            os_version=DEFAULT_OS_VERSION,
+            device_name=DEFAULT_DEVICE_NAME,
+            header_user_agent=DEFAULT_USER_AGENT,
+            app_version=DEFAULT_APP_VERSION,
+            screen=DEFAULT_SCREEN,
+            timezone=DEFAULT_TIMEZONE,
+            client_session_id=DEFAULT_CLIENT_SESSION_ID,
+            build_number=DEFAULT_BUILD_NUMBER,
+        ),
+    )
 
 
 class ReplyLink(CamelModel):
@@ -274,20 +303,6 @@ class GetReactionsPayload(CamelModel):
 class RemoveReactionPayload(CamelModel):
     chat_id: int
     message_id: str
-
-
-class UserAgentPayload(CamelModel):
-    device_type: str = Field(default=DEFAULT_DEVICE_TYPE)
-    locale: str = Field(default=DEFAULT_LOCALE)
-    device_locale: str = Field(default=DEFAULT_DEVICE_LOCALE)
-    os_version: str = Field(default=DEFAULT_OS_VERSION)
-    device_name: str = Field(default=DEFAULT_DEVICE_NAME)
-    header_user_agent: str = Field(default=DEFAULT_USER_AGENT)
-    app_version: str = Field(default=DEFAULT_APP_VERSION)
-    screen: str = Field(default=DEFAULT_SCREEN)
-    timezone: str = Field(default=DEFAULT_TIMEZONE)
-    client_session_id: int = Field(default=DEFAULT_CLIENT_SESSION_ID)
-    build_number: int = Field(default=DEFAULT_BUILD_NUMBER)
 
 
 class ReworkInviteLinkPayload(CamelModel):

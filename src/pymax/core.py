@@ -295,7 +295,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                 if self._token is None:
                     await self._login()
 
-                await self._sync()
+                await self._sync(self.user_agent)
 
                 await self._post_login_tasks(sync=False)
 
