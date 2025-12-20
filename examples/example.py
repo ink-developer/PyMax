@@ -44,9 +44,7 @@ async def handle_start() -> None:
     messages = []
     from_time = int(time() * 1000)
     while len(messages) < max_messages:
-        r = await client.fetch_history(
-            chat_id=chat_id, from_time=from_time, backward=30
-        )
+        r = await client.fetch_history(chat_id=chat_id, from_time=from_time, backward=30)
         if not r:
             break
         from_time = r[0].time
@@ -131,9 +129,7 @@ async def handle_start() -> None:
 
 @client.on_message()
 async def handle_message(message: Message) -> None:
-    print(
-        f"New message in chat {message.chat_id} from {message.sender}: {message.text}"
-    )
+    print(f"New message in chat {message.chat_id} from {message.sender}: {message.text}")
     # if message.link and message.link.message.attaches:
     #     for attach in message.link.message.attaches:
     #         print(f"Link attach type: {attach.type}")

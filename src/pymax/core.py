@@ -6,21 +6,19 @@ import logging
 import socket
 import ssl
 import time
-import traceback
 from collections.abc import Awaitable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 from uuid import UUID
 
-from typing_extensions import Self, override
+from typing_extensions import override
 
 from .crud import Database
 from .exceptions import (
     InvalidPhoneError,
     SocketNotConnectedError,
-    WebSocketNotConnectedError,
 )
-from .formatter import ColoredFormatter
+from .interfaces import BaseClient
 from .mixins import ApiMixin, SocketMixin, WebSocketMixin
 from .payloads import UserAgentPayload
 from .static.constant import (
@@ -43,7 +41,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class MaxClient(ApiMixin, WebSocketMixin):
+class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
     """
     Основной клиент для работы с WebSocket API сервиса Max.
 
@@ -139,9 +137,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
 
-        self._device_id = (
-            device_id if device_id is not None else self._database.get_device_id()
-        )
+        self._device_id = device_id if device_id is not None else self._database.get_device_id()
         self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
 
         self._token = self._database.get_auth_token() or token
@@ -161,16 +157,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
             tuple[Callable[[Message], Any], BaseFilter[Message] | None]
         ] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
-        self._on_reaction_change_handlers: list[
-            tuple[Callable[[str, int, ReactionInfo], Any]]
-        ] = []
-        self._on_chat_update_handlers: list[tuple[Callable[[Chat], Any]]] = []
-        self._on_raw_receive_handlers: list[
-            Callable[[dict[str, Any]], Any | Awaitable[Any]]
-        ] = []
-        self._scheduled_tasks: list[
-            tuple[Callable[[], Any | Awaitable[Any]], float]
-        ] = []
+        self._on_stop_handler: Callable[[], Any | Awaitable[Any]] | None = None
+        self._on_reaction_change_handlers: list[Callable[[str, int, ReactionInfo], Any]] = []
+        self._on_chat_update_handlers: list[Callable[[Chat], Any | Awaitable[Any]]] = []
+        self._on_raw_receive_handlers: list[Callable[[dict[str, Any]], Any | Awaitable[Any]]] = []
+        self._scheduled_tasks: list[tuple[Callable[[], Any | Awaitable[Any]], float]] = []
 
         self._ssl_context = ssl.create_default_context()
         self._ssl_context.set_ciphers("DEFAULT")
@@ -188,35 +179,11 @@ class MaxClient(ApiMixin, WebSocketMixin):
             self._work_dir,
         )
 
-    def _setup_logger(self) -> None:
-        if not self.logger.handlers:
-            if not self.logger.level:
-                self.logger.setLevel(logging.INFO)
-            handler = logging.StreamHandler()
-            formatter = ColoredFormatter(
-                "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-                datefmt="%Y-%m-%d %H:%M:%S",
-            )
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-
     async def _wait_forever(self) -> None:
         try:
             await self.ws.wait_closed()
         except asyncio.CancelledError:
             self.logger.debug("wait_closed cancelled")
-
-    async def _safe_execute(self, coro, *, context: str = "unknown") -> Any:
-        """
-        Безопасно выполняет пользовательскую корутину.
-        Логирует traceback, но не роняет event loop.
-        """
-        try:
-            return await coro
-        except Exception as e:
-            self.logger.error(
-                f"Unhandled exception in {context}: {e}\n{traceback.format_exc()}"
-            )
 
     async def close(self) -> None:
         """
@@ -245,26 +212,6 @@ class MaxClient(ApiMixin, WebSocketMixin):
         except Exception:
             self.logger.exception("Error closing client")
 
-    @override
-    def _create_safe_task(
-        self, coro: Awaitable[Any], *, name: str | None = None
-    ) -> asyncio.Task[Any | None]:
-        async def runner():
-            try:
-                return await coro
-            except asyncio.CancelledError:
-                raise
-            except Exception as e:
-                tb = traceback.format_exc()
-                self.logger.error(
-                    f"Unhandled exception in task {name or coro}: {e}\n{tb}"
-                )
-                raise
-
-        task = asyncio.create_task(runner(), name=name)
-        self._background_tasks.add(task)
-        return task
-
     async def _post_login_tasks(self, sync: bool = True) -> None:
         if sync:
             await self._sync()
@@ -288,49 +235,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
             if asyncio.iscoroutine(result):
                 await self._safe_execute(result, context="on_start handler")
 
-    async def _cleanup_client(self) -> None:
-        for task in list(self._background_tasks):
-            task.cancel()
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
-            except Exception:
-                self.logger.debug(
-                    "Background task raised during cancellation", exc_info=True
-                )
-            self._background_tasks.discard(task)
-
-        if self._recv_task:
-            self._recv_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await self._recv_task
-            self._recv_task = None
-
-        if self._outgoing_task:
-            self._outgoing_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await self._outgoing_task
-            self._outgoing_task = None
-
-        for fut in self._pending.values():
-            if not fut.done():
-                fut.set_exception(WebSocketNotConnectedError)
-        self._pending.clear()
-
-        if self._ws:
-            try:
-                await self._ws.close()
-            except Exception:
-                self.logger.debug("Error closing ws during cleanup", exc_info=True)
-            self._ws = None
-
-        self.is_connected = False
-        self.logger.info("Client start() cleaned up")
-
-    async def login_with_code(
-        self, temp_token: str, code: str, start: bool = False
-    ) -> None:
+    async def login_with_code(self, temp_token: str, code: str, start: bool = False) -> None:
         """
         Завершает кастомный login flow: отправляет код, сохраняет токен и запускает пост-логин задачи.
 
@@ -348,7 +253,7 @@ class MaxClient(ApiMixin, WebSocketMixin):
         if not token:
             raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
         self._token = token
-        self._database.update_auth_token(str(self._device_id), token)
+        self._database.update_auth_token(self._device_id, token)
         if start:
             while True:
                 try:
@@ -385,12 +290,12 @@ class MaxClient(ApiMixin, WebSocketMixin):
                     await self._register(self.first_name, self.last_name)
 
                 if self._token and self._database.get_auth_token() is None:
-                    self._database.update_auth_token(str(self._device_id), self._token)
+                    self._database.update_auth_token(self._device_id, self._token)
 
                 if self._token is None:
                     await self._login()
-                else:
-                    await self._sync()
+
+                await self._sync()
 
                 await self._post_login_tasks(sync=False)
 
@@ -412,43 +317,6 @@ class MaxClient(ApiMixin, WebSocketMixin):
             self.logger.info("Reconnect enabled — restarting client")
             await asyncio.sleep(self.reconnect_delay)
 
-    async def idle(self):
-        """
-        Поддерживает клиента в «ожидающем» состоянии до закрытия клиента или иного прерывающего события.
-
-        :return: Никогда не возвращает значение; функция блокирует выполнение.
-        :rtype: None
-        """
-        await asyncio.Event().wait()
-
-    def inspect(self) -> None:
-        """
-        Выводит в лог текущий статус клиента для отладки.
-        """
-        self.logger.info("Pymax")
-        self.logger.info("---------")
-        self.logger.info(f"Connected: {self.is_connected}")
-        if self.me is not None:
-            self.logger.info(f"Me: {self.me.names[0].first_name} ({self.me.id})")
-        else:
-            self.logger.info("Me: N/A")
-        self.logger.info(f"Dialogs: {len(self.dialogs)}")
-        self.logger.info(f"Chats: {len(self.chats)}")
-        self.logger.info(f"Channels: {len(self.channels)}")
-        self.logger.info(f"Users cached: {len(self._users)}")
-        self.logger.info(f"Background tasks: {len(self._background_tasks)}")
-        self.logger.info(f"Scheduled tasks: {len(self._scheduled_tasks)}")
-        self.logger.info("---------")
-
-    async def __aenter__(self) -> Self:
-        self._create_safe_task(self.start(), name="start")
-        while not self.is_connected:
-            await asyncio.sleep(0.05)
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb) -> None:
-        await self.close()
-
 
 class SocketMaxClient(SocketMixin, MaxClient):
     @override
@@ -463,12 +331,6 @@ class SocketMaxClient(SocketMixin, MaxClient):
 
     @override
     async def _cleanup_client(self):
-        """
-        Socket-specific cleanup: cancel background tasks, set pending futures
-        exceptions to SocketNotConnectedError, and close socket.
-        """
-        from .exceptions import SocketNotConnectedError
-
         for task in list(self._background_tasks):
             task.cancel()
             try:

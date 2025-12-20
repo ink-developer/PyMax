@@ -92,7 +92,7 @@ class SocketMixin(ClientProtocol):
         payload_len_b = payload_len.to_bytes(4, "big")
         return ver_b + cmd_b + seq_b + opcode_b + payload_len_b + payload_bytes
 
-    async def connect(self, user_agent: UserAgentPayload) -> dict[str, Any]:
+    async def connect(self, user_agent: UserAgentPayload | None = None) -> dict[str, Any]:
         """
         Устанавливает соединение с сервером и выполняет handshake.
 
@@ -101,6 +101,8 @@ class SocketMixin(ClientProtocol):
         :return: Результат handshake.
         :rtype: dict[str, Any] | None
         """
+        if user_agent is None:
+            user_agent = UserAgentPayload()
         if sys.version_info[:2] == (3, 12):
             self.logger.warning(
                 """
@@ -115,9 +117,7 @@ Socket connections may be unstable, SSL issues are possible.
         raw_sock = await loop.run_in_executor(
             None, lambda: socket.create_connection((self.host, self.port))
         )
-        self._socket = self._ssl_context.wrap_socket(
-            raw_sock, server_hostname=self.host
-        )
+        self._socket = self._ssl_context.wrap_socket(raw_sock, server_hostname=self.host)
         self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         self.is_connected = True
         self._incoming = asyncio.Queue()
@@ -159,9 +159,7 @@ Socket connections may be unstable, SSL issues are possible.
     async def _parse_header(
         self, loop: asyncio.AbstractEventLoop, sock: socket.socket
     ) -> bytes | None:
-        header = await loop.run_in_executor(
-            None, lambda: self._recv_exactly(sock=sock, n=10)
-        )
+        header = await loop.run_in_executor(None, lambda: self._recv_exactly(sock=sock, n=10))
         if not header or len(header) < 10:
             self.logger.info("Socket connection closed; exiting recv loop")
             self.is_connected = False
@@ -182,9 +180,7 @@ Socket connections may be unstable, SSL issues are possible.
 
         while remaining > 0:
             min_read = min(remaining, 8192)
-            chunk = await loop.run_in_executor(
-                None, lambda: self._recv_exactly(sock, min_read)
-            )
+            chunk = await loop.run_in_executor(None, lambda: self._recv_exactly(sock, min_read))
             if not chunk:
                 self.logger.error("Connection closed while reading payload")
                 break
@@ -245,9 +241,7 @@ Socket connections may be unstable, SSL issues are possible.
                 fut = self._file_upload_waiters.pop(id_, None)
                 if fut and not fut.done():
                     fut.set_result(data)
-                    self.logger.debug(
-                        "Fulfilled file upload waiter for %s=%s", key, id_
-                    )
+                    self.logger.debug("Fulfilled file upload waiter for %s=%s", key, id_)
 
     async def _handle_message_notifications(self, data: dict) -> None:
         if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
@@ -337,38 +331,35 @@ Socket connections may be unstable, SSL issues are possible.
         sock = self._socket
         loop = asyncio.get_running_loop()
 
-        try:
-            while True:
-                try:
-                    header = await self._parse_header(loop, sock)
+        while True:
+            try:
+                header = await self._parse_header(loop, sock)
 
-                    if not header:
-                        break
+                if not header:
+                    break
 
-                    datas = await self._recv_data(loop, header, sock)
+                datas = await self._recv_data(loop, header, sock)
 
-                    if not datas:
+                if not datas:
+                    continue
+
+                for data_item in datas:
+                    seq = data_item.get("seq")
+
+                    if self._handle_pending(seq, data_item):
                         continue
 
-                    for data_item in datas:
-                        seq = data_item.get("seq")
+                    if self._incoming is not None:
+                        await self._handle_incoming_queue(data_item)
 
-                        if self._handle_pending(seq, data_item):
-                            continue
+                    await self._dispatch_incoming(data_item)
 
-                        if self._incoming is not None:
-                            await self._handle_incoming_queue(data_item)
-
-                        await self._dispatch_incoming(data_item)
-
-                except asyncio.CancelledError:
-                    self.logger.debug("Recv loop cancelled")
-                    break
-                except Exception:
-                    self.logger.exception("Error in recv_loop; backing off briefly")
-                    await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
-        finally:
-            self.logger.warning("<<< Recv loop exited (socket)")
+            except asyncio.CancelledError:
+                self.logger.debug("Recv loop cancelled")
+                raise
+            except Exception:
+                self.logger.exception("Error in recv_loop; backing off briefly")
+                await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
 
     def _log_task_exception(self, fut: asyncio.Future[Any]) -> None:
         try:
@@ -418,9 +409,7 @@ Socket connections may be unstable, SSL issues are possible.
             opcode=opcode.value,
             payload=payload,
         ).model_dump(by_alias=True)
-        self.logger.debug(
-            "make_message opcode=%s cmd=%s seq=%s", opcode, cmd, self._seq
-        )
+        self.logger.debug("make_message opcode=%s cmd=%s seq=%s", opcode, cmd, self._seq)
         return msg
 
     @override
@@ -472,9 +461,7 @@ Socket connections may be unstable, SSL issues are possible.
                 raise exc from conn_err
             raise SocketNotConnectedError from conn_err
         except Exception as exc:
-            self.logger.exception(
-                "Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"]
-            )
+            self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
             raise SocketSendError from exc
 
         finally:

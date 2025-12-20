@@ -48,7 +48,7 @@ class Database:
             session.refresh(auth)
             return auth
 
-    def update_auth_token(self, device_id: str, token: str) -> None:
+    def update_auth_token(self, device_id: UUID, token: str) -> None:
         with self.get_session() as session:
             auth = session.exec(select(Auth).where(Auth.device_id == device_id)).first()
             if auth:
