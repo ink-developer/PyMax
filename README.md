@@ -13,11 +13,6 @@
     <img src="https://img.shields.io/badge/packaging-uv-D7FF64.svg" alt="Packaging">
 </p>
 
-> [!IMPORTANT]
-> (20.12.25) Из за резкого изменения апи большая часть библиотеки не работает.
-Смотрите [новость](https://t.me/pymax_news/111)
->
-> P.s добавил логин по qr в dev/1.2.1
 
 ---
 > ⚠️ **Дисклеймер**
