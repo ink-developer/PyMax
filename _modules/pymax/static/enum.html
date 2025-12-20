@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>pymax.static.enum - PyMax 1.1.21 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d75fae25" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
     
@@ -237,12 +237,6 @@
 <div class="viewcode-block" id="Opcode">
 <a class="viewcode-back" href="../../../types.html#pymax.static.enum.Opcode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Opcode</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Operation codes for API requests.</span>
-
-<span class="sd">    Each opcode represents a specific operation that can be performed</span>
-<span class="sd">    through the MaxAPI protocol.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">PING</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">DEBUG</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">RECONNECT</span> <span class="o">=</span> <span class="mi">3</span>
@@ -380,7 +374,11 @@
     <span class="n">FOLDERS_UPDATE</span> <span class="o">=</span> <span class="mi">274</span>
     <span class="n">FOLDERS_REORDER</span> <span class="o">=</span> <span class="mi">275</span>
     <span class="n">FOLDERS_DELETE</span> <span class="o">=</span> <span class="mi">276</span>
-    <span class="n">NOTIF_FOLDERS</span> <span class="o">=</span> <span class="mi">277</span></div>
+    <span class="n">NOTIF_FOLDERS</span> <span class="o">=</span> <span class="mi">277</span>
+
+    <span class="n">GET_QR</span> <span class="o">=</span> <span class="mi">288</span>
+    <span class="n">GET_QR_STATUS</span> <span class="o">=</span> <span class="mi">289</span>
+    <span class="n">LOGIN_BY_QR</span> <span class="o">=</span> <span class="mi">291</span></div>
 
 
 
@@ -519,8 +517,8 @@
     </aside>
   </div>
 </div><script src="../../../_static/documentation_options.js?v=9c7f7db0"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
     </body>
 </html>

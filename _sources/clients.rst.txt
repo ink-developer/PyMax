@@ -20,6 +20,28 @@ MaxClient
         logger=None,                    # Пользовательский логгер
     )
 
+.. warning::
+
+    Параметр ``device_type`` в ``UserAgentPayload`` **критически важен** для выбора способа авторизации:
+
+    **DESKTOP** — вход по номеру телефона:
+
+    .. code-block:: python
+
+        from pymax.payloads import UserAgentPayload
+
+        ua = UserAgentPayload(device_type="DESKTOP", app_version="25.12.13")
+        client = MaxClient(phone="+79111111111", headers=ua)
+
+    **WEB** — вход через QR-код; токен совместим с веб-версией Max:
+
+    .. code-block:: python
+
+        from pymax.payloads import UserAgentPayload
+
+        ua = UserAgentPayload(device_type="WEB", app_version="25.12.13")
+        client = MaxClient(phone="+79111111111", headers=ua)
+
 Основные методы:
 
 .. code-block:: python
@@ -59,6 +81,7 @@ MaxClient
     # Получить историю сообщений
     history = await client.fetch_history(
         chat_id=123456,
+        limit=50
     )
 
 Свойства:

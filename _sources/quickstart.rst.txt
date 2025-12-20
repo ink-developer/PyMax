@@ -139,6 +139,7 @@ Quick Start
     async def fetch_history(message: Message) -> None:
         history = await client.fetch_history(
             chat_id=message.chat_id,
+            limit=10
         )
 
         text = "Последние 10 сообщений:\n"

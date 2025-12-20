@@ -20,7 +20,7 @@ Guides
         message.text            # Текст сообщения
         message.type            # Тип (TEXT, SYSTEM, SERVICE)
         message.status          # Статус (SENT, DELIVERED, READ)
-        message.time            # Время отправки
+        message.timestamp       # Время отправки
         message.attaches        # Вложения
 
 Отправка сообщений:
@@ -267,6 +267,7 @@ Guides
     # Последние 50 сообщений
     history: list[Message] = await client.fetch_history(
         chat_id=123456,
+        limit=50
     )
 
     for msg in history:
