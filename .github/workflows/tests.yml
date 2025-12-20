@@ -31,10 +31,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install dependencies
+      - name: Install runtime + test tools
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[test]"
+          # Устанавливаем package (runtime deps)
+          pip install -e "."
+          # Явно ставим инструменты для тестов/линта, чтобы они были доступны в runner
+          pip install pytest pytest-asyncio pytest-cov pytest-timeout flake8 mypy
 
       - name: Lint with flake8
         run: |
@@ -95,7 +98,7 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install dependencies
+      - name: Install runtime + test tools (integration)
         run: |
           python -m pip install --upgrade pip
           pip install -e "."
@@ -134,10 +137,11 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install dependencies
+      - name: Install dependencies + quality tools
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[test]"
+          pip install -e "."
+          # black/isort/pylint используются только в этом job
           pip install black isort pylint
 
       - name: Check code formatting with black

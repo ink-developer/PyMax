@@ -36,6 +36,16 @@ where = ["src"]
 [tool.setuptools.package-dir]
 "" = "src"
 
+[project.optional-dependencies]
+test = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.24.0",
+  "pytest-cov>=5.0.0",
+  "pytest-timeout>=2.1.0",
+  "flake8",
+  "mypy",
+]
+
 [dependency-groups]
 test = [
   "pytest>=8.0.0",
