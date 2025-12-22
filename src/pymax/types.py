@@ -97,9 +97,7 @@ class Names(Name):
         """
         Синоним для класса Name.
         """
-        super().__init__(
-            name=name, first_name=first_name, last_name=last_name, type=type
-        )
+        super().__init__(name=name, first_name=first_name, last_name=last_name, type=type)
 
 
 class Contact:
@@ -219,7 +217,7 @@ class StickerAttach:
     def __init__(
         self,
         author_type: str,
-        lottie_url: str,
+        lottie_url: str | None,
         url: str,
         sticker_id: int,
         tags: list[str] | None,
@@ -248,7 +246,7 @@ class StickerAttach:
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
             author_type=data["authorType"],
-            lottie_url=data["lottieUrl"],
+            lottie_url=data.get("lottieUrl"),
             url=data["url"],
             sticker_id=data["stickerId"],
             tags=data.get("tags"),
@@ -443,9 +441,7 @@ class VideoAttach:
 
 
 class FileAttach:
-    def __init__(
-        self, file_id: int, name: str, size: int, token: str, type: AttachType
-    ) -> None:
+    def __init__(self, file_id: int, name: str, size: int, token: str, type: AttachType) -> None:
         self.file_id = file_id
         self.name = name
         self.size = size
@@ -553,9 +549,7 @@ class Me:
 
 
 class Element:
-    def __init__(
-        self, type: FormattingType | str, length: int, from_: int | None = None
-    ) -> None:
+    def __init__(self, type: FormattingType | str, length: int, from_: int | None = None) -> None:
         self.type = type
         self.length = length
         self.from_ = from_
@@ -566,9 +560,7 @@ class Element:
 
     @override
     def __repr__(self) -> str:
-        return (
-            f"Element(type={self.type!r}, length={self.length!r}, from_={self.from_!r})"
-        )
+        return f"Element(type={self.type!r}, length={self.length!r}, from_={self.from_!r})"
 
     @override
     def __str__(self) -> str:
@@ -591,7 +583,9 @@ class MessageLink:
 
     @override
     def __repr__(self) -> str:
-        return f"MessageLink(chat_id={self.chat_id!r}, message={self.message!r}, type={self.type!r})"
+        return (
+            f"MessageLink(chat_id={self.chat_id!r}, message={self.message!r}, type={self.type!r})"
+        )
 
     @override
     def __str__(self) -> str:
@@ -678,9 +672,7 @@ class Message:
     @classmethod
     def from_dict(cls, data: dict[Any, Any]) -> Self:
         message = data["message"] if data.get("message") else data
-        attaches: list[
-            PhotoAttach | VideoAttach | FileAttach | ControlAttach | StickerAttach
-        ] = []
+        attaches: list[PhotoAttach | VideoAttach | FileAttach | ControlAttach | StickerAttach] = []
         for a in message.get("attaches", []):
             if a["_type"] == AttachType.PHOTO:
                 attaches.append(PhotoAttach.from_dict(a))
@@ -778,9 +770,7 @@ class Dialog:
             join_time=data["joinTime"],
             created=data["created"],
             last_message=(
-                Message.from_dict(data["lastMessage"])
-                if data.get("lastMessage")
-                else None
+                Message.from_dict(data["lastMessage"]) if data.get("lastMessage") else None
             ),
             type=ChatType(data["type"]),
             last_fire_delayed_error_time=data["lastFireDelayedErrorTime"],
@@ -865,14 +855,10 @@ class Chat:
     @classmethod
     def from_dict(cls, data: dict[Any, Any]) -> Self:
         raw_admins = data.get("adminParticipants", {}) or {}
-        admin_participants: dict[int, dict[Any, Any]] = {
-            int(k): v for k, v in raw_admins.items()
-        }
+        admin_participants: dict[int, dict[Any, Any]] = {int(k): v for k, v in raw_admins.items()}
         raw_participants = data.get("participants", {}) or {}
         participants: dict[int, int] = {int(k): v for k, v in raw_participants.items()}
-        last_msg = (
-            Message.from_dict(data["lastMessage"]) if data.get("lastMessage") else None
-        )
+        last_msg = Message.from_dict(data["lastMessage"]) if data.get("lastMessage") else None
         return cls(
             participants_count=data.get("participantsCount", 0),
             access=AccessType(data.get("access", AccessType.PUBLIC.value)),
@@ -1051,7 +1037,9 @@ class Session:
 
     @override
     def __str__(self) -> str:
-        return f"Session: {self.client} from {self.location} at {self.time} (current={self.current})"
+        return (
+            f"Session: {self.client} from {self.location} at {self.time} (current={self.current})"
+        )
 
 
 class Folder:
