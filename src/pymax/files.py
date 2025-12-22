@@ -46,6 +46,11 @@ class Photo(BaseFile):
     }  # FIXME: костыль ✅
 
     def __init__(self, url: str | None = None, path: str | None = None) -> None:
+        if path:
+            self.file_name = Path(path).name
+        elif url:
+            self.file_name = Path(url).name
+
         super().__init__(url, path)
 
     def validate_photo(self) -> tuple[str, str] | None:

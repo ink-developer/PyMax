@@ -1,7 +1,13 @@
+import urllib.parse
+from http import HTTPStatus
 from typing import Any
+from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
 
+import aiohttp
+
 from pymax.exceptions import Error
+from pymax.files import Photo
 from pymax.interfaces import ClientProtocol
 from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import (
@@ -10,17 +16,60 @@ from pymax.payloads import (
     DeleteFolderPayload,
     GetFolderPayload,
     UpdateFolderPayload,
+    UploadPayload,
 )
 from pymax.static.enum import Opcode
-from pymax.types import Folder, FolderList, FolderUpdate
+from pymax.types import Folder, FolderList, FolderUpdate, Me
 
 
 class SelfMixin(ClientProtocol):
+    async def _request_photo_upload_url(self) -> str:
+        self.logger.info("Requesting profile photo upload URL")
+
+        data = await self._send_and_wait(
+            opcode=Opcode.PHOTO_UPLOAD,
+            payload=UploadPayload(profile=True).model_dump(by_alias=True),
+        )
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        return data["payload"]["url"]
+
+    async def _upload_profile_photo(self, upload_url: str, photo: Photo) -> str:
+        self.logger.info("Uploading profile photo")
+
+        parsed_url = urlparse(upload_url)
+        photo_id = parse_qs(parsed_url.query)["photoIds"][0]
+
+        form = aiohttp.FormData()
+        form.add_field(
+            "file",
+            await photo.read(),
+            filename=photo.file_name,
+        )
+
+        async with (
+            aiohttp.ClientSession() as session,
+            session.post(upload_url, data=form) as response,
+        ):
+            if response.status != HTTPStatus.OK:
+                raise Error(
+                    "Failed to upload profile photo.", message="UploadError", title="Upload Error"
+                )
+
+            self.logger.info("Upload successful")
+            data = await response.json()
+            return data["photos"][photo_id][
+                "token"
+            ]  # TODO: сделать нормальную типизацию и чекнинг ответа
+
     async def change_profile(
         self,
         first_name: str,
         last_name: str | None = None,
         description: str | None = None,
+        photo: Photo | None = None,
     ) -> bool:
         """
         Изменяет информацию профиля текущего пользователя.
@@ -35,19 +84,35 @@ class SelfMixin(ClientProtocol):
         :rtype: bool
         """
 
-        payload = ChangeProfilePayload(
-            first_name=first_name,
-            last_name=last_name,
-            description=description,
-        ).model_dump(
-            by_alias=True,
-            exclude_none=True,
-        )
+        if photo:
+            upload_url = await self._request_photo_upload_url()
+            photo_token = await self._upload_profile_photo(upload_url, photo)
+
+            payload = ChangeProfilePayload(
+                first_name=first_name,
+                last_name=last_name,
+                description=description,
+                photo_token=photo_token,
+            ).model_dump(
+                by_alias=True,
+                exclude_none=True,
+            )
+        else:
+            payload = ChangeProfilePayload(
+                first_name=first_name,
+                last_name=last_name,
+                description=description,
+            ).model_dump(
+                by_alias=True,
+                exclude_none=True,
+            )
 
         data = await self._send_and_wait(opcode=Opcode.PROFILE, payload=payload)
 
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
+
+        self.me = Me.from_dict(data["payload"]["profile"]["contact"])
 
         return True
 

@@ -6,12 +6,12 @@ from typing import Any
 
 import pymax
 from pymax import MaxClient, Message, ReactionInfo, SocketMaxClient
-from pymax.files import File, Video
+from pymax.files import File, Photo, Video
 from pymax.payloads import UserAgentPayload
 from pymax.static.enum import AttachType, Opcode
 from pymax.types import Chat
 
-phone = "+7903223111"
+phone = "+79291250363"
 headers = UserAgentPayload(device_type="WEB")
 
 client = MaxClient(
@@ -24,34 +24,16 @@ client = MaxClient(
 client.logger.setLevel(logging.INFO)
 
 
-@client.on_raw_receive
-async def handle_raw_receive(data: dict[str, Any]) -> None:
-    print(f"Raw data received: {data}")
-
-
-@client.task(seconds=10)
-async def periodic_task() -> None:
-    # print(f"Periodic task executed at {datetime.datetime.now()}")
-    ...
-
-
 @client.on_start
 async def handle_start() -> None:
     print(f"Client started as {client.me.names[0].first_name}!")
 
-    chat_id = -1
-    max_messages = 1000
-    messages = []
-    from_time = int(time() * 1000)
-    while len(messages) < max_messages:
-        r = await client.fetch_history(chat_id=chat_id, from_time=from_time, backward=30)
-        if not r:
-            break
-        from_time = r[0].time
-        messages.extend(r)
-        print(f"First message time: {from_time}, id: {r[0].id}, text: {r[0].text}")
-        print(f"Last message time: {from_time}, id: {r[-1].id}, text: {r[-1].text}")
-        print(f"Loaded {len(messages)}/{max_messages} messages...")
+    photo = Photo(path="/tests2/test.png")
+
+    await client.change_profile(
+        first_name="Dima",
+        photo=photo,
+    )
     # channel = await client.resolve_channel_by_name("fm92")
     # if channel:
     #     print(f"Resolved channel by name: {channel.title}, ID: {channel.id}")

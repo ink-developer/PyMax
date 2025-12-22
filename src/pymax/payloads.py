@@ -97,6 +97,7 @@ class ReplyLink(CamelModel):
 
 class UploadPayload(CamelModel):
     count: int = 1
+    profile: bool = False
 
 
 class AttachPhotoPayload(CamelModel):
@@ -168,6 +169,8 @@ class ChangeProfilePayload(CamelModel):
     first_name: str
     last_name: str | None = None
     description: str | None = None
+    photo_token: str | None = None
+    avatar_type: str = "USER_AVATAR"  # TODO: вынести гада в энам
 
 
 class ResolveLinkPayload(CamelModel):
