@@ -90,7 +90,7 @@ class Names(Name):
     def __init__(
         self,
         name: str | None,
-        first_name: None,
+        first_name: None | str,
         last_name: str | None,
         type: str | None,
     ) -> None:
