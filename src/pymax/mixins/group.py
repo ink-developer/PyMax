@@ -95,9 +95,7 @@ class GroupMixin(ClientProtocol):
             operation="add",
         ).model_dump(by_alias=True)
 
-        data = await self._send_and_wait(
-            opcode=Opcode.CHAT_MEMBERS_UPDATE, payload=payload
-        )
+        data = await self._send_and_wait(opcode=Opcode.CHAT_MEMBERS_UPDATE, payload=payload)
 
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
@@ -155,9 +153,7 @@ class GroupMixin(ClientProtocol):
             clean_msg_period=clean_msg_period,
         ).model_dump(by_alias=True)
 
-        data = await self._send_and_wait(
-            opcode=Opcode.CHAT_MEMBERS_UPDATE, payload=payload
-        )
+        data = await self._send_and_wait(opcode=Opcode.CHAT_MEMBERS_UPDATE, payload=payload)
 
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
@@ -293,6 +289,33 @@ class GroupMixin(ClientProtocol):
 
         return chat
 
+    async def resolve_group_by_link(self, link: str) -> Chat | None:
+        """
+        Разрешает группу по ссылке
+
+        Args:
+            link (str): Ссылка на группу.
+
+        Returns:
+            Chat | None: Объект чата группы или None, если не найдено.
+        """
+        proceed_link = self._process_chat_join_link(link)
+        if proceed_link is None:
+            raise ValueError("Invalid group link")
+
+        data = await self._send_and_wait(
+            opcode=Opcode.LINK_INFO,
+            payload={
+                "link": proceed_link,
+            },
+        )
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        chat = Chat.from_dict(data["payload"].get("chat", {}))
+        return chat
+
     async def rework_invite_link(self, chat_id: int) -> Chat:
         """
         Пересоздает ссылку для приглашения в группу
@@ -329,14 +352,10 @@ class GroupMixin(ClientProtocol):
             chat_id for chat_id in chat_ids if await self._get_chat(chat_id) is None
         ]
         if missed_chat_ids:
-            payload = GetChatInfoPayload(chat_ids=missed_chat_ids).model_dump(
-                by_alias=True
-            )
+            payload = GetChatInfoPayload(chat_ids=missed_chat_ids).model_dump(by_alias=True)
         else:
             chats: list[Chat] = [
-                chat
-                for chat_id in chat_ids
-                if (chat := await self._get_chat(chat_id)) is not None
+                chat for chat_id in chat_ids if (chat := await self._get_chat(chat_id)) is not None
             ]
             return chats
 

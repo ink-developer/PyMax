@@ -28,12 +28,22 @@ client.logger.setLevel(logging.INFO)
 async def handle_start() -> None:
     print(f"Client started as {client.me.names[0].first_name}!")
 
-    photo = Photo(path="/tests2/test.png")
-
-    await client.change_profile(
-        first_name="Dima",
-        photo=photo,
+    """
+                        case e.chat instanceof at:
+                      return na({ link: D, linkType: "CHANNEL" });
+                    case e.chat instanceof Ct:
+                      return na({ link: D, linkType: "CHAT" });
+    """
+    data = await client._send_and_wait(
+        opcode=Opcode.CHAT_CHECK_LINK,
+        payload={
+            "link": "inkomusic123",
+            "linkType": "CHANNEL",
+        },
     )
+
+    print(data)
+
     # channel = await client.resolve_channel_by_name("fm92")
     # if channel:
     #     print(f"Resolved channel by name: {channel.title}, ID: {channel.id}")
