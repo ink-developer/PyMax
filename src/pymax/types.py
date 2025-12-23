@@ -630,6 +630,36 @@ class ReactionInfo:
         )
 
 
+class ContactAttach:
+    def __init__(
+        self, contact_id: int, first_name: str, last_name: str, name: str, photo_url: str
+    ) -> None:
+        self.contact_id = contact_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.name = name
+        self.photo_url = photo_url
+        self.type = AttachType.CONTACT
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(
+            contact_id=data["contactId"],
+            first_name=data["firstName"],
+            last_name=data["lastName"],
+            name=data["name"],
+            photo_url=data["photoUrl"],
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return f"ContactAttach(contact_id={self.contact_id!r}, first_name={self.first_name!r}, last_name={self.last_name!r}, name={self.name!r}, photo_url={self.photo_url!r})"
+
+    @override
+    def __str__(self) -> str:
+        return f"ContactAttach: {self.name}"
+
+
 class Message:
     def __init__(
         self,
@@ -652,6 +682,7 @@ class Message:
                 | ControlAttach
                 | StickerAttach
                 | AudioAttach
+                | ContactAttach
             ]
             | None
         ),
@@ -672,7 +703,15 @@ class Message:
     @classmethod
     def from_dict(cls, data: dict[Any, Any]) -> Self:
         message = data["message"] if data.get("message") else data
-        attaches: list[PhotoAttach | VideoAttach | FileAttach | ControlAttach | StickerAttach] = []
+        attaches: list[
+            PhotoAttach
+            | VideoAttach
+            | FileAttach
+            | ControlAttach
+            | StickerAttach
+            | AudioAttach
+            | ContactAttach
+        ] = []
         for a in message.get("attaches", []):
             if a["_type"] == AttachType.PHOTO:
                 attaches.append(PhotoAttach.from_dict(a))
@@ -686,6 +725,8 @@ class Message:
                 attaches.append(StickerAttach.from_dict(a))
             elif a["_type"] == AttachType.AUDIO:
                 attaches.append(AudioAttach.from_dict(a))
+            elif a["_type"] == AttachType.CONTACT:
+                attaches.append(ContactAttach.from_dict(a))
         link_value = message.get("link")
         if isinstance(link_value, dict):
             link = MessageLink.from_dict(link_value)

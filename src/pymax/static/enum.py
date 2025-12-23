@@ -196,6 +196,7 @@ class AttachType(str, Enum):
     STICKER = "STICKER"
     AUDIO = "AUDIO"
     CONTROL = "CONTROL"
+    CONTACT = "CONTACT"
 
 
 class FormattingType(str, Enum):
