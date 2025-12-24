@@ -45,6 +45,7 @@ class ClientProtocol(ABC):
         self.phone: str
         self.dialogs: list[Dialog] = []
         self.channels: list[Channel] = []
+        self.contacts: list[User] = []
         self.me: Me | None = None
         self.host: str
         self.port: int

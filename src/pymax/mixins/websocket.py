@@ -27,6 +27,7 @@ from pymax.types import (
     Message,
     ReactionCounter,
     ReactionInfo,
+    User,
 )
 
 
@@ -464,6 +465,14 @@ class WebSocketMixin(ClientProtocol):
                         self.channels.append(Channel.from_dict(raw_chat))
                 except Exception:
                     self.logger.exception("Error parsing chat entry")
+
+            for raw_user in raw_payload.get("contacts", []):
+                try:
+                    user = User.from_dict(raw_user)
+                    if user:
+                        self.contacts.append(user)
+                except Exception:
+                    self.logger.exception("Error parsing contact entry")
 
             if raw_payload.get("profile", {}).get("contact"):
                 self.me = Me.from_dict(raw_payload.get("profile", {}).get("contact", {}))

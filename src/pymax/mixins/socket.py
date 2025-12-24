@@ -28,6 +28,7 @@ from pymax.types import (
     Message,
     ReactionCounter,
     ReactionInfo,
+    User,
 )
 
 
@@ -603,6 +604,15 @@ Socket connections may be unstable, SSL issues are possible.
                     self.channels.append(Channel.from_dict(raw_chat))
             except Exception:
                 self.logger.exception("Error parsing chat entry (socket)")
+
+        for raw_user in raw_payload.get("contacts", []):
+            try:
+                user = User.from_dict(raw_user)
+                if user:
+                    self.contacts.append(user)
+            except Exception:
+                self.logger.exception("Error parsing contact entry (socket)")
+
         if raw_payload.get("profile", {}).get("contact"):
             self.me = Me.from_dict(raw_payload.get("profile", {}).get("contact", {}))
         self.logger.info(
