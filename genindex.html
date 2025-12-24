@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#"><link rel="search" title="Search" href="search.html">
 
-    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 --><title>Index - PyMax 1.1.21 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 --><title>Index - PyMax 1.2.3 documentation</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">PyMax 1.1.21 documentation</div></a>
+      <a href="index.html"><div class="brand">PyMax 1.2.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -180,7 +180,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">PyMax 1.1.21 documentation</span>
+  <span class="sidebar-brand-text">PyMax 1.2.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -197,6 +197,7 @@
 <li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.3</a></li>
 </ul>
 
 </div>
@@ -466,10 +467,10 @@
 </li>
         <li><a href="types.html#pymax.static.enum.Opcode.CHAT_HISTORY">CHAT_HISTORY (pymax.static.enum.Opcode attribute)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="types.html#pymax.static.enum.Opcode.CHAT_INFO">CHAT_INFO (pymax.static.enum.Opcode attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="types.html#pymax.static.enum.Opcode.CHAT_JOIN">CHAT_JOIN (pymax.static.enum.Opcode attribute)</a>
 </li>
         <li><a href="types.html#pymax.static.enum.Opcode.CHAT_LEAVE">CHAT_LEAVE (pymax.static.enum.Opcode attribute)</a>
@@ -516,6 +517,8 @@
 </li>
         <li><a href="types.html#pymax.types.Contact">Contact (class in pymax.types)</a>
 </li>
+        <li><a href="types.html#pymax.static.enum.AttachType.CONTACT">CONTACT (pymax.static.enum.AttachType attribute)</a>
+</li>
         <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_ADD">CONTACT_ADD (pymax.static.enum.Opcode attribute)</a>
 </li>
         <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_INFO">CONTACT_INFO (pymax.static.enum.Opcode attribute)</a>
@@ -539,6 +542,10 @@
         <li><a href="types.html#pymax.static.enum.Opcode.CONTACT_VERIFY">CONTACT_VERIFY (pymax.static.enum.Opcode attribute)</a>
 </li>
         <li><a href="types.html#pymax.static.enum.ContactAction">ContactAction (class in pymax.static.enum)</a>
+</li>
+        <li><a href="types.html#pymax.types.ContactAttach">ContactAttach (class in pymax.types)</a>
+</li>
+        <li><a href="decorators.html#pymax.mixins.handler.HandlerMixin.contacts">contacts (pymax.mixins.handler.HandlerMixin attribute)</a>
 </li>
         <li><a href="types.html#pymax.static.enum.AttachType.CONTROL">CONTROL (pymax.static.enum.AttachType attribute)</a>
 </li>
@@ -790,8 +797,6 @@
           <li><a href="types.html#pymax.static.enum.MessageType.format">(pymax.static.enum.MessageType method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="types.html#pymax.static.enum.AccessType.format_map">format_map() (pymax.static.enum.AccessType method)</a>
 
         <ul>
@@ -816,6 +821,8 @@
           <li><a href="types.html#pymax.static.enum.MessageType.format_map">(pymax.static.enum.MessageType method)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="types.html#pymax.static.enum.FormattingType">FormattingType (class in pymax.static.enum)</a>
 </li>
         <li><a href="types.html#pymax.static.enum.Opcode.from_bytes">from_bytes() (pymax.static.enum.Opcode class method)</a>
@@ -830,6 +837,8 @@
           <li><a href="types.html#pymax.types.Chat.from_dict">(pymax.types.Chat class method)</a>
 </li>
           <li><a href="types.html#pymax.types.Contact.from_dict">(pymax.types.Contact class method)</a>
+</li>
+          <li><a href="types.html#pymax.types.ContactAttach.from_dict">(pymax.types.ContactAttach class method)</a>
 </li>
           <li><a href="types.html#pymax.types.ControlAttach.from_dict">(pymax.types.ControlAttach class method)</a>
 </li>
@@ -1829,6 +1838,8 @@
 </li>
         <li><a href="clients.html#pymax.MaxClient.resolve_channel_by_name">resolve_channel_by_name() (pymax.MaxClient method)</a>
 </li>
+        <li><a href="clients.html#pymax.MaxClient.resolve_group_by_link">resolve_group_by_link() (pymax.MaxClient method)</a>
+</li>
         <li><a href="clients.html#pymax.MaxClient.rework_invite_link">rework_invite_link() (pymax.MaxClient method)</a>
 </li>
         <li><a href="types.html#pymax.static.enum.AccessType.rfind">rfind() (pymax.static.enum.AccessType method)</a>
@@ -2381,7 +2392,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=9c7f7db0"></script>
+</div><script src="_static/documentation_options.js?v=a352c988"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

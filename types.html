@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Decorators" href="decorators.html"><link rel="prev" title="Clients" href="clients.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>Types - PyMax 1.1.21 documentation</title>
+        <title>Types - PyMax 1.2.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">PyMax 1.1.21 documentation</div></a>
+      <a href="index.html"><div class="brand">PyMax 1.2.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">PyMax 1.1.21 documentation</span>
+  <span class="sidebar-brand-text">PyMax 1.2.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -199,6 +199,7 @@
 <li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.3</a></li>
 </ul>
 
 </div>
@@ -426,6 +427,36 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pymax.types.Contact.from_dict">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/types.html#Contact.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.types.Contact.from_dict" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Self</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymax.types.ContactAttach">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymax.types.</span></span><span class="sig-name descname"><span class="pre">ContactAttach</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contact_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/types.html#ContactAttach"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.types.ContactAttach" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contact_id</strong> (<em>int</em>)</p></li>
+<li><p><strong>first_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>last_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+<li><p><strong>photo_url</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.types.ContactAttach.from_dict">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/types.html#ContactAttach.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.types.ContactAttach.from_dict" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
@@ -758,7 +789,7 @@
 <li><p><strong>text</strong> (<em>str</em>)</p></li>
 <li><p><strong>status</strong> (<a class="reference internal" href="#pymax.static.enum.MessageStatus" title="pymax.static.enum.MessageStatus"><em>MessageStatus</em></a><em> | </em><em>None</em>)</p></li>
 <li><p><strong>type</strong> (<a class="reference internal" href="#pymax.static.enum.MessageType" title="pymax.static.enum.MessageType"><em>MessageType</em></a><em> | </em><em>str</em>)</p></li>
-<li><p><strong>attaches</strong> (<em>list</em><em>[</em><a class="reference internal" href="#pymax.types.PhotoAttach" title="pymax.types.PhotoAttach"><em>PhotoAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.VideoAttach" title="pymax.types.VideoAttach"><em>VideoAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.FileAttach" title="pymax.types.FileAttach"><em>FileAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.ControlAttach" title="pymax.types.ControlAttach"><em>ControlAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.StickerAttach" title="pymax.types.StickerAttach"><em>StickerAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.AudioAttach" title="pymax.types.AudioAttach"><em>AudioAttach</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>attaches</strong> (<em>list</em><em>[</em><a class="reference internal" href="#pymax.types.PhotoAttach" title="pymax.types.PhotoAttach"><em>PhotoAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.VideoAttach" title="pymax.types.VideoAttach"><em>VideoAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.FileAttach" title="pymax.types.FileAttach"><em>FileAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.ControlAttach" title="pymax.types.ControlAttach"><em>ControlAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.StickerAttach" title="pymax.types.StickerAttach"><em>StickerAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.AudioAttach" title="pymax.types.AudioAttach"><em>AudioAttach</em></a><em> | </em><a class="reference internal" href="#pymax.types.ContactAttach" title="pymax.types.ContactAttach"><em>ContactAttach</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -813,7 +844,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>first_name</strong> (<em>None</em>)</p></li>
+<li><p><strong>first_name</strong> (<em>None</em><em> | </em><em>str</em>)</p></li>
 <li><p><strong>last_name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>type</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
@@ -842,7 +873,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>first_name</strong> (<em>None</em>)</p></li>
+<li><p><strong>first_name</strong> (<em>None</em><em> | </em><em>str</em>)</p></li>
 <li><p><strong>last_name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>type</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
@@ -1012,7 +1043,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>author_type</strong> (<em>str</em>)</p></li>
-<li><p><strong>lottie_url</strong> (<em>str</em>)</p></li>
+<li><p><strong>lottie_url</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
 <li><p><strong>sticker_id</strong> (<em>int</em>)</p></li>
 <li><p><strong>tags</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
@@ -1598,6 +1629,11 @@ left untouched.  Characters mapped to None are deleted.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymax.static.enum.AttachType.AUDIO">
 <span class="sig-name descname"><span class="pre">AUDIO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AUDIO'</span></span><a class="headerlink" href="#pymax.static.enum.AttachType.AUDIO" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.AttachType.CONTACT">
+<span class="sig-name descname"><span class="pre">CONTACT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CONTACT'</span></span><a class="headerlink" href="#pymax.static.enum.AttachType.CONTACT" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7024,6 +7060,10 @@ is raised.</p>
 <li><a class="reference internal" href="#pymax.types.Contact.from_dict"><code class="docutils literal notranslate"><span class="pre">Contact.from_dict()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#pymax.types.ContactAttach"><code class="docutils literal notranslate"><span class="pre">ContactAttach</span></code></a><ul>
+<li><a class="reference internal" href="#pymax.types.ContactAttach.from_dict"><code class="docutils literal notranslate"><span class="pre">ContactAttach.from_dict()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#pymax.types.ControlAttach"><code class="docutils literal notranslate"><span class="pre">ControlAttach</span></code></a><ul>
 <li><a class="reference internal" href="#pymax.types.ControlAttach.from_dict"><code class="docutils literal notranslate"><span class="pre">ControlAttach.from_dict()</span></code></a></li>
 </ul>
@@ -7171,6 +7211,7 @@ is raised.</p>
 </li>
 <li><a class="reference internal" href="#pymax.static.enum.AttachType"><code class="docutils literal notranslate"><span class="pre">AttachType</span></code></a><ul>
 <li><a class="reference internal" href="#pymax.static.enum.AttachType.AUDIO"><code class="docutils literal notranslate"><span class="pre">AttachType.AUDIO</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.AttachType.CONTACT"><code class="docutils literal notranslate"><span class="pre">AttachType.CONTACT</span></code></a></li>
 <li><a class="reference internal" href="#pymax.static.enum.AttachType.CONTROL"><code class="docutils literal notranslate"><span class="pre">AttachType.CONTROL</span></code></a></li>
 <li><a class="reference internal" href="#pymax.static.enum.AttachType.FILE"><code class="docutils literal notranslate"><span class="pre">AttachType.FILE</span></code></a></li>
 <li><a class="reference internal" href="#pymax.static.enum.AttachType.PHOTO"><code class="docutils literal notranslate"><span class="pre">AttachType.PHOTO</span></code></a></li>
@@ -7870,7 +7911,7 @@ is raised.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=9c7f7db0"></script>
+</div><script src="_static/documentation_options.js?v=a352c988"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

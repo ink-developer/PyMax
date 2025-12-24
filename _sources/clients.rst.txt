@@ -84,6 +84,19 @@ MaxClient
         limit=50
     )
 
+    # Изменить профиль с загрузкой фото
+    result = await client.change_profile(
+        first_name="Иван",
+        last_name="Петров",
+        description="Привет!",
+        photo=Photo(...)  # Новая фотография профиля
+    )
+
+    # Разрешить группу по ссылке
+    group = await client.resolve_group_by_link(
+        link="https://max.app/g/ABC123"
+    )
+
 Свойства:
 
 .. code-block:: python
@@ -95,6 +108,7 @@ MaxClient
     client.channels             # Список каналов (list[Channel])
     client.phone                # Номер телефона (str)
     client.token                # Токен сессии (str | None)
+    client.contacts             # Список контактов (list[User])
 
 Обработчики событий:
 
