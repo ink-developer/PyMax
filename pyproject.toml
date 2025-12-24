@@ -1,6 +1,6 @@
 [project]
 name = "maxapi-python"
-version = "1.2.2"
+version = "1.2.3"
 description = "Python wrapper для API мессенджера Max"
 readme = "README.md"
 requires-python = ">=3.10"
