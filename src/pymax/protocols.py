@@ -53,6 +53,7 @@ class ClientProtocol(ABC):
         self._token: str | None
         self._work_dir: str
         self.reconnect: bool
+        self.headers: UserAgentPayload
         self._database_path: Path
         self._ws: websockets.ClientConnection | None = None
         self._seq: int = 0

@@ -17,6 +17,7 @@ from .crud import Database
 from .exceptions import (
     InvalidPhoneError,
     SocketNotConnectedError,
+    WebSocketNotConnectedError,
 )
 from .interfaces import BaseClient
 from .mixins import ApiMixin, SocketMixin, WebSocketMixin
@@ -34,7 +35,6 @@ if TYPE_CHECKING:
 
     from pymax.filters import BaseFilter
 
-    from .filters import Filters
     from .types import Channel, Chat, Dialog, Me, Message, ReactionInfo, User
 
 
@@ -132,6 +132,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._background_tasks: set[asyncio.Task[Any]] = set()
+        self._stop_event = asyncio.Event()
 
         self._seq: int = 0
         self._error_count: int = 0
@@ -185,6 +186,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
             await self.ws.wait_closed()
         except asyncio.CancelledError:
             self.logger.debug("wait_closed cancelled")
+        except WebSocketNotConnectedError:
+            self.logger.info("WebSocket not connected, exiting wait_forever")
 
     async def close(self) -> None:
         """
@@ -194,22 +197,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         """
         try:
             self.logger.info("Closing client")
-            if self._recv_task:
-                self._recv_task.cancel()
-                try:
-                    await self._recv_task
-                except asyncio.CancelledError:
-                    self.logger.debug("recv_task cancelled")
-            if self._outgoing_task:
-                self._outgoing_task.cancel()
-                try:
-                    await self._outgoing_task
-                except asyncio.CancelledError:
-                    self.logger.debug("outgoing_task cancelled")
-            if self._ws:
-                await self._ws.close()
-            self.is_connected = False
-            self.logger.info("Client closed")
+            self._stop_event.set()
         except Exception:
             self.logger.exception("Error closing client")
 
@@ -280,9 +268,9 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         :rtype: None
         """
 
-        while True:
+        self.logger.info("Client starting")
+        while not self._stop_event.is_set():
             try:
-                self.logger.info("Client starting")
                 await self.connect(self.user_agent)
 
                 if self.registration:
@@ -297,26 +285,36 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                     await self._login()
 
                 await self._sync(self.user_agent)
-
                 await self._post_login_tasks(sync=False)
 
-                await self._wait_forever()
-                self.logger.info("WebSocket closed (wait_forever exited)")
+                wait_task = asyncio.create_task(self._wait_forever())
+                stop_task = asyncio.create_task(self._stop_event.wait())
+
+                done, pending = await asyncio.wait(
+                    [wait_task, stop_task], return_when=asyncio.FIRST_COMPLETED
+                )
+
+                for task in pending:
+                    task.cancel()
+                    with contextlib.suppress(asyncio.CancelledError):
+                        await task
+
+            except asyncio.CancelledError:
+                self.logger.info("Client task cancelled, stopping")
+                break
             except Exception as e:
                 self.logger.exception("Client start iteration failed")
-                raise e
-
             finally:
-                self.logger.debug("Cleaning up background tasks and pending futures")
-
                 await self._cleanup_client()
 
-            if not self.reconnect:
-                self.logger.info("Reconnect disabled — exiting start()")
-                return
+            if not self.reconnect or self._stop_event.is_set():
+                self.logger.info("Reconnect disabled or stop requested — exiting start()")
+                break
 
             self.logger.info("Reconnect enabled — restarting client")
             await asyncio.sleep(self.reconnect_delay)
+
+        self.logger.info("Client exited cleanly")
 
 
 class SocketMaxClient(SocketMixin, MaxClient):
