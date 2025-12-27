@@ -3,7 +3,7 @@ import traceback
 from collections.abc import Awaitable, Callable
 from typing import Any
 
-from pymax.interfaces import ClientProtocol
+from pymax.protocols import ClientProtocol
 
 
 class SchedulerMixin(ClientProtocol):

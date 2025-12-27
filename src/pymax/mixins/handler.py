@@ -2,7 +2,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from pymax.filters import BaseFilter
-from pymax.interfaces import ClientProtocol
+from pymax.protocols import ClientProtocol
 from pymax.types import Chat, Message, ReactionInfo
 
 
@@ -62,9 +62,7 @@ class HandlerMixin(ClientProtocol):
             handler: Callable[[Any], Any | Awaitable[Any]],
         ) -> Callable[[Any], Any | Awaitable[Any]]:
             self._on_message_edit_handlers.append((handler, filter))
-            self.logger.debug(
-                f"on_message_edit handler set: {handler}, filter: {filter}"
-            )
+            self.logger.debug(f"on_message_edit handler set: {handler}, filter: {filter}")
             return handler
 
         return decorator
@@ -88,9 +86,7 @@ class HandlerMixin(ClientProtocol):
             handler: Callable[[Any], Any | Awaitable[Any]],
         ) -> Callable[[Any], Any | Awaitable[Any]]:
             self._on_message_delete_handlers.append((handler, filter))
-            self.logger.debug(
-                f"on_message_delete handler set: {handler}, filter: {filter}"
-            )
+            self.logger.debug(f"on_message_delete handler set: {handler}, filter: {filter}")
             return handler
 
         return decorator
@@ -179,9 +175,7 @@ class HandlerMixin(ClientProtocol):
         def decorator(
             handler: Callable[[], Any | Awaitable[Any]],
         ) -> Callable[[], Any | Awaitable[Any]]:
-            self._scheduled_tasks.append(
-                (handler, seconds + minutes * 60 + hours * 3600)
-            )
+            self._scheduled_tasks.append((handler, seconds + minutes * 60 + hours * 3600))
             self.logger.debug(
                 f"task scheduled: {handler}, interval: {seconds + minutes * 60 + hours * 3600}s"
             )

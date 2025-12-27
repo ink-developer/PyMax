@@ -1,8 +1,6 @@
 import time
 
 from pymax.exceptions import Error
-from pymax.interfaces import ClientProtocol
-from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import (
     ChangeGroupProfilePayload,
     ChangeGroupSettingsOptions,
@@ -18,8 +16,10 @@ from pymax.payloads import (
     RemoveUsersPayload,
     ReworkInviteLinkPayload,
 )
+from pymax.protocols import ClientProtocol
 from pymax.static.enum import Opcode
 from pymax.types import Chat, Message
+from pymax.utils import MixinsUtils
 
 
 class GroupMixin(ClientProtocol):

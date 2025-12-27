@@ -12,8 +12,9 @@ from typing_extensions import override
 
 from pymax.exceptions import Error, SocketNotConnectedError, SocketSendError
 from pymax.filters import BaseFilter
-from pymax.interfaces import ClientProtocol
+from pymax.interfaces import BaseTransport
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
+from pymax.protocols import ClientProtocol
 from pymax.static.constant import (
     DEFAULT_PING_INTERVAL,
     DEFAULT_TIMEOUT,
@@ -32,7 +33,7 @@ from pymax.types import (
 )
 
 
-class SocketMixin(ClientProtocol):
+class SocketMixin(BaseTransport):
     @property
     def sock(self) -> socket.socket:
         if self._socket is None or not self.is_connected:
@@ -129,25 +130,6 @@ Socket connections may be unstable, SSL issues are possible.
         self.logger.info("Socket connected, starting handshake")
         return await self._handshake(user_agent)
 
-    async def _handshake(self, user_agent: UserAgentPayload) -> dict[str, Any]:
-        try:
-            self.logger.debug(
-                "Sending handshake with user_agent keys=%s",
-                user_agent.model_dump().keys(),
-            )
-            resp = await self._send_and_wait(
-                opcode=Opcode.SESSION_INIT,
-                payload={
-                    "deviceId": str(self._device_id),
-                    "userAgent": user_agent,
-                },
-            )
-            self.logger.info("Handshake completed")
-            return resp
-        except Exception as e:
-            self.logger.error("Handshake failed: %s", e, exc_info=True)
-            raise ConnectionError(f"Handshake failed: {e}")
-
     def _recv_exactly(self, sock: socket.socket, n: int) -> bytes:
         buf = bytearray()
         while len(buf) < n:
@@ -214,116 +196,6 @@ Socket connections may be unstable, SSL issues are possible.
             else [data]
         )
 
-    def _handle_pending(self, seq: int | None, data: dict) -> bool:
-        if isinstance(seq, int):
-            fut = self._pending.get(seq)
-            if fut and not fut.done():
-                fut.set_result(data)
-                self.logger.debug("Matched response for pending seq=%s", seq)
-                return True
-        return False
-
-    async def _handle_incoming_queue(self, data: dict[str, Any]) -> None:
-        if self._incoming:
-            try:
-                self._incoming.put_nowait(data)
-            except asyncio.QueueFull:
-                self.logger.warning(
-                    "Incoming queue full; dropping message seq=%s", data.get("seq")
-                )
-
-    async def _handle_file_upload(self, data: dict[str, Any]) -> None:
-        if data.get("opcode") != Opcode.NOTIF_ATTACH:
-            return
-        payload = data.get("payload", {})
-        for key in ("fileId", "videoId"):
-            id_ = payload.get(key)
-            if id_ is not None:
-                fut = self._file_upload_waiters.pop(id_, None)
-                if fut and not fut.done():
-                    fut.set_result(data)
-                    self.logger.debug("Fulfilled file upload waiter for %s=%s", key, id_)
-
-    async def _handle_message_notifications(self, data: dict) -> None:
-        if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
-            return
-        payload = data.get("payload", {})
-        msg = Message.from_dict(payload)
-        if not msg:
-            return
-        handlers_map = {
-            MessageStatus.EDITED: self._on_message_edit_handlers,
-            MessageStatus.REMOVED: self._on_message_delete_handlers,
-        }
-        if msg.status and msg.status in handlers_map:
-            for handler, filter in handlers_map[msg.status]:
-                await self._process_message_handler(handler, filter, msg)
-        for handler, filter in self._on_message_handlers:
-            await self._process_message_handler(handler, filter, msg)
-
-    async def _handle_reactions(self, data: dict):
-        if data.get("opcode") != Opcode.NOTIF_MSG_REACTIONS_CHANGED:
-            return
-
-        payload = data.get("payload", {})
-        chat_id = payload.get("chatId")
-        message_id = payload.get("messageId")
-
-        if not (chat_id and message_id):
-            return
-
-        total_count = payload.get("totalCount")
-        your_reaction = payload.get("yourReaction")
-        counters = [ReactionCounter.from_dict(c) for c in payload.get("counters", [])]
-
-        reaction_info = ReactionInfo(
-            total_count=total_count,
-            your_reaction=your_reaction,
-            counters=counters,
-        )
-
-        for handler in self._on_reaction_change_handlers:
-            try:
-                result = handler(message_id, chat_id, reaction_info)
-                if asyncio.iscoroutine(result):
-                    await result
-            except Exception as e:
-                self.logger.exception("Error in on_reaction_change_handler: %s", e)
-
-    async def _handle_chat_updates(self, data: dict) -> None:
-        if data.get("opcode") != Opcode.NOTIF_CHAT:
-            return
-
-        payload = data.get("payload", {})
-        chat_data = payload.get("chat", {})
-        chat = Chat.from_dict(chat_data)
-        if not chat:
-            return
-
-        for handler in self._on_chat_update_handlers:
-            try:
-                result = handler(chat)
-                if asyncio.iscoroutine(result):
-                    await result
-            except Exception as e:
-                self.logger.exception("Error in on_chat_update_handler: %s", e)
-
-    async def _handle_raw_receive(self, data: dict[str, Any]) -> None:
-        for handler in self._on_raw_receive_handlers:
-            try:
-                result = handler(data)
-                if asyncio.iscoroutine(result):
-                    await result
-            except Exception as e:
-                self.logger.exception("Error in on_raw_receive_handler: %s", e)
-
-    async def _dispatch_incoming(self, data: dict[str, Any]) -> None:
-        await self._handle_raw_receive(data)
-        await self._handle_file_upload(data)
-        await self._handle_message_notifications(data)
-        await self._handle_reactions(data)
-        await self._handle_chat_updates(data)
-
     async def _recv_loop(self) -> None:
         if self._socket is None:
             self.logger.warning("Recv loop started without socket instance")
@@ -361,57 +233,6 @@ Socket connections may be unstable, SSL issues are possible.
             except Exception:
                 self.logger.exception("Error in recv_loop; backing off briefly")
                 await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
-
-    def _log_task_exception(self, fut: asyncio.Future[Any]) -> None:
-        try:
-            fut.result()
-        except asyncio.CancelledError:
-            pass
-        except Exception as e:
-            self.logger.exception("Error getting task exception: %s", e)
-            pass
-
-    async def _process_message_handler(
-        self,
-        handler: Callable[[Message], Any],
-        filter: BaseFilter[Message] | None,
-        message: Message,
-    ) -> None:
-        if filter is not None and not filter(message):
-            return
-
-        result = handler(message)
-        if asyncio.iscoroutine(result):
-            task = asyncio.create_task(result)
-            task.add_done_callback(self._log_task_exception)
-            self._background_tasks.add(task)
-
-    async def _send_interactive_ping(self) -> None:
-        while self.is_connected:
-            try:
-                await self._send_and_wait(
-                    opcode=Opcode.PING,
-                    payload={"interactive": True},
-                    cmd=0,
-                )
-                self.logger.debug("Interactive ping sent successfully (socket)")
-            except Exception:
-                self.logger.warning("Interactive ping failed (socket)", exc_info=True)
-            await asyncio.sleep(DEFAULT_PING_INTERVAL)
-
-    def _make_message(
-        self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0
-    ) -> dict[str, Any]:
-        self._seq += 1
-        msg = BaseWebSocketMessage(
-            ver=10,
-            cmd=cmd,
-            seq=self._seq,
-            opcode=opcode.value,
-            payload=payload,
-        ).model_dump(by_alias=True)
-        self.logger.debug("make_message opcode=%s cmd=%s seq=%s", opcode, cmd, self._seq)
-        return msg
 
     @override
     async def _send_and_wait(
@@ -467,160 +288,6 @@ Socket connections may be unstable, SSL issues are possible.
 
         finally:
             self._pending.pop(msg["seq"], None)
-
-    async def _outgoing_loop(self) -> None:
-        while self.is_connected:
-            try:
-                if self._outgoing is None:
-                    await asyncio.sleep(0.1)
-                    continue
-
-                if self._circuit_breaker:
-                    if time.time() - self._last_error_time > 60:
-                        self._circuit_breaker = False
-                        self._error_count = 0
-                        self.logger.info("Circuit breaker reset (socket)")
-                    else:
-                        await asyncio.sleep(5)
-                        continue
-
-                message = await self._outgoing.get()  # TODO: persistent msg q mb?
-
-                if not message:
-                    continue
-
-                retry_count = message.get("retry_count", 0)
-                max_retries = message.get("max_retries", 3)
-
-                try:
-                    await self._send_and_wait(
-                        opcode=message["opcode"],
-                        payload=message["payload"],
-                        cmd=message.get("cmd", 0),
-                        timeout=message.get("timeout", 10.0),
-                    )
-                    self.logger.debug("Message sent successfully from queue (socket)")
-                    self._error_count = max(0, self._error_count - 1)
-                except Exception as e:
-                    self._error_count += 1
-                    self._last_error_time = time.time()
-
-                    if self._error_count > 10:  # TODO: export to constant
-                        self._circuit_breaker = True
-                        self.logger.warning(
-                            "Circuit breaker activated due to %d consecutive errors (socket)",
-                            self._error_count,
-                        )
-                        await self._outgoing.put(message)
-                        continue
-
-                    retry_delay = self._get_retry_delay(e, retry_count)
-                    self.logger.warning(
-                        "Failed to send message from queue (socket): %s (delay: %ds)",
-                        e,
-                        retry_delay,
-                    )
-
-                    if retry_count < max_retries:
-                        message["retry_count"] = retry_count + 1
-                        await asyncio.sleep(retry_delay)
-                        await self._outgoing.put(message)
-                    else:
-                        self.logger.error(
-                            "Message failed after %d retries, dropping (socket)",
-                            max_retries,
-                        )
-
-            except Exception:
-                self.logger.exception("Error in outgoing loop (socket)")
-                await asyncio.sleep(1)
-
-    def _get_retry_delay(
-        self, error: Exception, retry_count: int
-    ) -> float:  # TODO: tune delays later
-        if isinstance(error, (ConnectionError, OSError, ssl.SSLError)):
-            return 1.0
-        elif isinstance(error, TimeoutError):
-            return 5.0
-        elif isinstance(error, SocketNotConnectedError):
-            return 2.0
-        else:
-            return 2**retry_count
-
-    async def _queue_message(
-        self,
-        opcode: int,
-        payload: dict[str, Any],
-        cmd: int = 0,
-        timeout: float = 10.0,
-        max_retries: int = 3,
-    ) -> None:
-        if self._outgoing is None:
-            self.logger.warning("Outgoing queue not initialized (socket)")
-            return
-
-        message = {
-            "opcode": opcode,
-            "payload": payload,
-            "cmd": cmd,
-            "timeout": timeout,
-            "retry_count": 0,
-            "max_retries": max_retries,
-        }
-
-        await self._outgoing.put(message)
-        self.logger.debug("Message queued for sending (socket)")
-
-    async def _sync(self) -> None:
-        self.logger.info("Starting initial sync (socket)")
-        payload = SyncPayload(
-            interactive=True,
-            token=self._token,
-            chats_sync=0,
-            contacts_sync=0,
-            presence_sync=0,
-            drafts_sync=0,
-            chats_count=40,
-        ).model_dump(by_alias=True)
-        data = await self._send_and_wait(opcode=Opcode.LOGIN, payload=payload)
-        raw_payload = data.get("payload", {})
-        if error := raw_payload.get("error"):
-            localized_message = raw_payload.get("localizedMessage")
-            title = raw_payload.get("title")
-            message = raw_payload.get("message")
-            raise Error(
-                error=error,
-                message=message,
-                title=title,
-                localized_message=localized_message,
-            )
-        for raw_chat in raw_payload.get("chats", []):
-            try:
-                if raw_chat.get("type") == "DIALOG":
-                    self.dialogs.append(Dialog.from_dict(raw_chat))
-                elif raw_chat.get("type") == "CHAT":
-                    self.chats.append(Chat.from_dict(raw_chat))
-                elif raw_chat.get("type") == "CHANNEL":
-                    self.channels.append(Channel.from_dict(raw_chat))
-            except Exception:
-                self.logger.exception("Error parsing chat entry (socket)")
-
-        for raw_user in raw_payload.get("contacts", []):
-            try:
-                user = User.from_dict(raw_user)
-                if user:
-                    self.contacts.append(user)
-            except Exception:
-                self.logger.exception("Error parsing contact entry (socket)")
-
-        if raw_payload.get("profile", {}).get("contact"):
-            self.me = Me.from_dict(raw_payload.get("profile", {}).get("contact", {}))
-        self.logger.info(
-            "Sync completed: dialogs=%d chats=%d channels=%d",
-            len(self.dialogs),
-            len(self.chats),
-            len(self.channels),
-        )
 
     @override
     async def _get_chat(self, chat_id: int) -> Chat | None:

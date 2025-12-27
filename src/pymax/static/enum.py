@@ -216,3 +216,8 @@ class MarkupType(str, Enum):
 class ContactAction(str, Enum):
     ADD = "ADD"
     REMOVE = "REMOVE"
+
+
+class ReadAction(str, Enum):
+    READ_MESSAGE = "READ_MESSAGE"
+    READ_REACTION = "READ_REACTION"

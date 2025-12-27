@@ -9,7 +9,10 @@ from typing_extensions import override
 
 
 class BaseFile(ABC):
-    def __init__(self, url: str | None = None, path: str | None = None) -> None:
+    def __init__(
+        self, raw: bytes | None = None, *, url: str | None = None, path: str | None = None
+    ) -> None:
+        self.raw = raw
         self.url = url
         self.path = path
 
@@ -21,6 +24,9 @@ class BaseFile(ABC):
 
     @abstractmethod
     async def read(self) -> bytes:
+        if self.raw is not None:
+            return self.raw
+
         if self.url:
             async with (
                 ClientSession() as session,
@@ -45,13 +51,15 @@ class Photo(BaseFile):
         ".bmp",
     }  # FIXME: костыль ✅
 
-    def __init__(self, url: str | None = None, path: str | None = None) -> None:
+    def __init__(
+        self, raw: bytes | None = None, *, url: str | None = None, path: str | None = None
+    ) -> None:
         if path:
             self.file_name = Path(path).name
         elif url:
             self.file_name = Path(url).name
 
-        super().__init__(url, path)
+        super().__init__(raw=raw, url=url, path=path)
 
     def validate_photo(self) -> tuple[str, str] | None:
         if self.path:
@@ -83,7 +91,9 @@ class Photo(BaseFile):
 
 
 class Video(BaseFile):
-    def __init__(self, url: str | None = None, path: str | None = None) -> None:
+    def __init__(
+        self, raw: bytes | None = None, *, url: str | None = None, path: str | None = None
+    ) -> None:
         self.file_name: str = ""
         if path:
             self.file_name = Path(path).name
@@ -92,7 +102,7 @@ class Video(BaseFile):
 
         if not self.file_name:
             raise ValueError("Either url or path must be provided.")
-        super().__init__(url, path)
+        super().__init__(raw=raw, url=url, path=path)
 
     @override
     async def read(self) -> bytes:
@@ -100,7 +110,9 @@ class Video(BaseFile):
 
 
 class File(BaseFile):
-    def __init__(self, url: str | None = None, path: str | None = None) -> None:
+    def __init__(
+        self, raw: bytes | None = None, *, url: str | None = None, path: str | None = None
+    ) -> None:
         self.file_name: str = ""
         if path:
             self.file_name = Path(path).name
@@ -110,7 +122,7 @@ class File(BaseFile):
         if not self.file_name:
             raise ValueError("Either url or path must be provided.")
 
-        super().__init__(url, path)
+        super().__init__(raw=raw, url=url, path=path)
 
     @override
     async def read(self) -> bytes:
