@@ -19,6 +19,7 @@ dependencies = [
   "aiohttp>=3.12.15",
   "aiofiles>=24.1.0",
   "qrcode>=8.2",
+  "ua-generator>=2.0.19",
 ]
 
 [project.urls]
