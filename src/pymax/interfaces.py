@@ -282,6 +282,16 @@ class BaseTransport(ClientProtocol):
                     fut.set_result(data)
                     self.logger.debug("Fulfilled file upload waiter for %s=%s", key, id_)
 
+    async def _send_notification_response(self, chat_id: int, message_id: str) -> None:
+        await self._send_and_wait(
+            opcode=Opcode.NOTIF_MESSAGE,
+            payload={"chatId": chat_id, "messageId": message_id},
+            cmd=0,
+        )
+        self.logger.debug(
+            "Sent NOTIF_MESSAGE_RECEIVED for chat_id=%s message_id=%s", chat_id, message_id
+        )
+
     async def _handle_message_notifications(self, data: dict) -> None:
         if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
             return
@@ -289,6 +299,10 @@ class BaseTransport(ClientProtocol):
         msg = Message.from_dict(payload)
         if not msg:
             return
+
+        if msg.chat_id and msg.id:
+            await self._send_notification_response(msg.chat_id, str(msg.id))
+
         handlers_map = {
             MessageStatus.EDITED: self._on_message_edit_handlers,
             MessageStatus.REMOVED: self._on_message_delete_handlers,
