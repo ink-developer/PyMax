@@ -5,6 +5,8 @@ from typing import Final
 import ua_generator
 from websockets.typing import Origin
 
+from pymax.utils import MixinsUtils
+
 DEVICE_NAMES: Final[list[str]] = [
     "Chrome",
     "Firefox",
