@@ -46,6 +46,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
     :type phone: str
     :param uri: URI WebSocket сервера.
     :type uri: str, optional
+    :param session_name: Название сессии для хранения базы данных.
+    :type session_name: str, optional
     :param work_dir: Рабочая директория для хранения базы данных.
     :type work_dir: str, optional
     :param logger: Пользовательский логгер. Если не передан, используется логгер модуля с именем f"{__name__}.MaxClient".
