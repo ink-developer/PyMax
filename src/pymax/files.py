@@ -52,12 +52,21 @@ class Photo(BaseFile):
     }  # FIXME: костыль ✅
 
     def __init__(
-        self, raw: bytes | None = None, *, url: str | None = None, path: str | None = None
+        self,
+        raw: bytes | None = None,
+        *,
+        url: str | None = None,
+        path: str | None = None,
+        name: str | None = None,
     ) -> None:
         if path:
             self.file_name = Path(path).name
         elif url:
             self.file_name = Path(url).name
+        elif name:
+            self.file_name = name
+        else:
+            self.file_name = ""
 
         super().__init__(raw=raw, url=url, path=path)
 

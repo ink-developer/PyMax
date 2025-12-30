@@ -543,7 +543,7 @@ class BaseTransport(ClientProtocol):
             if self._ws:
                 await self._ws.close()
             self._ws = None
-            raise e
+            raise
 
     async def _get_chat(self, chat_id: int) -> Chat | None:
         for chat in self.chats:
