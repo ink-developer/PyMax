@@ -49,7 +49,7 @@ UV — это быстрый пакетный менеджер, написанн
 
 .. code-block:: bash
 
-    git clone https://github.com/ink-developer/PyMax.git
+    git clone https://github.com/MaxApiTeam/PyMax.git
     cd PyMax
     pip install -e .
 
@@ -57,7 +57,7 @@ UV — это быстрый пакетный менеджер, написанн
 
 .. code-block:: bash
 
-    git clone https://github.com/ink-developer/PyMax.git
+    git clone https://github.com/MaxApiTeam/PyMax.git
     cd PyMax
     uv sync
 

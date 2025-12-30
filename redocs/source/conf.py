@@ -6,7 +6,7 @@ import sys
 project = "PyMax"
 author = "ink-developer"
 copyright = "2025, ink-developer"
-release = "1.2.3"
+release = "1.2.4"
 
 # -- Path setup ---------------------------------------------------------------
 sys.path.insert(0, os.path.abspath("../../src"))

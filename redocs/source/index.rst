@@ -103,7 +103,7 @@ Disclaimer
 Star History
 ------------
 
-.. image:: https://api.star-history.com/svg?repos=ink-developer/PyMax&type=date&legend=top-left
+.. image:: https://api.star-history.com/svg?repos=MaxApiTeam/PyMax&type=date&legend=top-left
 
 Авторы
 ------
@@ -114,5 +114,5 @@ Star History
 Контрибьюторы
 -------------
 
-.. image:: https://contrib.rocks/image?repo=ink-developer/PyMax
+.. image:: https://contrib.rocks/image?repo=MaxApiTeam/PyMax
    :alt: Contributors
