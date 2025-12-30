@@ -66,12 +66,12 @@ uv add -U maxapi-python
 **Вход по номеру телефона (DESKTOP):**
 
 ```python
-from pymax import MaxClient
+from pymax import SocketMaxClient
 from pymax.payloads import UserAgentPayload
 
 ua = UserAgentPayload(device_type="DESKTOP", app_version="25.12.13")
 
-client = MaxClient(
+client = SocketMaxClient(
     phone="+79111111111",
     work_dir="cache",
     headers=ua,
