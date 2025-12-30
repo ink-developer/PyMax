@@ -2,10 +2,12 @@
 <html class="no-js" lang="python" data-content_root="./">
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html">
 
-    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 --><title>Python Module Index - PyMax 1.2.4 documentation</title>
-<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>Archive - PyMax 1.2.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -217,7 +219,13 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/release_notes_archive.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
@@ -230,38 +238,64 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          
-<section class="domainindex-section">
-  <h1>Python Module Index</h1>
-  <div class="domainindex-jumpbox"><a href="#cap-p"><strong>p</strong></a></div>
+          <section id="archive">
+<h1>Archive<a class="headerlink" href="#archive" title="Link to this heading">¶</a></h1>
+<p>Архив предыдущих версий.</p>
 </section>
-<table class="domainindex-table">
-  <tr class="pcap">
-    <td></td><td>&#160;</td><td></td>
-  </tr>
-  <tr class="cap" id="cap-p">
-    <td></td><td><strong>p</strong></td><td></td>
-  </tr>
-  <tr>
-    <td><img src="_static/minus.png" class="toggler"
-              id="toggle-1" style="display: none" alt="-" /></td>
-    <td>
-        <code class="xref">pymax</code></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="types.html#module-pymax.static.enum"><code class="xref">pymax.static.enum</code></a></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="types.html#module-pymax.types"><code class="xref">pymax.types</code></a></td><td>
-    <em></em></td>
-  </tr>
-</table>
+<section id="v1-2-3-24-2025">
+<h1>v1.2.3 (24 декабря 2025)<a class="headerlink" href="#v1-2-3-24-2025" title="Link to this heading">¶</a></h1>
+<section id="id1">
+<h2>Новые функции<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt><strong>Загрузка фотографий профиля</strong></dt><dd><p>Профиль теперь может быть обновлен с загрузкой новой фотографии через метод <code class="docutils literal notranslate"><span class="pre">change_profile()</span></code>.</p>
+</dd>
+<dt><strong>Разрешение групп по ссылке</strong></dt><dd><p>Группы теперь могут быть разрешены (получены) прямо по их ссылке через метод <code class="docutils literal notranslate"><span class="pre">resolve_group_by_link()</span></code>.</p>
+</dd>
+<dt><strong>Поддержка контактов в сообщениях</strong></dt><dd><p>Сообщения теперь поддерживают вложения типа контакта с информацией о контакте (ContactAttach).</p>
+</dd>
+<dt><strong>Список контактов клиента</strong></dt><dd><p>Клиент теперь ведет список всех контактов пользователя через свойство <code class="docutils literal notranslate"><span class="pre">client.contacts</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h2>Новые методы<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>MaxClient.resolve_group_by_link(link: str) -&gt; Chat | None</dt><dd><p>Разрешает группу по ссылке. Возвращает объект чата группы или None, если не найдено.</p>
+</dd>
+<dt>MaxClient.change_profile(first_name, last_name, description, photo)</dt><dd><p>Изменяет информацию профиля текущего пользователя, включая загрузку новой фотографии.</p>
+</dd>
+</dl>
+</section>
+<section id="id3">
+<h2>Новые типы<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>ContactAttach</dt><dd><p>Представляет контакт в сообщении. Содержит информацию о контакте (ID, имя, фамилия, фото).</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h2>Измененные типы<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>Message</dt><dd><p>Теперь поддерживает вложения типа ContactAttach в список attaches.</p>
+</dd>
+<dt>Names</dt><dd><p>Улучшен для работы с различными форматами имен пользователя.</p>
+</dd>
+<dt>StickerAttach</dt><dd><p>Улучшено представление стикеров в сообщениях.</p>
+</dd>
+<dt>Photo</dt><dd><p>Улучшено для работы с фотографиями профиля.</p>
+</dd>
+<dt>AttachType</dt><dd><p>Добавлено значение CONTACT для контактов.</p>
+</dd>
+</dl>
+</section>
+<section id="id5">
+<h2>Новые параметры<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>MaxClient.contacts: list[User]</dt><dd><p>Список контактов текущего пользователя.</p>
+</dd>
+</dl>
+</section>
+</section>
 
         </article>
       </div>

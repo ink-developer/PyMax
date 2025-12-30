@@ -200,7 +200,6 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Release Notes v1.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
 </ul>
 
 </div>
@@ -323,59 +322,9 @@
 <p><strong>1.2.4</strong> - выпущена 30 декабря 2025 г.</p>
 <p>---</p>
 </section>
-</section>
-<section id="release-notes-v1-2-3">
-<h1>Release Notes v1.2.3<a class="headerlink" href="#release-notes-v1-2-3" title="Link to this heading">¶</a></h1>
 <section id="id9">
-<h2>Новые функции<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt><strong>Загрузка фотографий профиля</strong></dt><dd><p>Профиль теперь может быть обновлен с загрузкой новой фотографии через метод <code class="docutils literal notranslate"><span class="pre">change_profile()</span></code>.</p>
-</dd>
-<dt><strong>Разрешение групп по ссылке</strong></dt><dd><p>Группы теперь могут быть разрешены (получены) прямо по их ссылке через метод <code class="docutils literal notranslate"><span class="pre">resolve_group_by_link()</span></code>.</p>
-</dd>
-<dt><strong>Поддержка контактов в сообщениях</strong></dt><dd><p>Сообщения теперь поддерживают вложения типа контакта с информацией о контакте (ContactAttach).</p>
-</dd>
-<dt><strong>Список контактов клиента</strong></dt><dd><p>Клиент теперь ведет список всех контактов пользователя через свойство <code class="docutils literal notranslate"><span class="pre">client.contacts</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id10">
-<h2>Новые методы<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>MaxClient.resolve_group_by_link(link: str) -&gt; Chat | None</dt><dd><p>Разрешает группу по ссылке. Возвращает объект чата группы или None, если не найдено.</p>
-</dd>
-<dt>MaxClient.change_profile(first_name, last_name, description, photo)</dt><dd><p>Изменяет информацию профиля текущего пользователя, включая загрузку новой фотографии.</p>
-</dd>
-</dl>
-</section>
-<section id="id11">
-<h2>Новые типы<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>ContactAttach</dt><dd><p>Представляет контакт в сообщении. Содержит информацию о контакте (ID, имя, фамилия, фото).</p>
-</dd>
-</dl>
-</section>
-<section id="id12">
-<h2>Измененные типы<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>Message</dt><dd><p>Теперь поддерживает вложения типа ContactAttach в список attaches.</p>
-</dd>
-<dt>Names</dt><dd><p>Улучшен для работы с различными форматами имен пользователя.</p>
-</dd>
-<dt>StickerAttach</dt><dd><p>Улучшено представление стикеров в сообщениях.</p>
-</dd>
-<dt>Photo</dt><dd><p>Улучшено для работы с фотографиями профиля.</p>
-</dd>
-<dt>AttachType</dt><dd><p>Добавлено значение CONTACT для контактов.</p>
-</dd>
-</dl>
-</section>
-<section id="id13">
-<h2>Новые параметры<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>MaxClient.contacts: list[User]</dt><dd><p>Список контактов текущего пользователя.</p>
-</dd>
-</dl>
+<h2>Архив<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<p>Предыдущие версии доступны в <a class="reference internal" href="release_notes_archive.html"><span class="doc">Archive</span></a>.</p>
 </section>
 </section>
 
@@ -435,14 +384,7 @@
 <li><a class="reference internal" href="#id6">Исправления и улучшения</a></li>
 <li><a class="reference internal" href="#id7">Зависимости</a></li>
 <li><a class="reference internal" href="#id8">Версия</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#release-notes-v1-2-3">Release Notes v1.2.3</a><ul>
-<li><a class="reference internal" href="#id9">Новые функции</a></li>
-<li><a class="reference internal" href="#id10">Новые методы</a></li>
-<li><a class="reference internal" href="#id11">Новые типы</a></li>
-<li><a class="reference internal" href="#id12">Измененные типы</a></li>
-<li><a class="reference internal" href="#id13">Новые параметры</a></li>
+<li><a class="reference internal" href="#id9">Архив</a></li>
 </ul>
 </li>
 </ul>
