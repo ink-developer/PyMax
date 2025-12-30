@@ -6,9 +6,6 @@
     <strong>Python wrapper для API мессенджера Max</strong>
 </p>
 
-> [!IMPORTANT]
-> (29.12.2025) Снова неожиданное изменение апи, теперь `MaxClient` с `device_type` любым кроме `WEB` не работает, для вохда по номеру телефона используйте `SocketMaxClient`
-
 
 <p align="center">
     <img src="https://img.shields.io/badge/python-3.10+-3776AB.svg" alt="Python 3.11+">
