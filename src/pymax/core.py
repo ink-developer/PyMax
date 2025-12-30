@@ -22,11 +22,7 @@ from .exceptions import (
 from .interfaces import BaseClient
 from .mixins import ApiMixin, SocketMixin, WebSocketMixin
 from .payloads import UserAgentPayload
-from .static.constant import (
-    HOST,
-    PORT,
-    WEBSOCKET_URI,
-)
+from .static.constant import HOST, PORT, SESSION_STORAGE_DB, WEBSOCKET_URI
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -42,6 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
+    allowed_device_types: set[str] = {"WEB"}
     """
     Основной клиент для работы с WebSocket API сервиса Max.
 
@@ -81,7 +78,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self,
         phone: str,
         uri: str = WEBSOCKET_URI,
-        headers: UserAgentPayload = UserAgentPayload(),
+        session_name: str = SESSION_STORAGE_DB,
+        headers: UserAgentPayload | None = None,
         token: str | None = None,
         send_fake_telemetry: bool = True,
         host: str = HOST,
@@ -120,7 +118,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._users: dict[int, User] = {}
 
         self._work_dir: str = work_dir
-        self._database_path: Path = Path(work_dir) / "session.db"
+        self._database_path: Path = Path(work_dir) / session_name
         self._database_path.parent.mkdir(parents=True, exist_ok=True)
         self._database_path.touch(exist_ok=True)
         self._database = Database(self._work_dir)
@@ -143,7 +141,10 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
 
         self._token = self._database.get_auth_token() or token
+        if headers is None:
+            headers = self._default_headers()
         self.user_agent = headers
+        self._validate_device_type()
         self._send_fake_telemetry: bool = send_fake_telemetry
         self._session_id: int = int(time.time() * 1000)
         self._action_id: int = 1
@@ -180,6 +181,17 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
             self.uri,
             self._work_dir,
         )
+
+    @staticmethod
+    def _default_headers() -> UserAgentPayload:
+        return UserAgentPayload(device_type="WEB")
+
+    def _validate_device_type(self) -> None:
+        if self.user_agent.device_type not in self.allowed_device_types:
+            raise ValueError(
+                f"{self.__class__.__name__} does not support "
+                f"device_type={self.user_agent.device_type}"
+            )
 
     async def _wait_forever(self) -> None:
         try:
@@ -267,7 +279,6 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         :return: None
         :rtype: None
         """
-
         self.logger.info("Client starting")
         while not self._stop_event.is_set():
             try:
@@ -318,6 +329,12 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
 
 
 class SocketMaxClient(SocketMixin, MaxClient):
+    allowed_device_types = {"ANDROID", "IOS", "DESKTOP"}
+
+    @staticmethod
+    def _default_headers() -> UserAgentPayload:
+        return UserAgentPayload(device_type="DESKTOP")
+
     @override
     async def _wait_forever(self):
         if self._recv_task:

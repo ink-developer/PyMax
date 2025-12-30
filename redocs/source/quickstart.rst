@@ -68,10 +68,6 @@ Quick Start
             text="И тебе привет!"
         )
 
-    # Только личные сообщения
-    @client.on_message(Filters.dialog())
-    async def private_handler(message: Message) -> None:
-        print(f"Личное сообщение: {message.text}")
 
 Обработчики событий
 --------------------

@@ -67,6 +67,7 @@ TIMEZONES: Final[list[str]] = [
 
 PHONE_REGEX: Final[Pattern[str]] = compile(r"^\+?\d{10,15}$")
 WEBSOCKET_URI: Final[str] = "wss://ws-api.oneme.ru/websocket"
+SESSION_STORAGE_DB = "session.db"
 WEBSOCKET_ORIGIN: Final[Origin] = Origin("https://web.max.ru")
 HOST: Final[str] = "api.oneme.ru"
 PORT: Final[int] = 443
