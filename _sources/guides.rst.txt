@@ -93,11 +93,6 @@ Guides
     async def greeting(message: Message) -> None:
         pass
 
-    # Только личные
-    @client.on_message(Filters.dialog())
-    async def private(message: Message) -> None:
-        pass
-
     # Только группы
     @client.on_message(Filters.chat())
     async def in_group(message: Message) -> None:

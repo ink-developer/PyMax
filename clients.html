@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Types" href="types.html"><link rel="prev" title="Quick Start" href="quickstart.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>Clients - PyMax 1.2.3 documentation</title>
+        <title>Clients - PyMax 1.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">PyMax 1.2.3 documentation</div></a>
+      <a href="index.html"><div class="brand">PyMax 1.2.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">PyMax 1.2.3 documentation</span>
+  <span class="sidebar-brand-text">PyMax 1.2.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -199,7 +199,8 @@
 <li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
 </ul>
 
 </div>
@@ -240,9 +241,59 @@
         <article role="main" id="furo-main-content">
           <section id="clients">
 <h1>Clients<a class="headerlink" href="#clients" title="Link to this heading">¶</a></h1>
+<section id="maxclient-socketmaxclient">
+<h2>Выбор между MaxClient и SocketMaxClient<a class="headerlink" href="#maxclient-socketmaxclient" title="Link to this heading">¶</a></h2>
+<p>PyMax предоставляет два клиента с разной функциональностью в зависимости от выбранного протокола подключения:</p>
+<div class="table-wrapper colwidths-given docutils container" id="id1">
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Сравнение клиентов</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 35.0%" />
+<col style="width: 35.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Функция</p></th>
+<th class="head"><p>MaxClient (WebSocket)</p></th>
+<th class="head"><p>SocketMaxClient (Socket)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Протокол подключения</p></td>
+<td><p>WebSocket</p></td>
+<td><p>TCP Socket</p></td>
+</tr>
+<tr class="row-odd"><td><p>Способ авторизации</p></td>
+<td><p>Вход по QR-коду</p></td>
+<td><p>Вход/регистрация по номеру телефона</p></td>
+</tr>
+<tr class="row-even"><td><p>Регистрация новых пользователей</p></td>
+<td><p>❌ Не поддерживается</p></td>
+<td><p>✅ Поддерживается</p></td>
+</tr>
+<tr class="row-odd"><td><p>Скорость подключения</p></td>
+<td><p>Быстрое</p></td>
+<td><p>Медленнее</p></td>
+</tr>
+<tr class="row-even"><td><p>Рекомендуемое использование</p></td>
+<td><p>Базовые боты и приложения</p></td>
+<td><p>Массовая регистрация, системная авторизация</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="maxclient">
 <h2>MaxClient<a class="headerlink" href="#maxclient" title="Link to this heading">¶</a></h2>
 <p>Основной асинхронный WebSocket клиент для взаимодействия с Max API.</p>
+<dl class="simple">
+<dt><strong>Поддерживаемые методы авторизации:</strong></dt><dd><ul class="simple">
+<li><p>✅ Вход по QR-коду (WEB device_type)</p></li>
+<li><p>❌ Вход по номеру телефона (больше не поддерживается)</p></li>
+<li><p>❌ Регистрация по номеру телефона</p></li>
+</ul>
+</dd>
+</dl>
 <p>Инициализация:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
 
@@ -255,23 +306,10 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Параметр <code class="docutils literal notranslate"><span class="pre">device_type</span></code> в <code class="docutils literal notranslate"><span class="pre">UserAgentPayload</span></code> <strong>критически важен</strong> для выбора способа авторизации:</p>
-<p><strong>DESKTOP</strong> — вход по номеру телефона:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymax.payloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserAgentPayload</span>
-
-<span class="n">ua</span> <span class="o">=</span> <span class="n">UserAgentPayload</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;DESKTOP&quot;</span><span class="p">,</span> <span class="n">app_version</span><span class="o">=</span><span class="s2">&quot;25.12.13&quot;</span><span class="p">)</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79111111111&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">ua</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><strong>WEB</strong> — вход через QR-код; токен совместим с веб-версией Max:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymax.payloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserAgentPayload</span>
-
-<span class="n">ua</span> <span class="o">=</span> <span class="n">UserAgentPayload</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;WEB&quot;</span><span class="p">,</span> <span class="n">app_version</span><span class="o">=</span><span class="s2">&quot;25.12.13&quot;</span><span class="p">)</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79111111111&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">ua</span><span class="p">)</span>
-</pre></div>
-</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>MaxClient по умолчанию использует <strong>WEB</strong> device_type и поддерживает только вход по QR-коду.
+Это является рекомендуемым способом авторизации для большинства приложений.</p>
 </div>
 <p>Основные методы:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Запустить клиент</span>
@@ -369,32 +407,29 @@
 <h2>Документация API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymax.MaxClient">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymax.</span></span><span class="sig-name descname"><span class="pre">MaxClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wss://ws-api.oneme.ru/websocket'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">UserAgentPayload(device_type='DESKTOP',</span> <span class="pre">locale='ru',</span> <span class="pre">device_locale='ru',</span> <span class="pre">os_version='Linux',</span> <span class="pre">device_name='Chrome',</span> <span class="pre">header_user_agent='Mozilla/5.0</span> <span class="pre">(X11;</span> <span class="pre">Linux</span> <span class="pre">x86_64)</span> <span class="pre">AppleWebKit/537.36</span> <span class="pre">(KHTML,</span> <span class="pre">like</span> <span class="pre">Gecko)</span> <span class="pre">Chrome/141.0.0.0</span> <span class="pre">Safari/537.36',</span> <span class="pre">app_version='25.12.13',</span> <span class="pre">screen='1080x1920</span> <span class="pre">1.0x',</span> <span class="pre">timezone='Europe/Moscow',</span> <span class="pre">client_session_id=14,</span> <span class="pre">build_number=38859)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_fake_telemetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'api.oneme.ru'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">443</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconnect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconnect_delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/core.html#MaxClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.MaxClient" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymax.</span></span><span class="sig-name descname"><span class="pre">MaxClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wss://ws-api.oneme.ru/websocket'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'session.db'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_fake_telemetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'api.oneme.ru'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">443</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconnect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconnect_delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/core.html#MaxClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.MaxClient" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ApiMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">WebSocketMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseClient</span></code></p>
-<p>Основной клиент для работы с WebSocket API сервиса Max.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>phone</strong> (<em>str</em>) -- Номер телефона для авторизации.</p></li>
-<li><p><strong>uri</strong> (<em>str</em><em>, </em><em>optional</em>) -- URI WebSocket сервера.</p></li>
-<li><p><strong>work_dir</strong> (<em>str</em><em>, </em><em>optional</em>) -- Рабочая директория для хранения базы данных.</p></li>
-<li><p><strong>logger</strong> (<em>logging.Logger</em><em> | </em><em>None</em>) -- Пользовательский логгер. Если не передан, используется логгер модуля с именем f&quot;{__name__}.MaxClient&quot;.</p></li>
-<li><p><strong>headers</strong> (<em>UserAgentPayload</em>) -- Заголовки для подключения к WebSocket.</p></li>
-<li><p><strong>token</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Токен авторизации. Если не передан, будет выполнен процесс логина по номеру телефона.</p></li>
-<li><p><strong>host</strong> (<em>str</em><em>, </em><em>optional</em>) -- Хост API сервера.</p></li>
-<li><p><strong>port</strong> (<em>int</em><em>, </em><em>optional</em>) -- Порт API сервера.</p></li>
-<li><p><strong>registration</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг регистрации нового пользователя.</p></li>
-<li><p><strong>first_name</strong> (<em>str</em><em>, </em><em>optional</em>) -- Имя пользователя для регистрации. Требуется, если registration=True.</p></li>
-<li><p><strong>last_name</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Фамилия пользователя для регистрации.</p></li>
-<li><p><strong>send_fake_telemetry</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг отправки фейковой телеметрии.</p></li>
-<li><p><strong>proxy</strong> (<em>str</em><em> | </em><em>Literal</em><em>[</em><em>True</em><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) -- Прокси для подключения к WebSocket (см. <a class="reference external" href="https://websockets.readthedocs.io/en/stable/topics/proxies.html">https://websockets.readthedocs.io/en/stable/topics/proxies.html</a>).</p></li>
-<li><p><strong>reconnect</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг автоматического переподключения при потере соединения.</p></li>
+<li><p><strong>phone</strong> (<em>str</em>)</p></li>
+<li><p><strong>uri</strong> (<em>str</em>)</p></li>
+<li><p><strong>session_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>headers</strong> (<em>UserAgentPayload</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>token</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>send_fake_telemetry</strong> (<em>bool</em>)</p></li>
+<li><p><strong>host</strong> (<em>str</em>)</p></li>
+<li><p><strong>port</strong> (<em>int</em>)</p></li>
+<li><p><strong>proxy</strong> (<em>str</em><em> | </em><em>Literal</em><em>[</em><em>True</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>work_dir</strong> (<em>str</em>)</p></li>
+<li><p><strong>registration</strong> (<em>bool</em>)</p></li>
+<li><p><strong>first_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>last_name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>device_id</strong> (<em>UUID</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>reconnect</strong> (<em>bool</em>)</p></li>
 <li><p><strong>reconnect_delay</strong> (<em>float</em>)</p></li>
 </ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>InvalidPhoneError</strong> -- Если формат номера телефона неверный.</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -547,6 +582,36 @@
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Callable[[], Any | Awaitable[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.MaxClient.allowed_device_types">
+<span class="sig-name descname"><span class="pre">allowed_device_types</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'WEB'}</span></span><a class="headerlink" href="#pymax.MaxClient.allowed_device_types" title="Link to this definition">¶</a></dt>
+<dd><p>Основной клиент для работы с WebSocket API сервиса Max.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phone</strong> (<em>str</em>) -- Номер телефона для авторизации.</p></li>
+<li><p><strong>uri</strong> (<em>str</em><em>, </em><em>optional</em>) -- URI WebSocket сервера.</p></li>
+<li><p><strong>session_name</strong> (<em>str</em><em>, </em><em>optional</em>) -- Название сессии для хранения базы данных.</p></li>
+<li><p><strong>work_dir</strong> (<em>str</em><em>, </em><em>optional</em>) -- Рабочая директория для хранения базы данных.</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em><em> | </em><em>None</em>) -- Пользовательский логгер. Если не передан, используется логгер модуля с именем f&quot;{__name__}.MaxClient&quot;.</p></li>
+<li><p><strong>headers</strong> (<em>UserAgentPayload</em>) -- Заголовки для подключения к WebSocket.</p></li>
+<li><p><strong>token</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Токен авторизации. Если не передан, будет выполнен процесс логина по номеру телефона.</p></li>
+<li><p><strong>host</strong> (<em>str</em><em>, </em><em>optional</em>) -- Хост API сервера.</p></li>
+<li><p><strong>port</strong> (<em>int</em><em>, </em><em>optional</em>) -- Порт API сервера.</p></li>
+<li><p><strong>registration</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг регистрации нового пользователя.</p></li>
+<li><p><strong>first_name</strong> (<em>str</em><em>, </em><em>optional</em>) -- Имя пользователя для регистрации. Требуется, если registration=True.</p></li>
+<li><p><strong>last_name</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>optional</em>) -- Фамилия пользователя для регистрации.</p></li>
+<li><p><strong>send_fake_telemetry</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг отправки фейковой телеметрии.</p></li>
+<li><p><strong>proxy</strong> (<em>str</em><em> | </em><em>Literal</em><em>[</em><em>True</em><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) -- Прокси для подключения к WebSocket (см. <a class="reference external" href="https://websockets.readthedocs.io/en/stable/topics/proxies.html">https://websockets.readthedocs.io/en/stable/topics/proxies.html</a>).</p></li>
+<li><p><strong>reconnect</strong> (<em>bool</em><em>, </em><em>optional</em>) -- Флаг автоматического переподключения при потере соединения.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>InvalidPhoneError</strong> -- Если формат номера телефона неверный.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1403,6 +1468,26 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.read_message">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.read_message" title="Link to this definition">¶</a></dt>
+<dd><p>Отмечает сообщение как прочитанное.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message_id</strong> (<em>int</em>) -- ID сообщения</p></li>
+<li><p><strong>chat_id</strong> (<em>int</em>) -- ID чата</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Объект ReadState</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#pymax.types.ReadState" title="pymax.types.ReadState">ReadState</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pymax.MaxClient.remove_contact">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">remove_contact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contact_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.remove_contact" title="Link to this definition">¶</a></dt>
 <dd><p>Удаляет контакт из списка контактов</p>
@@ -1696,11 +1781,83 @@
 </section>
 <section id="socketmaxclient">
 <h2>SocketMaxClient<a class="headerlink" href="#socketmaxclient" title="Link to this heading">¶</a></h2>
-<p>Низкоуровневый WebSocket клиент для прямого взаимодействия с API.
-Обычно не требуется использовать напрямую - используйте MaxClient вместо этого.</p>
+<p>Асинхронный TCP Socket клиент для взаимодействия с Max API. Используется для вход и регистрации по номеру телефона.</p>
+<dl class="simple">
+<dt><strong>Поддерживаемые методы авторизации:</strong></dt><dd><ul class="simple">
+<li><p>✅ Вход по номеру телефона (DESKTOP, ANDROID, IOS device_types)</p></li>
+<li><p>✅ Регистрация нового пользователя по номеру телефона</p></li>
+</ul>
+</dd>
+<dt><strong>Когда использовать SocketMaxClient:</strong></dt><dd><ul class="simple">
+<li><p>Необходимо зарегистрировать новых пользователей</p></li>
+<li><p>Требуется вход по номеру телефона (без QR-кода)</p></li>
+<li><p>Необходимо использовать DESKTOP, ANDROID или IOS device_types</p></li>
+<li><p>Разрабатываете системы массовой регистрации или авторизации</p></li>
+<li><p>Нужна автоматизация входа (вход по номеру телефона удобнее для автоматизации, чем сканирование QR-кода)</p></li>
+</ul>
+</dd>
+</dl>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Если вам нужны низкоуровневые детали, смотрите исходный код библиотеки.</p>
+<p><strong>SocketMaxClient — это полноценный и рекомендуемый способ авторизации!</strong></p>
+<p>Не воспринимайте Socket клиент как что-то вспомогательное или альтернативное.
+Вход по номеру телефона — это основной способ авторизации в Max, и <code class="docutils literal notranslate"><span class="pre">SocketMaxClient</span></code> обеспечивает надежный доступ к этому функционалу.</p>
+<p>Для многих сценариев (особенно для автоматизации и интеграции) вход по номеру телефона <strong>удобнее и практичнее</strong>, чем сканирование QR-кода.</p>
+</div>
+<p>Инициализация и вход:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">SocketMaxClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.payloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserAgentPayload</span>
+
+<span class="c1"># Для входа по номеру телефона</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">SocketMaxClient</span><span class="p">(</span>
+    <span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">,</span>
+    <span class="n">work_dir</span><span class="o">=</span><span class="s2">&quot;./cache&quot;</span><span class="p">,</span>
+    <span class="n">headers</span><span class="o">=</span><span class="n">UserAgentPayload</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;DESKTOP&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>  <span class="c1"># Потребуется ввести код подтверждения</span>
+</pre></div>
+</div>
+<p>Регистрация нового пользователя:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">SocketMaxClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.payloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserAgentPayload</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">SocketMaxClient</span><span class="p">(</span>
+    <span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">,</span>
+    <span class="n">registration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                      <span class="c1"># Флаг регистрации</span>
+    <span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Иван&quot;</span><span class="p">,</span>
+    <span class="n">last_name</span><span class="o">=</span><span class="s2">&quot;Петров&quot;</span><span class="p">,</span>
+    <span class="n">headers</span><span class="o">=</span><span class="n">UserAgentPayload</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;DESKTOP&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>  <span class="c1"># Потребуется ввести код подтверждения</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>SocketMaxClient должен использоваться для:</p>
+<ol class="arabic simple">
+<li><p><strong>Регистрации новых пользователей</strong> — MaxClient не поддерживает регистрацию</p></li>
+<li><p><strong>Входа по номеру телефона</strong> — требуется phone verification код</p></li>
+<li><p><strong>Системной авторизации</strong> — когда QR-код недоступен или неудобен</p></li>
+<li><p><strong>Автоматизации</strong> — вход по номеру телефона легче автоматизировать</p></li>
+</ol>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>После успешной авторизации через SocketMaxClient вы можете сохранить токен и использовать его с MaxClient для более быстрого подключения к WebSocket API.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Первый раз: получаем токен через Socket</span>
+<span class="n">socket_client</span> <span class="o">=</span> <span class="n">SocketMaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">socket_client</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">token</span> <span class="o">=</span> <span class="n">socket_client</span><span class="o">.</span><span class="n">token</span>
+
+<span class="c1"># Сохраняем токен</span>
+
+<span class="c1"># Следующие разы: используем токен с WebSocket клиентом</span>
+<span class="n">ws_client</span> <span class="o">=</span> <span class="n">MaxClient</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s2">&quot;+79001234567&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">ws_client</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
 </div>
 </section>
 </section>
@@ -1761,6 +1918,7 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Clients</a><ul>
+<li><a class="reference internal" href="#maxclient-socketmaxclient">Выбор между MaxClient и SocketMaxClient</a></li>
 <li><a class="reference internal" href="#maxclient">MaxClient</a></li>
 <li><a class="reference internal" href="#api">Документация API</a><ul>
 <li><a class="reference internal" href="#pymax.MaxClient"><code class="docutils literal notranslate"><span class="pre">MaxClient</span></code></a><ul>
@@ -1773,6 +1931,7 @@
 <li><a class="reference internal" href="#pymax.MaxClient.add_reaction"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_reaction()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.add_reaction_change_handler"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_reaction_change_handler()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.add_scheduled_task"><code class="docutils literal notranslate"><span class="pre">MaxClient.add_scheduled_task()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.allowed_device_types"><code class="docutils literal notranslate"><span class="pre">MaxClient.allowed_device_types</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.change_group_profile"><code class="docutils literal notranslate"><span class="pre">MaxClient.change_group_profile()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.change_group_settings"><code class="docutils literal notranslate"><span class="pre">MaxClient.change_group_settings()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.change_profile"><code class="docutils literal notranslate"><span class="pre">MaxClient.change_profile()</span></code></a></li>
@@ -1818,6 +1977,7 @@
 <li><a class="reference internal" href="#pymax.MaxClient.on_reaction_change"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_reaction_change()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.on_start"><code class="docutils literal notranslate"><span class="pre">MaxClient.on_start()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.pin_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.pin_message()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.read_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.read_message()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.remove_contact"><code class="docutils literal notranslate"><span class="pre">MaxClient.remove_contact()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.remove_reaction"><code class="docutils literal notranslate"><span class="pre">MaxClient.remove_reaction()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.remove_users_from_group"><code class="docutils literal notranslate"><span class="pre">MaxClient.remove_users_from_group()</span></code></a></li>
@@ -1848,7 +2008,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=a352c988"></script>
+</div><script src="_static/documentation_options.js?v=df007dce"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

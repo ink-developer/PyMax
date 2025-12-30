@@ -1,10 +1,43 @@
 Clients
 =======
 
+Выбор между MaxClient и SocketMaxClient
+----------------------------------------
+
+PyMax предоставляет два клиента с разной функциональностью в зависимости от выбранного протокола подключения:
+
+.. list-table:: Сравнение клиентов
+   :widths: 30 35 35
+   :header-rows: 1
+
+   * - Функция
+     - MaxClient (WebSocket)
+     - SocketMaxClient (Socket)
+   * - Протокол подключения
+     - WebSocket
+     - TCP Socket
+   * - Способ авторизации
+     - Вход по QR-коду
+     - Вход/регистрация по номеру телефона
+   * - Регистрация новых пользователей
+     - ❌ Не поддерживается
+     - ✅ Поддерживается
+   * - Скорость подключения
+     - Быстрое
+     - Медленнее
+   * - Рекомендуемое использование
+     - Базовые боты и приложения
+     - Массовая регистрация, системная авторизация
+
 MaxClient
 ---------
 
 Основной асинхронный WebSocket клиент для взаимодействия с Max API.
+
+**Поддерживаемые методы авторизации:**
+    - ✅ Вход по QR-коду (WEB device_type)
+    - ❌ Вход по номеру телефона (больше не поддерживается)
+    - ❌ Регистрация по номеру телефона
 
 Инициализация:
 
@@ -20,27 +53,10 @@ MaxClient
         logger=None,                    # Пользовательский логгер
     )
 
-.. warning::
+.. note::
 
-    Параметр ``device_type`` в ``UserAgentPayload`` **критически важен** для выбора способа авторизации:
-
-    **DESKTOP** — вход по номеру телефона:
-
-    .. code-block:: python
-
-        from pymax.payloads import UserAgentPayload
-
-        ua = UserAgentPayload(device_type="DESKTOP", app_version="25.12.13")
-        client = MaxClient(phone="+79111111111", headers=ua)
-
-    **WEB** — вход через QR-код; токен совместим с веб-версией Max:
-
-    .. code-block:: python
-
-        from pymax.payloads import UserAgentPayload
-
-        ua = UserAgentPayload(device_type="WEB", app_version="25.12.13")
-        client = MaxClient(phone="+79111111111", headers=ua)
+    MaxClient по умолчанию использует **WEB** device_type и поддерживает только вход по QR-коду.
+    Это является рекомендуемым способом авторизации для большинства приложений.
 
 Основные методы:
 
@@ -154,9 +170,83 @@ MaxClient
 SocketMaxClient
 ---------------
 
-Низкоуровневый WebSocket клиент для прямого взаимодействия с API.
-Обычно не требуется использовать напрямую - используйте MaxClient вместо этого.
+Асинхронный TCP Socket клиент для взаимодействия с Max API. Используется для вход и регистрации по номеру телефона.
+
+**Поддерживаемые методы авторизации:**
+    - ✅ Вход по номеру телефона (DESKTOP, ANDROID, IOS device_types)
+    - ✅ Регистрация нового пользователя по номеру телефона
+
+**Когда использовать SocketMaxClient:**
+    - Необходимо зарегистрировать новых пользователей
+    - Требуется вход по номеру телефона (без QR-кода)
+    - Необходимо использовать DESKTOP, ANDROID или IOS device_types
+    - Разрабатываете системы массовой регистрации или авторизации
+    - Нужна автоматизация входа (вход по номеру телефона удобнее для автоматизации, чем сканирование QR-кода)
 
 .. note::
 
-    Если вам нужны низкоуровневые детали, смотрите исходный код библиотеки.
+    **SocketMaxClient — это полноценный и рекомендуемый способ авторизации!**
+
+    Не воспринимайте Socket клиент как что-то вспомогательное или альтернативное.
+    Вход по номеру телефона — это основной способ авторизации в Max, и ``SocketMaxClient`` обеспечивает надежный доступ к этому функционалу.
+
+    Для многих сценариев (особенно для автоматизации и интеграции) вход по номеру телефона **удобнее и практичнее**, чем сканирование QR-кода.
+
+Инициализация и вход:
+
+.. code-block:: python
+
+    from pymax import SocketMaxClient
+    from pymax.payloads import UserAgentPayload
+
+    # Для входа по номеру телефона
+    client = SocketMaxClient(
+        phone="+79001234567",
+        work_dir="./cache",
+        headers=UserAgentPayload(device_type="DESKTOP"),
+    )
+
+    await client.start()  # Потребуется ввести код подтверждения
+
+Регистрация нового пользователя:
+
+.. code-block:: python
+
+    from pymax import SocketMaxClient
+    from pymax.payloads import UserAgentPayload
+
+    client = SocketMaxClient(
+        phone="+79001234567",
+        registration=True,                      # Флаг регистрации
+        first_name="Иван",
+        last_name="Петров",
+        headers=UserAgentPayload(device_type="DESKTOP"),
+    )
+
+    await client.start()  # Потребуется ввести код подтверждения
+
+.. important::
+
+    SocketMaxClient должен использоваться для:
+
+    1. **Регистрации новых пользователей** — MaxClient не поддерживает регистрацию
+    2. **Входа по номеру телефона** — требуется phone verification код
+    3. **Системной авторизации** — когда QR-код недоступен или неудобен
+    4. **Автоматизации** — вход по номеру телефона легче автоматизировать
+
+.. note::
+
+    После успешной авторизации через SocketMaxClient вы можете сохранить токен и использовать его с MaxClient для более быстрого подключения к WebSocket API.
+
+    .. code-block:: python
+
+        # Первый раз: получаем токен через Socket
+        socket_client = SocketMaxClient(phone="+79001234567")
+        await socket_client.start()
+        token = socket_client.token
+
+        # Сохраняем токен
+
+        # Следующие разы: используем токен с WebSocket клиентом
+        ws_client = MaxClient(phone="+79001234567", token=token)
+        await ws_client.start()

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>pymax.mixins.handler - PyMax 1.2.3 documentation</title>
+        <title>pymax.mixins.handler - PyMax 1.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">PyMax 1.2.3 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">PyMax 1.2.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
-  <span class="sidebar-brand-text">PyMax 1.2.3 documentation</span>
+  <span class="sidebar-brand-text">PyMax 1.2.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -198,7 +198,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes v1.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes v1.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
 </ul>
 
 </div>
@@ -236,7 +237,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseFilter</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientProtocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymax.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientProtocol</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chat</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> <span class="n">ReactionInfo</span>
 
 
@@ -303,9 +304,7 @@
             <span class="n">handler</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span> <span class="o">|</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">Any</span><span class="p">]],</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span> <span class="o">|</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_on_message_edit_handlers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">handler</span><span class="p">,</span> <span class="nb">filter</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;on_message_edit handler set: </span><span class="si">{</span><span class="n">handler</span><span class="si">}</span><span class="s2">, filter: </span><span class="si">{</span><span class="nb">filter</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;on_message_edit handler set: </span><span class="si">{</span><span class="n">handler</span><span class="si">}</span><span class="s2">, filter: </span><span class="si">{</span><span class="nb">filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">handler</span>
 
         <span class="k">return</span> <span class="n">decorator</span></div>
@@ -332,9 +331,7 @@
             <span class="n">handler</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span> <span class="o">|</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">Any</span><span class="p">]],</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span> <span class="o">|</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_on_message_delete_handlers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">handler</span><span class="p">,</span> <span class="nb">filter</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;on_message_delete handler set: </span><span class="si">{</span><span class="n">handler</span><span class="si">}</span><span class="s2">, filter: </span><span class="si">{</span><span class="nb">filter</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;on_message_delete handler set: </span><span class="si">{</span><span class="n">handler</span><span class="si">}</span><span class="s2">, filter: </span><span class="si">{</span><span class="nb">filter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">handler</span>
 
         <span class="k">return</span> <span class="n">decorator</span></div>
@@ -438,9 +435,7 @@
         <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span>
             <span class="n">handler</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span> <span class="o">|</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">Any</span><span class="p">]],</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span> <span class="o">|</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_scheduled_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">seconds</span> <span class="o">+</span> <span class="n">minutes</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="n">hours</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_scheduled_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">handler</span><span class="p">,</span> <span class="n">seconds</span> <span class="o">+</span> <span class="n">minutes</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="n">hours</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;task scheduled: </span><span class="si">{</span><span class="n">handler</span><span class="si">}</span><span class="s2">, interval: </span><span class="si">{</span><span class="n">seconds</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">minutes</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hours</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3600</span><span class="si">}</span><span class="s2">s&quot;</span>
             <span class="p">)</span>
@@ -600,7 +595,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=a352c988"></script>
+</div><script src="../../../_static/documentation_options.js?v=df007dce"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

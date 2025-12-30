@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Clients" href="clients.html"><link rel="prev" title="Installation" href="installation.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>Quick Start - PyMax 1.2.3 documentation</title>
+        <title>Quick Start - PyMax 1.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">PyMax 1.2.3 documentation</div></a>
+      <a href="index.html"><div class="brand">PyMax 1.2.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">PyMax 1.2.3 documentation</span>
+  <span class="sidebar-brand-text">PyMax 1.2.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -199,7 +199,8 @@
 <li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
 </ul>
 
 </div>
@@ -247,9 +248,30 @@
 </pre></div>
 </div>
 </section>
+<section id="id2">
+<h2>Выбор клиента<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>PyMax предоставляет два клиента для подключения к Max API:</p>
+<dl class="simple">
+<dt><strong>MaxClient (WebSocket)</strong> — рекомендуется для большинства приложений:</dt><dd><ul class="simple">
+<li><p>Используется WebSocket протокол</p></li>
+<li><p>Вход по QR-коду</p></li>
+<li><p>Более быстрое подключение</p></li>
+<li><p>Подходит для ботов, помощников и приложений</p></li>
+</ul>
+</dd>
+<dt><strong>SocketMaxClient (TCP Socket)</strong> — для специальных случаев:</dt><dd><ul class="simple">
+<li><p>Используется TCP Socket протокол</p></li>
+<li><p>Вход по номеру телефона</p></li>
+<li><p>Поддерживает регистрацию новых пользователей</p></li>
+<li><p>Требуется, если вы регистрируете новых пользователей или нужен вход по phone number</p></li>
+</ul>
+</dd>
+</dl>
+<p>Для получения полной информации смотрите <a class="reference internal" href="clients.html"><span class="doc">Clients</span></a>.</p>
+</section>
 <section id="echo">
 <h2>Первый бот: Echo<a class="headerlink" href="#echo" title="Link to this heading">¶</a></h2>
-<p>Самый простой бот — повторяет сообщения пользователя:</p>
+<p>Самый простой бот — повторяет сообщения пользователя (используя MaxClient):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
@@ -272,10 +294,10 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>bot.py
 </pre></div>
 </div>
-<p>При первом запуске вам потребуется ввести код подтверждения из приложения Max.</p>
+<p>При первом запуске вам потребуется отсканировать QR-код из приложения Max.</p>
 </section>
-<section id="id2">
-<h2>Фильтры сообщений<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<section id="id3">
+<h2>Фильтры сообщений<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <p>Обрабатывать только определённые сообщения:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
@@ -295,16 +317,11 @@
         <span class="n">chat_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">chat_id</span><span class="p">,</span>
         <span class="n">text</span><span class="o">=</span><span class="s2">&quot;И тебе привет!&quot;</span>
     <span class="p">)</span>
-
-<span class="c1"># Только личные сообщения</span>
-<span class="nd">@client</span><span class="o">.</span><span class="n">on_message</span><span class="p">(</span><span class="n">Filters</span><span class="o">.</span><span class="n">dialog</span><span class="p">())</span>
-<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">private_handler</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">Message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Личное сообщение: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="id3">
-<h2>Обработчики событий<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<section id="id4">
+<h2>Обработчики событий<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <p>Реагировать на события клиента:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymax.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span><span class="p">,</span> <span class="n">Chat</span>
 
@@ -322,8 +339,8 @@
 </pre></div>
 </div>
 </section>
-<section id="id4">
-<h2>Получение информации<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<h2>Получение информации<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <p>Информация о пользователе:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymax.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span><span class="p">,</span> <span class="n">User</span>
 
@@ -373,8 +390,8 @@
 </pre></div>
 </div>
 </section>
-<section id="id5">
-<h2>Отправка файлов<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<section id="id6">
+<h2>Отправка файлов<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">File</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
@@ -390,8 +407,8 @@
 </pre></div>
 </div>
 </section>
-<section id="id6">
-<h2>Полный пример: простой помощник<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<section id="id7">
+<h2>Полный пример: простой помощник<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxClient</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
@@ -454,8 +471,8 @@
 </pre></div>
 </div>
 </section>
-<section id="id7">
-<h2>Дальше<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<section id="id8">
+<h2>Дальше<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Смотрите <a class="reference internal" href="guides.html"><span class="doc">Guides</span></a> для подробных гайдов</p></li>
 <li><p>Смотрите <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> для больше примеров</p></li>
@@ -525,13 +542,14 @@
             <ul>
 <li><a class="reference internal" href="#">Quick Start</a><ul>
 <li><a class="reference internal" href="#id1">Установка</a></li>
+<li><a class="reference internal" href="#id2">Выбор клиента</a></li>
 <li><a class="reference internal" href="#echo">Первый бот: Echo</a></li>
-<li><a class="reference internal" href="#id2">Фильтры сообщений</a></li>
-<li><a class="reference internal" href="#id3">Обработчики событий</a></li>
-<li><a class="reference internal" href="#id4">Получение информации</a></li>
-<li><a class="reference internal" href="#id5">Отправка файлов</a></li>
-<li><a class="reference internal" href="#id6">Полный пример: простой помощник</a></li>
-<li><a class="reference internal" href="#id7">Дальше</a></li>
+<li><a class="reference internal" href="#id3">Фильтры сообщений</a></li>
+<li><a class="reference internal" href="#id4">Обработчики событий</a></li>
+<li><a class="reference internal" href="#id5">Получение информации</a></li>
+<li><a class="reference internal" href="#id6">Отправка файлов</a></li>
+<li><a class="reference internal" href="#id7">Полный пример: простой помощник</a></li>
+<li><a class="reference internal" href="#id8">Дальше</a></li>
 </ul>
 </li>
 </ul>
@@ -543,7 +561,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=a352c988"></script>
+</div><script src="_static/documentation_options.js?v=df007dce"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

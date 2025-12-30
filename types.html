@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Decorators" href="decorators.html"><link rel="prev" title="Clients" href="clients.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>Types - PyMax 1.2.3 documentation</title>
+        <title>Types - PyMax 1.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">PyMax 1.2.3 documentation</div></a>
+      <a href="index.html"><div class="brand">PyMax 1.2.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">PyMax 1.2.3 documentation</span>
+  <span class="sidebar-brand-text">PyMax 1.2.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -199,7 +199,8 @@
 <li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
 </ul>
 
 </div>
@@ -993,6 +994,33 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pymax.types.ReactionInfo.from_dict">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/types.html#ReactionInfo.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.types.ReactionInfo.from_dict" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Self</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymax.types.ReadState">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymax.types.</span></span><span class="sig-name descname"><span class="pre">ReadState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unread</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/types.html#ReadState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.types.ReadState" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unread</strong> (<em>int</em>)</p></li>
+<li><p><strong>mark</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.types.ReadState.from_dict">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/types.html#ReadState.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.types.ReadState.from_dict" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
@@ -6982,6 +7010,451 @@ is raised.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymax.static.enum.</span></span><span class="sig-name descname"><span class="pre">ReadAction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/static/enum.html#ReadAction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.static.enum.ReadAction" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.READ_MESSAGE">
+<span class="sig-name descname"><span class="pre">READ_MESSAGE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'READ_MESSAGE'</span></span><a class="headerlink" href="#pymax.static.enum.ReadAction.READ_MESSAGE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.READ_REACTION">
+<span class="sig-name descname"><span class="pre">READ_REACTION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'READ_REACTION'</span></span><a class="headerlink" href="#pymax.static.enum.ReadAction.READ_REACTION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.capitalize">
+<span class="sig-name descname"><span class="pre">capitalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.capitalize" title="Link to this definition">¶</a></dt>
+<dd><p>Return a capitalized version of the string.</p>
+<p>More specifically, make the first character have upper case and the rest lower
+case.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.casefold">
+<span class="sig-name descname"><span class="pre">casefold</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.casefold" title="Link to this definition">¶</a></dt>
+<dd><p>Return a version of the string suitable for caseless comparisons.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.center">
+<span class="sig-name descname"><span class="pre">center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillchar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.center" title="Link to this definition">¶</a></dt>
+<dd><p>Return a centered string of length width.</p>
+<p>Padding is done using the specified fill character (default is a space).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.count" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of non-overlapping occurrences of substring sub in string S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'strict'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.encode" title="Link to this definition">¶</a></dt>
+<dd><p>Encode the string using the codec registered for encoding.</p>
+<dl class="simple">
+<dt>encoding</dt><dd><p>The encoding in which to encode the string.</p>
+</dd>
+<dt>errors</dt><dd><p>The error handling scheme to use for encoding errors.
+The default is 'strict' meaning that encoding errors raise a
+UnicodeEncodeError.  Other possible values are 'ignore', 'replace' and
+'xmlcharrefreplace' as well as any other name registered with
+codecs.register_error that can handle UnicodeEncodeErrors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.endswith">
+<span class="sig-name descname"><span class="pre">endswith</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.endswith" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string ends with the specified suffix, False otherwise.</p>
+<dl class="simple">
+<dt>suffix</dt><dd><p>A string or a tuple of strings to try.</p>
+</dd>
+<dt>start</dt><dd><p>Optional start position. Default: start of the string.</p>
+</dd>
+<dt>end</dt><dd><p>Optional stop position. Default: end of the string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.expandtabs">
+<span class="sig-name descname"><span class="pre">expandtabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tabsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.expandtabs" title="Link to this definition">¶</a></dt>
+<dd><p>Return a copy where all tab characters are expanded using spaces.</p>
+<p>If tabsize is not given, a tab size of 8 characters is assumed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.find">
+<span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.find" title="Link to this definition">¶</a></dt>
+<dd><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Return -1 on failure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.format">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.format" title="Link to this definition">¶</a></dt>
+<dd><p>Return a formatted version of the string, using substitutions from args and kwargs.
+The substitutions are identified by braces ('{' and '}').</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.format_map">
+<span class="sig-name descname"><span class="pre">format_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.format_map" title="Link to this definition">¶</a></dt>
+<dd><p>Return a formatted version of the string, using substitutions from mapping.
+The substitutions are identified by braces ('{' and '}').</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.index" title="Link to this definition">¶</a></dt>
+<dd><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Raises ValueError when the substring is not found.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.isalnum">
+<span class="sig-name descname"><span class="pre">isalnum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.isalnum" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string is an alpha-numeric string, False otherwise.</p>
+<p>A string is alpha-numeric if all characters in the string are alpha-numeric and
+there is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.isalpha">
+<span class="sig-name descname"><span class="pre">isalpha</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.isalpha" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string is an alphabetic string, False otherwise.</p>
+<p>A string is alphabetic if all characters in the string are alphabetic and there
+is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.isascii">
+<span class="sig-name descname"><span class="pre">isascii</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.isascii" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if all characters in the string are ASCII, False otherwise.</p>
+<p>ASCII characters have code points in the range U+0000-U+007F.
+Empty string is ASCII too.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.isdecimal">
+<span class="sig-name descname"><span class="pre">isdecimal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.isdecimal" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string is a decimal string, False otherwise.</p>
+<p>A string is a decimal string if all characters in the string are decimal and
+there is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.isdigit">
+<span class="sig-name descname"><span class="pre">isdigit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.isdigit" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string is a digit string, False otherwise.</p>
+<p>A string is a digit string if all characters in the string are digits and there
+is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.isidentifier">
+<span class="sig-name descname"><span class="pre">isidentifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.isidentifier" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string is a valid Python identifier, False otherwise.</p>
+<p>Call keyword.iskeyword(s) to test whether string s is a reserved identifier,
+such as &quot;def&quot; or &quot;class&quot;.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.islower">
+<span class="sig-name descname"><span class="pre">islower</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.islower" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string is a lowercase string, False otherwise.</p>
+<p>A string is lowercase if all cased characters in the string are lowercase and
+there is at least one cased character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.isnumeric">
+<span class="sig-name descname"><span class="pre">isnumeric</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.isnumeric" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string is a numeric string, False otherwise.</p>
+<p>A string is numeric if all characters in the string are numeric and there is at
+least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.isprintable">
+<span class="sig-name descname"><span class="pre">isprintable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.isprintable" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if all characters in the string are printable, False otherwise.</p>
+<p>A character is printable if repr() may use it in its output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.isspace">
+<span class="sig-name descname"><span class="pre">isspace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.isspace" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string is a whitespace string, False otherwise.</p>
+<p>A string is whitespace if all characters in the string are whitespace and there
+is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.istitle">
+<span class="sig-name descname"><span class="pre">istitle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.istitle" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string is a title-cased string, False otherwise.</p>
+<p>In a title-cased string, upper- and title-case characters may only
+follow uncased characters and lowercase characters only cased ones.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.isupper">
+<span class="sig-name descname"><span class="pre">isupper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.isupper" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string is an uppercase string, False otherwise.</p>
+<p>A string is uppercase if all cased characters in the string are uppercase and
+there is at least one cased character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.join" title="Link to this definition">¶</a></dt>
+<dd><p>Concatenate any number of strings.</p>
+<p>The string whose method is called is inserted in between each given string.
+The result is returned as a new string.</p>
+<p>Example: '.'.join(['ab', 'pq', 'rs']) -&gt; 'ab.pq.rs'</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.ljust">
+<span class="sig-name descname"><span class="pre">ljust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillchar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.ljust" title="Link to this definition">¶</a></dt>
+<dd><p>Return a left-justified string of length width.</p>
+<p>Padding is done using the specified fill character (default is a space).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.lower">
+<span class="sig-name descname"><span class="pre">lower</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.lower" title="Link to this definition">¶</a></dt>
+<dd><p>Return a copy of the string converted to lowercase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.lstrip">
+<span class="sig-name descname"><span class="pre">lstrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.lstrip" title="Link to this definition">¶</a></dt>
+<dd><p>Return a copy of the string with leading whitespace removed.</p>
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.maketrans">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">maketrans</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.maketrans" title="Link to this definition">¶</a></dt>
+<dd><p>Return a translation table usable for str.translate().</p>
+<p>If there is only one argument, it must be a dictionary mapping Unicode
+ordinals (integers) or characters to Unicode ordinals, strings or None.
+Character keys will be then converted to ordinals.
+If there are two arguments, they must be strings of equal length, and
+in the resulting dictionary, each character in x will be mapped to the
+character at the same position in y. If there is a third argument, it
+must be a string, whose characters will be mapped to None in the result.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.partition">
+<span class="sig-name descname"><span class="pre">partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.partition" title="Link to this definition">¶</a></dt>
+<dd><p>Partition the string into three parts using the given separator.</p>
+<p>This will search for the separator in the string.  If the separator is found,
+returns a 3-tuple containing the part before the separator, the separator
+itself, and the part after it.</p>
+<p>If the separator is not found, returns a 3-tuple containing the original string
+and two empty strings.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.removeprefix">
+<span class="sig-name descname"><span class="pre">removeprefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.removeprefix" title="Link to this definition">¶</a></dt>
+<dd><p>Return a str with the given prefix string removed if present.</p>
+<p>If the string starts with the prefix string, return string[len(prefix):].
+Otherwise, return a copy of the original string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.removesuffix">
+<span class="sig-name descname"><span class="pre">removesuffix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suffix</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.removesuffix" title="Link to this definition">¶</a></dt>
+<dd><p>Return a str with the given suffix string removed if present.</p>
+<p>If the string ends with the suffix string and that suffix is not empty,
+return string[:-len(suffix)]. Otherwise, return a copy of the original
+string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.replace">
+<span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.replace" title="Link to this definition">¶</a></dt>
+<dd><p>Return a copy with all occurrences of substring old replaced by new.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>count</dt><dd><p>Maximum number of occurrences to replace.
+-1 (the default value) means replace all occurrences.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>If the optional argument count is given, only the first count occurrences are
+replaced.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.rfind">
+<span class="sig-name descname"><span class="pre">rfind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.rfind" title="Link to this definition">¶</a></dt>
+<dd><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Return -1 on failure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.rindex">
+<span class="sig-name descname"><span class="pre">rindex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.rindex" title="Link to this definition">¶</a></dt>
+<dd><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Raises ValueError when the substring is not found.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.rjust">
+<span class="sig-name descname"><span class="pre">rjust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillchar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.rjust" title="Link to this definition">¶</a></dt>
+<dd><p>Return a right-justified string of length width.</p>
+<p>Padding is done using the specified fill character (default is a space).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.rpartition">
+<span class="sig-name descname"><span class="pre">rpartition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.rpartition" title="Link to this definition">¶</a></dt>
+<dd><p>Partition the string into three parts using the given separator.</p>
+<p>This will search for the separator in the string, starting at the end. If
+the separator is found, returns a 3-tuple containing the part before the
+separator, the separator itself, and the part after it.</p>
+<p>If the separator is not found, returns a 3-tuple containing two empty strings
+and the original string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.rsplit">
+<span class="sig-name descname"><span class="pre">rsplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsplit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.rsplit" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of the substrings in the string, using sep as the separator string.</p>
+<blockquote>
+<div><dl>
+<dt>sep</dt><dd><p>The separator used to split the string.</p>
+<p>When set to None (the default value), will split on any whitespace
+character (including n r t f and spaces) and will discard
+empty strings from the result.</p>
+</dd>
+<dt>maxsplit</dt><dd><p>Maximum number of splits.
+-1 (the default value) means no limit.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Splitting starts at the end of the string and works to the front.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.rstrip">
+<span class="sig-name descname"><span class="pre">rstrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.rstrip" title="Link to this definition">¶</a></dt>
+<dd><p>Return a copy of the string with trailing whitespace removed.</p>
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.split">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsplit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.split" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of the substrings in the string, using sep as the separator string.</p>
+<blockquote>
+<div><dl>
+<dt>sep</dt><dd><p>The separator used to split the string.</p>
+<p>When set to None (the default value), will split on any whitespace
+character (including n r t f and spaces) and will discard
+empty strings from the result.</p>
+</dd>
+<dt>maxsplit</dt><dd><p>Maximum number of splits.
+-1 (the default value) means no limit.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Splitting starts at the front of the string and works to the end.</p>
+<p>Note, str.split() is mainly useful for data that has been intentionally
+delimited.  With natural text that includes punctuation, consider using
+the regular expression module.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.splitlines">
+<span class="sig-name descname"><span class="pre">splitlines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keepends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.splitlines" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of the lines in the string, breaking at line boundaries.</p>
+<p>Line breaks are not included in the resulting list unless keepends is given and
+true.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.startswith">
+<span class="sig-name descname"><span class="pre">startswith</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.startswith" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the string starts with the specified prefix, False otherwise.</p>
+<dl class="simple">
+<dt>prefix</dt><dd><p>A string or a tuple of strings to try.</p>
+</dd>
+<dt>start</dt><dd><p>Optional start position. Default: start of the string.</p>
+</dd>
+<dt>end</dt><dd><p>Optional stop position. Default: end of the string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.strip">
+<span class="sig-name descname"><span class="pre">strip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.strip" title="Link to this definition">¶</a></dt>
+<dd><p>Return a copy of the string with leading and trailing whitespace removed.</p>
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.swapcase">
+<span class="sig-name descname"><span class="pre">swapcase</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.swapcase" title="Link to this definition">¶</a></dt>
+<dd><p>Convert uppercase characters to lowercase and lowercase characters to uppercase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.title">
+<span class="sig-name descname"><span class="pre">title</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.title" title="Link to this definition">¶</a></dt>
+<dd><p>Return a version of the string where each word is titlecased.</p>
+<p>More specifically, words start with uppercased characters and all remaining
+cased characters have lower case.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.translate">
+<span class="sig-name descname"><span class="pre">translate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.translate" title="Link to this definition">¶</a></dt>
+<dd><p>Replace each character in the string using the given translation table.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>table</dt><dd><p>Translation table, which must be a mapping of Unicode ordinals to
+Unicode ordinals, strings, or None.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>The table must implement lookup/indexing via __getitem__, for instance a
+dictionary or list.  If this operation raises LookupError, the character is
+left untouched.  Characters mapped to None are deleted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.upper">
+<span class="sig-name descname"><span class="pre">upper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.upper" title="Link to this definition">¶</a></dt>
+<dd><p>Return a copy of the string converted to uppercase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.ReadAction.zfill">
+<span class="sig-name descname"><span class="pre">zfill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.ReadAction.zfill" title="Link to this definition">¶</a></dt>
+<dd><p>Pad a numeric string with zeros on the left, to fill a field of the given width.</p>
+<p>The string is never truncated.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -7134,6 +7607,10 @@ is raised.</p>
 </li>
 <li><a class="reference internal" href="#pymax.types.ReactionInfo"><code class="docutils literal notranslate"><span class="pre">ReactionInfo</span></code></a><ul>
 <li><a class="reference internal" href="#pymax.types.ReactionInfo.from_dict"><code class="docutils literal notranslate"><span class="pre">ReactionInfo.from_dict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymax.types.ReadState"><code class="docutils literal notranslate"><span class="pre">ReadState</span></code></a><ul>
+<li><a class="reference internal" href="#pymax.types.ReadState.from_dict"><code class="docutils literal notranslate"><span class="pre">ReadState.from_dict()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pymax.types.Session"><code class="docutils literal notranslate"><span class="pre">Session</span></code></a><ul>
@@ -7900,6 +8377,58 @@ is raised.</p>
 <li><a class="reference internal" href="#pymax.static.enum.Opcode.to_bytes"><code class="docutils literal notranslate"><span class="pre">Opcode.to_bytes()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction"><code class="docutils literal notranslate"><span class="pre">ReadAction</span></code></a><ul>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.READ_MESSAGE"><code class="docutils literal notranslate"><span class="pre">ReadAction.READ_MESSAGE</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.READ_REACTION"><code class="docutils literal notranslate"><span class="pre">ReadAction.READ_REACTION</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.capitalize"><code class="docutils literal notranslate"><span class="pre">ReadAction.capitalize()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.casefold"><code class="docutils literal notranslate"><span class="pre">ReadAction.casefold()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.center"><code class="docutils literal notranslate"><span class="pre">ReadAction.center()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.count"><code class="docutils literal notranslate"><span class="pre">ReadAction.count()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.encode"><code class="docutils literal notranslate"><span class="pre">ReadAction.encode()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.endswith"><code class="docutils literal notranslate"><span class="pre">ReadAction.endswith()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.expandtabs"><code class="docutils literal notranslate"><span class="pre">ReadAction.expandtabs()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.find"><code class="docutils literal notranslate"><span class="pre">ReadAction.find()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.format"><code class="docutils literal notranslate"><span class="pre">ReadAction.format()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.format_map"><code class="docutils literal notranslate"><span class="pre">ReadAction.format_map()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.index"><code class="docutils literal notranslate"><span class="pre">ReadAction.index()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.isalnum"><code class="docutils literal notranslate"><span class="pre">ReadAction.isalnum()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.isalpha"><code class="docutils literal notranslate"><span class="pre">ReadAction.isalpha()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.isascii"><code class="docutils literal notranslate"><span class="pre">ReadAction.isascii()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.isdecimal"><code class="docutils literal notranslate"><span class="pre">ReadAction.isdecimal()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.isdigit"><code class="docutils literal notranslate"><span class="pre">ReadAction.isdigit()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.isidentifier"><code class="docutils literal notranslate"><span class="pre">ReadAction.isidentifier()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.islower"><code class="docutils literal notranslate"><span class="pre">ReadAction.islower()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.isnumeric"><code class="docutils literal notranslate"><span class="pre">ReadAction.isnumeric()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.isprintable"><code class="docutils literal notranslate"><span class="pre">ReadAction.isprintable()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.isspace"><code class="docutils literal notranslate"><span class="pre">ReadAction.isspace()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.istitle"><code class="docutils literal notranslate"><span class="pre">ReadAction.istitle()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.isupper"><code class="docutils literal notranslate"><span class="pre">ReadAction.isupper()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.join"><code class="docutils literal notranslate"><span class="pre">ReadAction.join()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.ljust"><code class="docutils literal notranslate"><span class="pre">ReadAction.ljust()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.lower"><code class="docutils literal notranslate"><span class="pre">ReadAction.lower()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.lstrip"><code class="docutils literal notranslate"><span class="pre">ReadAction.lstrip()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.maketrans"><code class="docutils literal notranslate"><span class="pre">ReadAction.maketrans()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.partition"><code class="docutils literal notranslate"><span class="pre">ReadAction.partition()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.removeprefix"><code class="docutils literal notranslate"><span class="pre">ReadAction.removeprefix()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.removesuffix"><code class="docutils literal notranslate"><span class="pre">ReadAction.removesuffix()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.replace"><code class="docutils literal notranslate"><span class="pre">ReadAction.replace()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.rfind"><code class="docutils literal notranslate"><span class="pre">ReadAction.rfind()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.rindex"><code class="docutils literal notranslate"><span class="pre">ReadAction.rindex()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.rjust"><code class="docutils literal notranslate"><span class="pre">ReadAction.rjust()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.rpartition"><code class="docutils literal notranslate"><span class="pre">ReadAction.rpartition()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.rsplit"><code class="docutils literal notranslate"><span class="pre">ReadAction.rsplit()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.rstrip"><code class="docutils literal notranslate"><span class="pre">ReadAction.rstrip()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.split"><code class="docutils literal notranslate"><span class="pre">ReadAction.split()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.splitlines"><code class="docutils literal notranslate"><span class="pre">ReadAction.splitlines()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.startswith"><code class="docutils literal notranslate"><span class="pre">ReadAction.startswith()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.strip"><code class="docutils literal notranslate"><span class="pre">ReadAction.strip()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.swapcase"><code class="docutils literal notranslate"><span class="pre">ReadAction.swapcase()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.title"><code class="docutils literal notranslate"><span class="pre">ReadAction.title()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.translate"><code class="docutils literal notranslate"><span class="pre">ReadAction.translate()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.upper"><code class="docutils literal notranslate"><span class="pre">ReadAction.upper()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.ReadAction.zfill"><code class="docutils literal notranslate"><span class="pre">ReadAction.zfill()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -7911,7 +8440,7 @@ is raised.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=a352c988"></script>
+</div><script src="_static/documentation_options.js?v=df007dce"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

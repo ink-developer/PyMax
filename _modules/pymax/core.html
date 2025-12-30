@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>pymax.core - PyMax 1.2.3 documentation</title>
+        <title>pymax.core - PyMax 1.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">PyMax 1.2.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">PyMax 1.2.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">PyMax 1.2.3 documentation</span>
+  <span class="sidebar-brand-text">PyMax 1.2.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -198,7 +198,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes v1.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes v1.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
 </ul>
 
 </div>
@@ -251,15 +252,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">InvalidPhoneError</span><span class="p">,</span>
     <span class="n">SocketNotConnectedError</span><span class="p">,</span>
+    <span class="n">WebSocketNotConnectedError</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseClient</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiMixin</span><span class="p">,</span> <span class="n">SocketMixin</span><span class="p">,</span> <span class="n">WebSocketMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.payloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserAgentPayload</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.static.constant</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">HOST</span><span class="p">,</span>
-    <span class="n">PORT</span><span class="p">,</span>
-    <span class="n">WEBSOCKET_URI</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.static.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">HOST</span><span class="p">,</span> <span class="n">PORT</span><span class="p">,</span> <span class="n">SESSION_STORAGE_DB</span><span class="p">,</span> <span class="n">WEBSOCKET_URI</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
@@ -268,7 +266,6 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pymax.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseFilter</span>
 
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Channel</span><span class="p">,</span> <span class="n">Chat</span><span class="p">,</span> <span class="n">Dialog</span><span class="p">,</span> <span class="n">Me</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> <span class="n">ReactionInfo</span><span class="p">,</span> <span class="n">User</span>
 
 
@@ -278,6 +275,7 @@
 <div class="viewcode-block" id="MaxClient">
 <a class="viewcode-back" href="../../clients.html#pymax.MaxClient">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MaxClient</span><span class="p">(</span><span class="n">ApiMixin</span><span class="p">,</span> <span class="n">WebSocketMixin</span><span class="p">,</span> <span class="n">BaseClient</span><span class="p">):</span>
+    <span class="n">allowed_device_types</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;WEB&quot;</span><span class="p">}</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Основной клиент для работы с WebSocket API сервиса Max.</span>
 
@@ -285,6 +283,8 @@
 <span class="sd">    :type phone: str</span>
 <span class="sd">    :param uri: URI WebSocket сервера.</span>
 <span class="sd">    :type uri: str, optional</span>
+<span class="sd">    :param session_name: Название сессии для хранения базы данных.</span>
+<span class="sd">    :type session_name: str, optional</span>
 <span class="sd">    :param work_dir: Рабочая директория для хранения базы данных.</span>
 <span class="sd">    :type work_dir: str, optional</span>
 <span class="sd">    :param logger: Пользовательский логгер. Если не передан, используется логгер модуля с именем f&quot;{__name__}.MaxClient&quot;.</span>
@@ -317,7 +317,8 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">phone</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">WEBSOCKET_URI</span><span class="p">,</span>
-        <span class="n">headers</span><span class="p">:</span> <span class="n">UserAgentPayload</span> <span class="o">=</span> <span class="n">UserAgentPayload</span><span class="p">(),</span>
+        <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SESSION_STORAGE_DB</span><span class="p">,</span>
+        <span class="n">headers</span><span class="p">:</span> <span class="n">UserAgentPayload</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">send_fake_telemetry</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">HOST</span><span class="p">,</span>
@@ -356,7 +357,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_users</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">User</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_work_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">work_dir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_database_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;session.db&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_database_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">session_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_database_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_database_path</span><span class="o">.</span><span class="n">touch</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_database</span> <span class="o">=</span> <span class="n">Database</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_work_dir</span><span class="p">)</span>
@@ -368,6 +369,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_file_upload_waiters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_background_tasks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_seq</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_error_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
@@ -378,7 +380,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_file_upload_waiters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">get_auth_token</span><span class="p">()</span> <span class="ow">or</span> <span class="n">token</span>
+        <span class="k">if</span> <span class="n">headers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_headers</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span> <span class="o">=</span> <span class="n">headers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_device_type</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_fake_telemetry</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">send_fake_telemetry</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_session_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_action_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
@@ -416,11 +421,24 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_work_dir</span><span class="p">,</span>
         <span class="p">)</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_headers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UserAgentPayload</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">UserAgentPayload</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;WEB&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_device_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span><span class="o">.</span><span class="n">device_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_device_types</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not support &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;device_type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span><span class="o">.</span><span class="n">device_type</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_wait_forever</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">ws</span><span class="o">.</span><span class="n">wait_closed</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;wait_closed cancelled&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">WebSocketNotConnectedError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WebSocket not connected, exiting wait_forever&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MaxClient.close">
 <a class="viewcode-back" href="../../clients.html#pymax.MaxClient.close">[docs]</a>
@@ -432,22 +450,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Closing client&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recv_task</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_recv_task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recv_task</span>
-                <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;recv_task cancelled&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outgoing_task</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_outgoing_task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outgoing_task</span>
-                <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;outgoing_task cancelled&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ws</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ws</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">is_connected</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Client closed&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error closing client&quot;</span><span class="p">)</span></div>
 
@@ -523,10 +526,9 @@
 <span class="sd">        :return: None</span>
 <span class="sd">        :rtype: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Client starting&quot;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Client starting&quot;</span><span class="p">)</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">registration</span><span class="p">:</span>
@@ -541,31 +543,47 @@
                     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_login</span><span class="p">()</span>
 
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sync</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span><span class="p">)</span>
-
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post_login_tasks</span><span class="p">(</span><span class="n">sync</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wait_forever</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WebSocket closed (wait_forever exited)&quot;</span><span class="p">)</span>
+                <span class="n">wait_task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wait_forever</span><span class="p">())</span>
+                <span class="n">stop_task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">wait</span><span class="p">())</span>
+
+                <span class="n">done</span><span class="p">,</span> <span class="n">pending</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">wait_task</span><span class="p">,</span> <span class="n">stop_task</span><span class="p">],</span> <span class="n">return_when</span><span class="o">=</span><span class="n">asyncio</span><span class="o">.</span><span class="n">FIRST_COMPLETED</span>
+                <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">pending</span><span class="p">:</span>
+                    <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+                    <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">):</span>
+                        <span class="k">await</span> <span class="n">task</span>
+
+            <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Client task cancelled, stopping&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Client start iteration failed&quot;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="n">e</span>
-
             <span class="k">finally</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Cleaning up background tasks and pending futures&quot;</span><span class="p">)</span>
-
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cleanup_client</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconnect</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reconnect disabled — exiting start()&quot;</span><span class="p">)</span>
-                <span class="k">return</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconnect</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reconnect disabled or stop requested — exiting start()&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reconnect enabled — restarting client&quot;</span><span class="p">)</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reconnect_delay</span><span class="p">)</span></div>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reconnect_delay</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Client exited cleanly&quot;</span><span class="p">)</span></div>
 </div>
 
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">SocketMaxClient</span><span class="p">(</span><span class="n">SocketMixin</span><span class="p">,</span> <span class="n">MaxClient</span><span class="p">):</span>
+    <span class="n">allowed_device_types</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ANDROID&quot;</span><span class="p">,</span> <span class="s2">&quot;IOS&quot;</span><span class="p">,</span> <span class="s2">&quot;DESKTOP&quot;</span><span class="p">}</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_headers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UserAgentPayload</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">UserAgentPayload</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;DESKTOP&quot;</span><span class="p">)</span>
+
     <span class="nd">@override</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_wait_forever</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recv_task</span><span class="p">:</span>
@@ -649,7 +667,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=a352c988"></script>
+</div><script src="../../_static/documentation_options.js?v=df007dce"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

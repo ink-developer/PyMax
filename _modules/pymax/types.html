@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>pymax.types - PyMax 1.2.3 documentation</title>
+        <title>pymax.types - PyMax 1.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">PyMax 1.2.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">PyMax 1.2.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">PyMax 1.2.3 documentation</span>
+  <span class="sidebar-brand-text">PyMax 1.2.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -198,7 +198,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes v1.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes v1.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
 </ul>
 
 </div>
@@ -1595,6 +1596,37 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FolderList: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folders</span><span class="p">)</span><span class="si">}</span><span class="s2"> folders&quot;</span></div>
 
+
+
+<div class="viewcode-block" id="ReadState">
+<a class="viewcode-back" href="../../types.html#pymax.types.ReadState">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReadState</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">unread</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">mark</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unread</span> <span class="o">=</span> <span class="n">unread</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mark</span> <span class="o">=</span> <span class="n">mark</span>
+
+<div class="viewcode-block" id="ReadState.from_dict">
+<a class="viewcode-back" href="../../types.html#pymax.types.ReadState.from_dict">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">unread</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;unread&quot;</span><span class="p">],</span>
+            <span class="n">mark</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;mark&quot;</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ReadState(unread=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unread</span><span class="si">!r}</span><span class="s2">, mark=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mark</span><span class="si">!r}</span><span class="s2">)&quot;</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ReadState: unread=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unread</span><span class="si">}</span><span class="s2">, mark=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mark</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -1627,7 +1659,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=a352c988"></script>
+</div><script src="../../_static/documentation_options.js?v=df007dce"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
