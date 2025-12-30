@@ -1,6 +1,6 @@
 [project]
 name = "maxapi-python"
-version = "1.2.3"
+version = "1.2.4"
 description = "Python wrapper для API мессенджера Max"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,12 +19,13 @@ dependencies = [
   "aiohttp>=3.12.15",
   "aiofiles>=24.1.0",
   "qrcode>=8.2",
+  "ua-generator>=2.0.19",
 ]
 
 [project.urls]
-Homepage = "https://github.com/ink-developer/PyMax"
-Repository = "https://github.com/ink-developer/PyMax"
-Issues = "https://github.com/ink-developer/PyMax/issues"
+Homepage = "https://github.com/MaxApiTeam/PyMax"
+Repository = "https://github.com/MaxApiTeam/PyMax"
+Issues = "https://github.com/MaxApiTeam/PyMax/issues"
 
 [build-system]
 requires = ["hatchling"]

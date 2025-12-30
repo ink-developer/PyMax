@@ -38,7 +38,7 @@ Greeter Bot
 
     client = MaxClient(phone="+79001234567")
 
-    @client.on_message(Filters.private())
+    @client.on_message(Filters.chat(123))
     async def greet(message):
         user = await client.get_user(message.sender)
         if user and user.names:
@@ -150,13 +150,8 @@ File Manager
         for attach in message.attaches:
             if attach.type == AttachType.PHOTO:
                 print("Получено фото!")
-                file_info = await client.get_file_by_id(
-                    chat_id=message.chat_id,
-                    message_id=message.id,
-                    file_id=attach.file_id
-                )
-                if file_info:
-                    print(f"URL: {file_info.url}")
+
+                print(f"URL: {attach.base_url}")
 
     @client.on_message(Filters.text("файл"))
     async def send_file(message):

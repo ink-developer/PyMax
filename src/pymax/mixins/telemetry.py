@@ -3,20 +3,18 @@ import random
 import time
 
 from pymax.exceptions import Error
-from pymax.interfaces import ClientProtocol
 from pymax.navigation import Navigation
 from pymax.payloads import (
     NavigationEventParams,
     NavigationEventPayload,
     NavigationPayload,
 )
+from pymax.protocols import ClientProtocol
 from pymax.static.enum import Opcode
 
 
 class TelemetryMixin(ClientProtocol):
-    async def _send_navigation_event(
-        self, events: list[NavigationEventPayload]
-    ) -> None:
+    async def _send_navigation_event(self, events: list[NavigationEventPayload]) -> None:
         try:
             payload = NavigationPayload(events=events).model_dump(by_alias=True)
             data = await self._send_and_wait(

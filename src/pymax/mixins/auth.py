@@ -7,11 +7,11 @@ from typing import Any
 import qrcode
 
 from pymax.exceptions import Error
-from pymax.interfaces import ClientProtocol
-from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import RegisterPayload, RequestCodePayload, SendCodePayload
+from pymax.protocols import ClientProtocol
 from pymax.static.constant import PHONE_REGEX
 from pymax.static.enum import AuthType, DeviceType, Opcode
+from pymax.utils import MixinsUtils
 
 
 class AuthMixin(ClientProtocol):

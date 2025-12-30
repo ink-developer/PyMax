@@ -17,15 +17,12 @@ from .crud import Database
 from .exceptions import (
     InvalidPhoneError,
     SocketNotConnectedError,
+    WebSocketNotConnectedError,
 )
 from .interfaces import BaseClient
 from .mixins import ApiMixin, SocketMixin, WebSocketMixin
 from .payloads import UserAgentPayload
-from .static.constant import (
-    HOST,
-    PORT,
-    WEBSOCKET_URI,
-)
+from .static.constant import HOST, PORT, SESSION_STORAGE_DB, WEBSOCKET_URI
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -34,7 +31,6 @@ if TYPE_CHECKING:
 
     from pymax.filters import BaseFilter
 
-    from .filters import Filters
     from .types import Channel, Chat, Dialog, Me, Message, ReactionInfo, User
 
 
@@ -42,6 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
+    allowed_device_types: set[str] = {"WEB"}
     """
     Основной клиент для работы с WebSocket API сервиса Max.
 
@@ -49,6 +46,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
     :type phone: str
     :param uri: URI WebSocket сервера.
     :type uri: str, optional
+    :param session_name: Название сессии для хранения базы данных.
+    :type session_name: str, optional
     :param work_dir: Рабочая директория для хранения базы данных.
     :type work_dir: str, optional
     :param logger: Пользовательский логгер. Если не передан, используется логгер модуля с именем f"{__name__}.MaxClient".
@@ -81,7 +80,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self,
         phone: str,
         uri: str = WEBSOCKET_URI,
-        headers: UserAgentPayload = UserAgentPayload(),
+        session_name: str = SESSION_STORAGE_DB,
+        headers: UserAgentPayload | None = None,
         token: str | None = None,
         send_fake_telemetry: bool = True,
         host: str = HOST,
@@ -120,7 +120,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._users: dict[int, User] = {}
 
         self._work_dir: str = work_dir
-        self._database_path: Path = Path(work_dir) / "session.db"
+        self._database_path: Path = Path(work_dir) / session_name
         self._database_path.parent.mkdir(parents=True, exist_ok=True)
         self._database_path.touch(exist_ok=True)
         self._database = Database(self._work_dir)
@@ -132,6 +132,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._background_tasks: set[asyncio.Task[Any]] = set()
+        self._stop_event = asyncio.Event()
 
         self._seq: int = 0
         self._error_count: int = 0
@@ -142,7 +143,10 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
 
         self._token = self._database.get_auth_token() or token
+        if headers is None:
+            headers = self._default_headers()
         self.user_agent = headers
+        self._validate_device_type()
         self._send_fake_telemetry: bool = send_fake_telemetry
         self._session_id: int = int(time.time() * 1000)
         self._action_id: int = 1
@@ -180,11 +184,24 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
             self._work_dir,
         )
 
+    @staticmethod
+    def _default_headers() -> UserAgentPayload:
+        return UserAgentPayload(device_type="WEB")
+
+    def _validate_device_type(self) -> None:
+        if self.user_agent.device_type not in self.allowed_device_types:
+            raise ValueError(
+                f"{self.__class__.__name__} does not support "
+                f"device_type={self.user_agent.device_type}"
+            )
+
     async def _wait_forever(self) -> None:
         try:
             await self.ws.wait_closed()
         except asyncio.CancelledError:
             self.logger.debug("wait_closed cancelled")
+        except WebSocketNotConnectedError:
+            self.logger.info("WebSocket not connected, exiting wait_forever")
 
     async def close(self) -> None:
         """
@@ -194,22 +211,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         """
         try:
             self.logger.info("Closing client")
-            if self._recv_task:
-                self._recv_task.cancel()
-                try:
-                    await self._recv_task
-                except asyncio.CancelledError:
-                    self.logger.debug("recv_task cancelled")
-            if self._outgoing_task:
-                self._outgoing_task.cancel()
-                try:
-                    await self._outgoing_task
-                except asyncio.CancelledError:
-                    self.logger.debug("outgoing_task cancelled")
-            if self._ws:
-                await self._ws.close()
-            self.is_connected = False
-            self.logger.info("Client closed")
+            self._stop_event.set()
         except Exception:
             self.logger.exception("Error closing client")
 
@@ -279,10 +281,9 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         :return: None
         :rtype: None
         """
-
-        while True:
+        self.logger.info("Client starting")
+        while not self._stop_event.is_set():
             try:
-                self.logger.info("Client starting")
                 await self.connect(self.user_agent)
 
                 if self.registration:
@@ -297,29 +298,45 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                     await self._login()
 
                 await self._sync(self.user_agent)
-
                 await self._post_login_tasks(sync=False)
 
-                await self._wait_forever()
-                self.logger.info("WebSocket closed (wait_forever exited)")
+                wait_task = asyncio.create_task(self._wait_forever())
+                stop_task = asyncio.create_task(self._stop_event.wait())
+
+                done, pending = await asyncio.wait(
+                    [wait_task, stop_task], return_when=asyncio.FIRST_COMPLETED
+                )
+
+                for task in pending:
+                    task.cancel()
+                    with contextlib.suppress(asyncio.CancelledError):
+                        await task
+
+            except asyncio.CancelledError:
+                self.logger.info("Client task cancelled, stopping")
+                break
             except Exception as e:
                 self.logger.exception("Client start iteration failed")
-                raise e
-
             finally:
-                self.logger.debug("Cleaning up background tasks and pending futures")
-
                 await self._cleanup_client()
 
-            if not self.reconnect:
-                self.logger.info("Reconnect disabled — exiting start()")
-                return
+            if not self.reconnect or self._stop_event.is_set():
+                self.logger.info("Reconnect disabled or stop requested — exiting start()")
+                break
 
             self.logger.info("Reconnect enabled — restarting client")
             await asyncio.sleep(self.reconnect_delay)
 
+        self.logger.info("Client exited cleanly")
+
 
 class SocketMaxClient(SocketMixin, MaxClient):
+    allowed_device_types = {"ANDROID", "IOS", "DESKTOP"}
+
+    @staticmethod
+    def _default_headers() -> UserAgentPayload:
+        return UserAgentPayload(device_type="DESKTOP")
+
     @override
     async def _wait_forever(self):
         if self._recv_task:

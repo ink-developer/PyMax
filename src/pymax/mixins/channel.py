@@ -1,18 +1,18 @@
 from pymax.exceptions import Error, ResponseError, ResponseStructureError
-from pymax.interfaces import ClientProtocol
-from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import (
     GetGroupMembersPayload,
     JoinChatPayload,
     ResolveLinkPayload,
     SearchGroupMembersPayload,
 )
+from pymax.protocols import ClientProtocol
 from pymax.static.constant import (
     DEFAULT_CHAT_MEMBERS_LIMIT,
     DEFAULT_MARKER_VALUE,
 )
 from pymax.static.enum import Opcode
 from pymax.types import Channel, Member
+from pymax.utils import MixinsUtils
 
 
 class ChannelMixin(ClientProtocol):
@@ -113,9 +113,7 @@ class ChannelMixin(ClientProtocol):
         payload = GetGroupMembersPayload(chat_id=chat_id, marker=marker, count=count)
         return await self._query_members(payload)
 
-    async def find_members(
-        self, chat_id: int, query: str
-    ) -> tuple[list[Member], int | None]:
+    async def find_members(self, chat_id: int, query: str) -> tuple[list[Member], int | None]:
         """
         Поиск участников канала по строке
         Внимание! веб-клиент всегда возвращает только определённое количество пользователей,

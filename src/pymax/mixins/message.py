@@ -10,8 +10,6 @@ from aiohttp import ClientSession, TCPConnector
 from pymax.exceptions import Error
 from pymax.files import File, Photo, Video
 from pymax.formatting import Formatting
-from pymax.interfaces import ClientProtocol
-from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import (
     AddReactionPayload,
     AttachFilePayload,
@@ -25,6 +23,7 @@ from pymax.payloads import (
     MessageElement,
     PinMessagePayload,
     ReactionInfoPayload,
+    ReadMessagesPayload,
     RemoveReactionPayload,
     ReplyLink,
     SendMessagePayload,
@@ -32,15 +31,18 @@ from pymax.payloads import (
     UploadPayload,
     VideoAttachPayload,
 )
+from pymax.protocols import ClientProtocol
 from pymax.static.constant import DEFAULT_TIMEOUT
-from pymax.static.enum import AttachType, Opcode
+from pymax.static.enum import AttachType, Opcode, ReadAction
 from pymax.types import (
     Attach,
     FileRequest,
     Message,
     ReactionInfo,
+    ReadState,
     VideoRequest,
 )
+from pymax.utils import MixinsUtils
 
 
 class MessageMixin(ClientProtocol):
@@ -68,15 +70,11 @@ class MessageMixin(ClientProtocol):
 
             if file.path:
                 file_size = Path(file.path).stat().st_size
-                self.logger.info(
-                    "File size from path: %.2f MB", file_size / (1024 * 1024)
-                )
+                self.logger.info("File size from path: %.2f MB", file_size / (1024 * 1024))
             else:
                 file_bytes = await file.read()
                 file_size = len(file_bytes)
-                self.logger.info(
-                    "File size from URL: %.2f MB", file_size / (1024 * 1024)
-                )
+                self.logger.info("File size from URL: %.2f MB", file_size / (1024 * 1024))
 
             connector = TCPConnector(limit=0)
             timeout = aiohttp.ClientTimeout(total=None, sock_read=None, sock_connect=30)
@@ -161,9 +159,7 @@ class MessageMixin(ClientProtocol):
                 )
                 try:
                     await asyncio.wait_for(fut, timeout=DEFAULT_TIMEOUT)
-                    self.logger.info(
-                        "File upload completed successfully (fileId=%s)", file_id
-                    )
+                    self.logger.info("File upload completed successfully (fileId=%s)", file_id)
                     return Attach(_type=AttachType.FILE, file_id=file_id)
                 except asyncio.TimeoutError:
                     self.logger.warning(
@@ -190,9 +186,7 @@ class MessageMixin(ClientProtocol):
                 MixinsUtils.handle_error(data)
 
             url = data.get("payload", {}).get("info", [None])[0].get("url", None)
-            video_id = (
-                data.get("payload", {}).get("info", [None])[0].get("videoId", None)
-            )
+            video_id = data.get("payload", {}).get("info", [None])[0].get("videoId", None)
             if not url or not video_id:
                 self.logger.error("No upload URL or video ID received")
                 return None
@@ -207,9 +201,7 @@ class MessageMixin(ClientProtocol):
 
             # Настройки для ClientSession
             connector = TCPConnector(limit=0)
-            timeout = aiohttp.ClientTimeout(
-                total=900, sock_read=60
-            )  # 15 минут на видео
+            timeout = aiohttp.ClientTimeout(total=900, sock_read=60)  # 15 минут на видео
 
             headers = {
                 "Content-Disposition": f"attachment; filename={video.file_name}",
@@ -226,26 +218,20 @@ class MessageMixin(ClientProtocol):
                 self.logger.exception("Failed to register file upload waiter")
 
             try:
-                async with ClientSession(
-                    connector=connector, timeout=timeout
-                ) as session:
+                async with ClientSession(connector=connector, timeout=timeout) as session:
                     async with session.post(
                         url=url,
                         headers=headers,
                         data=file_bytes,
                     ) as response:
                         if response.status != HTTPStatus.OK:
-                            self.logger.error(
-                                "Upload failed with status %s", response.status
-                            )
+                            self.logger.error("Upload failed with status %s", response.status)
                             self._file_upload_waiters.pop(int(video_id), None)
                             return None
 
                         try:
                             await asyncio.wait_for(fut, timeout=DEFAULT_TIMEOUT)
-                            return Attach(
-                                _type=AttachType.VIDEO, video_id=video_id, token=token
-                            )
+                            return Attach(_type=AttachType.VIDEO, video_id=video_id, token=token)
                         except asyncio.TimeoutError:
                             self.logger.warning(
                                 "Timed out waiting for video processing notification for videoId=%s",
@@ -337,9 +323,7 @@ class MessageMixin(ClientProtocol):
         elif isinstance(attach, File):
             uploaded = await self._upload_file(attach)
             if uploaded and uploaded.file_id:
-                return AttachFilePayload(file_id=uploaded.file_id).model_dump(
-                    by_alias=True
-                )
+                return AttachFilePayload(file_id=uploaded.file_id).model_dump(by_alias=True)
         elif isinstance(attach, Video):
             uploaded = await self._upload_video(attach)
             if uploaded and uploaded.video_id and uploaded.token:
@@ -391,9 +375,7 @@ class MessageMixin(ClientProtocol):
             self.logger.info("Uploading attachment for message")
             result = await self._upload_attachment(attachment)
             if not result:
-                raise Error(
-                    "upload_failed", "Failed to upload attachment", "Upload Error"
-                )
+                raise Error("upload_failed", "Failed to upload attachment", "Upload Error")
             attaches.append(result)
 
         elif attachments:
@@ -403,14 +385,10 @@ class MessageMixin(ClientProtocol):
                 if result:
                     attaches.append(result)
                 else:
-                    raise Error(
-                        "upload_failed", "Failed to upload attachment", "Upload Error"
-                    )
+                    raise Error("upload_failed", "Failed to upload attachment", "Upload Error")
 
             if not attaches:
-                raise Error(
-                    "upload_failed", "All attachments failed to upload", "Upload Error"
-                )
+                raise Error("upload_failed", "All attachments failed to upload", "Upload Error")
 
         elements = []
         clean_text = None
@@ -418,8 +396,7 @@ class MessageMixin(ClientProtocol):
         if raw_elements:
             clean_text = parsed_text
         elements = [
-            MessageElement(type=e.type, length=e.length, from_=e.from_)
-            for e in raw_elements
+            MessageElement(type=e.type, length=e.length, from_=e.from_) for e in raw_elements
         ]
 
         payload = SendMessagePayload(
@@ -447,9 +424,7 @@ class MessageMixin(ClientProtocol):
         msg = Message.from_dict(data["payload"]) if data.get("payload") else None
         self.logger.debug("send_message result: %r", msg)
         if not msg:
-            raise Error(
-                "no_message", "Message data missing in response", "Message Error"
-            )
+            raise Error("no_message", "Message data missing in response", "Message Error")
 
         return msg
 
@@ -481,9 +456,7 @@ class MessageMixin(ClientProtocol):
         :rtype: Message | None
         :raises Error: Если редактирование не удалось.
         """
-        self.logger.info(
-            "Editing message chat_id=%s message_id=%s", chat_id, message_id
-        )
+        self.logger.info("Editing message chat_id=%s message_id=%s", chat_id, message_id)
 
         if attachments and attachment:
             self.logger.warning("Both photo and photos provided; using photos")
@@ -494,9 +467,7 @@ class MessageMixin(ClientProtocol):
             self.logger.info("Uploading attachment for message")
             result = await self._upload_attachment(attachment)
             if not result:
-                raise Error(
-                    "upload_failed", "Failed to upload attachment", "Upload Error"
-                )
+                raise Error("upload_failed", "Failed to upload attachment", "Upload Error")
             attaches.append(result)
 
         elif attachments:
@@ -506,14 +477,10 @@ class MessageMixin(ClientProtocol):
                 if result:
                     attaches.append(result)
                 else:
-                    raise Error(
-                        "upload_failed", "Failed to upload attachment", "Upload Error"
-                    )
+                    raise Error("upload_failed", "Failed to upload attachment", "Upload Error")
 
             if not attaches:
-                raise Error(
-                    "upload_failed", "All attachments failed to upload", "Upload Error"
-                )
+                raise Error("upload_failed", "All attachments failed to upload", "Upload Error")
 
         elements = []
         clean_text = None
@@ -521,8 +488,7 @@ class MessageMixin(ClientProtocol):
         if raw_elements:
             clean_text = Formatting.get_elements_from_markdown(text)[1]
         elements = [
-            MessageElement(type=e.type, length=e.length, from_=e.from_)
-            for e in raw_elements
+            MessageElement(type=e.type, length=e.length, from_=e.from_) for e in raw_elements
         ]
 
         payload = EditMessagePayload(
@@ -546,9 +512,7 @@ class MessageMixin(ClientProtocol):
         msg = Message.from_dict(data["payload"]) if data.get("payload") else None
         self.logger.debug("edit_message result: %r", msg)
         if not msg:
-            raise Error(
-                "no_message", "Message data missing in response", "Message Error"
-            )
+            raise Error("no_message", "Message data missing in response", "Message Error")
 
         return msg
 
@@ -597,9 +561,7 @@ class MessageMixin(ClientProtocol):
         self.logger.debug("delete_message success")
         return True
 
-    async def pin_message(
-        self, chat_id: int, message_id: int, notify_pin: bool
-    ) -> bool:
+    async def pin_message(self, chat_id: int, message_id: int, notify_pin: bool) -> bool:
         """
         Закрепляет сообщение в чате.
 
@@ -667,16 +629,12 @@ class MessageMixin(ClientProtocol):
 
         self.logger.debug("Payload dict keys: %s", list(payload.keys()))
 
-        data = await self._send_and_wait(
-            opcode=Opcode.CHAT_HISTORY, payload=payload, timeout=10
-        )
+        data = await self._send_and_wait(opcode=Opcode.CHAT_HISTORY, payload=payload, timeout=10)
 
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
 
-        messages = [
-            Message.from_dict(msg) for msg in data["payload"].get("messages", [])
-        ]
+        messages = [Message.from_dict(msg) for msg in data["payload"].get("messages", [])]
         self.logger.debug("History fetched: %d messages", len(messages))
         return messages
 
@@ -797,9 +755,7 @@ class MessageMixin(ClientProtocol):
                 reaction=ReactionInfoPayload(id=reaction),
             ).model_dump(by_alias=True)
 
-            data = await self._send_and_wait(
-                opcode=Opcode.MSG_REACTION, payload=payload
-            )
+            data = await self._send_and_wait(opcode=Opcode.MSG_REACTION, payload=payload)
 
             if data.get("payload", {}).get("error"):
                 MixinsUtils.handle_error(data)
@@ -833,21 +789,17 @@ class MessageMixin(ClientProtocol):
             message_ids,
         )
 
-        payload = GetReactionsPayload(
-            chat_id=chat_id, message_ids=message_ids
-        ).model_dump(by_alias=True)
-
-        data = await self._send_and_wait(
-            opcode=Opcode.MSG_GET_REACTIONS, payload=payload
+        payload = GetReactionsPayload(chat_id=chat_id, message_ids=message_ids).model_dump(
+            by_alias=True
         )
+
+        data = await self._send_and_wait(opcode=Opcode.MSG_GET_REACTIONS, payload=payload)
 
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
 
         reactions = {}
-        for msg_id, reaction_data in (
-            data.get("payload", {}).get("messagesReactions", {}).items()
-        ):
+        for msg_id, reaction_data in data.get("payload", {}).get("messagesReactions", {}).items():
             reactions[msg_id] = ReactionInfo.from_dict(reaction_data)
 
         self.logger.debug("get_reactions success")
@@ -879,18 +831,14 @@ class MessageMixin(ClientProtocol):
             message_id=message_id,
         ).model_dump(by_alias=True)
 
-        data = await self._send_and_wait(
-            opcode=Opcode.MSG_CANCEL_REACTION, payload=payload
-        )
+        data = await self._send_and_wait(opcode=Opcode.MSG_CANCEL_REACTION, payload=payload)
 
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
 
         self.logger.debug("remove_reaction success")
         if not data.get("payload"):
-            raise Error(
-                "no_reaction", "Reaction data missing in response", "Reaction Error"
-            )
+            raise Error("no_reaction", "Reaction data missing in response", "Reaction Error")
 
         reaction = ReactionInfo.from_dict(data["payload"]["reactionInfo"])
         if not reaction:
@@ -901,3 +849,31 @@ class MessageMixin(ClientProtocol):
             )
 
         return reaction
+
+    async def read_message(self, message_id: int, chat_id: int) -> ReadState:
+        """
+        Отмечает сообщение как прочитанное.
+
+        :param message_id: ID сообщения
+        :type message_id: int
+        :param chat_id: ID чата
+        :type chat_id: int
+        :return: Объект ReadState
+        :rtype: ReadState
+        """
+        self.logger.info("Marking message as read chat_id=%s message_id=%s", chat_id, message_id)
+
+        payload = ReadMessagesPayload(
+            type=ReadAction.READ_MESSAGE,
+            chat_id=chat_id,
+            message_id=str(message_id),
+            mark=int(time.time() * 1000),
+        ).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.CHAT_MARK, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        self.logger.debug("read_message success")
+        return ReadState.from_dict(data["payload"])

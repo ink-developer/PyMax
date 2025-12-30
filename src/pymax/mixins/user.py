@@ -1,15 +1,15 @@
 from typing import Any, Literal
 
 from pymax.exceptions import Error, ResponseError, ResponseStructureError
-from pymax.interfaces import ClientProtocol
-from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import (
     ContactActionPayload,
     FetchContactsPayload,
     SearchByPhonePayload,
 )
+from pymax.protocols import ClientProtocol
 from pymax.static.enum import ContactAction, Opcode
 from pymax.types import Contact, Session, User
+from pymax.utils import MixinsUtils
 
 
 class UserMixin(ClientProtocol):
@@ -122,9 +122,7 @@ class UserMixin(ClientProtocol):
 
         payload = SearchByPhonePayload(phone=phone).model_dump(by_alias=True)
 
-        data = await self._send_and_wait(
-            opcode=Opcode.CONTACT_INFO_BY_PHONE, payload=payload
-        )
+        data = await self._send_and_wait(opcode=Opcode.CONTACT_INFO_BY_PHONE, payload=payload)
 
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)

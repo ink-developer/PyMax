@@ -8,8 +8,6 @@ import aiohttp
 
 from pymax.exceptions import Error
 from pymax.files import Photo
-from pymax.interfaces import ClientProtocol
-from pymax.mixins.utils import MixinsUtils
 from pymax.payloads import (
     ChangeProfilePayload,
     CreateFolderPayload,
@@ -18,8 +16,10 @@ from pymax.payloads import (
     UpdateFolderPayload,
     UploadPayload,
 )
+from pymax.protocols import ClientProtocol
 from pymax.static.enum import Opcode
 from pymax.types import Folder, FolderList, FolderUpdate, Me
+from pymax.utils import MixinsUtils
 
 
 class SelfMixin(ClientProtocol):

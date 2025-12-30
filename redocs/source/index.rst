@@ -5,6 +5,7 @@
 .. image:: _static/logo.svg
    :align: center
    :width: 320px
+
 PyMax
 =====
 
@@ -34,6 +35,7 @@ PyMax
    decorators
    examples
    guides
+   release_notes
 
 .. rubric:: Особенности
 
@@ -41,6 +43,10 @@ PyMax
 - Отправка / редактирование / удаление сообщений
 - Управление чатами, каналами и диалогами
 - Получение истории сообщений
+- Загрузка фотографий профиля
+- Разрешение групп по ссылке
+- Поддержка контактов в сообщениях
+- Управление списком контактов
 
 ---
 
@@ -97,7 +103,7 @@ Disclaimer
 Star History
 ------------
 
-.. image:: https://api.star-history.com/svg?repos=ink-developer/PyMax&type=date&legend=top-left
+.. image:: https://api.star-history.com/svg?repos=MaxApiTeam/PyMax&type=date&legend=top-left
 
 Авторы
 ------
@@ -108,5 +114,5 @@ Star History
 Контрибьюторы
 -------------
 
-.. image:: https://contrib.rocks/image?repo=ink-developer/PyMax
+.. image:: https://contrib.rocks/image?repo=MaxApiTeam/PyMax
    :alt: Contributors

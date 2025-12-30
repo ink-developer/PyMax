@@ -169,6 +169,6 @@ if __name__ == "__main__":
 
 Спасибо всем за помощь в разработке!
 
-<a href="https://github.com/ink-developer/PyMax/graphs/contributors">
+<a href="https://github.com/MaxApiTeam/PyMax/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=ink-developer/PyMax" />
 </a>

@@ -15,7 +15,7 @@ from pymax.static.constant import (
     DEFAULT_TIMEZONE,
     DEFAULT_USER_AGENT,
 )
-from pymax.static.enum import AttachType, AuthType, ContactAction
+from pymax.static.enum import AttachType, AuthType, ContactAction, ReadAction
 
 
 def to_camel(string: str) -> str:
@@ -358,3 +358,10 @@ class LeaveChatPayload(CamelModel):
 
 class FetchChatsPayload(CamelModel):
     marker: int
+
+
+class ReadMessagesPayload(CamelModel):
+    type: ReadAction
+    chat_id: int
+    message_id: str
+    mark: int

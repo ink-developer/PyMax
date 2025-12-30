@@ -1193,3 +1193,28 @@ class FolderList:
     @override
     def __str__(self) -> str:
         return f"FolderList: {len(self.folders)} folders"
+
+
+class ReadState:
+    def __init__(
+        self,
+        unread: int,
+        mark: int,
+    ) -> None:
+        self.unread = unread
+        self.mark = mark
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(
+            unread=data["unread"],
+            mark=data["mark"],
+        )
+
+    @override
+    def __repr__(self) -> str:
+        return f"ReadState(unread={self.unread!r}, mark={self.mark!r})"
+
+    @override
+    def __str__(self) -> str:
+        return f"ReadState: unread={self.unread}, mark={self.mark}"
