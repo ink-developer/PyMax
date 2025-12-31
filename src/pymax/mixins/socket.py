@@ -84,7 +84,7 @@ class SocketMixin(BaseTransport):
     ) -> bytes:
         ver_b = ver.to_bytes(1, "big")
         cmd_b = cmd.to_bytes(2, "big")
-        seq_b = seq.to_bytes(1, "big")
+        seq_b = (seq % 256).to_bytes(1, "big")
         opcode_b = opcode.to_bytes(2, "big")
         payload_bytes: bytes | None = msgpack.packb(payload)
         if payload_bytes is None:
@@ -219,7 +219,7 @@ Socket connections may be unstable, SSL issues are possible.
                 for data_item in datas:
                     seq = data_item.get("seq")
 
-                    if self._handle_pending(seq, data_item):
+                    if self._handle_pending(seq % 256 if seq is not None else None, data_item):
                         continue
 
                     if self._incoming is not None:
@@ -249,7 +249,13 @@ Socket connections may be unstable, SSL issues are possible.
         msg = self._make_message(opcode, payload, cmd)
         loop = asyncio.get_running_loop()
         fut: asyncio.Future[dict[str, Any]] = loop.create_future()
-        self._pending[msg["seq"]] = fut
+        seq_key = msg["seq"] % 256
+
+        old_fut = self._pending.get(seq_key)
+        if old_fut and not old_fut.done():
+            old_fut.cancel()
+
+        self._pending[seq_key] = fut
         try:
             self.logger.debug(
                 "Sending frame opcode=%s cmd=%s seq=%s",
@@ -282,12 +288,15 @@ Socket connections may be unstable, SSL issues are possible.
                 self.logger.exception("Reconnect failed")
                 raise exc from conn_err
             raise SocketNotConnectedError from conn_err
+        except asyncio.TimeoutError:
+            self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
+            raise SocketSendError from None
         except Exception as exc:
             self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
             raise SocketSendError from exc
 
         finally:
-            self._pending.pop(msg["seq"], None)
+            self._pending.pop(msg["seq"] % 256, None)
 
     @override
     async def _get_chat(self, chat_id: int) -> Chat | None:

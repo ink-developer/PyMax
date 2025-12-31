@@ -2,7 +2,7 @@ import asyncio
 import random
 import time
 
-from pymax.exceptions import Error
+from pymax.exceptions import Error, SocketNotConnectedError
 from pymax.navigation import Navigation
 from pymax.payloads import (
     NavigationEventParams,
@@ -103,7 +103,13 @@ class TelemetryMixin(ClientProtocol):
 
         try:
             while self.is_connected:
-                await self._send_random_navigation()
+                try:
+                    await self._send_random_navigation()
+                except SocketNotConnectedError:
+                    self.logger.debug("Socket disconnected, exiting telemetry task")
+                    break
+                except Exception:
+                    self.logger.warning("Failed to send random navigation")
                 await asyncio.sleep(self._get_random_sleep_time())
 
         except asyncio.CancelledError:

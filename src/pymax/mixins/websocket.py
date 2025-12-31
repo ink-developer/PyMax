@@ -111,7 +111,13 @@ class WebSocketMixin(BaseTransport):
         msg = self._make_message(opcode, payload, cmd)
         loop = asyncio.get_running_loop()
         fut: asyncio.Future[dict[str, Any]] = loop.create_future()
-        self._pending[msg["seq"]] = fut
+        seq_key = msg["seq"]
+
+        old_fut = self._pending.get(seq_key)
+        if old_fut and not old_fut.done():
+            old_fut.cancel()
+
+        self._pending[seq_key] = fut
 
         try:
             self.logger.debug(
@@ -128,11 +134,14 @@ class WebSocketMixin(BaseTransport):
                 data.get("opcode"),
             )
             return data
+        except asyncio.TimeoutError:
+            self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
+            raise RuntimeError("Send and wait failed")
         except Exception:
             self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
             raise RuntimeError("Send and wait failed")
         finally:
-            self._pending.pop(msg["seq"], None)
+            self._pending.pop(seq_key, None)
 
     @override
     async def _get_chat(self, chat_id: int) -> Chat | None:

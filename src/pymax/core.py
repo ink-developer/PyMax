@@ -252,7 +252,15 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         :rtype: None
         """
         resp = await self._send_code(code, temp_token)
-        token = resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token")
+
+        login_attrs = resp.get("tokenAttrs", {}).get("LOGIN", {})
+        password_challenge = resp.get("passwordChallenge")
+
+        if password_challenge and not login_attrs:
+            token = await self._two_factor_auth(password_challenge)
+        else:
+            token = login_attrs.get("token")
+
         if not token:
             raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
         self._token = token
