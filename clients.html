@@ -199,8 +199,8 @@
 <li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#release-notes-v1-2-4">Release Notes v1.2.4</a></li>
 </ul>
 
 </div>
@@ -1706,6 +1706,31 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pymax.MaxClient.set_password">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">set_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;pymax.static.constant._Unset</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.MaxClient.set_password" title="Link to this definition">¶</a></dt>
+<dd><p>Устанавливает пароль для аккаунта</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Метод не будет работать, если на аккаунте уже установлен пароль.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>password</strong> (<em>str</em>) -- Новый пароль для аккаунта.</p></li>
+<li><p><strong>email</strong> (<em>str</em>) -- Адрес электронной почты для восстановления пароля.</p></li>
+<li><p><strong>hint</strong> (<em>str</em><em> | </em><em>None</em>) -- Подсказка для пароля. По умолчанию None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pymax.MaxClient.start">
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/core.html#MaxClient.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.MaxClient.start" title="Link to this definition">¶</a></dt>
 <dd><p>Запускает клиент, подключается к WebSocket, авторизует
@@ -1988,6 +2013,7 @@
 <li><a class="reference internal" href="#pymax.MaxClient.rework_invite_link"><code class="docutils literal notranslate"><span class="pre">MaxClient.rework_invite_link()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.search_by_phone"><code class="docutils literal notranslate"><span class="pre">MaxClient.search_by_phone()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.send_message"><code class="docutils literal notranslate"><span class="pre">MaxClient.send_message()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.MaxClient.set_password"><code class="docutils literal notranslate"><span class="pre">MaxClient.set_password()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.start"><code class="docutils literal notranslate"><span class="pre">MaxClient.start()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.task"><code class="docutils literal notranslate"><span class="pre">MaxClient.task()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.MaxClient.update_folder"><code class="docutils literal notranslate"><span class="pre">MaxClient.update_folder()</span></code></a></li>

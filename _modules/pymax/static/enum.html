@@ -198,8 +198,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes v1.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes v1.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html#release-notes-v1-2-4">Release Notes v1.2.4</a></li>
 </ul>
 
 </div>
@@ -239,28 +239,28 @@
 <div class="viewcode-block" id="Opcode">
 <a class="viewcode-back" href="../../../types.html#pymax.static.enum.Opcode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Opcode</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="n">PING</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PING</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># ✅</span>
     <span class="n">DEBUG</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">RECONNECT</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="n">LOG</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="n">SESSION_INIT</span> <span class="o">=</span> <span class="mi">6</span>
-    <span class="n">PROFILE</span> <span class="o">=</span> <span class="mi">16</span>
-    <span class="n">AUTH_REQUEST</span> <span class="o">=</span> <span class="mi">17</span>
-    <span class="n">AUTH</span> <span class="o">=</span> <span class="mi">18</span>
-    <span class="n">LOGIN</span> <span class="o">=</span> <span class="mi">19</span>
-    <span class="n">LOGOUT</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">LOG</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># ✅</span>
+    <span class="n">SESSION_INIT</span> <span class="o">=</span> <span class="mi">6</span>  <span class="c1"># ✅</span>
+    <span class="n">PROFILE</span> <span class="o">=</span> <span class="mi">16</span>  <span class="c1"># ✅</span>
+    <span class="n">AUTH_REQUEST</span> <span class="o">=</span> <span class="mi">17</span>  <span class="c1"># ✅</span>
+    <span class="n">AUTH</span> <span class="o">=</span> <span class="mi">18</span>  <span class="c1"># ✅</span>
+    <span class="n">LOGIN</span> <span class="o">=</span> <span class="mi">19</span>  <span class="c1"># ✅</span>
+    <span class="n">LOGOUT</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># ✅</span>
     <span class="n">SYNC</span> <span class="o">=</span> <span class="mi">21</span>
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="mi">22</span>
-    <span class="n">AUTH_CONFIRM</span> <span class="o">=</span> <span class="mi">23</span>
+    <span class="n">AUTH_CONFIRM</span> <span class="o">=</span> <span class="mi">23</span>  <span class="c1"># ✅</span>
     <span class="n">PRESET_AVATARS</span> <span class="o">=</span> <span class="mi">25</span>
     <span class="n">ASSETS_GET</span> <span class="o">=</span> <span class="mi">26</span>
     <span class="n">ASSETS_UPDATE</span> <span class="o">=</span> <span class="mi">27</span>
     <span class="n">ASSETS_GET_BY_IDS</span> <span class="o">=</span> <span class="mi">28</span>
     <span class="n">ASSETS_ADD</span> <span class="o">=</span> <span class="mi">29</span>
     <span class="n">SEARCH_FEEDBACK</span> <span class="o">=</span> <span class="mi">31</span>
-    <span class="n">CONTACT_INFO</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">CONTACT_INFO</span> <span class="o">=</span> <span class="mi">32</span>  <span class="c1"># ✅</span>
     <span class="n">CONTACT_ADD</span> <span class="o">=</span> <span class="mi">33</span>
-    <span class="n">CONTACT_UPDATE</span> <span class="o">=</span> <span class="mi">34</span>
+    <span class="n">CONTACT_UPDATE</span> <span class="o">=</span> <span class="mi">34</span>  <span class="c1"># ✅</span>
     <span class="n">CONTACT_PRESENCE</span> <span class="o">=</span> <span class="mi">35</span>
     <span class="n">CONTACT_LIST</span> <span class="o">=</span> <span class="mi">36</span>
     <span class="n">CONTACT_SEARCH</span> <span class="o">=</span> <span class="mi">37</span>
@@ -269,26 +269,26 @@
     <span class="n">CONTACT_SORT</span> <span class="o">=</span> <span class="mi">40</span>
     <span class="n">CONTACT_VERIFY</span> <span class="o">=</span> <span class="mi">42</span>
     <span class="n">REMOVE_CONTACT_PHOTO</span> <span class="o">=</span> <span class="mi">43</span>
-    <span class="n">CONTACT_INFO_BY_PHONE</span> <span class="o">=</span> <span class="mi">46</span>
-    <span class="n">CHAT_INFO</span> <span class="o">=</span> <span class="mi">48</span>
-    <span class="n">CHAT_HISTORY</span> <span class="o">=</span> <span class="mi">49</span>
-    <span class="n">CHAT_MARK</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">CONTACT_INFO_BY_PHONE</span> <span class="o">=</span> <span class="mi">46</span>  <span class="c1"># ✅</span>
+    <span class="n">CHAT_INFO</span> <span class="o">=</span> <span class="mi">48</span>  <span class="c1"># ✅</span>
+    <span class="n">CHAT_HISTORY</span> <span class="o">=</span> <span class="mi">49</span>  <span class="c1"># ✅</span>
+    <span class="n">CHAT_MARK</span> <span class="o">=</span> <span class="mi">50</span>  <span class="c1"># ✅</span>
     <span class="n">CHAT_MEDIA</span> <span class="o">=</span> <span class="mi">51</span>
     <span class="n">CHAT_DELETE</span> <span class="o">=</span> <span class="mi">52</span>
-    <span class="n">CHATS_LIST</span> <span class="o">=</span> <span class="mi">53</span>
+    <span class="n">CHATS_LIST</span> <span class="o">=</span> <span class="mi">53</span>  <span class="c1"># ✅</span>
     <span class="n">CHAT_CLEAR</span> <span class="o">=</span> <span class="mi">54</span>
-    <span class="n">CHAT_UPDATE</span> <span class="o">=</span> <span class="mi">55</span>
+    <span class="n">CHAT_UPDATE</span> <span class="o">=</span> <span class="mi">55</span>  <span class="c1"># ✅</span>
     <span class="n">CHAT_CHECK_LINK</span> <span class="o">=</span> <span class="mi">56</span>
-    <span class="n">CHAT_JOIN</span> <span class="o">=</span> <span class="mi">57</span>
-    <span class="n">CHAT_LEAVE</span> <span class="o">=</span> <span class="mi">58</span>
-    <span class="n">CHAT_MEMBERS</span> <span class="o">=</span> <span class="mi">59</span>
+    <span class="n">CHAT_JOIN</span> <span class="o">=</span> <span class="mi">57</span>  <span class="c1"># ✅</span>
+    <span class="n">CHAT_LEAVE</span> <span class="o">=</span> <span class="mi">58</span>  <span class="c1"># ✅</span>
+    <span class="n">CHAT_MEMBERS</span> <span class="o">=</span> <span class="mi">59</span>  <span class="c1"># ✅</span>
     <span class="n">PUBLIC_SEARCH</span> <span class="o">=</span> <span class="mi">60</span>
     <span class="n">CHAT_CLOSE</span> <span class="o">=</span> <span class="mi">61</span>
     <span class="n">CHAT_CREATE</span> <span class="o">=</span> <span class="mi">63</span>
-    <span class="n">MSG_SEND</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">MSG_SEND</span> <span class="o">=</span> <span class="mi">64</span>  <span class="c1"># ✅</span>
     <span class="n">MSG_TYPING</span> <span class="o">=</span> <span class="mi">65</span>
-    <span class="n">MSG_DELETE</span> <span class="o">=</span> <span class="mi">66</span>
-    <span class="n">MSG_EDIT</span> <span class="o">=</span> <span class="mi">67</span>
+    <span class="n">MSG_DELETE</span> <span class="o">=</span> <span class="mi">66</span>  <span class="c1"># ✅</span>
+    <span class="n">MSG_EDIT</span> <span class="o">=</span> <span class="mi">67</span>  <span class="c1"># ✅</span>
     <span class="n">CHAT_SEARCH</span> <span class="o">=</span> <span class="mi">68</span>
     <span class="n">MSG_SHARE_PREVIEW</span> <span class="o">=</span> <span class="mi">70</span>
     <span class="n">MSG_GET</span> <span class="o">=</span> <span class="mi">71</span>
@@ -297,31 +297,31 @@
     <span class="n">MSG_GET_STAT</span> <span class="o">=</span> <span class="mi">74</span>
     <span class="n">CHAT_SUBSCRIBE</span> <span class="o">=</span> <span class="mi">75</span>
     <span class="n">VIDEO_CHAT_START</span> <span class="o">=</span> <span class="mi">76</span>
-    <span class="n">CHAT_MEMBERS_UPDATE</span> <span class="o">=</span> <span class="mi">77</span>
+    <span class="n">CHAT_MEMBERS_UPDATE</span> <span class="o">=</span> <span class="mi">77</span>  <span class="c1"># ✅</span>
     <span class="n">VIDEO_CHAT_HISTORY</span> <span class="o">=</span> <span class="mi">79</span>
-    <span class="n">PHOTO_UPLOAD</span> <span class="o">=</span> <span class="mi">80</span>
+    <span class="n">PHOTO_UPLOAD</span> <span class="o">=</span> <span class="mi">80</span>  <span class="c1"># ✅</span>
     <span class="n">STICKER_UPLOAD</span> <span class="o">=</span> <span class="mi">81</span>
-    <span class="n">VIDEO_UPLOAD</span> <span class="o">=</span> <span class="mi">82</span>
-    <span class="n">VIDEO_PLAY</span> <span class="o">=</span> <span class="mi">83</span>
+    <span class="n">VIDEO_UPLOAD</span> <span class="o">=</span> <span class="mi">82</span>  <span class="c1"># ✅</span>
+    <span class="n">VIDEO_PLAY</span> <span class="o">=</span> <span class="mi">83</span>  <span class="c1"># ✅</span>
     <span class="n">CHAT_PIN_SET_VISIBILITY</span> <span class="o">=</span> <span class="mi">86</span>
-    <span class="n">FILE_UPLOAD</span> <span class="o">=</span> <span class="mi">87</span>
-    <span class="n">FILE_DOWNLOAD</span> <span class="o">=</span> <span class="mi">88</span>
-    <span class="n">LINK_INFO</span> <span class="o">=</span> <span class="mi">89</span>
+    <span class="n">FILE_UPLOAD</span> <span class="o">=</span> <span class="mi">87</span>  <span class="c1"># ✅</span>
+    <span class="n">FILE_DOWNLOAD</span> <span class="o">=</span> <span class="mi">88</span>  <span class="c1"># ✅</span>
+    <span class="n">LINK_INFO</span> <span class="o">=</span> <span class="mi">89</span>  <span class="c1"># ✅</span>
     <span class="n">MSG_DELETE_RANGE</span> <span class="o">=</span> <span class="mi">92</span>
-    <span class="n">SESSIONS_INFO</span> <span class="o">=</span> <span class="mi">96</span>
-    <span class="n">SESSIONS_CLOSE</span> <span class="o">=</span> <span class="mi">97</span>
+    <span class="n">SESSIONS_INFO</span> <span class="o">=</span> <span class="mi">96</span>  <span class="c1"># ✅</span>
+    <span class="n">SESSIONS_CLOSE</span> <span class="o">=</span> <span class="mi">97</span>  <span class="c1"># ✅</span>
     <span class="n">PHONE_BIND_REQUEST</span> <span class="o">=</span> <span class="mi">98</span>
     <span class="n">PHONE_BIND_CONFIRM</span> <span class="o">=</span> <span class="mi">99</span>
     <span class="n">CONFIRM_PRESENT</span> <span class="o">=</span> <span class="mi">101</span>
     <span class="n">GET_INBOUND_CALLS</span> <span class="o">=</span> <span class="mi">103</span>
     <span class="n">EXTERNAL_CALLBACK</span> <span class="o">=</span> <span class="mi">105</span>
-    <span class="n">AUTH_VALIDATE_PASSWORD</span> <span class="o">=</span> <span class="mi">107</span>
-    <span class="n">AUTH_VALIDATE_HINT</span> <span class="o">=</span> <span class="mi">108</span>
-    <span class="n">AUTH_VERIFY_EMAIL</span> <span class="o">=</span> <span class="mi">109</span>
-    <span class="n">AUTH_CHECK_EMAIL</span> <span class="o">=</span> <span class="mi">110</span>
-    <span class="n">AUTH_SET_2FA</span> <span class="o">=</span> <span class="mi">111</span>
-    <span class="n">AUTH_CREATE_TRACK</span> <span class="o">=</span> <span class="mi">112</span>
-    <span class="n">AUTH_LOGIN_CHECK_PASSWORD</span> <span class="o">=</span> <span class="mi">115</span>
+    <span class="n">AUTH_VALIDATE_PASSWORD</span> <span class="o">=</span> <span class="mi">107</span>  <span class="c1"># ✅</span>
+    <span class="n">AUTH_VALIDATE_HINT</span> <span class="o">=</span> <span class="mi">108</span>  <span class="c1"># ✅</span>
+    <span class="n">AUTH_VERIFY_EMAIL</span> <span class="o">=</span> <span class="mi">109</span>  <span class="c1"># ✅</span>
+    <span class="n">AUTH_CHECK_EMAIL</span> <span class="o">=</span> <span class="mi">110</span>  <span class="c1"># ✅</span>
+    <span class="n">AUTH_SET_2FA</span> <span class="o">=</span> <span class="mi">111</span>  <span class="c1"># ✅</span>
+    <span class="n">AUTH_CREATE_TRACK</span> <span class="o">=</span> <span class="mi">112</span>  <span class="c1"># ✅</span>
+    <span class="n">AUTH_LOGIN_CHECK_PASSWORD</span> <span class="o">=</span> <span class="mi">115</span>  <span class="c1"># ✅</span>
     <span class="n">CHAT_COMPLAIN</span> <span class="o">=</span> <span class="mi">117</span>
     <span class="n">MSG_SEND_CALLBACK</span> <span class="o">=</span> <span class="mi">118</span>
     <span class="n">SUSPEND_BOT</span> <span class="o">=</span> <span class="mi">119</span>
@@ -329,14 +329,14 @@
     <span class="n">LOCATION_SEND</span> <span class="o">=</span> <span class="mi">125</span>
     <span class="n">LOCATION_REQUEST</span> <span class="o">=</span> <span class="mi">126</span>
     <span class="n">GET_LAST_MENTIONS</span> <span class="o">=</span> <span class="mi">127</span>
-    <span class="n">NOTIF_MESSAGE</span> <span class="o">=</span> <span class="mi">128</span>
+    <span class="n">NOTIF_MESSAGE</span> <span class="o">=</span> <span class="mi">128</span>  <span class="c1"># ✅</span>
     <span class="n">NOTIF_TYPING</span> <span class="o">=</span> <span class="mi">129</span>
     <span class="n">NOTIF_MARK</span> <span class="o">=</span> <span class="mi">130</span>
     <span class="n">NOTIF_CONTACT</span> <span class="o">=</span> <span class="mi">131</span>
     <span class="n">NOTIF_PRESENCE</span> <span class="o">=</span> <span class="mi">132</span>
     <span class="n">NOTIF_CONFIG</span> <span class="o">=</span> <span class="mi">134</span>
-    <span class="n">NOTIF_CHAT</span> <span class="o">=</span> <span class="mi">135</span>
-    <span class="n">NOTIF_ATTACH</span> <span class="o">=</span> <span class="mi">136</span>
+    <span class="n">NOTIF_CHAT</span> <span class="o">=</span> <span class="mi">135</span>  <span class="c1"># ✅</span>
+    <span class="n">NOTIF_ATTACH</span> <span class="o">=</span> <span class="mi">136</span>  <span class="c1"># ✅</span>
     <span class="n">NOTIF_CALL_START</span> <span class="o">=</span> <span class="mi">137</span>
     <span class="n">NOTIF_CONTACT_SORT</span> <span class="o">=</span> <span class="mi">139</span>
     <span class="n">NOTIF_MSG_DELETE_RANGE</span> <span class="o">=</span> <span class="mi">140</span>
@@ -350,16 +350,16 @@
     <span class="n">NOTIF_DRAFT</span> <span class="o">=</span> <span class="mi">152</span>
     <span class="n">NOTIF_DRAFT_DISCARD</span> <span class="o">=</span> <span class="mi">153</span>
     <span class="n">NOTIF_MSG_DELAYED</span> <span class="o">=</span> <span class="mi">154</span>
-    <span class="n">NOTIF_MSG_REACTIONS_CHANGED</span> <span class="o">=</span> <span class="mi">155</span>
+    <span class="n">NOTIF_MSG_REACTIONS_CHANGED</span> <span class="o">=</span> <span class="mi">155</span>  <span class="c1"># ✅</span>
     <span class="n">NOTIF_MSG_YOU_REACTED</span> <span class="o">=</span> <span class="mi">156</span>
     <span class="n">CALLS_TOKEN</span> <span class="o">=</span> <span class="mi">158</span>
     <span class="n">NOTIF_PROFILE</span> <span class="o">=</span> <span class="mi">159</span>
     <span class="n">WEB_APP_INIT_DATA</span> <span class="o">=</span> <span class="mi">160</span>
     <span class="n">DRAFT_SAVE</span> <span class="o">=</span> <span class="mi">176</span>
     <span class="n">DRAFT_DISCARD</span> <span class="o">=</span> <span class="mi">177</span>
-    <span class="n">MSG_REACTION</span> <span class="o">=</span> <span class="mi">178</span>
-    <span class="n">MSG_CANCEL_REACTION</span> <span class="o">=</span> <span class="mi">179</span>
-    <span class="n">MSG_GET_REACTIONS</span> <span class="o">=</span> <span class="mi">180</span>
+    <span class="n">MSG_REACTION</span> <span class="o">=</span> <span class="mi">178</span>  <span class="c1"># ✅</span>
+    <span class="n">MSG_CANCEL_REACTION</span> <span class="o">=</span> <span class="mi">179</span>  <span class="c1"># ✅</span>
+    <span class="n">MSG_GET_REACTIONS</span> <span class="o">=</span> <span class="mi">180</span>  <span class="c1"># ✅</span>
     <span class="n">MSG_GET_DETAILED_REACTIONS</span> <span class="o">=</span> <span class="mi">181</span>
     <span class="n">STICKER_CREATE</span> <span class="o">=</span> <span class="mi">193</span>
     <span class="n">STICKER_SUGGEST</span> <span class="o">=</span> <span class="mi">194</span>
@@ -371,16 +371,16 @@
     <span class="n">ASSETS_REMOVE</span> <span class="o">=</span> <span class="mi">259</span>
     <span class="n">ASSETS_MOVE</span> <span class="o">=</span> <span class="mi">260</span>
     <span class="n">ASSETS_LIST_MODIFY</span> <span class="o">=</span> <span class="mi">261</span>
-    <span class="n">FOLDERS_GET</span> <span class="o">=</span> <span class="mi">272</span>
+    <span class="n">FOLDERS_GET</span> <span class="o">=</span> <span class="mi">272</span>  <span class="c1"># ✅</span>
     <span class="n">FOLDERS_GET_BY_ID</span> <span class="o">=</span> <span class="mi">273</span>
-    <span class="n">FOLDERS_UPDATE</span> <span class="o">=</span> <span class="mi">274</span>
+    <span class="n">FOLDERS_UPDATE</span> <span class="o">=</span> <span class="mi">274</span>  <span class="c1"># ✅</span>
     <span class="n">FOLDERS_REORDER</span> <span class="o">=</span> <span class="mi">275</span>
-    <span class="n">FOLDERS_DELETE</span> <span class="o">=</span> <span class="mi">276</span>
+    <span class="n">FOLDERS_DELETE</span> <span class="o">=</span> <span class="mi">276</span>  <span class="c1"># ✅</span>
     <span class="n">NOTIF_FOLDERS</span> <span class="o">=</span> <span class="mi">277</span>
 
-    <span class="n">GET_QR</span> <span class="o">=</span> <span class="mi">288</span>
-    <span class="n">GET_QR_STATUS</span> <span class="o">=</span> <span class="mi">289</span>
-    <span class="n">LOGIN_BY_QR</span> <span class="o">=</span> <span class="mi">291</span></div>
+    <span class="n">GET_QR</span> <span class="o">=</span> <span class="mi">288</span>  <span class="c1"># ✅</span>
+    <span class="n">GET_QR_STATUS</span> <span class="o">=</span> <span class="mi">289</span>  <span class="c1"># ✅</span>
+    <span class="n">LOGIN_BY_QR</span> <span class="o">=</span> <span class="mi">291</span>  <span class="c1"># ✅</span></div>
 
 
 
@@ -494,6 +494,17 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">ReadAction</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="n">READ_MESSAGE</span> <span class="o">=</span> <span class="s2">&quot;READ_MESSAGE&quot;</span>
     <span class="n">READ_REACTION</span> <span class="o">=</span> <span class="s2">&quot;READ_REACTION&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="Capability">
+<a class="viewcode-back" href="../../../types.html#pymax.static.enum.Capability">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Capability</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">DEFAULT</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># В душе не чаю что это такое но при первой установке 2фа там 0 3 4 так что пусть будет дефолт</span>
+    <span class="n">ESIA_VERIFIED_FLAG</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">SECOND_FACTOR_PASSWORD_ENABLED</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">SECOND_FACTOR_HAS_EMAIL</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">SECOND_FACTOR_HAS_HINT</span> <span class="o">=</span> <span class="mi">4</span></div>
 
 </pre></div>
         </article>

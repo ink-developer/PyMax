@@ -199,8 +199,8 @@
 <li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#release-notes-v1-2-4">Release Notes v1.2.4</a></li>
 </ul>
 
 </div>
@@ -2571,6 +2571,156 @@ left untouched.  Characters mapped to None are deleted.</p>
 <span class="sig-name descname"><span class="pre">zfill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.AuthType.zfill" title="Link to this definition">¶</a></dt>
 <dd><p>Pad a numeric string with zeros on the left, to fill a field of the given width.</p>
 <p>The string is never truncated.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymax.static.enum.</span></span><span class="sig-name descname"><span class="pre">Capability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymax/static/enum.html#Capability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymax.static.enum.Capability" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.DEFAULT">
+<span class="sig-name descname"><span class="pre">DEFAULT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#pymax.static.enum.Capability.DEFAULT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.ESIA_VERIFIED_FLAG">
+<span class="sig-name descname"><span class="pre">ESIA_VERIFIED_FLAG</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#pymax.static.enum.Capability.ESIA_VERIFIED_FLAG" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.SECOND_FACTOR_HAS_EMAIL">
+<span class="sig-name descname"><span class="pre">SECOND_FACTOR_HAS_EMAIL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></span><a class="headerlink" href="#pymax.static.enum.Capability.SECOND_FACTOR_HAS_EMAIL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.SECOND_FACTOR_HAS_HINT">
+<span class="sig-name descname"><span class="pre">SECOND_FACTOR_HAS_HINT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#pymax.static.enum.Capability.SECOND_FACTOR_HAS_HINT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.SECOND_FACTOR_PASSWORD_ENABLED">
+<span class="sig-name descname"><span class="pre">SECOND_FACTOR_PASSWORD_ENABLED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></span><a class="headerlink" href="#pymax.static.enum.Capability.SECOND_FACTOR_PASSWORD_ENABLED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.as_integer_ratio">
+<span class="sig-name descname"><span class="pre">as_integer_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.Capability.as_integer_ratio" title="Link to this definition">¶</a></dt>
+<dd><p>Return a pair of integers, whose ratio is equal to the original int.</p>
+<p>The ratio is in lowest terms and has a positive denominator.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(10, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(-10, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(0, 1)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.bit_count">
+<span class="sig-name descname"><span class="pre">bit_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.Capability.bit_count" title="Link to this definition">¶</a></dt>
+<dd><p>Number of ones in the binary representation of the absolute value of self.</p>
+<p>Also known as the population count.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>
+<span class="go">&#39;0b1101&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="o">.</span><span class="n">bit_count</span><span class="p">()</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.bit_length">
+<span class="sig-name descname"><span class="pre">bit_length</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.Capability.bit_length" title="Link to this definition">¶</a></dt>
+<dd><p>Number of bits necessary to represent self in binary.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="mi">37</span><span class="p">)</span>
+<span class="go">&#39;0b100101&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">37</span><span class="p">)</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.conjugate">
+<span class="sig-name descname"><span class="pre">conjugate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.Capability.conjugate" title="Link to this definition">¶</a></dt>
+<dd><p>Returns self, the complex conjugate of any int.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.denominator">
+<span class="sig-name descname"><span class="pre">denominator</span></span><a class="headerlink" href="#pymax.static.enum.Capability.denominator" title="Link to this definition">¶</a></dt>
+<dd><p>the denominator of a rational number in lowest terms</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.from_bytes">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byteorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'big'</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.Capability.from_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Return the integer represented by the given array of bytes.</p>
+<dl class="simple">
+<dt>bytes</dt><dd><p>Holds the array of bytes to convert.  The argument must either
+support the buffer protocol or be an iterable object producing bytes.
+Bytes and bytearray are examples of built-in objects that support the
+buffer protocol.</p>
+</dd>
+<dt>byteorder</dt><dd><p>The byte order used to represent the integer.  If byteorder is 'big',
+the most significant byte is at the beginning of the byte array.  If
+byteorder is 'little', the most significant byte is at the end of the
+byte array.  To request the native byte order of the host system, use
+sys.byteorder as the byte order value.  Default is to use 'big'.</p>
+</dd>
+<dt>signed</dt><dd><p>Indicates whether two's complement is used to represent the integer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.imag">
+<span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#pymax.static.enum.Capability.imag" title="Link to this definition">¶</a></dt>
+<dd><p>the imaginary part of a complex number</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.is_integer">
+<span class="sig-name descname"><span class="pre">is_integer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.Capability.is_integer" title="Link to this definition">¶</a></dt>
+<dd><p>Returns True. Exists for duck type compatibility with float.is_integer.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.numerator">
+<span class="sig-name descname"><span class="pre">numerator</span></span><a class="headerlink" href="#pymax.static.enum.Capability.numerator" title="Link to this definition">¶</a></dt>
+<dd><p>the numerator of a rational number in lowest terms</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.real">
+<span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#pymax.static.enum.Capability.real" title="Link to this definition">¶</a></dt>
+<dd><p>the real part of a complex number</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymax.static.enum.Capability.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byteorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'big'</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pymax.static.enum.Capability.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Return an array of bytes representing an integer.</p>
+<dl class="simple">
+<dt>length</dt><dd><p>Length of bytes object to use.  An OverflowError is raised if the
+integer is not representable with the given number of bytes.  Default
+is length 1.</p>
+</dd>
+<dt>byteorder</dt><dd><p>The byte order used to represent the integer.  If byteorder is 'big',
+the most significant byte is at the beginning of the byte array.  If
+byteorder is 'little', the most significant byte is at the end of the
+byte array.  To request the native byte order of the host system, use
+sys.byteorder as the byte order value.  Default is to use 'big'.</p>
+</dd>
+<dt>signed</dt><dd><p>Determines whether two's complement is used to represent the integer.
+If signed is False and a negative integer is given, an OverflowError
+is raised.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -7795,6 +7945,25 @@ left untouched.  Characters mapped to None are deleted.</p>
 <li><a class="reference internal" href="#pymax.static.enum.AuthType.translate"><code class="docutils literal notranslate"><span class="pre">AuthType.translate()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.static.enum.AuthType.upper"><code class="docutils literal notranslate"><span class="pre">AuthType.upper()</span></code></a></li>
 <li><a class="reference internal" href="#pymax.static.enum.AuthType.zfill"><code class="docutils literal notranslate"><span class="pre">AuthType.zfill()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability"><code class="docutils literal notranslate"><span class="pre">Capability</span></code></a><ul>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.DEFAULT"><code class="docutils literal notranslate"><span class="pre">Capability.DEFAULT</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.ESIA_VERIFIED_FLAG"><code class="docutils literal notranslate"><span class="pre">Capability.ESIA_VERIFIED_FLAG</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.SECOND_FACTOR_HAS_EMAIL"><code class="docutils literal notranslate"><span class="pre">Capability.SECOND_FACTOR_HAS_EMAIL</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.SECOND_FACTOR_HAS_HINT"><code class="docutils literal notranslate"><span class="pre">Capability.SECOND_FACTOR_HAS_HINT</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.SECOND_FACTOR_PASSWORD_ENABLED"><code class="docutils literal notranslate"><span class="pre">Capability.SECOND_FACTOR_PASSWORD_ENABLED</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.as_integer_ratio"><code class="docutils literal notranslate"><span class="pre">Capability.as_integer_ratio()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.bit_count"><code class="docutils literal notranslate"><span class="pre">Capability.bit_count()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.bit_length"><code class="docutils literal notranslate"><span class="pre">Capability.bit_length()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.conjugate"><code class="docutils literal notranslate"><span class="pre">Capability.conjugate()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.denominator"><code class="docutils literal notranslate"><span class="pre">Capability.denominator</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.from_bytes"><code class="docutils literal notranslate"><span class="pre">Capability.from_bytes()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.imag"><code class="docutils literal notranslate"><span class="pre">Capability.imag</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.is_integer"><code class="docutils literal notranslate"><span class="pre">Capability.is_integer()</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.numerator"><code class="docutils literal notranslate"><span class="pre">Capability.numerator</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.real"><code class="docutils literal notranslate"><span class="pre">Capability.real</span></code></a></li>
+<li><a class="reference internal" href="#pymax.static.enum.Capability.to_bytes"><code class="docutils literal notranslate"><span class="pre">Capability.to_bytes()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pymax.static.enum.ChatType"><code class="docutils literal notranslate"><span class="pre">ChatType</span></code></a><ul>

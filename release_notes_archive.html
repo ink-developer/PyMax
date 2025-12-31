@@ -199,7 +199,8 @@
 <li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes v1.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#release-notes-v1-2-4">Release Notes v1.2.4</a></li>
 </ul>
 
 </div>
@@ -242,10 +243,90 @@
 <h1>Archive<a class="headerlink" href="#archive" title="Link to this heading">¶</a></h1>
 <p>Архив предыдущих версий.</p>
 </section>
-<section id="v1-2-3-24-2025">
-<h1>v1.2.3 (24 декабря 2025)<a class="headerlink" href="#v1-2-3-24-2025" title="Link to this heading">¶</a></h1>
+<section id="v1-2-4-30-2025">
+<h1>v1.2.4 (30 декабря 2025)<a class="headerlink" href="#v1-2-4-30-2025" title="Link to this heading">¶</a></h1>
 <section id="id1">
 <h2>Новые функции<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt><strong>Поддержка различных типов файлов в классах File и Photo</strong></dt><dd><p>Классы <code class="docutils literal notranslate"><span class="pre">Photo</span></code>, <code class="docutils literal notranslate"><span class="pre">File</span></code> и <code class="docutils literal notranslate"><span class="pre">Video</span></code> теперь поддерживают работу с байтами, что позволяет загружать файлы из памяти напрямую.</p>
+</dd>
+<dt><strong>Автоматическая отправка уведомлений о прочтении сообщений</strong></dt><dd><p>Клиент теперь автоматически отправляет сервису уведомления о получении сообщений для улучшения синхронизации.</p>
+</dd>
+<dt><strong>Параметр session_name для управления сессией</strong></dt><dd><p>Параметр <code class="docutils literal notranslate"><span class="pre">session_name</span></code> позволяет указать пользовательское имя файла для сохранения сессии.</p>
+</dd>
+<dt><strong>Получение текущей версии веб-приложения</strong></dt><dd><p>Новый метод <code class="docutils literal notranslate"><span class="pre">get_current_web_version()</span></code> в утилитах для получения текущей версии веб-приложения Max.</p>
+</dd>
+<dt><strong>Улучшенная генерация User-Agent</strong></dt><dd><p>Теперь используется библиотека <code class="docutils literal notranslate"><span class="pre">ua-generator</span></code> для более реалистичной генерации User-Agent строк и параметров устройства.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h2>Новые методы<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>read_message(chat_id: int, message_id: int) -&gt; ReadState</dt><dd><p>Отмечает сообщение как прочитанное. Возвращает объект ReadState с информацией о состоянии.</p>
+</dd>
+<dt>pymax.utils.MixinsUtils.get_current_web_version() -&gt; str | None</dt><dd><p>Получает текущую версию веб-приложения Max из источника. Возвращает версию в формате &quot;XX.XX.XX&quot; или None.</p>
+</dd>
+</dl>
+</section>
+<section id="id3">
+<h2>Измененные методы<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>MaxClient.start()</dt><dd><p>Улучшена логика работы цикла переподключения с использованием <code class="docutils literal notranslate"><span class="pre">asyncio.Event</span></code> для более чистого завершения.
+Исправлена обработка состояния при отключении и переподключении.</p>
+</dd>
+<dt>MaxClient.close()</dt><dd><p>Упрощена логика закрытия клиента. Теперь использует <code class="docutils literal notranslate"><span class="pre">asyncio.Event</span></code> для сигнала остановки.</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h2>Новые параметры<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>MaxClient.__init__(session_name: str = &quot;session.db&quot;)</dt><dd><p>Позволяет указать пользовательское имя файла базы данных сессии.</p>
+</dd>
+</dl>
+</section>
+<section id="id5">
+<h2>Измененные типы<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>BaseFile</dt><dd><p>Теперь поддерживает работу с байтами через параметр <code class="docutils literal notranslate"><span class="pre">raw</span></code> во всех подклассах.</p>
+</dd>
+<dt>Photo</dt><dd><p>Добавлен параметр <code class="docutils literal notranslate"><span class="pre">name</span></code> для явного указания имени файла при работе с байтами.
+Улучшена валидация расширений файлов.</p>
+</dd>
+<dt>File</dt><dd><p>Добавлена поддержка работы с байтами через параметр <code class="docutils literal notranslate"><span class="pre">raw</span></code>.
+Улучшена обработка имен файлов.</p>
+</dd>
+<dt>Video</dt><dd><p>Добавлена поддержка работы с байтами через параметр <code class="docutils literal notranslate"><span class="pre">raw</span></code>.
+Улучшена работа с видеофайлами.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h2>Исправления и улучшения<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Добавлена валидация <code class="docutils literal notranslate"><span class="pre">device_type</span></code> для MaxClient (поддерживает только WEB) и SocketMaxClient (поддерживает ANDROID, IOS, DESKTOP)</p></li>
+<li><p>Улучшена обработка ошибок WebSocket при отключении</p></li>
+<li><p>Добавлена опция <code class="docutils literal notranslate"><span class="pre">ua-generator</span></code> для более реалистичной генерации параметров устройства</p></li>
+<li><p>Обновлена версия приложения до 25.12.14</p></li>
+<li><p>Улучшена обработка уведомлений о доставке сообщений</p></li>
+<li><p>Исправлены проблемы с завершением async задач при закрытии клиента</p></li>
+</ul>
+</section>
+<section id="id7">
+<h2>Зависимости<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>Добавлены новые зависимости:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ua-generator&gt;=2.0.19</span></code> — для генерации реалистичных User-Agent строк и параметров устройства</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+<section id="v1-2-3-24-2025">
+<h1>v1.2.3 (24 декабря 2025)<a class="headerlink" href="#v1-2-3-24-2025" title="Link to this heading">¶</a></h1>
+<section id="id8">
+<h2>Новые функции<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt><strong>Загрузка фотографий профиля</strong></dt><dd><p>Профиль теперь может быть обновлен с загрузкой новой фотографии через метод <code class="docutils literal notranslate"><span class="pre">change_profile()</span></code>.</p>
 </dd>
@@ -257,8 +338,8 @@
 </dd>
 </dl>
 </section>
-<section id="id2">
-<h2>Новые методы<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<section id="id9">
+<h2>Новые методы<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>MaxClient.resolve_group_by_link(link: str) -&gt; Chat | None</dt><dd><p>Разрешает группу по ссылке. Возвращает объект чата группы или None, если не найдено.</p>
 </dd>
@@ -266,15 +347,15 @@
 </dd>
 </dl>
 </section>
-<section id="id3">
-<h2>Новые типы<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<section id="id10">
+<h2>Новые типы<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>ContactAttach</dt><dd><p>Представляет контакт в сообщении. Содержит информацию о контакте (ID, имя, фамилия, фото).</p>
 </dd>
 </dl>
 </section>
-<section id="id4">
-<h2>Измененные типы<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id11">
+<h2>Измененные типы<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>Message</dt><dd><p>Теперь поддерживает вложения типа ContactAttach в список attaches.</p>
 </dd>
@@ -288,8 +369,8 @@
 </dd>
 </dl>
 </section>
-<section id="id5">
-<h2>Новые параметры<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<section id="id12">
+<h2>Новые параметры<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>MaxClient.contacts: list[User]</dt><dd><p>Список контактов текущего пользователя.</p>
 </dd>

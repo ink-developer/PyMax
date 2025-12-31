@@ -198,8 +198,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides.html">Guides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes v1.2.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#release-notes-v1-2-3">Release Notes v1.2.3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes v1.2.5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#release-notes-v1-2-4">Release Notes v1.2.4</a></li>
 </ul>
 
 </div>
@@ -371,7 +371,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_background_tasks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_seq</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seq</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">255</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_error_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_breaker</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_error_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -494,7 +494,15 @@
 <span class="sd">        :rtype: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_code</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">temp_token</span><span class="p">)</span>
-        <span class="n">token</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tokenAttrs&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LOGIN&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">)</span>
+
+        <span class="n">login_attrs</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tokenAttrs&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LOGIN&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">password_challenge</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;passwordChallenge&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">password_challenge</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">login_attrs</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_two_factor_auth</span><span class="p">(</span><span class="n">password_challenge</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">login_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LOGIN&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Login response did not contain tokenAttrs.LOGIN.token&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_token</span> <span class="o">=</span> <span class="n">token</span>

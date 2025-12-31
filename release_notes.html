@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="Guides" href="guides.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>Release Notes v1.2.4 - PyMax 1.2.4 documentation</title>
+        <title>Release Notes v1.2.5 - PyMax 1.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -199,7 +199,7 @@
 <li class="toctree-l1"><a class="reference internal" href="decorators.html">Decorators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides.html">Guides</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Release Notes v1.2.4</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Release Notes v1.2.5</a></li>
 </ul>
 
 </div>
@@ -238,92 +238,62 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="release-notes-v1-2-4">
-<h1>Release Notes v1.2.4<a class="headerlink" href="#release-notes-v1-2-4" title="Link to this heading">¶</a></h1>
+          <section id="release-notes-v1-2-5">
+<h1>Release Notes v1.2.5<a class="headerlink" href="#release-notes-v1-2-5" title="Link to this heading">¶</a></h1>
 <section id="id1">
 <h2>Новые функции<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <dl class="simple">
-<dt><strong>Поддержка различных типов файлов в классах File и Photo</strong></dt><dd><p>Классы <code class="docutils literal notranslate"><span class="pre">Photo</span></code>, <code class="docutils literal notranslate"><span class="pre">File</span></code> и <code class="docutils literal notranslate"><span class="pre">Video</span></code> теперь поддерживают работу с байтами, что позволяет загружать файлы из памяти напрямую.</p>
+<dt><strong>Двухфакторная аутентификация (2FA)</strong></dt><dd><p>Добавлена полная поддержка двухфакторной аутентификации с использованием пароля, email-кода и подсказок для восстановления пароля. Теперь возможен вход в аккаунт когда включена 2FA с проверкой пароля.</p>
 </dd>
-<dt><strong>Автоматическая отправка уведомлений о прочтении сообщений</strong></dt><dd><p>Клиент теперь автоматически отправляет сервису уведомления о получении сообщений для улучшения синхронизации.</p>
+<dt><strong>Управление паролем аккаунта</strong></dt><dd><p>Новый метод <code class="docutils literal notranslate"><span class="pre">set_password()</span></code> позволяет устанавливать, изменять и управлять паролем аккаунта с поддержкой подсказок и email для восстановления.</p>
 </dd>
-<dt><strong>Параметр session_name для управления сессией</strong></dt><dd><p>Параметр <code class="docutils literal notranslate"><span class="pre">session_name</span></code> позволяет указать пользовательское имя файла для сохранения сессии.</p>
+<dt><strong>Исправления в обработке сокетов</strong></dt><dd><p>Улучшена обработка последовательности сообщений (sequence numbers) для корректной работы с 8-битными числами.</p>
 </dd>
-<dt><strong>Получение текущей версии веб-приложения</strong></dt><dd><p>Новый метод <code class="docutils literal notranslate"><span class="pre">get_current_web_version()</span></code> в утилитах для получения текущей версии веб-приложения Max.</p>
-</dd>
-<dt><strong>Улучшенная генерация User-Agent</strong></dt><dd><p>Теперь используется библиотека <code class="docutils literal notranslate"><span class="pre">ua-generator</span></code> для более реалистичной генерации User-Agent строк и параметров устройства.</p>
+<dt><strong>Улучшения протокола WebSocket</strong></dt><dd><p>Добавлена поддержка версии протокола (ver=11) в сообщениях WebSocket.</p>
 </dd>
 </dl>
 </section>
 <section id="id2">
 <h2>Новые методы<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <dl class="simple">
-<dt>read_message(chat_id: int, message_id: int) -&gt; ReadState</dt><dd><p>Отмечает сообщение как прочитанное. Возвращает объект ReadState с информацией о состоянии.</p>
-</dd>
-<dt>pymax.utils.MixinsUtils.get_current_web_version() -&gt; str | None</dt><dd><p>Получает текущую версию веб-приложения Max из источника. Возвращает версию в формате &quot;XX.XX.XX&quot; или None.</p>
+<dt>MaxClient.set_password(password: str, email: str | None = None, hint: str | None = UNSET)</dt><dd><p>Устанавливает пароль для аккаунта с возможностью добавления подсказки и email для восстановления.</p>
 </dd>
 </dl>
 </section>
 <section id="id3">
-<h2>Измененные методы<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<h2>Новые типы и перечисления<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <dl class="simple">
-<dt>MaxClient.start()</dt><dd><p>Улучшена логика работы цикла переподключения с использованием <code class="docutils literal notranslate"><span class="pre">asyncio.Event</span></code> для более чистого завершения.
-Исправлена обработка состояния при отключении и переподключении.</p>
+<dt>Capability</dt><dd><p>Перечисление для описания возможностей аккаунта в контексте двухфакторной аутентификации.</p>
 </dd>
-<dt>MaxClient.close()</dt><dd><p>Упрощена логика закрытия клиента. Теперь использует <code class="docutils literal notranslate"><span class="pre">asyncio.Event</span></code> для сигнала остановки.</p>
+<dt>Payload классы</dt><dd><p><code class="docutils literal notranslate"><span class="pre">CheckPasswordChallengePayload</span></code> — для проверки пароля при 2FA
+<code class="docutils literal notranslate"><span class="pre">CreateTrackPayload</span></code> — для создания отслеживающего ID
+<code class="docutils literal notranslate"><span class="pre">SetPasswordPayload</span></code> — для установки пароля
+<code class="docutils literal notranslate"><span class="pre">SetHintPayload</span></code> — для установки подсказки пароля
+<code class="docutils literal notranslate"><span class="pre">RequestEmailCodePayload</span></code> — для запроса кода по email
+<code class="docutils literal notranslate"><span class="pre">SendEmailCodePayload</span></code> — для отправки email кода
+<code class="docutils literal notranslate"><span class="pre">SetTwoFactorPayload</span></code> — для установки параметров 2FA</p>
 </dd>
 </dl>
 </section>
 <section id="id4">
-<h2>Новые параметры<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>MaxClient.__init__(session_name: str = &quot;session.db&quot;)</dt><dd><p>Позволяет указать пользовательское имя файла базы данных сессии.</p>
-</dd>
-</dl>
+<h2>Исправления и улучшения<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Исправлена обработка последовательности сообщений в socket-клиенте (seq % 256)</p></li>
+<li><p>Исправлена обработка последовательности сообщений в websocket-клиенте</p></li>
+<li><p>Добавлена проверка подключения перед отправкой уведомлений о прочтении</p></li>
+<li><p>Улучшена обработка двухфакторной аутентификации при логине</p></li>
+<li><p>Исправлена инициализация seq на 255 вместо 0 в core.py</p></li>
+<li><p>Добавлена обработка <code class="docutils literal notranslate"><span class="pre">SocketNotConnectedError</span></code> в telemetry</p></li>
+<li><p>Исправлена обработка ошибок при отправке в socket/websocket</p></li>
+</ul>
 </section>
 <section id="id5">
-<h2>Измененные типы<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>BaseFile</dt><dd><p>Теперь поддерживает работу с байтами через параметр <code class="docutils literal notranslate"><span class="pre">raw</span></code> во всех подклассах.</p>
-</dd>
-<dt>Photo</dt><dd><p>Добавлен параметр <code class="docutils literal notranslate"><span class="pre">name</span></code> для явного указания имени файла при работе с байтами.
-Улучшена валидация расширений файлов.</p>
-</dd>
-<dt>File</dt><dd><p>Добавлена поддержка работы с байтами через параметр <code class="docutils literal notranslate"><span class="pre">raw</span></code>.
-Улучшена обработка имен файлов.</p>
-</dd>
-<dt>Video</dt><dd><p>Добавлена поддержка работы с байтами через параметр <code class="docutils literal notranslate"><span class="pre">raw</span></code>.
-Улучшена работа с видеофайлами.</p>
-</dd>
-</dl>
-</section>
-<section id="id6">
-<h2>Исправления и улучшения<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
-<ul class="simple">
-<li><p>Добавлена валидация <code class="docutils literal notranslate"><span class="pre">device_type</span></code> для MaxClient (поддерживает только WEB) и SocketMaxClient (поддерживает ANDROID, IOS, DESKTOP)</p></li>
-<li><p>Улучшена обработка ошибок WebSocket при отключении</p></li>
-<li><p>Добавлена опция <code class="docutils literal notranslate"><span class="pre">ua-generator</span></code> для более реалистичной генерации параметров устройства</p></li>
-<li><p>Обновлена версия приложения до 25.12.14</p></li>
-<li><p>Улучшена обработка уведомлений о доставке сообщений</p></li>
-<li><p>Исправлены проблемы с завершением async задач при закрытии клиента</p></li>
-</ul>
-</section>
-<section id="id7">
-<h2>Зависимости<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>Добавлены новые зависимости:</dt><dd><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">ua-generator&gt;=2.0.19</span></code> — для генерации реалистичных User-Agent строк и параметров устройства</p></li>
-</ul>
-</dd>
-</dl>
-</section>
-<section id="id8">
-<h2>Версия<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
-<p><strong>1.2.4</strong> - выпущена 30 декабря 2025 г.</p>
+<h2>Версия<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p><strong>1.2.5</strong> - выпущена 31 декабря 2025 г.</p>
 <p>---</p>
 </section>
-<section id="id9">
-<h2>Архив<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<section id="id6">
+<h2>Архив<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <p>Предыдущие версии доступны в <a class="reference internal" href="release_notes_archive.html"><span class="doc">Archive</span></a>.</p>
 </section>
 </section>
@@ -375,16 +345,13 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Release Notes v1.2.4</a><ul>
+<li><a class="reference internal" href="#">Release Notes v1.2.5</a><ul>
 <li><a class="reference internal" href="#id1">Новые функции</a></li>
 <li><a class="reference internal" href="#id2">Новые методы</a></li>
-<li><a class="reference internal" href="#id3">Измененные методы</a></li>
-<li><a class="reference internal" href="#id4">Новые параметры</a></li>
-<li><a class="reference internal" href="#id5">Измененные типы</a></li>
-<li><a class="reference internal" href="#id6">Исправления и улучшения</a></li>
-<li><a class="reference internal" href="#id7">Зависимости</a></li>
-<li><a class="reference internal" href="#id8">Версия</a></li>
-<li><a class="reference internal" href="#id9">Архив</a></li>
+<li><a class="reference internal" href="#id3">Новые типы и перечисления</a></li>
+<li><a class="reference internal" href="#id4">Исправления и улучшения</a></li>
+<li><a class="reference internal" href="#id5">Версия</a></li>
+<li><a class="reference internal" href="#id6">Архив</a></li>
 </ul>
 </li>
 </ul>
