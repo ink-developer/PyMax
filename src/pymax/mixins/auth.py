@@ -7,9 +7,21 @@ from typing import Any
 import qrcode
 
 from pymax.exceptions import Error
-from pymax.payloads import RegisterPayload, RequestCodePayload, SendCodePayload
+from pymax.payloads import (
+    Capability,
+    CheckPasswordChallengePayload,
+    CreateTrackPayload,
+    RegisterPayload,
+    RequestCodePayload,
+    RequestEmailCodePayload,
+    SendCodePayload,
+    SendEmailCodePayload,
+    SetHintPayload,
+    SetPasswordPayload,
+    SetTwoFactorPayload,
+)
 from pymax.protocols import ClientProtocol
-from pymax.static.constant import PHONE_REGEX
+from pymax.static.constant import PHONE_REGEX, UNSET, _Unset
 from pymax.static.enum import AuthType, DeviceType, Opcode
 from pymax.utils import MixinsUtils
 
@@ -194,7 +206,13 @@ class AuthMixin(ClientProtocol):
 
             login_resp = await self._send_code(code, temp_token)
 
-        token = login_resp.get("tokenAttrs", {}).get("LOGIN", {}).get("token", "")
+        password_challenge = login_resp.get("passwordChallenge")
+        login_attrs = login_resp.get("tokenAttrs", {}).get("LOGIN", {})
+
+        if password_challenge and not login_attrs:
+            token = await self._two_factor_auth(password_challenge)
+        else:
+            token = login_attrs.get("token")
 
         if not token:
             self.logger.critical("Failed to login, token not received")
@@ -297,6 +315,7 @@ class AuthMixin(ClientProtocol):
                     self.logger.info("QR login successful")
 
                     data = await self._get_qr_login_data(track_id)
+
                     return data
 
                 else:
@@ -366,3 +385,210 @@ class AuthMixin(ClientProtocol):
             "IMPORTANT: Use this token ONLY with device_type='DESKTOP' and the special init user agent"
         )
         self.logger.warning("This token MUST NOT be used in web clients")
+
+    async def _check_password(self, password: str, track_id: str) -> dict[str, Any] | None:
+        payload = CheckPasswordChallengePayload(
+            track_id=track_id,
+            password=password,
+        ).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.AUTH_LOGIN_CHECK_PASSWORD, payload=payload)
+
+        token_attrs = data.get("payload", {}).get("tokenAttrs", {})
+        if data.get("payload", {}).get("error"):
+            return None
+        return token_attrs
+
+    async def _two_factor_auth(self, password_challenge: dict[str, Any]) -> None:
+        self.logger.info("Starting two-factor authentication flow")
+
+        track_id = password_challenge.get("trackId")
+        if not track_id:
+            self.logger.critical("Password challenge missing track ID")
+            raise ValueError("Password challenge missing track ID")
+
+        hint = password_challenge.get("hint", "No hint provided")
+
+        while True:
+            password = await asyncio.to_thread(
+                lambda: input(f"Введите пароль (Подсказка: {hint}): ").strip()
+            )
+            if not password:
+                self.logger.warning("Password is empty, please try again")
+                continue
+
+            token_attrs = await self._check_password(password, track_id)
+            if not token_attrs:
+                self.logger.error("Incorrect password, please try again")
+                continue
+
+            login_attrs = token_attrs.get("LOGIN", {})
+            if login_attrs:
+                token = login_attrs.get("token")
+                if not token:
+                    self.logger.critical("Login response did not contain tokenAttrs.LOGIN.token")
+                    raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
+                return token
+
+    async def _set_password(self, password: str, track_id: str) -> bool:
+        payload = SetPasswordPayload(
+            track_id=track_id,
+            password=password,
+        ).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.AUTH_VALIDATE_PASSWORD, payload=payload)
+        payload = data.get("payload", {})
+        return not payload
+
+    async def _set_hint(self, hint: str, track_id: str) -> bool:
+        payload = SetHintPayload(
+            track_id=track_id,
+            hint=hint,
+        ).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.AUTH_VALIDATE_HINT, payload=payload)
+        payload = data.get("payload", {})
+        return not payload
+
+    async def _set_email(self, email: str, track_id: str) -> bool:
+        payload = RequestEmailCodePayload(
+            track_id=track_id,
+            email=email,
+        )
+
+        data = await self._send_and_wait(
+            opcode=Opcode.AUTH_VERIFY_EMAIL,
+            payload=payload.model_dump(by_alias=True),
+        )
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        while True:
+            verify_code = await asyncio.to_thread(
+                lambda: input(f"Введите код подтверждения, отправленный на {email}: ").strip()
+            )
+            if not verify_code:
+                self.logger.warning("Verification code is empty, please try again")
+                continue
+
+            payload = SendEmailCodePayload(
+                track_id=track_id,
+                verify_code=verify_code,
+            )
+
+            data = await self._send_and_wait(
+                opcode=Opcode.AUTH_CHECK_EMAIL,
+                payload=payload.model_dump(by_alias=True),
+            )
+
+            if data.get("payload", {}).get("error"):
+                self.logger.error("Incorrect verification code, please try again")
+                continue
+
+            return True
+
+    async def set_password(
+        self,
+        password: str,
+        email: str | None = None,
+        hint: str | None | _Unset = UNSET,
+    ):
+        """
+        Устанавливает пароль для аккаунта
+
+        .. warning::
+            Метод не будет работать, если на аккаунте уже установлен пароль.
+
+        :param password: Новый пароль для аккаунта.
+        :type password: str
+        :param email: Адрес электронной почты для восстановления пароля.
+        :type email: str
+        :param hint: Подсказка для пароля. По умолчанию None.
+        :type hint: str | None
+        :return: None
+        :rtype: None
+        """
+        self.logger.info("Setting account password")
+
+        payload = CreateTrackPayload().model_dump(by_alias=True)
+
+        data = await self._send_and_wait(
+            opcode=Opcode.AUTH_CREATE_TRACK,
+            payload=payload,
+        )
+        print(data)
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        track_id = data.get("payload", {}).get("trackId")
+        if not track_id:
+            self.logger.critical("Failed to create password track: track ID missing")
+            raise ValueError("Failed to create password track")
+
+        while True:
+            if not password:
+                password = await asyncio.to_thread(lambda: input("Введите пароль: ").strip())
+                if not password:
+                    self.logger.warning("Password is empty, please try again")
+                    continue
+
+            success = await self._set_password(password, track_id)
+            if success:
+                self.logger.info("Password set successfully")
+                break
+            else:
+                self.logger.error("Failed to set password, please try again")
+
+        while True:
+            if hint is UNSET:
+                hint = await asyncio.to_thread(
+                    lambda: input("Введите подсказку для пароля (пустая - пропустить): ").strip()
+                )
+                if not hint:
+                    break
+
+            if hint is None:
+                break
+
+            success = await self._set_hint(hint, track_id)
+            if success:
+                self.logger.info("Password hint set successfully")
+                break
+            else:
+                self.logger.error("Failed to set password hint, please try again")
+
+        while True:
+            if not email:
+                email = await asyncio.to_thread(
+                    lambda: input("Введите email для восстановления пароля: ").strip()
+                )
+                if not email:
+                    self.logger.warning("Email is empty, please try again")
+                    continue
+
+            success = await self._set_email(email, track_id)
+            if success:
+                self.logger.info("Recovery email set successfully")
+                break
+
+        payload = SetTwoFactorPayload(
+            expected_capabilities=[
+                Capability.DEFAULT,
+                Capability.SECOND_FACTOR_HAS_HINT,
+                Capability.SECOND_FACTOR_HAS_EMAIL,
+            ],
+            track_id=track_id,
+            password=password,
+            hint=hint if isinstance(hint, (str, type(None))) else None,
+        )
+
+        data = await self._send_and_wait(
+            opcode=Opcode.AUTH_SET_2FA,
+            payload=payload.model_dump(by_alias=True),
+        )
+        payload = data.get("payload", {})
+        if payload and payload.get("error"):
+            MixinsUtils.handle_error(data)
+
+        return True

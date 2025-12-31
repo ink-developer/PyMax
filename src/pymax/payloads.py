@@ -15,7 +15,7 @@ from pymax.static.constant import (
     DEFAULT_TIMEZONE,
     DEFAULT_USER_AGENT,
 )
-from pymax.static.enum import AttachType, AuthType, ContactAction, ReadAction
+from pymax.static.enum import AttachType, AuthType, Capability, ContactAction, ReadAction
 
 
 def to_camel(string: str) -> str:
@@ -365,3 +365,39 @@ class ReadMessagesPayload(CamelModel):
     chat_id: int
     message_id: str
     mark: int
+
+
+class CheckPasswordChallengePayload(CamelModel):
+    track_id: str
+    password: str
+
+
+class CreateTrackPayload(CamelModel):
+    type: int = 0
+
+
+class SetPasswordPayload(CamelModel):
+    track_id: str
+    password: str
+
+
+class SetHintPayload(CamelModel):
+    track_id: str
+    hint: str
+
+
+class SetTwoFactorPayload(CamelModel):
+    expected_capabilities: list[Capability]
+    track_id: str
+    password: str
+    hint: str | None = None
+
+
+class RequestEmailCodePayload(CamelModel):
+    track_id: str
+    email: str
+
+
+class SendEmailCodePayload(CamelModel):
+    track_id: str
+    verify_code: str

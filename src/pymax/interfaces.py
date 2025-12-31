@@ -10,7 +10,7 @@ from typing import Any
 
 from typing_extensions import Self
 
-from pymax.exceptions import WebSocketNotConnectedError
+from pymax.exceptions import SocketNotConnectedError, WebSocketNotConnectedError
 from pymax.filters import BaseFilter
 from pymax.formatter import ColoredFormatter
 from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
@@ -188,6 +188,7 @@ class BaseTransport(ClientProtocol):
         self._seq += 1
 
         msg = BaseWebSocketMessage(
+            ver=11,
             cmd=cmd,
             seq=self._seq,
             opcode=opcode.value,
@@ -206,8 +207,11 @@ class BaseTransport(ClientProtocol):
                     cmd=0,
                 )
                 self.logger.debug("Interactive ping sent successfully")
+            except SocketNotConnectedError:
+                self.logger.debug("Socket disconnected, exiting ping loop")
+                break
             except Exception:
-                self.logger.warning("Interactive ping failed", exc_info=True)
+                self.logger.warning("Interactive ping failed")
             await asyncio.sleep(DEFAULT_PING_INTERVAL)
 
     async def _handshake(self, user_agent: UserAgentPayload) -> dict[str, Any]:
@@ -283,6 +287,8 @@ class BaseTransport(ClientProtocol):
                     self.logger.debug("Fulfilled file upload waiter for %s=%s", key, id_)
 
     async def _send_notification_response(self, chat_id: int, message_id: str) -> None:
+        if self._socket is not None and self.is_connected:
+            return
         await self._send_and_wait(
             opcode=Opcode.NOTIF_MESSAGE,
             payload={"chatId": chat_id, "messageId": message_id},
