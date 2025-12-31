@@ -134,7 +134,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._stop_event = asyncio.Event()
 
-        self._seq: int = 255
+        self._seq: int = 0
         self._error_count: int = 0
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
@@ -259,7 +259,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         if password_challenge and not login_attrs:
             token = await self._two_factor_auth(password_challenge)
         else:
-            token = login_attrs.get("LOGIN", {}).get("token")
+            token = login_attrs.get("token")
 
         if not token:
             raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
