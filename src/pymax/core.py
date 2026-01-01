@@ -8,7 +8,7 @@ import ssl
 import time
 from collections.abc import Awaitable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 from uuid import UUID
 
 from typing_extensions import override
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
-    allowed_device_types: set[str] = {"WEB"}
+    allowed_device_types: set[str] = {"WEB", "DESKTOP"}
     """
     Основной клиент для работы с WebSocket API сервиса Max.
 
@@ -72,6 +72,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
     :type proxy: str | Literal[True] | None, optional
     :param reconnect: Флаг автоматического переподключения при потере соединения.
     :type reconnect: bool, optional
+    :param reconnect_delay: Задержка между переподключениями.
+    :type reconnect_delay: float
 
     :raises InvalidPhoneError: Если формат номера телефона неверный.
     """
@@ -120,10 +122,13 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._users: dict[int, User] = {}
 
         self._work_dir: str = work_dir
-        self._database_path: Path = Path(work_dir) / session_name
+        self._session_name: str = (
+            session_name if session_name.endswith(".db") else f"{session_name}.db"
+        )
+        self._database_path: Path = Path(work_dir) / self._session_name
         self._database_path.parent.mkdir(parents=True, exist_ok=True)
         self._database_path.touch(exist_ok=True)
-        self._database = Database(self._work_dir)
+        self._database = Database(self._work_dir, self._session_name)
 
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
         self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
@@ -325,6 +330,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                 break
             except Exception as e:
                 self.logger.exception("Client start iteration failed")
+                raise e
             finally:
                 await self._cleanup_client()
 

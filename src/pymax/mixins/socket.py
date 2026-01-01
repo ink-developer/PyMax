@@ -4,7 +4,8 @@ import ssl
 import sys
 import time
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Literal
+from urllib.parse import urlparse
 
 import lz4.block
 import msgpack
@@ -94,6 +95,95 @@ class SocketMixin(BaseTransport):
         payload_len_b = payload_len.to_bytes(4, "big")
         return ver_b + cmd_b + seq_b + opcode_b + payload_len_b + payload_bytes
 
+    def _create_socket_with_proxy(self, proxy: str) -> socket.socket:
+        parsed = urlparse(proxy)
+
+        if parsed.scheme not in ("socks5", ""):
+            raise ValueError("Only SOCKS5 proxy is supported")
+
+        if not parsed.hostname or not parsed.port:
+            raise ValueError(f"Invalid proxy URL: {proxy}")
+
+        proxy_host = parsed.hostname
+        proxy_port = parsed.port
+
+        username = parsed.username
+        password = parsed.password
+
+        self.logger.info(
+            "Connecting to socket %s:%s via SOCKS5 proxy %s:%s (auth=%s)",
+            self.host,
+            self.port,
+            proxy_host,
+            proxy_port,
+            "yes" if username else "no",
+        )
+
+        sock = socket.create_connection((proxy_host, proxy_port))
+
+        if username:
+            sock.sendall(b"\x05\x02\x00\x02")
+        else:
+            sock.sendall(b"\x05\x01\x00")
+
+        response = self._recv_exactly(sock, 2)
+        if response[0] != 0x05:
+            sock.close()
+            raise ConnectionError("Invalid SOCKS5 proxy response")
+
+        method = response[1]
+        if method == 0xFF:
+            sock.close()
+            raise ConnectionError("SOCKS5 proxy: no acceptable auth methods")
+
+        if method == 0x02:
+            if not username or not password:
+                sock.close()
+                raise ConnectionError("SOCKS5 proxy requires authentication")
+
+            u = username.encode("utf-8")
+            p = password.encode("utf-8")
+
+            if len(u) > 255 or len(p) > 255:
+                sock.close()
+                raise ValueError("SOCKS5 username/password too long")
+
+            auth_req = b"\x01" + bytes([len(u)]) + u + bytes([len(p)]) + p
+            sock.sendall(auth_req)
+
+            auth_resp = self._recv_exactly(sock, 2)
+            if auth_resp != b"\x01\x00":
+                sock.close()
+                raise ConnectionError("SOCKS5 authentication failed")
+
+        host_bytes = self.host.encode("utf-8")
+        connect_req = (
+            b"\x05\x01\x00\x03"
+            + bytes([len(host_bytes)])
+            + host_bytes
+            + self.port.to_bytes(2, "big")
+        )
+        sock.sendall(connect_req)
+
+        resp = self._recv_exactly(sock, 4)
+        if resp[0] != 0x05 or resp[1] != 0x00:
+            sock.close()
+            raise ConnectionError(f"SOCKS5 connect failed, code={resp[1]}")
+
+        atyp = resp[3]
+        if atyp == 0x01:
+            self._recv_exactly(sock, 4 + 2)
+        elif atyp == 0x03:
+            domain_len = self._recv_exactly(sock, 1)[0]
+            self._recv_exactly(sock, domain_len + 2)
+        elif atyp == 0x04:
+            self._recv_exactly(sock, 16 + 2)
+        else:
+            sock.close()
+            raise ConnectionError(f"Unknown ATYP: {atyp}")
+
+        return sock
+
     async def connect(self, user_agent: UserAgentPayload | None = None) -> dict[str, Any]:
         """
         Устанавливает соединение с сервером и выполняет handshake.
@@ -116,9 +206,15 @@ Socket connections may be unstable, SSL issues are possible.
             )
         self.logger.info("Connecting to socket %s:%s", self.host, self.port)
         loop = asyncio.get_running_loop()
-        raw_sock = await loop.run_in_executor(
-            None, lambda: socket.create_connection((self.host, self.port))
-        )
+
+        if self.proxy:
+            raw_sock = await loop.run_in_executor(
+                None, lambda: self._create_socket_with_proxy(self.proxy)
+            )
+        else:
+            raw_sock = await loop.run_in_executor(
+                None, lambda: socket.create_connection((self.host, self.port))
+            )
         self._socket = self._ssl_context.wrap_socket(raw_sock, server_hostname=self.host)
         self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         self.is_connected = True
@@ -231,8 +327,22 @@ Socket connections may be unstable, SSL issues are possible.
                 self.logger.debug("Recv loop cancelled")
                 raise
             except Exception:
-                self.logger.exception("Error in recv_loop; backing off briefly")
-                await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
+                self.logger.exception("Error in recv_loop")
+                self.is_connected = False
+
+                if self.reconnect:
+                    self.logger.info("Reconnect enabled, attempting to restore connection...")
+                    try:
+                        await asyncio.sleep(self.reconnect_delay)
+                        await self.connect(self.user_agent)
+                        sock = self._socket
+                        self.logger.info("Connection restored successfully")
+                    except Exception:
+                        self.logger.exception("Failed to restore connection, exiting recv_loop")
+                        break
+                else:
+                    self.logger.warning("Reconnect disabled, exiting recv_loop")
+                    break
 
     @override
     async def _send_and_wait(

@@ -109,6 +109,7 @@ class WebSocketMixin(BaseTransport):
     ) -> dict[str, Any]:
         ws = self.ws
         msg = self._make_message(opcode, payload, cmd)
+
         loop = asyncio.get_running_loop()
         fut: asyncio.Future[dict[str, Any]] = loop.create_future()
         seq_key = msg["seq"]
@@ -124,7 +125,7 @@ class WebSocketMixin(BaseTransport):
                 "Sending frame opcode=%s cmd=%s seq=%s",
                 opcode,
                 cmd,
-                msg["seq"],
+                json.dumps(msg, indent=4),
             )
             await ws.send(json.dumps(msg))
             data = await asyncio.wait_for(fut, timeout=timeout)

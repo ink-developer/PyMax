@@ -55,6 +55,7 @@ class ClientProtocol(ABC):
         self.reconnect: bool
         self.headers: UserAgentPayload
         self._database_path: Path
+        self.reconnect_delay: float
         self._ws: websockets.ClientConnection | None = None
         self._seq: int = 0
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
