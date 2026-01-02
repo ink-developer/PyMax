@@ -1,8 +1,10 @@
 import asyncio
+import contextlib
 import socket
 import ssl
 import sys
 import time
+import traceback
 from collections.abc import Callable
 from typing import Any, Literal
 from urllib.parse import urlparse
@@ -35,6 +37,11 @@ from pymax.types import (
 
 
 class SocketMixin(BaseTransport):
+    def _close_socket_safely(self) -> None:
+        if self._socket is not None:
+            with contextlib.suppress(ssl.SSLError, Exception):
+                self._socket.close()
+
     @property
     def sock(self) -> socket.socket:
         if self._socket is None or not self.is_connected:
@@ -184,6 +191,31 @@ class SocketMixin(BaseTransport):
 
         return sock
 
+    def _perform_ssl_handshake(self, raw_sock: socket.socket) -> socket.socket:
+        """
+        Выполняет SSL handshake с сервером.
+
+        :param raw_sock: Обычный сокет
+        :return: SSL сокет
+        """
+        raw_sock.setblocking(True)
+
+        try:
+            raw_sock.settimeout(10.0)
+            wrapped = self._ssl_context.wrap_socket(
+                raw_sock,
+                server_hostname=self.host,
+                do_handshake_on_connect=True,
+                suppress_ragged_eofs=True,
+            )
+            wrapped.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+            wrapped.setblocking(False)
+            return wrapped
+        except ssl.SSLError as e:
+            self.logger.error("SSL handshake failed: %s", e)
+            raw_sock.close()
+            raise
+
     async def connect(self, user_agent: UserAgentPayload | None = None) -> dict[str, Any]:
         """
         Устанавливает соединение с сервером и выполняет handshake.
@@ -213,27 +245,51 @@ Socket connections may be unstable, SSL issues are possible.
             )
         else:
             raw_sock = await loop.run_in_executor(
-                None, lambda: socket.create_connection((self.host, self.port))
+                None, lambda: socket.create_connection((self.host, self.port), timeout=10.0)
             )
-        self._socket = self._ssl_context.wrap_socket(raw_sock, server_hostname=self.host)
-        self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+
+        try:
+            self._socket = await asyncio.wait_for(
+                loop.run_in_executor(None, lambda: self._perform_ssl_handshake(raw_sock)),
+                timeout=15.0,
+            )
+        except asyncio.TimeoutError:
+            raw_sock.close()
+            self.logger.error("SSL handshake timeout")
+            raise
+
         self.is_connected = True
         self._incoming = asyncio.Queue()
         self._outgoing = asyncio.Queue()
         self._pending = {}
-        self._recv_task = asyncio.create_task(self._recv_loop())
-        self._outgoing_task = asyncio.create_task(self._outgoing_loop())
+        self._recv_task = self._create_safe_task(self._recv_loop(), name="recv_loop socket task")
+        self._outgoing_task = self._create_safe_task(
+            self._outgoing_loop(), name="outgoing_loop socket task"
+        )
         self.logger.info("Socket connected, starting handshake")
         return await self._handshake(user_agent)
 
     def _recv_exactly(self, sock: socket.socket, n: int) -> bytes:
+        """
+        Получает ровно n байт из сокета. Обрабатывает SSL ошибки корректно.
+        """
         buf = bytearray()
-        while len(buf) < n:
-            chunk = sock.recv(n - len(buf))
-            if not chunk:
-                return bytes(buf)
-            buf.extend(chunk)
-        return bytes(buf)
+        try:
+            while len(buf) < n:
+                try:
+                    chunk = sock.recv(n - len(buf))
+                except ssl.SSLWantReadError:
+                    continue
+                except ssl.SSLWantWriteError:
+                    continue
+
+                if not chunk:
+                    break
+                buf.extend(chunk)
+            return bytes(buf)
+        except (ssl.SSLError, ConnectionError, BrokenPipeError) as e:
+            self.logger.debug("SSL/Connection error in _recv_exactly: %s", e)
+            raise
 
     async def _parse_header(
         self, loop: asyncio.AbstractEventLoop, sock: socket.socket
@@ -299,6 +355,8 @@ Socket connections may be unstable, SSL issues are possible.
 
         sock = self._socket
         loop = asyncio.get_running_loop()
+        consecutive_errors = 0
+        max_consecutive_errors = 3
 
         while True:
             try:
@@ -311,6 +369,8 @@ Socket connections may be unstable, SSL issues are possible.
 
                 if not datas:
                     continue
+
+                consecutive_errors = 0
 
                 for data_item in datas:
                     seq = data_item.get("seq")
@@ -326,20 +386,58 @@ Socket connections may be unstable, SSL issues are possible.
             except asyncio.CancelledError:
                 self.logger.debug("Recv loop cancelled")
                 raise
-            except Exception:
-                self.logger.exception("Error in recv_loop")
+            except (
+                ssl.SSLError,
+                ssl.SSLEOFError,
+                ConnectionResetError,
+                BrokenPipeError,
+            ) as ssl_err:
+                consecutive_errors += 1
+                self.logger.error(
+                    "SSL/Connection error in recv_loop (error %d/%d): %s",
+                    consecutive_errors,
+                    max_consecutive_errors,
+                    ssl_err,
+                )
                 self.is_connected = False
 
-                if self.reconnect:
+                self._close_socket_safely()
+
+                if self.reconnect and consecutive_errors < max_consecutive_errors:
                     self.logger.info("Reconnect enabled, attempting to restore connection...")
                     try:
-                        await asyncio.sleep(self.reconnect_delay)
+                        await asyncio.sleep(min(2**consecutive_errors, 10))
                         await self.connect(self.user_agent)
                         sock = self._socket
                         self.logger.info("Connection restored successfully")
                     except Exception:
-                        self.logger.exception("Failed to restore connection, exiting recv_loop")
-                        break
+                        self.logger.exception("Failed to restore connection")
+                        if consecutive_errors >= max_consecutive_errors:
+                            self.logger.error(
+                                "Max reconnection attempts reached, exiting recv_loop"
+                            )
+                            break
+                else:
+                    self.logger.warning(
+                        "Reconnect disabled or max errors reached, exiting recv_loop"
+                    )
+                    break
+            except Exception as e:
+                consecutive_errors += 1
+                self.logger.exception("Error in recv_loop: %s", e)
+                self.is_connected = False
+
+                if self.reconnect and consecutive_errors < max_consecutive_errors:
+                    self.logger.info("Reconnect enabled, attempting to restore connection...")
+                    try:
+                        await asyncio.sleep(min(2**consecutive_errors, 10))
+                        await self.connect(self.user_agent)
+                        sock = self._socket
+                        self.logger.info("Connection restored successfully")
+                    except Exception:
+                        self.logger.exception("Failed to restore connection")
+                        if consecutive_errors >= max_consecutive_errors:
+                            break
                 else:
                     self.logger.warning("Reconnect disabled, exiting recv_loop")
                     break
@@ -389,15 +487,11 @@ Socket connections may be unstable, SSL issues are possible.
             )
             return data
 
-        except (ssl.SSLEOFError, ssl.SSLError, ConnectionError) as conn_err:
-            self.logger.warning("Connection lost, reconnecting...")
+        except (ssl.SSLEOFError, ssl.SSLError, ConnectionError, BrokenPipeError) as conn_err:
+            self.logger.warning("Connection lost: %s, attempting reconnect...", conn_err)
             self.is_connected = False
-            try:
-                await self.connect(self.user_agent)
-            except Exception as exc:
-                self.logger.exception("Reconnect failed")
-                raise exc from conn_err
-            raise SocketNotConnectedError from conn_err
+
+            self._close_socket_safely()
         except asyncio.TimeoutError:
             self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
             raise SocketSendError from None

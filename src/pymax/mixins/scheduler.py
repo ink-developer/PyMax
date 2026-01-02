@@ -23,6 +23,6 @@ class SchedulerMixin(ClientProtocol):
 
     async def _start_scheduled_tasks(self) -> None:
         for func, interval in self._scheduled_tasks:
-            task = asyncio.create_task(self._run_periodic(func, interval))
+            task = self._create_safe_task(self._run_periodic(func, interval))
             self._background_tasks.add(task)
             task.add_done_callback(self._background_tasks.discard)

@@ -208,6 +208,13 @@ class AuthMixin(ClientProtocol):
 
         password_challenge = login_resp.get("passwordChallenge")
         login_attrs = login_resp.get("tokenAttrs", {}).get("LOGIN", {})
+        reg_attrs = login_resp.get("tokenAttrs", {}).get("REGISTER", {})
+
+        if reg_attrs:
+            self.logger.info(
+                "Account requires registration. Setup registration info in client parameters."
+            )
+            raise RuntimeError("Account requires registration")
 
         if password_challenge and not login_attrs:
             token = await self._two_factor_auth(password_challenge)

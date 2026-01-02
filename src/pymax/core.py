@@ -6,6 +6,7 @@ import logging
 import socket
 import ssl
 import time
+import traceback
 from collections.abc import Awaitable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
@@ -15,6 +16,7 @@ from typing_extensions import override
 
 from .crud import Database
 from .exceptions import (
+    Error,
     InvalidPhoneError,
     SocketNotConnectedError,
     WebSocketNotConnectedError,
@@ -171,14 +173,20 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._on_reaction_change_handlers: list[Callable[[str, int, ReactionInfo], Any]] = []
         self._on_chat_update_handlers: list[Callable[[Chat], Any | Awaitable[Any]]] = []
         self._on_raw_receive_handlers: list[Callable[[dict[str, Any]], Any | Awaitable[Any]]] = []
+        self._on_error_handler: Callable[[Exception], Any | Awaitable[Any]] | None = None
         self._scheduled_tasks: list[tuple[Callable[[], Any | Awaitable[Any]], float]] = []
 
         self._ssl_context = ssl.create_default_context()
-        self._ssl_context.set_ciphers("DEFAULT")
+        self._ssl_context.set_ciphers(
+            "DEFAULT:!aNULL:!eNULL:!MD5:!3DES:!DES:!RC4:!IDEA:!SEED:!aDSS:!SRP:!PSK"
+        )
         self._ssl_context.check_hostname = True
         self._ssl_context.verify_mode = ssl.CERT_REQUIRED
         self._ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+
+        self._ssl_context.session_stats()
         self._ssl_context.load_default_certs()
+        self._ssl_context.set_ciphers("DEFAULT")
         self._socket: socket.socket | None = None
         self._ws: websockets.ClientConnection | None = None
 
@@ -225,17 +233,20 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
             await self._sync()
 
         self.logger.debug("is_connected=%s before starting ping", self.is_connected)
-        ping_task = asyncio.create_task(self._send_interactive_ping())
-        ping_task.add_done_callback(self._log_task_exception)
-        self._background_tasks.add(ping_task)
+        ping_task = self._create_safe_task(
+            self._send_interactive_ping(),
+            name="interactive_ping",
+        )
 
-        start_scheduled_task = asyncio.create_task(self._start_scheduled_tasks())
-        start_scheduled_task.add_done_callback(self._log_task_exception)
-
+        start_scheduled_task = self._create_safe_task(
+            self._start_scheduled_tasks(),
+            name="start_scheduled_tasks",
+        )
         if self._send_fake_telemetry:
-            telemetry_task = asyncio.create_task(self._start())
-            telemetry_task.add_done_callback(self._log_task_exception)
-            self._background_tasks.add(telemetry_task)
+            telemetry_task = self._create_safe_task(
+                self._start(),
+                name="fake_telemetry",
+            )
 
         if self._on_start_handler:
             self.logger.debug("Calling on_start handler")
@@ -324,13 +335,26 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                     task.cancel()
                     with contextlib.suppress(asyncio.CancelledError):
                         await task
-
+            except Error as e:
+                self.logger.exception(f"Client stopped with error: {e}")
+                if self._on_error_handler:
+                    try:
+                        result = self._on_error_handler(e)
+                        if asyncio.iscoroutine(result):
+                            await self._safe_execute(result, context="on_error handler")
+                    except Exception:
+                        self.logger.exception("Unhandled exception in on_error handler")
+                        raise
+                else:
+                    tb = traceback.format_exc()
+                    self.logger.error(f"Traceback:\n{tb}")
             except asyncio.CancelledError:
                 self.logger.info("Client task cancelled, stopping")
                 break
-            except Exception as e:
-                self.logger.exception("Client start iteration failed")
-                raise e
+            except Exception:
+                if not self.reconnect:
+                    self.logger.exception("Client start iteration failed, no reconnect configured")
+                raise
             finally:
                 await self._cleanup_client()
 

@@ -28,7 +28,4 @@ class ColoredFormatter(logging.Formatter):
             f"{message_color}{record.getMessage()}{self.RESET}"
         )
 
-        if record.exc_info and record.exc_info[0] is not None:
-            log += "\n" + self.formatException(record.exc_info)
-
         return log

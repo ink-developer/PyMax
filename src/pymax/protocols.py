@@ -4,6 +4,7 @@ from collections.abc import Awaitable, Callable
 from logging import Logger
 from typing import TYPE_CHECKING, Any, Literal
 
+from pymax.exceptions import Error
 from pymax.payloads import UserAgentPayload
 from pymax.static.constant import DEFAULT_TIMEOUT
 from pymax.static.enum import Opcode
@@ -88,6 +89,7 @@ class ClientProtocol(ABC):
         self._on_raw_receive_handlers: list[Callable[[dict[str, Any]], Any | Awaitable[Any]]] = []
         self._scheduled_tasks: list[tuple[Callable[[], Any | Awaitable[Any]], float]] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
+        self._on_error_handler: Callable[[Exception], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._ssl_context: ssl.SSLContext
         self._socket: socket.socket | None = None

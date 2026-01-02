@@ -55,8 +55,12 @@ class WebSocketMixin(BaseTransport):
         self._incoming = asyncio.Queue()
         self._outgoing = asyncio.Queue()
         self._pending = {}
-        self._recv_task = asyncio.create_task(self._recv_loop())
-        self._outgoing_task = asyncio.create_task(self._outgoing_loop())
+        self._recv_task = self._create_safe_task(
+            self._recv_loop(), name="recv_loop websocket task"
+        )
+        self._outgoing_task = self._create_safe_task(
+            self._outgoing_loop(), name="outgoing_loop websocket task"
+        )
         self.logger.info("WebSocket connected, starting handshake")
         return await self._handshake(user_agent)
 
