@@ -51,8 +51,8 @@ class SocketMixin(BaseTransport):
 
     def _unpack_packet(self, data: bytes) -> dict[str, Any] | None:
         ver = int.from_bytes(data[0:1], "big")
-        cmd = int.from_bytes(data[1:3], "big")
-        seq = int.from_bytes(data[3:4], "big")
+        cmd = int.from_bytes(data[1:2], "big")
+        seq = int.from_bytes(data[2:4], "big")
         opcode = int.from_bytes(data[4:6], "big")
         packed_len = int.from_bytes(data[6:10], "big", signed=False)
         comp_flag = packed_len >> 24
