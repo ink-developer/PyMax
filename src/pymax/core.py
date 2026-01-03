@@ -152,7 +152,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._token = self._database.get_auth_token() or token
         if headers is None:
             headers = self._default_headers()
-        self.user_agent = headers
+        self.headers = headers
         self._validate_device_type()
         self._send_fake_telemetry: bool = send_fake_telemetry
         self._session_id: int = int(time.time() * 1000)
@@ -202,10 +202,10 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         return UserAgentPayload(device_type="WEB")
 
     def _validate_device_type(self) -> None:
-        if self.user_agent.device_type not in self.allowed_device_types:
+        if self.headers.device_type not in self.allowed_device_types:
             raise ValueError(
                 f"{self.__class__.__name__} does not support "
-                f"device_type={self.user_agent.device_type}"
+                f"device_type={self.headers.device_type}"
             )
 
     async def _wait_forever(self) -> None:
@@ -312,7 +312,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self.logger.info("Client starting")
         while not self._stop_event.is_set():
             try:
-                await self.connect(self.user_agent)
+                await self.connect(self.headers)
 
                 if self.registration:
                     if not self.first_name:
@@ -325,7 +325,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                 if self._token is None:
                     await self._login()
 
-                await self._sync(self.user_agent)
+                await self._sync(self.headers)
                 await self._post_login_tasks(sync=False)
 
                 wait_task = asyncio.create_task(self._wait_forever())
