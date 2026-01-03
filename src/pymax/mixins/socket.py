@@ -40,8 +40,10 @@ from pymax.types import (
 class SocketMixin(BaseTransport):
     def _close_socket_safely(self) -> None:
         if self._socket is not None:
+            sock = self._socket
+            self._socket = None  # Nullify reference first to prevent double-closes
             with contextlib.suppress(ssl.SSLError, Exception):
-                self._socket.close()
+                sock.close()
 
     @property
     def sock(self) -> socket.socket:
@@ -302,10 +304,6 @@ Socket connections may be unstable, SSL issues are possible.
                 len(header) if header else 0,
             )
             self.is_connected = False
-            try:
-                sock.close()
-            except Exception:
-                pass
             raise ConnectionResetError("Socket closed while reading header")
 
         return header
@@ -358,13 +356,17 @@ Socket connections may be unstable, SSL issues are possible.
             self.logger.warning("Recv loop started without socket instance")
             return
 
-        sock = self._socket
         loop = asyncio.get_running_loop()
         consecutive_errors = 0
         max_consecutive_errors = 3
 
         while True:
             try:
+                sock = self._socket  # Get fresh reference on each iteration
+                if sock is None:
+                    self.logger.warning("Socket became None, exiting recv loop")
+                    break
+
                 header = await self._parse_header(loop, sock)
 
                 if not header:
