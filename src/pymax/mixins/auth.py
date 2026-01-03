@@ -30,7 +30,7 @@ class AuthMixin(ClientProtocol):
     def _check_phone(self) -> bool:
         return bool(re.match(PHONE_REGEX, self.phone))
 
-    async def request_code(self, phone: str, language: str = "ru") -> str:
+    async def request_code(self, phone: str) -> str:
         """
         Запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.
 
@@ -39,8 +39,6 @@ class AuthMixin(ClientProtocol):
 
         :param phone: Номер телефона в международном формате.
         :type phone: str
-        :param language: Язык для сообщения с кодом. По умолчанию "ru".
-        :type language: str
         :return: Временный токен для дальнейшей аутентификации.
         :rtype: str
         :raises ValueError: Если полученные данные имеют неверный формат.
@@ -51,8 +49,9 @@ class AuthMixin(ClientProtocol):
         """
         self.logger.info("Requesting auth code")
 
+        split_phone = phone[0:2] + " " + phone[2:5] + " " + phone[5:8] + " " + phone[8:10] + " " + phone[10:12]
         payload = RequestCodePayload(
-            phone=phone, type=AuthType.START_AUTH, language=language
+            phone=split_phone, type=AuthType.START_AUTH
         ).model_dump(by_alias=True)
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)
@@ -72,14 +71,12 @@ class AuthMixin(ClientProtocol):
             self.logger.error("Invalid payload data received")
             raise ValueError("Invalid payload data received")
 
-    async def resend_code(self, phone: str, language: str = "ru") -> str:
+    async def resend_code(self, phone: str) -> str:
         """
         Повторно запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.
 
         :param phone: Номер телефона в международном формате.
         :type phone: str
-        :param language: Язык для сообщения с кодом. По умолчанию "ru".
-        :type language: str
         :return: Временный токен для дальнейшей аутентификации.
         :rtype: str
         :raises ValueError: Если полученные данные имеют неверный формат.
@@ -87,8 +84,9 @@ class AuthMixin(ClientProtocol):
         """
         self.logger.info("Resending auth code")
 
+        split_phone = phone[0:2] + " " + phone[2:5] + " " + phone[5:8] + " " + phone[8:10] + " " + phone[10:12]
         payload = RequestCodePayload(
-            phone=phone, type=AuthType.RESEND, language=language
+            phone=split_phone, type=AuthType.RESEND
         ).model_dump(by_alias=True)
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)

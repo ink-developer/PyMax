@@ -212,7 +212,7 @@ class SocketMixin(BaseTransport):
                 suppress_ragged_eofs=True,
             )
             wrapped.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-            wrapped.setblocking(False)
+            wrapped.setblocking(True)
             return wrapped
         except ssl.SSLError as e:
             self.logger.error("SSL handshake failed: %s", e)
