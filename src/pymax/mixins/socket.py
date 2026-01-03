@@ -402,6 +402,7 @@ Socket connections may be unstable, SSL issues are possible.
                 self.is_connected = False
 
                 self._close_socket_safely()
+                self._socket = None
 
                 if self.reconnect and consecutive_errors < max_consecutive_errors:
                     self.logger.info("Reconnect enabled, attempting to restore connection...")
@@ -426,6 +427,9 @@ Socket connections may be unstable, SSL issues are possible.
                 consecutive_errors += 1
                 self.logger.exception("Error in recv_loop: %s", e)
                 self.is_connected = False
+
+                self._close_socket_safely()
+                self._socket = None
 
                 if self.reconnect and consecutive_errors < max_consecutive_errors:
                     self.logger.info("Reconnect enabled, attempting to restore connection...")
