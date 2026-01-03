@@ -214,7 +214,7 @@ class BaseTransport(ClientProtocol):
             ver=11,
             cmd=cmd,
             seq=self._seq,
-            opcode=opcode.value,
+            opcode=opcode,
             payload=payload,
         ).model_dump(by_alias=True)
 
@@ -517,7 +517,7 @@ class BaseTransport(ClientProtocol):
     async def _sync(self, user_agent: UserAgentPayload | None = None) -> None:
         self.logger.info("Starting initial sync")
 
-        if user_agent is None:
+        if user_agent is None or self.headers is None:
             user_agent = self.headers or UserAgentPayload()
 
         payload = SyncPayload(

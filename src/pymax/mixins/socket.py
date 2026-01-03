@@ -216,8 +216,9 @@ class SocketMixin(BaseTransport):
         :return: Результат handshake.
         :rtype: dict[str, Any] | None
         """
-        if user_agent is None:
-            user_agent = UserAgentPayload()
+        if user_agent is None or self.headers is None:
+            user_agent = self.headers or UserAgentPayload()
+
         if sys.version_info[:2] == (3, 12):
             self.logger.warning(
                 """

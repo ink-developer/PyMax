@@ -36,8 +36,8 @@ class WebSocketMixin(BaseTransport):
         :return: Результат handshake.
         :rtype: dict[str, Any] | None
         """
-        if user_agent is None:
-            user_agent = UserAgentPayload()
+        if user_agent is None or self.headers is None:
+            user_agent = UserAgentPayload() or self.headers
 
         self.logger.info("Connecting to WebSocket %s", self.uri)
 
