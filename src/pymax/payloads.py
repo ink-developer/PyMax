@@ -405,3 +405,7 @@ class SendEmailCodePayload(CamelModel):
 class AddContactByPhonePayload(CamelModel):
     phone: str
     first_name: str
+
+
+class ContactPresencePayload(CamelModel):
+    contact_ids: list[int]

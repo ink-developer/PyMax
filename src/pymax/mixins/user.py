@@ -4,12 +4,13 @@ from pymax.exceptions import Error, ResponseError, ResponseStructureError
 from pymax.payloads import (
     AddContactByPhonePayload,
     ContactActionPayload,
+    ContactPresencePayload,
     FetchContactsPayload,
     SearchByPhonePayload,
 )
 from pymax.protocols import ClientProtocol
 from pymax.static.enum import ContactAction, Opcode
-from pymax.types import Contact, Session, User
+from pymax.types import Contact, Presence, Session, User
 from pymax.utils import MixinsUtils
 
 
@@ -246,3 +247,23 @@ class UserMixin(ClientProtocol):
         :rtype: int
         """
         return first_user_id ^ second_user_id
+
+    async def get_contact_presence(self, contact_ids: list[int]) -> list[Presence]:
+        """
+        Получение информации о присутствии контактов в сети.
+
+        :param contact_ids: Список идентификаторов контактов.
+        :type contact_ids: list[int]
+        """
+        payload = ContactPresencePayload(contact_ids=contact_ids).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.CONTACT_PRESENCE, payload=payload)
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        presence = data["payload"].get("presence", {})
+
+        return [
+            Presence(user_id=int(contact_id), last_seen=info.get("seen"))
+            for contact_id, info in presence.items()
+        ]
