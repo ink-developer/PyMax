@@ -400,3 +400,8 @@ class RequestEmailCodePayload(CamelModel):
 class SendEmailCodePayload(CamelModel):
     track_id: str
     verify_code: str
+
+
+class AddContactByPhonePayload(CamelModel):
+    phone: str
+    first_name: str
