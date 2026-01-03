@@ -29,6 +29,46 @@ from pymax.utils import MixinsUtils
 class AuthMixin(ClientProtocol):
     def _check_phone(self) -> bool:
         return bool(re.match(PHONE_REGEX, self.phone))
+    
+    def _split_phone(self, phone: str) -> str:
+        placeholder = ""
+        result = ""
+        digit_index = 0
+        if phone.startswith("+7"):
+            result = "+7 "
+            placeholder = "000 000 00 00"
+        if phone.startswith("+375"):
+            result = "+375 "
+            placeholder = "00 000 00 00"
+        if phone.startswith("+994"):
+            result = "+994 "
+            placeholder = "00 000 00 00"
+        if phone.startswith("+374"):
+            result = "+374 "
+            placeholder = "00 000 000"
+        if phone.startswith("+995"):
+            result = "+995 "
+            placeholder = "000 00 00 00"
+        if phone.startswith("+996"):
+            result = "+996 "
+            placeholder = "000 000 000"
+        if phone.startswith("+373"):
+            result = "+373 "
+            placeholder = "0000 0000"
+        if phone.startswith("+992"):
+            result = "+992 "
+            placeholder = "00 000 0000"
+        if phone.startswith("+998"):
+            result = "+998 "
+            placeholder = "00 000 00 00"
+        phone = phone[len(result)-1:]
+        for char in placeholder:
+            if char == "0" and digit_index < len(phone):
+                result += phone[digit_index]
+                digit_index += 1
+            elif char == " ":
+                result += " "
+        return result
 
     async def request_code(self, phone: str) -> str:
         """
@@ -49,9 +89,8 @@ class AuthMixin(ClientProtocol):
         """
         self.logger.info("Requesting auth code")
 
-        split_phone = phone[0:2] + " " + phone[2:5] + " " + phone[5:8] + " " + phone[8:10] + " " + phone[10:12]
         payload = RequestCodePayload(
-            phone=split_phone, type=AuthType.START_AUTH
+            phone=self._split_phone(phone), type=AuthType.START_AUTH
         ).model_dump(by_alias=True)
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)
@@ -84,9 +123,8 @@ class AuthMixin(ClientProtocol):
         """
         self.logger.info("Resending auth code")
 
-        split_phone = phone[0:2] + " " + phone[2:5] + " " + phone[5:8] + " " + phone[8:10] + " " + phone[10:12]
         payload = RequestCodePayload(
-            phone=split_phone, type=AuthType.RESEND
+            phone=self._split_phone(phone), type=AuthType.RESEND
         ).model_dump(by_alias=True)
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)
