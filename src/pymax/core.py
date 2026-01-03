@@ -266,6 +266,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         :type code: str
         :param start: Флаг запуска пост-логин задач и ожидания навсегда. Если False, только сохраняет токен.
         :type start: bool, optional
+        :param password: Пароль, если требуется 2FA.
+        :type password: str
         :return: None
         :rtype: None
         """
