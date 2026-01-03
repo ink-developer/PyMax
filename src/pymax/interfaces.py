@@ -49,7 +49,19 @@ class BaseClient(ClientProtocol):
         try:
             return await coro
         except Exception as e:
-            self.logger.error(f"Unhandled exception in {context}: {e}\n{traceback.format_exc()}")
+            if self._on_error_handler:
+                try:
+                    result = self._on_error_handler(e)
+                    if asyncio.iscoroutine(result):
+                        await result
+                except Exception as eh:
+                    self.logger.exception(
+                        f"Error in on_error_handler while handling exception in {context}: {eh}\n{traceback.format_exc()}"
+                    )
+            else:
+                self.logger.exception(
+                    f"Unhandled exception in {context}: {e}\n{traceback.format_exc()}"
+                )
 
     def _create_safe_task(
         self, coro: Awaitable[Any], name: str | None = None
@@ -60,9 +72,20 @@ class BaseClient(ClientProtocol):
             except asyncio.CancelledError:
                 raise
             except Exception as e:
-                tb = traceback.format_exc()
-                self.logger.error(f"Unhandled exception in task {name or coro}: {e}\n{tb}")
-                raise
+                if self._on_error_handler:
+                    try:
+                        result = self._on_error_handler(e)
+                        if asyncio.iscoroutine(result):
+                            await result
+                    except Exception as eh:
+                        tb = traceback.format_exc()
+                        self.logger.exception(
+                            f"Error in on_error_handler while handling exception in task {name or coro}: {eh}\n{tb}"
+                        )
+                else:
+                    tb = traceback.format_exc()
+                    self.logger.exception(f"Unhandled exception in task {name or coro}: {e}\n{tb}")
+                    raise
 
         task = asyncio.create_task(runner(), name=name)
         self._background_tasks.add(task)
