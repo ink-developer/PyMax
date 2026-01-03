@@ -126,10 +126,8 @@ class WebSocketMixin(BaseTransport):
 
         try:
             self.logger.debug(
-                "Sending frame opcode=%s cmd=%s seq=%s",
-                opcode,
-                cmd,
-                json.dumps(msg, indent=4),
+                "Sending frame msg=%s",
+                json.dumps(msg, ensure_ascii=False, indent=4),
             )
             await ws.send(json.dumps(msg))
             data = await asyncio.wait_for(fut, timeout=timeout)

@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import json
 import socket
 import ssl
 import sys
@@ -296,12 +297,16 @@ Socket connections may be unstable, SSL issues are possible.
     ) -> bytes | None:
         header = await loop.run_in_executor(None, lambda: self._recv_exactly(sock=sock, n=10))
         if not header or len(header) < 10:
-            self.logger.info("Socket connection closed; exiting recv loop")
+            self.logger.error(
+                "Socket connection closed (incomplete header: %d bytes received)",
+                len(header) if header else 0,
+            )
             self.is_connected = False
             try:
                 sock.close()
             except Exception:
-                return None
+                pass
+            raise ConnectionResetError("Socket closed while reading header")
 
         return header
 
@@ -470,10 +475,8 @@ Socket connections may be unstable, SSL issues are possible.
         self._pending[seq_key] = fut
         try:
             self.logger.debug(
-                "Sending frame opcode=%s cmd=%s seq=%s",
-                opcode,
-                cmd,
-                msg["seq"],
+                "Sending frame msg=%s",
+                json.dumps(msg, ensure_ascii=False, indent=4),
             )
             packet = self._pack_packet(
                 msg["ver"],
