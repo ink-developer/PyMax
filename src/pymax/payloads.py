@@ -56,7 +56,6 @@ class UserAgentPayload(CamelModel):
 class RequestCodePayload(CamelModel):
     phone: str
     type: AuthType = AuthType.START_AUTH
-    language: str = "ru"
 
 
 class SendCodePayload(CamelModel):

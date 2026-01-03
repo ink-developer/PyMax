@@ -29,8 +29,48 @@ from pymax.utils import MixinsUtils
 class AuthMixin(ClientProtocol):
     def _check_phone(self) -> bool:
         return bool(re.match(PHONE_REGEX, self.phone))
+    
+    def _split_phone(self, phone: str) -> str:
+        placeholder = ""
+        result = ""
+        digit_index = 0
+        if phone.startswith("+7"):
+            result = "+7 "
+            placeholder = "000 000 00 00"
+        if phone.startswith("+375"):
+            result = "+375 "
+            placeholder = "00 000 00 00"
+        if phone.startswith("+994"):
+            result = "+994 "
+            placeholder = "00 000 00 00"
+        if phone.startswith("+374"):
+            result = "+374 "
+            placeholder = "00 000 000"
+        if phone.startswith("+995"):
+            result = "+995 "
+            placeholder = "000 00 00 00"
+        if phone.startswith("+996"):
+            result = "+996 "
+            placeholder = "000 000 000"
+        if phone.startswith("+373"):
+            result = "+373 "
+            placeholder = "0000 0000"
+        if phone.startswith("+992"):
+            result = "+992 "
+            placeholder = "00 000 0000"
+        if phone.startswith("+998"):
+            result = "+998 "
+            placeholder = "00 000 00 00"
+        phone = phone[len(result)-1:]
+        for char in placeholder:
+            if char == "0" and digit_index < len(phone):
+                result += phone[digit_index]
+                digit_index += 1
+            elif char == " ":
+                result += " "
+        return result
 
-    async def request_code(self, phone: str, language: str = "ru") -> str:
+    async def request_code(self, phone: str) -> str:
         """
         Запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.
 
@@ -39,8 +79,6 @@ class AuthMixin(ClientProtocol):
 
         :param phone: Номер телефона в международном формате.
         :type phone: str
-        :param language: Язык для сообщения с кодом. По умолчанию "ru".
-        :type language: str
         :return: Временный токен для дальнейшей аутентификации.
         :rtype: str
         :raises ValueError: Если полученные данные имеют неверный формат.
@@ -52,7 +90,7 @@ class AuthMixin(ClientProtocol):
         self.logger.info("Requesting auth code")
 
         payload = RequestCodePayload(
-            phone=phone, type=AuthType.START_AUTH, language=language
+            phone=self._split_phone(phone), type=AuthType.START_AUTH
         ).model_dump(by_alias=True)
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)
@@ -72,14 +110,12 @@ class AuthMixin(ClientProtocol):
             self.logger.error("Invalid payload data received")
             raise ValueError("Invalid payload data received")
 
-    async def resend_code(self, phone: str, language: str = "ru") -> str:
+    async def resend_code(self, phone: str) -> str:
         """
         Повторно запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.
 
         :param phone: Номер телефона в международном формате.
         :type phone: str
-        :param language: Язык для сообщения с кодом. По умолчанию "ru".
-        :type language: str
         :return: Временный токен для дальнейшей аутентификации.
         :rtype: str
         :raises ValueError: Если полученные данные имеют неверный формат.
@@ -88,7 +124,7 @@ class AuthMixin(ClientProtocol):
         self.logger.info("Resending auth code")
 
         payload = RequestCodePayload(
-            phone=phone, type=AuthType.RESEND, language=language
+            phone=self._split_phone(phone), type=AuthType.RESEND
         ).model_dump(by_alias=True)
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)
