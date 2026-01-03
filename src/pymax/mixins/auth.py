@@ -406,13 +406,39 @@ class AuthMixin(ClientProtocol):
             return None
         return token_attrs
 
-    async def _two_factor_auth(self, password_challenge: dict[str, Any]) -> None:
+    def _get_token_from_attrs(self, token_attrs: dict[str, Any]) -> str | None:
+        if not token_attrs:
+            self.logger.critical("Provided password is incorrect")
+            raise ValueError("Provided password is incorrect")
+
+        login_attrs = token_attrs.get("LOGIN", {})
+        if login_attrs:
+            token = login_attrs.get("token")
+            if not token:
+                self.logger.critical("Login response did not contain tokenAttrs.LOGIN.token")
+                raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
+            return token
+        return None
+
+    async def _two_factor_auth(
+        self, password_challenge: dict[str, Any], password: str | None
+    ) -> str:
         self.logger.info("Starting two-factor authentication flow")
 
         track_id = password_challenge.get("trackId")
         if not track_id:
             self.logger.critical("Password challenge missing track ID")
             raise ValueError("Password challenge missing track ID")
+
+        if password is not None:
+            token_attrs = await self._check_password(password, track_id)
+            if token_attrs:
+                token = self._get_token_from_attrs(token_attrs)
+                if token:
+                    return token
+                else:
+                    self.logger.critical("Login response did not contain tokenAttrs.LOGIN.token")
+                    raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
 
         hint = password_challenge.get("hint", "No hint provided")
 
@@ -429,13 +455,11 @@ class AuthMixin(ClientProtocol):
                 self.logger.error("Incorrect password, please try again")
                 continue
 
-            login_attrs = token_attrs.get("LOGIN", {})
-            if login_attrs:
-                token = login_attrs.get("token")
-                if not token:
-                    self.logger.critical("Login response did not contain tokenAttrs.LOGIN.token")
-                    raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
+            token = self._get_token_from_attrs(token_attrs)
+            if token:
                 return token
+            else:
+                self.logger.error("Incorrect password, please try again")
 
     async def _set_password(self, password: str, track_id: str) -> bool:
         payload = SetPasswordPayload(

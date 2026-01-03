@@ -254,7 +254,9 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
             if asyncio.iscoroutine(result):
                 await self._safe_execute(result, context="on_start handler")
 
-    async def login_with_code(self, temp_token: str, code: str, start: bool = False) -> None:
+    async def login_with_code(
+        self, temp_token: str, code: str, start: bool = False, password: str | None = None
+    ) -> None:
         """
         Завершает кастомный login flow: отправляет код, сохраняет токен и запускает пост-логин задачи.
 
@@ -273,7 +275,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         password_challenge = resp.get("passwordChallenge")
 
         if password_challenge and not login_attrs:
-            token = await self._two_factor_auth(password_challenge)
+            token = await self._two_factor_auth(password_challenge, password)
         else:
             token = login_attrs.get("token")
 

@@ -270,7 +270,10 @@ Socket connections may be unstable, SSL issues are possible.
             self._outgoing_loop(), name="outgoing_loop socket task"
         )
         self.logger.info("Socket connected, starting handshake")
-        return await self._handshake(user_agent)
+
+        data = await self._handshake(user_agent)
+        self.logger.debug("Handshake location: %s", data.get("payload", {}).get("location"))
+        return data
 
     def _recv_exactly(self, sock: socket.socket, n: int) -> bytes:
         """
