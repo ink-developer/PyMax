@@ -4,10 +4,7 @@ import json
 import socket
 import ssl
 import sys
-import time
-import traceback
-from collections.abc import Callable
-from typing import Any, Literal
+from typing import Any
 from urllib.parse import urlparse
 
 import lz4.block
@@ -17,23 +14,14 @@ from typing_extensions import override
 from pymax.exceptions import Error, SocketNotConnectedError, SocketSendError
 from pymax.filters import BaseFilter
 from pymax.interfaces import BaseTransport
-from pymax.payloads import BaseWebSocketMessage, SyncPayload, UserAgentPayload
-from pymax.protocols import ClientProtocol
+from pymax.payloads import UserAgentPayload
 from pymax.static.constant import (
-    DEFAULT_PING_INTERVAL,
     DEFAULT_TIMEOUT,
     RECV_LOOP_BACKOFF_DELAY,
 )
-from pymax.static.enum import ChatType, MessageStatus, Opcode
+from pymax.static.enum import Opcode
 from pymax.types import (
-    Channel,
     Chat,
-    Dialog,
-    Me,
-    Message,
-    ReactionCounter,
-    ReactionInfo,
-    User,
 )
 
 
@@ -41,7 +29,7 @@ class SocketMixin(BaseTransport):
     def _close_socket_safely(self) -> None:
         if self._socket is not None:
             sock = self._socket
-            self._socket = None  # Nullify reference first to prevent double-closes
+            self._socket = None
             with contextlib.suppress(ssl.SSLError, Exception):
                 sock.close()
 
@@ -365,12 +353,14 @@ Socket connections may be unstable, SSL issues are possible.
 
         while True:
             try:
-                sock = self._socket  # Get fresh reference on each iteration
+                sock = self._socket
                 if sock is None:
                     self.logger.warning("Socket became None, exiting recv loop")
                     break
 
                 header = await self._parse_header(loop, sock)
+
+                self.logger.debug("Received header: %s", header)
 
                 if not header:
                     break
