@@ -231,3 +231,12 @@ class Capability(int, Enum):
     SECOND_FACTOR_PASSWORD_ENABLED = 2
     SECOND_FACTOR_HAS_EMAIL = 3
     SECOND_FACTOR_HAS_HINT = 4
+
+
+class TypingType(str, Enum):
+    TEXT = "TEXT"
+    AUDIO = "AUDIO"
+    FILE = "FILE"
+    PHOTO = "PHOTO"
+    STICKER = "STICKER"
+    VIDEO = "VIDEO"

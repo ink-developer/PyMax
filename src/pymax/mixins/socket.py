@@ -481,3 +481,21 @@ Socket connections may be unstable, SSL issues are possible.
             if chat.id == chat_id:
                 return chat
         return None
+
+    async def _send_only(self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0) -> None:
+        async def send_task():
+            async with self._sock_lock:
+                if not self.is_connected or self._socket is None:
+                    return
+                msg = self._make_message(opcode, payload, cmd)
+                packet = self._pack_packet(
+                    msg["ver"],
+                    msg["cmd"],
+                    msg["seq"],
+                    msg["opcode"],
+                    msg["payload"],
+                )
+                loop = asyncio.get_running_loop()
+                await loop.run_in_executor(None, lambda: self._socket.sendall(packet))
+
+        asyncio.create_task(send_task())

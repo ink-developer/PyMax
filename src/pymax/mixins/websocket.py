@@ -152,3 +152,9 @@ class WebSocketMixin(BaseTransport):
             if chat.id == chat_id:
                 return chat
         return None
+
+    async def _send_only(self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0) -> None:
+        msg = self._make_message(opcode, payload, cmd)
+        packet = json.dumps(msg)
+
+        asyncio.create_task(self.ws.send(packet))

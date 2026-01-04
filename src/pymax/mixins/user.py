@@ -1,3 +1,5 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from typing import Any, Literal
 
 from pymax.exceptions import Error, ResponseError, ResponseStructureError
@@ -7,9 +9,10 @@ from pymax.payloads import (
     ContactPresencePayload,
     FetchContactsPayload,
     SearchByPhonePayload,
+    SetTypingPayload,
 )
 from pymax.protocols import ClientProtocol
-from pymax.static.enum import ContactAction, Opcode
+from pymax.static.enum import ContactAction, Opcode, TypingType
 from pymax.types import Contact, Presence, Session, User
 from pymax.utils import MixinsUtils
 
@@ -267,3 +270,28 @@ class UserMixin(ClientProtocol):
             Presence(user_id=int(contact_id), last_seen=info.get("seen"))
             for contact_id, info in presence.items()
         ]
+
+    @asynccontextmanager
+    async def typing(
+        self, chat_id: int, typing_type: TypingType = TypingType.TEXT
+    ) -> AsyncGenerator[None, Any]:
+        """
+        Устанавливает состояние "печатает" для указанного чата.
+
+        :param chat_id: ID чата.
+        :type chat_id: int
+        :param typing_type: Тип состояния "печатает".
+        :type typing_type: TypingType
+        :yields: None
+        :rtype: None
+        """
+        self.logger.debug("Set typing for chat %s", chat_id)
+
+        payload = SetTypingPayload(
+            chat_id=chat_id,
+            type=typing_type,
+        ).model_dump(by_alias=True)
+        await self._send_only(opcode=Opcode.MSG_TYPING, payload=payload)
+        self.logger.debug("Set typing for chat %s success (maybe?)", chat_id)
+        yield
+        self.logger.debug("Set typing for chat %s done", chat_id)

@@ -126,3 +126,7 @@ class ClientProtocol(ABC):
         self, coro: Awaitable[Any], name: str | None = None
     ) -> asyncio.Task[Any]:
         pass
+
+    @abstractmethod
+    async def _send_only(self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0) -> None:
+        pass
