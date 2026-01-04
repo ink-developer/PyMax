@@ -70,6 +70,8 @@ class ClientProtocol(ABC):
         self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
         self._outgoing_task: asyncio.Task[Any] | None = None
         self._error_count: int = 0
+        self._sock_lock: asyncio.Lock = asyncio.Lock()
+        self._read_buffer: bytearray = bytearray()
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
         self._session_id: int

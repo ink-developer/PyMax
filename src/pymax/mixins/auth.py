@@ -254,7 +254,7 @@ class AuthMixin(ClientProtocol):
             raise RuntimeError("Account requires registration")
 
         if password_challenge and not login_attrs:
-            token = await self._two_factor_auth(password_challenge)
+            token = await self._two_factor_auth(password_challenge, None)
         else:
             token = login_attrs.get("token")
 

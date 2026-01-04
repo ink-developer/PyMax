@@ -26,13 +26,6 @@ from pymax.types import (
 
 
 class SocketMixin(BaseTransport):
-    def _close_socket_safely(self) -> None:
-        if self._socket is not None:
-            sock = self._socket
-            self._socket = None
-            with contextlib.suppress(ssl.SSLError, Exception):
-                sock.close()
-
     @property
     def sock(self) -> socket.socket:
         if self._socket is None or not self.is_connected:
@@ -127,7 +120,7 @@ class SocketMixin(BaseTransport):
         else:
             sock.sendall(b"\x05\x01\x00")
 
-        response = self._recv_exactly(sock, 2)
+        response = self._recv_exactly_plain(sock, 2)
         if response[0] != 0x05:
             sock.close()
             raise ConnectionError("Invalid SOCKS5 proxy response")
@@ -152,7 +145,7 @@ class SocketMixin(BaseTransport):
             auth_req = b"\x01" + bytes([len(u)]) + u + bytes([len(p)]) + p
             sock.sendall(auth_req)
 
-            auth_resp = self._recv_exactly(sock, 2)
+            auth_resp = self._ssl_read_exactly(sock, 2)
             if auth_resp != b"\x01\x00":
                 sock.close()
                 raise ConnectionError("SOCKS5 authentication failed")
@@ -166,24 +159,33 @@ class SocketMixin(BaseTransport):
         )
         sock.sendall(connect_req)
 
-        resp = self._recv_exactly(sock, 4)
+        resp = self._recv_exactly_plain(sock, 4)
         if resp[0] != 0x05 or resp[1] != 0x00:
             sock.close()
             raise ConnectionError(f"SOCKS5 connect failed, code={resp[1]}")
 
         atyp = resp[3]
         if atyp == 0x01:
-            self._recv_exactly(sock, 4 + 2)
+            self._recv_exactly_plain(sock, 4 + 2)
         elif atyp == 0x03:
-            domain_len = self._recv_exactly(sock, 1)[0]
-            self._recv_exactly(sock, domain_len + 2)
+            domain_len = self._recv_exactly_plain(sock, 1)[0]
+            self._recv_exactly_plain(sock, domain_len + 2)
         elif atyp == 0x04:
-            self._recv_exactly(sock, 16 + 2)
+            self._recv_exactly_plain(sock, 16 + 2)
         else:
             sock.close()
             raise ConnectionError(f"Unknown ATYP: {atyp}")
 
         return sock
+
+    def _recv_exactly_plain(self, sock: socket.socket, n: int) -> bytes:
+        buf = bytearray()
+        while len(buf) < n:
+            chunk = sock.recv(n - len(buf))
+            if not chunk:
+                raise ConnectionError("Socket closed during SOCKS handshake")
+            buf.extend(chunk)
+        return bytes(buf)
 
     def _perform_ssl_handshake(self, raw_sock: socket.socket) -> socket.socket:
         """
@@ -192,8 +194,6 @@ class SocketMixin(BaseTransport):
         :param raw_sock: Обычный сокет
         :return: SSL сокет
         """
-        raw_sock.setblocking(True)
-
         try:
             raw_sock.settimeout(10.0)
             wrapped = self._ssl_context.wrap_socket(
@@ -203,7 +203,7 @@ class SocketMixin(BaseTransport):
                 suppress_ragged_eofs=True,
             )
             wrapped.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-            wrapped.setblocking(True)
+
             return wrapped
         except ssl.SSLError as e:
             self.logger.error("SSL handshake failed: %s", e)
@@ -282,83 +282,45 @@ Socket connections may be unstable, SSL issues are possible.
         self.logger.debug("Handshake location: %s", data.get("payload", {}).get("location"))
         return data
 
-    def _recv_exactly(self, sock: socket.socket, n: int) -> bytes:
-        """
-        Получает ровно n байт из сокета. Обрабатывает SSL ошибки корректно.
-        """
-        buf = bytearray()
-        try:
-            while len(buf) < n:
-                try:
-                    chunk = sock.recv(n - len(buf))
-                except ssl.SSLWantReadError:
-                    continue
-                except ssl.SSLWantWriteError:
-                    continue
+    def _ssl_read_exactly(self, sock: socket.socket, n: int) -> bytes:
+        while len(self._read_buffer) < n:
+            chunk = sock.recv(8192)
+            if not chunk:
+                raise ConnectionResetError("SSL socket closed")
+            self._read_buffer.extend(chunk)
 
-                if not chunk:
-                    break
-                buf.extend(chunk)
-            return bytes(buf)
-        except (ssl.SSLError, ConnectionError, BrokenPipeError) as e:
-            self.logger.debug("SSL/Connection error in _recv_exactly: %s", e)
-            raise
+        data = self._read_buffer[:n]
+        del self._read_buffer[:n]
+        return bytes(data)
 
-    async def _parse_header(
-        self, loop: asyncio.AbstractEventLoop, sock: socket.socket
-    ) -> bytes | None:
-        header = await loop.run_in_executor(None, lambda: self._recv_exactly(sock=sock, n=10))
-        if not header or len(header) < 10:
-            self.logger.error(
-                "Socket connection closed (incomplete header: %d bytes received)",
-                len(header) if header else 0,
-            )
-            self.is_connected = False
-            raise ConnectionResetError("Socket closed while reading header")
-
+    async def _parse_header(self, loop, sock):
+        async with self._sock_lock:
+            header = await loop.run_in_executor(None, lambda: self._ssl_read_exactly(sock, 10))
         return header
 
-    async def _recv_data(
-        self, loop: asyncio.AbstractEventLoop, header: bytes, sock: socket.socket
-    ) -> list[dict[str, Any]] | None:
-        packed_len = int.from_bytes(header[6:10], "big", signed=False)
+    async def _recv_data(self, loop, header, sock):
+        packed_len = int.from_bytes(header[6:10], "big")
         payload_length = packed_len & 0xFFFFFF
-        remaining = payload_length
-        payload = bytearray()
 
-        while remaining > 0:
-            min_read = min(remaining, 8192)
-            chunk = await loop.run_in_executor(None, lambda: self._recv_exactly(sock, min_read))
-            if not chunk:
-                self.logger.error("Connection closed while reading payload")
-                break
-            payload.extend(chunk)
-            remaining -= len(chunk)
-
-        if remaining > 0:
-            self.logger.error("Incomplete payload received; skipping packet")
-            return None
-
-        raw = header + payload
-        if len(raw) < 10 + payload_length:
-            self.logger.error(
-                "Incomplete packet: expected %d bytes, got %d",
-                10 + payload_length,
-                len(raw),
-            )
-            await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
-            return None
+        if payload_length == 0:
+            raw = header
+        else:
+            async with self._sock_lock:
+                payload = await loop.run_in_executor(
+                    None, lambda: self._ssl_read_exactly(sock, payload_length)
+                )
+            raw = header + payload
 
         data = self._unpack_packet(raw)
         if not data:
-            self.logger.warning("Failed to unpack packet, skipping")
+            self.logger.warning("Failed to unpack packet")
             return None
 
         payload_objs = data.get("payload")
         return (
-            [{**data, "payload": obj} for obj in payload_objs]
-            if isinstance(payload_objs, list)
-            else [data]
+            [{**data, "payload": payload_objs}]
+            if not isinstance(payload_objs, list)
+            else [{**data, "payload": obj} for obj in payload_objs]
         )
 
     async def _recv_loop(self) -> None:
@@ -422,7 +384,6 @@ Socket connections may be unstable, SSL issues are possible.
                 )
                 self.is_connected = False
 
-                self._close_socket_safely()
                 self._socket = None
 
                 if self.reconnect and consecutive_errors < max_consecutive_errors:
@@ -433,12 +394,14 @@ Socket connections may be unstable, SSL issues are possible.
                 else:
                     self.logger.warning(...)
                     break
+            except socket.timeout:
+                self.logger.debug("Socket timeout, continuing recv loop")
+                continue
             except Exception as e:
                 consecutive_errors += 1
                 self.logger.exception("Error in recv_loop: %s", e)
                 self.is_connected = False
 
-                self._close_socket_safely()
                 self._socket = None
 
                 if self.reconnect and consecutive_errors < max_consecutive_errors:
@@ -461,7 +424,6 @@ Socket connections may be unstable, SSL issues are possible.
         if not self.is_connected or self._socket is None:
             raise SocketNotConnectedError
 
-        sock = self.sock
         msg = self._make_message(opcode, payload, cmd)
         loop = asyncio.get_running_loop()
         fut: asyncio.Future[dict[str, Any]] = loop.create_future()
@@ -484,7 +446,13 @@ Socket connections may be unstable, SSL issues are possible.
                 msg["opcode"],
                 msg["payload"],
             )
-            await loop.run_in_executor(None, lambda: sock.sendall(packet))
+            async with self._sock_lock:
+                if not self.is_connected or self._socket is None:
+                    raise SocketNotConnectedError
+
+                sock = self._socket
+                await loop.run_in_executor(None, lambda: sock.sendall(packet))
+
             data = await asyncio.wait_for(fut, timeout=timeout)
             self.logger.debug(
                 "Received frame for seq=%s opcode=%s",
@@ -497,7 +465,6 @@ Socket connections may be unstable, SSL issues are possible.
             self.logger.warning("Connection lost: %s, attempting reconnect...", conn_err)
             self.is_connected = False
 
-            self._close_socket_safely()
         except asyncio.TimeoutError:
             self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
             raise SocketSendError from None
