@@ -257,6 +257,15 @@ Socket connections may be unstable, SSL issues are possible.
         self._incoming = asyncio.Queue()
         self._outgoing = asyncio.Queue()
         self._pending = {}
+        if self._recv_task and not self._recv_task.done():
+            try:
+                self._recv_task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await self._recv_task
+            except Exception:
+                self.logger.debug("Old recv_task cancellation raised", exc_info=True)
+
+        self.logger.debug("Old recv_task cancellation raised", exc_info=True)
         self._recv_task = self._create_safe_task(self._recv_loop(), name="recv_loop socket task")
         self._recv_task.add_done_callback(
             lambda t: self.logger.debug(
@@ -417,23 +426,12 @@ Socket connections may be unstable, SSL issues are possible.
                 self._socket = None
 
                 if self.reconnect and consecutive_errors < max_consecutive_errors:
-                    self.logger.info("Reconnect enabled, attempting to restore connection...")
-                    try:
-                        await asyncio.sleep(min(2**consecutive_errors, 10))
-                        await self.connect(self.user_agent)
-                        sock = self._socket
-                        self.logger.info("Connection restored successfully")
-                    except Exception:
-                        self.logger.exception("Failed to restore connection")
-                        if consecutive_errors >= max_consecutive_errors:
-                            self.logger.error(
-                                "Max reconnection attempts reached, exiting recv_loop"
-                            )
-                            break
-                else:
-                    self.logger.warning(
-                        "Reconnect disabled or max errors reached, exiting recv_loop"
+                    self.logger.info(
+                        "Reconnect enabled — exiting recv_loop to allow outer loop to reconnect"
                     )
+                    break
+                else:
+                    self.logger.warning(...)
                     break
             except Exception as e:
                 consecutive_errors += 1
@@ -444,18 +442,12 @@ Socket connections may be unstable, SSL issues are possible.
                 self._socket = None
 
                 if self.reconnect and consecutive_errors < max_consecutive_errors:
-                    self.logger.info("Reconnect enabled, attempting to restore connection...")
-                    try:
-                        await asyncio.sleep(min(2**consecutive_errors, 10))
-                        await self.connect(self.user_agent)
-                        sock = self._socket
-                        self.logger.info("Connection restored successfully")
-                    except Exception:
-                        self.logger.exception("Failed to restore connection")
-                        if consecutive_errors >= max_consecutive_errors:
-                            break
+                    self.logger.info(
+                        "Reconnect enabled — exiting recv_loop to allow outer loop to reconnect"
+                    )
+                    break
                 else:
-                    self.logger.warning("Reconnect disabled, exiting recv_loop")
+                    self.logger.warning("Max consecutive errors reached, exiting recv_loop")
                     break
 
     @override
