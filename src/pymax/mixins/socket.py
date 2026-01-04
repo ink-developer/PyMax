@@ -82,8 +82,8 @@ class SocketMixin(BaseTransport):
         payload: dict[str, Any],
     ) -> bytes:
         ver_b = ver.to_bytes(1, "big")
-        cmd_b = cmd.to_bytes(2, "big")
-        seq_b = (seq % 256).to_bytes(1, "big")
+        cmd_b = cmd.to_bytes(1, "big")
+        seq_b = seq.to_bytes(2, "big")
         opcode_b = opcode.to_bytes(2, "big")
         payload_bytes: bytes | None = msgpack.packb(payload)
         if payload_bytes is None:
@@ -255,6 +255,11 @@ Socket connections may be unstable, SSL issues are possible.
         self._outgoing = asyncio.Queue()
         self._pending = {}
         self._recv_task = self._create_safe_task(self._recv_loop(), name="recv_loop socket task")
+        self._recv_task.add_done_callback(
+            lambda t: self.logger.debug(
+                "recv_task done: cancelled=%s, exc=%r", t.cancelled(), t.exception()
+            )
+        )
         self._outgoing_task = self._create_safe_task(
             self._outgoing_loop(), name="outgoing_loop socket task"
         )
@@ -364,11 +369,13 @@ Socket connections may be unstable, SSL issues are possible.
                 self.logger.debug("Received header: %s", header)
 
                 if not header:
+                    self.logger.error("No header received, exiting recv loop")
                     break
 
                 datas = await self._recv_data(loop, header, sock)
 
                 if not datas:
+                    self.logger.warning("No data received, continuing recv loop")
                     continue
 
                 consecutive_errors = 0
@@ -386,7 +393,7 @@ Socket connections may be unstable, SSL issues are possible.
 
             except asyncio.CancelledError:
                 self.logger.debug("Recv loop cancelled")
-                raise
+                break
             except (
                 ssl.SSLError,
                 ssl.SSLEOFError,
@@ -394,7 +401,7 @@ Socket connections may be unstable, SSL issues are possible.
                 BrokenPipeError,
             ) as ssl_err:
                 consecutive_errors += 1
-                self.logger.error(
+                self.logger.exception(
                     "SSL/Connection error in recv_loop (error %d/%d): %s",
                     consecutive_errors,
                     max_consecutive_errors,

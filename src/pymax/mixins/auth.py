@@ -29,7 +29,7 @@ from pymax.utils import MixinsUtils
 class AuthMixin(ClientProtocol):
     def _check_phone(self) -> bool:
         return bool(re.match(PHONE_REGEX, self.phone))
-    
+
     def _split_phone(self, phone: str) -> str:
         placeholder = ""
         result = ""
@@ -61,7 +61,7 @@ class AuthMixin(ClientProtocol):
         if phone.startswith("+998"):
             result = "+998 "
             placeholder = "00 000 00 00"
-        phone = phone[len(result)-1:]
+        phone = phone[len(result) - 1 :]
         for char in placeholder:
             if char == "0" and digit_index < len(phone):
                 result += phone[digit_index]
