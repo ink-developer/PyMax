@@ -8,6 +8,7 @@ import qrcode
 
 from pymax.exceptions import Error
 from pymax.payloads import (
+    ApproveQrLoginPayload,
     Capability,
     CheckPasswordChallengePayload,
     CreateTrackPayload,
@@ -222,8 +223,8 @@ class AuthMixin(ClientProtocol):
     async def _login(self) -> None:
         self.logger.info("Starting login flow")
 
-        if self.user_agent.device_type == DeviceType.WEB.value and self._ws:
-            if not self._validate_version(self.user_agent.app_version, "25.12.13"):
+        if self.headers.device_type == DeviceType.WEB.value and self._ws:
+            if not self._validate_version(self.headers.app_version, "25.12.13"):
                 self.logger.error("Your app version is too old")
                 raise ValueError("Your app version is too old")
 
@@ -658,4 +659,34 @@ class AuthMixin(ClientProtocol):
         if payload and payload.get("error"):
             MixinsUtils.handle_error(data)
 
+        return True
+
+    async def approve_qr_login(self, qr_link: str) -> bool:
+        """
+        Подтверждает вход по QR-коду, используя предоставленную ссылку.
+
+        :param qr_link: Ссылка на QR-код для подтверждения входа.
+        :type qr_link: str
+        :return: True, если вход успешно подтвержден, иначе выбрасывается исключение.
+        :rtype: bool
+        """
+        self.logger.info("Approving QR login")
+
+        payload = ApproveQrLoginPayload(
+            qr_link=qr_link,
+        ).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(
+            opcode=Opcode.AUTH_QR_APPROVE,
+            payload=payload,
+        )
+        payload = data.get("payload", {})
+        if payload and payload.get("error"):
+            MixinsUtils.handle_error(data)
+
+        self.logger.debug(
+            "QR login approval response opcode=%s seq=%s",
+            data.get("opcode"),
+            data.get("seq"),
+        )
         return True

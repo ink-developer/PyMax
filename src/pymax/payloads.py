@@ -409,3 +409,7 @@ class AddContactByPhonePayload(CamelModel):
 
 class ContactPresencePayload(CamelModel):
     contact_ids: list[int]
+
+
+class ApproveQrLoginPayload(CamelModel):
+    qr_link: str

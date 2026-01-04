@@ -70,7 +70,7 @@ class SocketMixin(BaseTransport):
             "cmd": cmd,
             "seq": seq,
             "opcode": opcode,
-            "payload": payload,
+            "payload": payload,  #
         }
 
     def _pack_packet(
@@ -80,17 +80,20 @@ class SocketMixin(BaseTransport):
         seq: int,
         opcode: int,
         payload: dict[str, Any],
+        compress: bool = False,
     ) -> bytes:
         ver_b = ver.to_bytes(1, "big")
         cmd_b = cmd.to_bytes(1, "big")
         seq_b = seq.to_bytes(2, "big")
         opcode_b = opcode.to_bytes(2, "big")
-        payload_bytes: bytes | None = msgpack.packb(payload)
-        if payload_bytes is None:
-            payload_bytes = b""
+
+        payload_bytes = msgpack.packb(payload) or b""
+
+        comp_flag = 1 if compress else 0
         payload_len = len(payload_bytes) & 0xFFFFFF
-        self.logger.debug("Packing message: payload size=%d bytes", len(payload_bytes))
-        payload_len_b = payload_len.to_bytes(4, "big")
+        packed_len = (comp_flag << 24) | payload_len
+        payload_len_b = packed_len.to_bytes(4, "big")
+
         return ver_b + cmd_b + seq_b + opcode_b + payload_len_b + payload_bytes
 
     def _create_socket_with_proxy(self, proxy: str) -> socket.socket:
@@ -260,6 +263,7 @@ Socket connections may be unstable, SSL issues are possible.
                 "recv_task done: cancelled=%s, exc=%r", t.cancelled(), t.exception()
             )
         )
+
         self._outgoing_task = self._create_safe_task(
             self._outgoing_loop(), name="outgoing_loop socket task"
         )
@@ -383,7 +387,7 @@ Socket connections may be unstable, SSL issues are possible.
                 for data_item in datas:
                     seq = data_item.get("seq")
 
-                    if self._handle_pending(seq % 256 if seq is not None else None, data_item):
+                    if self._handle_pending(seq, data_item):
                         continue
 
                     if self._incoming is not None:
@@ -469,7 +473,7 @@ Socket connections may be unstable, SSL issues are possible.
         msg = self._make_message(opcode, payload, cmd)
         loop = asyncio.get_running_loop()
         fut: asyncio.Future[dict[str, Any]] = loop.create_future()
-        seq_key = msg["seq"] % 256
+        seq_key = msg["seq"]
 
         old_fut = self._pending.get(seq_key)
         if old_fut and not old_fut.done():
@@ -510,7 +514,7 @@ Socket connections may be unstable, SSL issues are possible.
             raise SocketSendError from exc
 
         finally:
-            self._pending.pop(msg["seq"] % 256, None)
+            self._pending.pop(msg["seq"], None)
 
     @override
     async def _get_chat(self, chat_id: int) -> Chat | None:
