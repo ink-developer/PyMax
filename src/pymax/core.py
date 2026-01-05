@@ -234,13 +234,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         if sync:
             await self._sync()
 
-        self.logger.debug("is_connected=%s before starting ping", self.is_connected)
-        ping_task = self._create_safe_task(
-            self._send_interactive_ping(),
-            name="interactive_ping",
-        )
-
-        start_scheduled_task = self._create_safe_task(
+        start_scheaduled_task = self._create_safe_task(
             self._start_scheduled_tasks(),
             name="start_scheduled_tasks",
         )

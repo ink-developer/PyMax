@@ -51,6 +51,12 @@ class WebSocketMixin(BaseTransport):
             user_agent_header=user_agent.header_user_agent,
             proxy=self.proxy,
         )
+
+        for fut in list(self._pending.values()):
+            if not fut.done():
+                fut.set_exception(WebSocketNotConnectedError())
+        self._pending.clear()
+
         self.is_connected = True
         self._incoming = asyncio.Queue()
         self._outgoing = asyncio.Queue()
@@ -60,6 +66,11 @@ class WebSocketMixin(BaseTransport):
         )
         self._outgoing_task = self._create_safe_task(
             self._outgoing_loop(), name="outgoing_loop websocket task"
+        )
+        self.logger.debug("is_connected=%s before starting ping", self.is_connected)
+        ping_task = self._create_safe_task(
+            self._send_interactive_ping(),
+            name="interactive_ping",
         )
         self.logger.info("WebSocket connected, starting handshake")
         return await self._handshake(user_agent)

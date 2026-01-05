@@ -145,7 +145,7 @@ class SocketMixin(BaseTransport):
             auth_req = b"\x01" + bytes([len(u)]) + u + bytes([len(p)]) + p
             sock.sendall(auth_req)
 
-            auth_resp = self._ssl_read_exactly(sock, 2)
+            auth_resp = self._recv_exactly_plain(sock, 2)
             if auth_resp != b"\x01\x00":
                 sock.close()
                 raise ConnectionError("SOCKS5 authentication failed")
@@ -220,6 +220,7 @@ class SocketMixin(BaseTransport):
         :rtype: dict[str, Any] | None
         """
         if user_agent is None or self.headers is None:
+            self.logger.debug("No user agent provided, using default")
             user_agent = self.headers or UserAgentPayload()
 
         if sys.version_info[:2] == (3, 12):
@@ -253,6 +254,11 @@ Socket connections may be unstable, SSL issues are possible.
             self.logger.error("SSL handshake timeout")
             raise
 
+        for fut in list(self._pending.values()):
+            if not fut.done():
+                fut.set_exception(SocketNotConnectedError())
+        self._pending.clear()
+
         self.is_connected = True
         self._incoming = asyncio.Queue()
         self._outgoing = asyncio.Queue()
@@ -271,6 +277,12 @@ Socket connections may be unstable, SSL issues are possible.
             lambda t: self.logger.debug(
                 "recv_task done: cancelled=%s, exc=%r", t.cancelled(), t.exception()
             )
+        )
+
+        self.logger.debug("is_connected=%s before starting ping", self.is_connected)
+        ping_task = self._create_safe_task(
+            self._send_interactive_ping(),
+            name="interactive_ping",
         )
 
         self._outgoing_task = self._create_safe_task(
@@ -384,6 +396,12 @@ Socket connections may be unstable, SSL issues are possible.
                 )
                 self.is_connected = False
 
+                for fut in list(self._pending.values()):
+                    if not fut.done():
+                        fut.set_exception(SocketNotConnectedError())
+
+                self._pending.clear()
+
                 self._socket = None
 
                 if self.reconnect and consecutive_errors < max_consecutive_errors:
@@ -462,8 +480,13 @@ Socket connections may be unstable, SSL issues are possible.
             return data
 
         except (ssl.SSLEOFError, ssl.SSLError, ConnectionError, BrokenPipeError) as conn_err:
-            self.logger.warning("Connection lost: %s, attempting reconnect...", conn_err)
+            self.logger.warning("Connection lost while sending: %s", conn_err)
             self.is_connected = False
+            if not fut.done():
+                fut.set_exception(SocketSendError("connection lost during send"))
+
+            self._socket = None
+            raise SocketSendError("Connection lost during send") from conn_err
 
         except asyncio.TimeoutError:
             self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
@@ -473,7 +496,7 @@ Socket connections may be unstable, SSL issues are possible.
             raise SocketSendError from exc
 
         finally:
-            self._pending.pop(msg["seq"], None)
+            self._pending.pop(seq_key, None)
 
     @override
     async def _get_chat(self, chat_id: int) -> Chat | None:
@@ -498,4 +521,4 @@ Socket connections may be unstable, SSL issues are possible.
                 loop = asyncio.get_running_loop()
                 await loop.run_in_executor(None, lambda: self._socket.sendall(packet))
 
-        asyncio.create_task(send_task())
+        self._create_safe_task(send_task())
