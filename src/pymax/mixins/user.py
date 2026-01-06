@@ -273,7 +273,7 @@ class UserMixin(ClientProtocol):
 
     @asynccontextmanager
     async def typing(
-        self, chat_id: int, typing_type: TypingType = TypingType.TEXT
+        self, *, chat_id: int, typing_type: TypingType = TypingType.TEXT
     ) -> AsyncGenerator[None, Any]:
         """
         Устанавливает состояние "печатает" для указанного чата.

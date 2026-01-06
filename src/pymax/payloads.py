@@ -425,3 +425,8 @@ class ApproveQrLoginPayload(CamelModel):
 class SetTypingPayload(CamelModel):
     chat_id: int
     typing_type: TypingType = Field(default=TypingType.TEXT, alias="type")
+
+
+class ChatSubscriptionPayload(CamelModel):
+    chat_id: int
+    subscribe: bool

@@ -1,10 +1,13 @@
 import time
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
 from pymax.exceptions import Error
 from pymax.payloads import (
     ChangeGroupProfilePayload,
     ChangeGroupSettingsOptions,
     ChangeGroupSettingsPayload,
+    ChatSubscriptionPayload,
     CreateGroupAttach,
     CreateGroupMessage,
     CreateGroupPayload,
@@ -456,3 +459,36 @@ class GroupMixin(ClientProtocol):
                 self.chats[idx] = chat
 
         return chats
+
+    async def _subscribe_action(self, chat_id: int, subscribe: bool) -> None:
+        payload = ChatSubscriptionPayload(chat_id=chat_id, subscribe=subscribe).model_dump(
+            by_alias=True
+        )
+        print(payload)
+
+        data = await self._send_and_wait(opcode=Opcode.CHAT_SUBSCRIBE, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+    @asynccontextmanager
+    async def chat_subscribe(self, *, chat_id: int) -> AsyncGenerator[None, None]:
+        """
+        Уведомляет сервер о том, что чат стал активным на клиенте.
+
+        Используется для синхронизации клиентского состояния
+
+        ⚠️ Не влияет на получение сообщений — сообщения доставляются независимо
+        от состояния подписки.
+
+        При выходе из контекста отправляется сигнал о деактивации чата.
+
+        :param chat_id: Идентификатор чата.
+        :type chat_id: int
+        :return: None
+        :rtype: AsyncGenerator[None, None]
+        """
+
+        await self._subscribe_action(chat_id, subscribe=True)
+        yield
+        await self._subscribe_action(chat_id, subscribe=False)

@@ -506,6 +506,7 @@ class AuthMixin(ClientProtocol):
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_VALIDATE_PASSWORD, payload=payload)
         payload = data.get("payload", {})
+
         return not payload
 
     async def _set_hint(self, hint: str, track_id: str) -> bool:
@@ -585,7 +586,7 @@ class AuthMixin(ClientProtocol):
             opcode=Opcode.AUTH_CREATE_TRACK,
             payload=payload,
         )
-        print(data)
+
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
 

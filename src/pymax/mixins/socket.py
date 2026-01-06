@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import errno
 import json
 import socket
 import ssl
@@ -8,6 +9,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 import lz4.block
+import lz4.frame
 import msgpack
 from typing_extensions import override
 
@@ -26,6 +28,23 @@ from pymax.types import (
 
 
 class SocketMixin(BaseTransport):
+    MAX_UNCOMPRESSED_SIZE = 10 * 1024 * 1024
+    MAX_PAYLOAD_LENGTH = 50 * 1024 * 1024
+
+    async def _close_socket(self):
+        async with self._sock_lock:
+            sock = self._socket
+            self._socket = None
+        if sock:
+            try:
+                try:
+                    sock.shutdown(socket.SHUT_RDWR)
+                except Exception:
+                    pass
+                sock.close()
+            except Exception as e:
+                self.logger.debug("Error closing socket: %s", e, exc_info=True)
+
     @property
     def sock(self) -> socket.socket:
         if self._socket is None or not self.is_connected:
@@ -33,38 +52,111 @@ class SocketMixin(BaseTransport):
             raise SocketNotConnectedError()
         return self._socket
 
+    def _looks_like_lz4_frame(self, payload: bytes) -> bool:
+        return len(payload) >= 4 and payload[0:4] == b"\x04\x22\x4d\x18"
+
     def _unpack_packet(self, data: bytes) -> dict[str, Any] | None:
-        ver = int.from_bytes(data[0:1], "big")
-        cmd = int.from_bytes(data[1:2], "big")
+        if len(data) < 10:
+            self.logger.warning("Packet too short: %d bytes", len(data))
+            return None
+
+        ver = data[0]
+        cmd = data[1]
         seq = int.from_bytes(data[2:4], "big")
         opcode = int.from_bytes(data[4:6], "big")
         packed_len = int.from_bytes(data[6:10], "big", signed=False)
         comp_flag = packed_len >> 24
         payload_length = packed_len & 0xFFFFFF
+
+        if payload_length > self.MAX_PAYLOAD_LENGTH:
+            self.logger.warning("payload_length too large: %d", payload_length)
+            return None
+
+        if len(data) < 10 + payload_length:
+            self.logger.warning(
+                "Not enough bytes for declared payload_length: have=%d need=%d",
+                len(data) - 10,
+                payload_length,
+            )
+            return None
+
         payload_bytes = data[10 : 10 + payload_length]
 
-        payload = None
-        if payload_bytes:
-            if comp_flag != 0:
-                # TODO: надо выяснить правильный размер распаковки
-                # uncompressed_size = int.from_bytes(payload_bytes[0:4], "big")
-                compressed_data = payload_bytes
-                try:
-                    payload_bytes = lz4.block.decompress(
-                        compressed_data,
-                        uncompressed_size=99999,
-                    )
-                except lz4.block.LZ4BlockError:
-                    return None
+        if not payload_bytes:
+            return {"ver": ver, "cmd": cmd, "seq": seq, "opcode": opcode, "payload": None}
+
+        try:
             payload = msgpack.unpackb(payload_bytes, raw=False, strict_map_key=False)
 
-        return {
-            "ver": ver,
-            "cmd": cmd,
-            "seq": seq,
-            "opcode": opcode,
-            "payload": payload,  #
-        }
+            return {"ver": ver, "cmd": cmd, "seq": seq, "opcode": opcode, "payload": payload}
+        except Exception as ex_msgpack:
+            self.logger.debug(
+                "msgpack direct unpack failed: %s — will try compressed paths", ex_msgpack
+            )
+
+        try:
+            if self._looks_like_lz4_frame(payload_bytes):
+                try:
+                    decompressed = lz4.frame.decompress(payload_bytes)
+                    payload = msgpack.unpackb(decompressed, raw=False, strict_map_key=False)
+                    return {
+                        "ver": ver,
+                        "cmd": cmd,
+                        "seq": seq,
+                        "opcode": opcode,
+                        "payload": payload,
+                    }
+                except Exception as ex_frame:
+                    self.logger.warning("lz4.frame.decompress failed: %s", ex_frame)
+        except Exception:
+            self.logger.exception("Unexpected error testing lz4.frame")
+
+        try:
+            if len(payload_bytes) >= 4:
+                maybe_size = int.from_bytes(payload_bytes[0:4], "big")
+                if 0 < maybe_size <= self.MAX_UNCOMPRESSED_SIZE:
+                    compressed_data = payload_bytes[4:]
+                    try:
+                        decompressed = lz4.block.decompress(
+                            compressed_data, uncompressed_size=maybe_size
+                        )
+                        payload = msgpack.unpackb(decompressed, raw=False, strict_map_key=False)
+                        return {
+                            "ver": ver,
+                            "cmd": cmd,
+                            "seq": seq,
+                            "opcode": opcode,
+                            "payload": payload,
+                        }
+                    except (lz4.block.LZ4BlockError, MemoryError) as e:
+                        self.logger.warning("lz4.block with prefixed size failed: %s", e)
+                else:
+                    self.logger.debug("prefixed size %r not plausible, skipping", maybe_size)
+        except Exception:
+            self.logger.exception("Error during prefixed-size lz4 handling")
+
+        try:
+            try:
+                decompressed = lz4.block.decompress(
+                    payload_bytes, uncompressed_size=self.MAX_UNCOMPRESSED_SIZE
+                )
+                payload = msgpack.unpackb(decompressed, raw=False, strict_map_key=False)
+                return {"ver": ver, "cmd": cmd, "seq": seq, "opcode": opcode, "payload": payload}
+            except lz4.block.LZ4BlockError as e:
+                self.logger.warning("lz4.block.decompress (no-pref) failed: %s", e)
+            except MemoryError as me:
+                self.logger.error("MemoryError while decompressing LZ4: %s", me)
+        except Exception:
+            self.logger.exception("Unexpected error when attempting lz4.block.decompress")
+
+        self.logger.warning(
+            "Failed to unpack payload: seq=%s opcode=%s comp_flag=%s payload_len=%d",
+            seq,
+            opcode,
+            comp_flag,
+            payload_length,
+        )
+        return None
 
     def _pack_packet(
         self,
@@ -325,7 +417,9 @@ Socket connections may be unstable, SSL issues are possible.
 
         data = self._unpack_packet(raw)
         if not data:
-            self.logger.warning("Failed to unpack packet")
+            self.logger.warning(
+                "Failed to unpack packet (possibly corrupted or unsupported compression)"
+            )
             return None
 
         payload_objs = data.get("payload")
@@ -363,6 +457,7 @@ Socket connections may be unstable, SSL issues are possible.
 
                 if not datas:
                     self.logger.warning("No data received, continuing recv loop")
+                    await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
                     continue
 
                 consecutive_errors = 0
@@ -402,7 +497,7 @@ Socket connections may be unstable, SSL issues are possible.
 
                 self._pending.clear()
 
-                self._socket = None
+                await self._close_socket()
 
                 if self.reconnect and consecutive_errors < max_consecutive_errors:
                     self.logger.info(
@@ -420,7 +515,7 @@ Socket connections may be unstable, SSL issues are possible.
                 self.logger.exception("Error in recv_loop: %s", e)
                 self.is_connected = False
 
-                self._socket = None
+                await self._close_socket()
 
                 if self.reconnect and consecutive_errors < max_consecutive_errors:
                     self.logger.info(
@@ -469,7 +564,15 @@ Socket connections may be unstable, SSL issues are possible.
                     raise SocketNotConnectedError
 
                 sock = self._socket
-                await loop.run_in_executor(None, lambda: sock.sendall(packet))
+                try:
+                    await loop.run_in_executor(None, lambda: sock.sendall(packet))
+                except OSError as e:
+                    if e.errno in (errno.EBADF, errno.EPIPE, errno.ENOTCONN):
+                        self.logger.debug("Socket closed during send (errno=%s)", e.errno)
+                        self.is_connected = False
+                        await self._close_socket()
+                        raise SocketNotConnectedError from e
+                    raise
 
             data = await asyncio.wait_for(fut, timeout=timeout)
             self.logger.debug(
@@ -482,10 +585,15 @@ Socket connections may be unstable, SSL issues are possible.
         except (ssl.SSLEOFError, ssl.SSLError, ConnectionError, BrokenPipeError) as conn_err:
             self.logger.warning("Connection lost while sending: %s", conn_err)
             self.is_connected = False
+            for pending_fut in list(self._pending.values()):
+                if not pending_fut.done():
+                    pending_fut.set_exception(SocketNotConnectedError())
+            self._pending.clear()
+
             if not fut.done():
                 fut.set_exception(SocketSendError("connection lost during send"))
 
-            self._socket = None
+            await self._close_socket()
             raise SocketSendError("Connection lost during send") from conn_err
 
         except asyncio.TimeoutError:
@@ -507,18 +615,27 @@ Socket connections may be unstable, SSL issues are possible.
 
     async def _send_only(self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0) -> None:
         async def send_task():
-            async with self._sock_lock:
-                if not self.is_connected or self._socket is None:
-                    return
-                msg = self._make_message(opcode, payload, cmd)
-                packet = self._pack_packet(
-                    msg["ver"],
-                    msg["cmd"],
-                    msg["seq"],
-                    msg["opcode"],
-                    msg["payload"],
-                )
-                loop = asyncio.get_running_loop()
-                await loop.run_in_executor(None, lambda: self._socket.sendall(packet))
+            try:
+                async with self._sock_lock:
+                    if not self.is_connected or self._socket is None:
+                        self.logger.debug("Socket not connected in _send_only, skipping")
+                        return
+                    msg = self._make_message(opcode, payload, cmd)
+                    packet = self._pack_packet(
+                        msg["ver"],
+                        msg["cmd"],
+                        msg["seq"],
+                        msg["opcode"],
+                        msg["payload"],
+                    )
+                    loop = asyncio.get_running_loop()
+                    await loop.run_in_executor(None, lambda: self._socket.sendall(packet))
+            except (ssl.SSLEOFError, ssl.SSLError, ConnectionError, BrokenPipeError) as e:
+                self.logger.debug("Connection error in _send_only (fire-and-forget): %s", e)
+                self.is_connected = False
+                await self._close_socket()
+            except Exception as e:
+                self.logger.warning("Unexpected error in _send_only: %s", e, exc_info=True)
 
-        self._create_safe_task(send_task())
+        task = self._create_safe_task(send_task(), name="_send_only_task")
+        task.add_done_callback(lambda t: self._log_task_exception(t))
