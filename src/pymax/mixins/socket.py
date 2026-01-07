@@ -52,111 +52,38 @@ class SocketMixin(BaseTransport):
             raise SocketNotConnectedError()
         return self._socket
 
-    def _looks_like_lz4_frame(self, payload: bytes) -> bool:
-        return len(payload) >= 4 and payload[0:4] == b"\x04\x22\x4d\x18"
-
     def _unpack_packet(self, data: bytes) -> dict[str, Any] | None:
-        if len(data) < 10:
-            self.logger.warning("Packet too short: %d bytes", len(data))
-            return None
-
-        ver = data[0]
-        cmd = data[1]
-        seq = int.from_bytes(data[2:4], "big")
+        ver = int.from_bytes(data[0:1], "big")
+        cmd = int.from_bytes(data[1:3], "big")
+        seq = int.from_bytes(data[3:4], "big")
         opcode = int.from_bytes(data[4:6], "big")
         packed_len = int.from_bytes(data[6:10], "big", signed=False)
         comp_flag = packed_len >> 24
         payload_length = packed_len & 0xFFFFFF
-
-        if payload_length > self.MAX_PAYLOAD_LENGTH:
-            self.logger.warning("payload_length too large: %d", payload_length)
-            return None
-
-        if len(data) < 10 + payload_length:
-            self.logger.warning(
-                "Not enough bytes for declared payload_length: have=%d need=%d",
-                len(data) - 10,
-                payload_length,
-            )
-            return None
-
         payload_bytes = data[10 : 10 + payload_length]
 
-        if not payload_bytes:
-            return {"ver": ver, "cmd": cmd, "seq": seq, "opcode": opcode, "payload": None}
-
-        try:
+        payload = None
+        if payload_bytes:
+            if comp_flag != 0:
+                # TODO: надо выяснить правильный размер распаковки
+                # uncompressed_size = int.from_bytes(payload_bytes[0:4], "big")
+                compressed_data = payload_bytes
+                try:
+                    payload_bytes = lz4.block.decompress(
+                        compressed_data,
+                        uncompressed_size=99999,
+                    )
+                except lz4.block.LZ4BlockError:
+                    return None
             payload = msgpack.unpackb(payload_bytes, raw=False, strict_map_key=False)
 
-            return {"ver": ver, "cmd": cmd, "seq": seq, "opcode": opcode, "payload": payload}
-        except Exception as ex_msgpack:
-            self.logger.debug(
-                "msgpack direct unpack failed: %s — will try compressed paths", ex_msgpack
-            )
-
-        try:
-            if self._looks_like_lz4_frame(payload_bytes):
-                try:
-                    decompressed = lz4.frame.decompress(payload_bytes)
-                    payload = msgpack.unpackb(decompressed, raw=False, strict_map_key=False)
-                    return {
-                        "ver": ver,
-                        "cmd": cmd,
-                        "seq": seq,
-                        "opcode": opcode,
-                        "payload": payload,
-                    }
-                except Exception as ex_frame:
-                    self.logger.warning("lz4.frame.decompress failed: %s", ex_frame)
-        except Exception:
-            self.logger.exception("Unexpected error testing lz4.frame")
-
-        try:
-            if len(payload_bytes) >= 4:
-                maybe_size = int.from_bytes(payload_bytes[0:4], "big")
-                if 0 < maybe_size <= self.MAX_UNCOMPRESSED_SIZE:
-                    compressed_data = payload_bytes[4:]
-                    try:
-                        decompressed = lz4.block.decompress(
-                            compressed_data, uncompressed_size=maybe_size
-                        )
-                        payload = msgpack.unpackb(decompressed, raw=False, strict_map_key=False)
-                        return {
-                            "ver": ver,
-                            "cmd": cmd,
-                            "seq": seq,
-                            "opcode": opcode,
-                            "payload": payload,
-                        }
-                    except (lz4.block.LZ4BlockError, MemoryError) as e:
-                        self.logger.warning("lz4.block with prefixed size failed: %s", e)
-                else:
-                    self.logger.debug("prefixed size %r not plausible, skipping", maybe_size)
-        except Exception:
-            self.logger.exception("Error during prefixed-size lz4 handling")
-
-        try:
-            try:
-                decompressed = lz4.block.decompress(
-                    payload_bytes, uncompressed_size=self.MAX_UNCOMPRESSED_SIZE
-                )
-                payload = msgpack.unpackb(decompressed, raw=False, strict_map_key=False)
-                return {"ver": ver, "cmd": cmd, "seq": seq, "opcode": opcode, "payload": payload}
-            except lz4.block.LZ4BlockError as e:
-                self.logger.warning("lz4.block.decompress (no-pref) failed: %s", e)
-            except MemoryError as me:
-                self.logger.error("MemoryError while decompressing LZ4: %s", me)
-        except Exception:
-            self.logger.exception("Unexpected error when attempting lz4.block.decompress")
-
-        self.logger.warning(
-            "Failed to unpack payload: seq=%s opcode=%s comp_flag=%s payload_len=%d",
-            seq,
-            opcode,
-            comp_flag,
-            payload_length,
-        )
-        return None
+        return {
+            "ver": ver,
+            "cmd": cmd,
+            "seq": seq,
+            "opcode": opcode,
+            "payload": payload,
+        }
 
     def _pack_packet(
         self,
