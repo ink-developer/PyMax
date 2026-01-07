@@ -560,7 +560,7 @@ class AuthMixin(ClientProtocol):
     async def set_password(
         self,
         password: str,
-        email: str | None = None,
+        email: str | None | _Unset = UNSET,
         hint: str | None | _Unset = UNSET,
     ):
         """
@@ -595,6 +595,9 @@ class AuthMixin(ClientProtocol):
             self.logger.critical("Failed to create password track: track ID missing")
             raise ValueError("Failed to create password track")
 
+        has_hint = False
+        has_email = False
+
         while True:
             if not password:
                 password = await asyncio.to_thread(lambda: input("Введите пароль: ").strip())
@@ -623,30 +626,40 @@ class AuthMixin(ClientProtocol):
             success = await self._set_hint(hint, track_id)
             if success:
                 self.logger.info("Password hint set successfully")
+                has_hint = True
                 break
             else:
                 self.logger.error("Failed to set password hint, please try again")
 
         while True:
-            if not email:
+            if hint is UNSET:
                 email = await asyncio.to_thread(
-                    lambda: input("Введите email для восстановления пароля: ").strip()
+                    lambda: input(
+                        "Введите email для восстановления пароля (пустой - пропустить): "
+                    ).strip()
                 )
                 if not email:
-                    self.logger.warning("Email is empty, please try again")
-                    continue
+                    break
+
+            if email is None:
+                break
 
             success = await self._set_email(email, track_id)
             if success:
+                has_email = True
                 self.logger.info("Recovery email set successfully")
                 break
 
+        expected_capabilities = [Capability.DEFAULT]
+
+        if has_hint:
+            expected_capabilities.append(Capability.SECOND_FACTOR_HAS_HINT)
+
+        if has_email:
+            expected_capabilities.append(Capability.SECOND_FACTOR_HAS_EMAIL)
+
         payload = SetTwoFactorPayload(
-            expected_capabilities=[
-                Capability.DEFAULT,
-                Capability.SECOND_FACTOR_HAS_HINT,
-                Capability.SECOND_FACTOR_HAS_EMAIL,
-            ],
+            expected_capabilities=expected_capabilities,
             track_id=track_id,
             password=password,
             hint=hint if isinstance(hint, (str, type(None))) else None,

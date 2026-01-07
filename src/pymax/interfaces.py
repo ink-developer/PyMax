@@ -235,7 +235,6 @@ class BaseTransport(ClientProtocol):
                 break
             except Exception as e:
                 self.logger.debug("Interactive ping failed: %s", e)
-                # If socket is no longer connected, exit the loop
                 if not self.is_connected:
                     break
             await asyncio.sleep(DEFAULT_PING_INTERVAL)
