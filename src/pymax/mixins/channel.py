@@ -87,7 +87,7 @@ class ChannelMixin(ClientProtocol):
             for item in members:
                 if not isinstance(item, dict):
                     raise ResponseStructureError("Invalid member structure in response")
-                member_list.append(Member.from_dict(item))
+                member_list.append(Member.from_dict(item["contact"]))
         else:
             raise ResponseStructureError("Invalid members type in response")
         return member_list, marker
