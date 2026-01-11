@@ -151,9 +151,11 @@ class WebSocketMixin(BaseTransport):
         except asyncio.TimeoutError:
             self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
             raise RuntimeError("Send and wait failed")
-        except Exception:
-            self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])
-            raise RuntimeError("Send and wait failed")
+        except Exception as e:
+            self.logger.exception(
+                f"Send and wait failed with exception {e}(opcode=%s, seq=%s)", opcode, msg["seq"]
+            )
+            raise RuntimeError(f"Send and wait failed with exception {e}")
         finally:
             self._pending.pop(seq_key, None)
 
