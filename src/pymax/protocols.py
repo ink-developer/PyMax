@@ -45,6 +45,7 @@ class ClientProtocol(ABC):
         self.channels: list[Channel] = []
         self.contacts: list[User] = []
         self.me: Me | None = None
+        self.chat_marker: int | None = None
         self.host: str
         self.port: int
         self.proxy: str | Literal[True] | None

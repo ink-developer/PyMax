@@ -527,17 +527,20 @@ class BaseTransport(ClientProtocol):
             token=self._token,
             chats_sync=0,
             contacts_sync=0,
-            presence_sync=0,
+            presence_sync=-1,
             drafts_sync=0,
             chats_count=40,
             user_agent=user_agent,
-        ).model_dump(by_alias=True)
+        ).model_dump(by_alias=True, exclude_none=True, exclude_unset=True)
         try:
             data = await self._send_and_wait(opcode=Opcode.LOGIN, payload=payload)
             raw_payload = data.get("payload", {})
 
             if error := raw_payload.get("error"):
                 MixinsUtils.handle_error(data)
+            chat_marker = raw_payload.get("chatMarker")
+            if chat_marker:
+                self.chat_marker = chat_marker
 
             for raw_chat in raw_payload.get("chats", []):
                 try:

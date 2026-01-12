@@ -84,6 +84,7 @@ class WebSocketMixin(BaseTransport):
         while True:
             try:
                 raw = await self._ws.recv()
+                self.logger.debug("RAW IN: %s", raw)
                 data = self._parse_json(raw)
 
                 if data is None:
@@ -97,7 +98,7 @@ class WebSocketMixin(BaseTransport):
                 await self._dispatch_incoming(data)
 
             except websockets.exceptions.ConnectionClosed as e:
-                self.logger.info(
+                self.logger.exception(
                     f"WebSocket connection closed with error: {e.code}, {e.reason}; exiting recv loop"
                 )
                 for fut in self._pending.values():
