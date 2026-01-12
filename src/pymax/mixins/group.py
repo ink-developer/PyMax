@@ -427,14 +427,14 @@ class GroupMixin(ClientProtocol):
         """
         await self.leave_group(chat_id)
 
-    async def fetch_chats(self, marker: int | None = None) -> list[Chat]:
+    async def fetch_chats(self, marker: int | None = None) -> tuple[list[Chat], int]:
         """
         Загружает список чатов
 
         :param marker: Маркер для пагинации, по умолчанию None
         :type marker: int | None
-        :return: Список объектов Chat
-        :rtype: list[Chat]
+        :return: Список объектов Chat и маркер
+        :rtype: tuple[list[Chat], int]
         """
         if marker is None:
             marker = int(time.time() * 1000)
@@ -448,6 +448,7 @@ class GroupMixin(ClientProtocol):
 
         chats_data = data["payload"].get("chats", [])
         chats: list[Chat] = []
+        marker = int(data["payload"].get("marker"))
         for chat_dict in chats_data:
             chat = Chat.from_dict(chat_dict)
             chats.append(chat)
@@ -458,7 +459,7 @@ class GroupMixin(ClientProtocol):
                 idx = self.chats.index(cached_chat)
                 self.chats[idx] = chat
 
-        return chats
+        return chats, marker
 
     async def _subscribe_action(self, chat_id: int, subscribe: bool) -> None:
         payload = ChatSubscriptionPayload(chat_id=chat_id, subscribe=subscribe).model_dump(
