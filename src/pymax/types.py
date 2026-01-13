@@ -1221,15 +1221,15 @@ class ReadState:
 
 
 class Presence:
-    def __init__(self, user_id: int, last_seen: int) -> None:
+    def __init__(self, user_id: int | None, seen: int | None) -> None:
         self.user_id = user_id
-        self.last_seen = last_seen
+        self.last_seen = seen
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(
-            user_id=data["userId"],
-            last_seen=data["lastSeen"],
+            user_id=data.get("userId"),
+            seen=data.get("seen"),
         )
 
     @override
