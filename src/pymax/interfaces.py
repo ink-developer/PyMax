@@ -305,6 +305,14 @@ class BaseTransport(ClientProtocol):
         if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
             return
         payload = data.get("payload", {})
+
+        # ПОДРОБНОЕ ЛОГИРОВАНИЕ ДЛЯ ОТЛАДКИ
+        self.logger.info(f"=== RAW SOCKET DATA DEBUG ===")
+        self.logger.info(f"Full data from socket: {data}")
+        self.logger.info(f"Payload type: {type(payload)}")
+        self.logger.info(f"Payload content: {payload}")
+        self.logger.info(f"=== END SOCKET DEBUG ===")
+
         msg = Message.from_dict(payload)
         if not msg:
             return
