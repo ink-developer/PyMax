@@ -15,6 +15,7 @@ from typing_extensions import override
 
 from .crud import Database
 from .exceptions import (
+    Error,
     InvalidPhoneError,
     SocketNotConnectedError,
     WebSocketNotConnectedError,
@@ -362,6 +363,51 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                 # Critical configuration errors - don't retry
                 self.logger.error("Fatal configuration error: %s", e)
                 raise
+
+            except Error as auth_err:
+                # Authentication errors - clear token and stop reconnect
+                error_code = getattr(auth_err, 'error', '')
+
+                # Список кодов ошибок авторизации, при которых не нужен reconnect
+                auth_error_codes = [
+                    "FAIL_LOGIN_TOKEN",
+                    "FAIL_WRONG_PASSWORD",
+                    "FAIL_LOGOUT_ALL",
+                    "FAIL_FORBIDDEN"
+                ]
+
+                if any(code in str(auth_err) for code in auth_error_codes):
+                    self.logger.error(
+                        "Authentication error detected: %s - clearing token and stopping",
+                        error_code or str(auth_err)
+                    )
+
+                    # Очищаем токен из памяти и базы данных
+                    self._token = None
+                    try:
+                        self._database.update_auth_token(self._device_id, None)
+                        self.logger.info("Token cleared from database")
+                    except Exception as db_err:
+                        self.logger.error("Failed to clear token from database: %s", db_err)
+
+                    # Останавливаем reconnect loop
+                    self.reconnect = False
+                    self.logger.warning("Reconnect disabled due to authentication failure")
+
+                    # Вызываем пользовательский обработчик, если есть
+                    if hasattr(self, '_on_error_handler') and self._on_error_handler:
+                        try:
+                            result = self._on_error_handler(auth_err)
+                            if asyncio.iscoroutine(result):
+                                await result
+                        except Exception as handler_err:
+                            self.logger.error("Error handler failed: %s", handler_err)
+
+                    break  # Выходим из reconnect loop
+                else:
+                    # Другие ошибки Error - пробуем reconnect
+                    self.logger.exception("Non-auth Error occurred: %s", e)
+                    self._reconnect_attempt += 1
 
             except asyncio.CancelledError:
                 self.logger.info("Client task cancelled, stopping")
