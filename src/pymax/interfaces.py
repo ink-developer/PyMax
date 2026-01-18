@@ -328,7 +328,13 @@ class BaseTransport(ClientProtocol):
             return
 
         if msg.chat_id and msg.id:
-            await self._send_notification_response(msg.chat_id, str(msg.id))
+            self.logger.info(f"Sending notification response for chat_id={msg.chat_id}, message_id={msg.id}")
+            try:
+                await self._send_notification_response(msg.chat_id, str(msg.id))
+                self.logger.info(f"Notification response sent successfully")
+            except Exception as e:
+                self.logger.error(f"Failed to send notification response: {e}", exc_info=True)
+                # Don't return - continue processing handlers even if notification fails
 
         handlers_map = {
             MessageStatus.EDITED: self._on_message_edit_handlers,
