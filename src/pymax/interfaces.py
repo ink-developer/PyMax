@@ -301,7 +301,7 @@ class BaseTransport(ClientProtocol):
         await self._send_and_wait(
             opcode=Opcode.NOTIF_MESSAGE,
             payload={"chatId": chat_id, "messageId": message_id},
-            cmd=0,
+            cmd=1,  # CRITICAL: cmd=1 for notification response (not cmd=0)
         )
         self.logger.debug(
             "Sent NOTIF_MESSAGE_RECEIVED for chat_id=%s message_id=%s", chat_id, message_id
