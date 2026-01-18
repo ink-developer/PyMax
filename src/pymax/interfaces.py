@@ -334,10 +334,19 @@ class BaseTransport(ClientProtocol):
             MessageStatus.EDITED: self._on_message_edit_handlers,
             MessageStatus.REMOVED: self._on_message_delete_handlers,
         }
+        self.logger.info(f"=== HANDLERS DEBUG ===")
+        self.logger.info(f"msg.status: {msg.status}")
+        self.logger.info(f"Number of on_message handlers: {len(self._on_message_handlers)}")
+        self.logger.info(f"Number of on_message_edit handlers: {len(self._on_message_edit_handlers)}")
+        self.logger.info(f"Number of on_message_delete handlers: {len(self._on_message_delete_handlers)}")
+        self.logger.info(f"=== END HANDLERS DEBUG ===")
+
         if msg.status and msg.status in handlers_map:
+            self.logger.info(f"Calling {len(handlers_map[msg.status])} handlers for status {msg.status}")
             for handler, filter in handlers_map[msg.status]:
                 await self._process_message_handler(handler, filter, msg)
         if msg.status is None:
+            self.logger.info(f"Calling {len(self._on_message_handlers)} on_message handlers")
             for handler, filter in self._on_message_handlers:
                 await self._process_message_handler(handler, filter, msg)
 
