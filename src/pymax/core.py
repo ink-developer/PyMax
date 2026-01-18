@@ -439,7 +439,10 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                 self.logger.exception("Client start iteration failed: %s", e)
                 self._reconnect_attempt += 1
             finally:
-                self.logger.debug("Cleaning up background tasks and pending futures")
+                self.logger.warning(
+                    f"!!! Entering finally block - WHY? is_connected={self.is_connected}, "
+                    f"_ws={self._ws is not None}, reconnect={self.reconnect}"
+                )
 
                 try:
                     await self._cleanup_client()
