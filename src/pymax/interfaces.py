@@ -290,7 +290,7 @@ class BaseTransport(ClientProtocol):
                     self.logger.debug("Fulfilled file upload waiter for %s=%s", key, id_)
 
     async def _send_notification_response(self, chat_id: int, message_id: str) -> None:
-        if self._socket is None or not self.is_connected:
+        if self._ws is None or not self.is_connected:
             self.logger.warning("Cannot send notification response: not connected")
             return
         await self._send_and_wait(
@@ -306,33 +306,13 @@ class BaseTransport(ClientProtocol):
         if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
             return
         payload = data.get("payload", {})
-
-        # ПОДРОБНОЕ ЛОГИРОВАНИЕ ДЛЯ ОТЛАДКИ
-        self.logger.info(f"=== RAW SOCKET DATA DEBUG ===")
-        self.logger.info(f"Full data from socket: {data}")
-        self.logger.info(f"Payload type: {type(payload)}")
-        self.logger.info(f"Payload content: {payload}")
-        self.logger.info(f"=== END SOCKET DEBUG ===")
-
         msg = Message.from_dict(payload)
-
-        self.logger.info(f"=== PARSED MESSAGE DEBUG ===")
-        self.logger.info(f"msg is None: {msg is None}")
-        if msg:
-            self.logger.info(f"msg.id: {msg.id}")
-            self.logger.info(f"msg.chat_id: {msg.chat_id}")
-            self.logger.info(f"msg.sender: {msg.sender}")
-            self.logger.info(f"msg.text: {msg.text}")
-        self.logger.info(f"=== END PARSED MESSAGE DEBUG ===")
-
         if not msg:
             return
 
         if msg.chat_id and msg.id:
-            self.logger.info(f"Sending notification response for chat_id={msg.chat_id}, message_id={msg.id}")
             try:
                 await self._send_notification_response(msg.chat_id, str(msg.id))
-                self.logger.info(f"Notification response sent successfully")
             except Exception as e:
                 self.logger.error(f"Failed to send notification response: {e}", exc_info=True)
                 # Don't return - continue processing handlers even if notification fails
@@ -341,19 +321,10 @@ class BaseTransport(ClientProtocol):
             MessageStatus.EDITED: self._on_message_edit_handlers,
             MessageStatus.REMOVED: self._on_message_delete_handlers,
         }
-        self.logger.info(f"=== HANDLERS DEBUG ===")
-        self.logger.info(f"msg.status: {msg.status}")
-        self.logger.info(f"Number of on_message handlers: {len(self._on_message_handlers)}")
-        self.logger.info(f"Number of on_message_edit handlers: {len(self._on_message_edit_handlers)}")
-        self.logger.info(f"Number of on_message_delete handlers: {len(self._on_message_delete_handlers)}")
-        self.logger.info(f"=== END HANDLERS DEBUG ===")
-
         if msg.status and msg.status in handlers_map:
-            self.logger.info(f"Calling {len(handlers_map[msg.status])} handlers for status {msg.status}")
             for handler, filter in handlers_map[msg.status]:
                 await self._process_message_handler(handler, filter, msg)
         if msg.status is None:
-            self.logger.info(f"Calling {len(self._on_message_handlers)} on_message handlers")
             for handler, filter in self._on_message_handlers:
                 await self._process_message_handler(handler, filter, msg)
 
