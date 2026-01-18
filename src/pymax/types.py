@@ -703,6 +703,25 @@ class Message:
     @classmethod
     def from_dict(cls, data: dict[Any, Any]) -> Self:
         message = data["message"] if data.get("message") else data
+
+        # Handle case where message is a string instead of dict
+        if isinstance(message, str):
+            # Return a minimal Message object with just the text
+            return cls(
+                chat_id=data.get("chatId"),
+                sender=data.get("senderId"),
+                elements=None,
+                options=None,
+                id=data.get("messageId"),
+                time=data.get("time"),
+                text=message,
+                type=None,
+                attaches=[],
+                status=data.get("status"),
+                link=None,
+                reaction_info=None
+            )
+
         attaches: list[
             PhotoAttach
             | VideoAttach
