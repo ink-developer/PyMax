@@ -298,7 +298,7 @@ class BaseTransport(ClientProtocol):
         if self._ws is None or not self.is_connected:
             self.logger.warning("Cannot send notification response: not connected")
             return
-        await self._send_and_wait(
+        await self._send_no_wait(
             opcode=Opcode.NOTIF_MESSAGE,
             payload={"chatId": chat_id, "messageId": message_id},
             cmd=1,  # CRITICAL: cmd=1 for notification response (not cmd=0)
@@ -326,12 +326,9 @@ class BaseTransport(ClientProtocol):
 
         self.logger.debug(f"Received message: chat_id={msg.chat_id}, id={msg.id}, attaches={len(msg.attaches) if msg.attaches else 0}")
 
-        # Send notification response in background IMMEDIATELY (fire-and-forget)
-        # Don't wait for server response - just send the notification packet
+        # Send notification response (fire-and-forget, no response expected from server)
         if msg.chat_id and msg.id:
             asyncio.create_task(self._send_notification_response_safe(msg.chat_id, str(msg.id)))
-            # Give it a tiny moment to send the packet before processing
-            await asyncio.sleep(0.001)
 
         handlers_map = {
             MessageStatus.EDITED: self._on_message_edit_handlers,

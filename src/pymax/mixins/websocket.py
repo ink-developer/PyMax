@@ -117,6 +117,24 @@ class WebSocketMixin(BaseTransport):
 
         self.logger.warning("!!! _recv_loop() EXITED - loop ended without ConnectionClosed!")
 
+    async def _send_no_wait(
+        self,
+        opcode: Opcode,
+        payload: dict[str, Any],
+        cmd: int = 0,
+    ) -> None:
+        """Send message without waiting for response (fire-and-forget)"""
+        ws = self.ws
+        msg = self._make_message(opcode, payload, cmd)
+
+        self.logger.debug(
+            "Sending frame (no wait) opcode=%s cmd=%s seq=%s",
+            opcode,
+            cmd,
+            msg["seq"],
+        )
+        await ws.send(json.dumps(msg))
+
     @override
     async def _send_and_wait(
         self,
