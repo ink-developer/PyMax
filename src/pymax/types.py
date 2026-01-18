@@ -707,13 +707,15 @@ class Message:
         # Handle case where message is a string instead of dict
         if isinstance(message, str):
             # Return a minimal Message object with just the text
+            # Use current timestamp if time is not provided
+            import time as time_module
             return cls(
                 chat_id=data.get("chatId"),
                 sender=data.get("senderId"),
                 elements=None,
                 options=None,
                 id=data.get("messageId"),
-                time=data.get("time"),
+                time=data.get("time") or int(time_module.time() * 1000),
                 text=message,
                 type=None,
                 attaches=[],
