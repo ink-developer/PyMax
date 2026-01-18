@@ -330,11 +330,15 @@ class BaseTransport(ClientProtocol):
         self.logger.info(f">>> Parsed message: chat_id={msg.chat_id}, id={msg.id}, text={msg.text[:50] if msg.text else 'None'}, attaches={len(msg.attaches) if msg.attaches else 0}")
 
         if msg.chat_id and msg.id:
-            # Send notification response in background (non-blocking)
-            # This ensures handlers are called immediately without waiting for server response
-            self.logger.info(f">>> Creating background task for notification response")
-            asyncio.create_task(self._send_notification_response_safe(msg.chat_id, str(msg.id)))
-            self.logger.info(f">>> Proceeding to call handlers...")
+            # Send notification response BEFORE calling handlers
+            # Server expects quick acknowledgment before message processing
+            self.logger.info(f">>> Sending notification response (synchronously)")
+            try:
+                await self._send_notification_response(msg.chat_id, str(msg.id))
+                self.logger.info(f">>> Notification sent, proceeding to handlers...")
+            except Exception as e:
+                self.logger.error(f">>> Failed to send notification: {e}", exc_info=True)
+                # Continue with handlers even if notification fails
 
         handlers_map = {
             MessageStatus.EDITED: self._on_message_edit_handlers,
