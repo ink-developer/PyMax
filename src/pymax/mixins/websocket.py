@@ -83,12 +83,12 @@ class WebSocketMixin(BaseTransport):
                 await self._dispatch_incoming(data)
 
             except websockets.exceptions.ConnectionClosed as e:
-                self.logger.info(
-                    f"WebSocket connection closed: code={e.code}, reason='{e.reason}'; exiting recv loop"
+                self.logger.warning(
+                    f"!!! WebSocket connection closed in _recv_loop: code={e.code}, reason='{e.reason}'"
                 )
                 # Log additional details about the closure
                 if e.code == 1000:
-                    self.logger.debug("Normal closure (code 1000)")
+                    self.logger.info("Normal closure (code 1000)")
                 elif e.code == 1006:
                     self.logger.warning("Abnormal closure (code 1006) - connection lost without close frame")
                 else:
