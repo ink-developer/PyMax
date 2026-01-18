@@ -99,9 +99,11 @@ class BaseClient(ClientProtocol):
 
         if self._ws:
             try:
+                self.logger.warning(f"!!! _cleanup_client() is CLOSING WebSocket (is_connected={self.is_connected})")
                 await self._ws.close()
-            except Exception:
-                self.logger.debug("Error closing ws during cleanup", exc_info=True)
+                self.logger.warning("!!! WebSocket CLOSED by _cleanup_client()")
+            except Exception as e:
+                self.logger.warning(f"Error closing ws during cleanup: {e}", exc_info=True)
             self._ws = None
 
         self.is_connected = False

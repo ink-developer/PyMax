@@ -67,12 +67,11 @@ class WebSocketMixin(BaseTransport):
             return
 
         self.logger.info(">>> _recv_loop() STARTED")
-        loop_iteration = 0
         while True:
             try:
-                loop_iteration += 1
-                if loop_iteration % 10 == 0:
-                    self.logger.debug(f"_recv_loop() still alive, iteration {loop_iteration}")
+                if self._ws is None:
+                    self.logger.error("!!! _ws became None during recv_loop!")
+                    break
                 raw = await self._ws.recv()
                 data = self._parse_json(raw)
 
@@ -108,9 +107,11 @@ class WebSocketMixin(BaseTransport):
 
                 self.logger.info(">>> _recv_loop() EXITING after ConnectionClosed")
                 break
-            except Exception:
-                self.logger.exception("Error in recv_loop; backing off briefly")
+            except Exception as e:
+                self.logger.exception(f"Error in recv_loop: {e}; backing off briefly")
                 await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
+
+        self.logger.warning("!!! _recv_loop() EXITED - loop ended without ConnectionClosed!")
 
     @override
     async def _send_and_wait(
