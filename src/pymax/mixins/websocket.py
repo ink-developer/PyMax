@@ -67,8 +67,12 @@ class WebSocketMixin(BaseTransport):
             return
 
         self.logger.info(">>> _recv_loop() STARTED")
+        loop_iteration = 0
         while True:
             try:
+                loop_iteration += 1
+                if loop_iteration % 10 == 0:
+                    self.logger.debug(f"_recv_loop() still alive, iteration {loop_iteration}")
                 raw = await self._ws.recv()
                 data = self._parse_json(raw)
 

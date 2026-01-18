@@ -220,12 +220,14 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
 
     async def _wait_forever(self) -> None:
         self.logger.info("_wait_forever() started, waiting for WebSocket to close")
+        ws_obj = self._ws
+        self.logger.info(f"WebSocket state before wait_closed: open={ws_obj.open if ws_obj else 'N/A'}, closed={ws_obj.closed if ws_obj else 'N/A'}")
         try:
             await self.ws.wait_closed()
             # Log stacktrace to see what closed the WebSocket
             import traceback
             stack = ''.join(traceback.format_stack())
-            self.logger.info(f"_wait_forever() exited: WebSocket was closed normally. Stack trace:\n{stack}")
+            self.logger.info(f"_wait_forever() exited: WebSocket was closed. State: open={ws_obj.open if ws_obj else 'N/A'}, closed={ws_obj.closed if ws_obj else 'N/A'}. Stack trace:\n{stack}")
         except asyncio.CancelledError:
             self.logger.info("_wait_forever() cancelled")
             raise
