@@ -514,6 +514,12 @@ class BaseTransport(ClientProtocol):
             if error := raw_payload.get("error"):
                 MixinsUtils.handle_error(data)
 
+            # Очищаем списки перед sync, чтобы избежать дублирования при повторном вызове
+            self.dialogs.clear()
+            self.chats.clear()
+            self.channels.clear()
+            self.contacts.clear()
+
             for raw_chat in raw_payload.get("chats", []):
                 try:
                     if raw_chat.get("type") == ChatType.DIALOG.value:
