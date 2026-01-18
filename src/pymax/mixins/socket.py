@@ -54,15 +54,28 @@ class SocketMixin(BaseTransport):
         payload = None
         if payload_bytes:
             if comp_flag != 0:
-                # TODO: надо выяснить правильный размер распаковки
-                # uncompressed_size = int.from_bytes(payload_bytes[0:4], "big")
-                compressed_data = payload_bytes
+                # Read uncompressed size from first 4 bytes of compressed data
+                if len(payload_bytes) < 4:
+                    self.logger.error("Compressed payload too short to read uncompressed size")
+                    return None
+                uncompressed_size = int.from_bytes(payload_bytes[0:4], "big")
+                # Validate uncompressed size to prevent excessive memory allocation
+                MAX_UNCOMPRESSED_SIZE = 10 * 1024 * 1024  # 10 MB limit
+                if uncompressed_size > MAX_UNCOMPRESSED_SIZE:
+                    self.logger.error(
+                        "Uncompressed size %d exceeds limit %d, possible attack or corruption",
+                        uncompressed_size,
+                        MAX_UNCOMPRESSED_SIZE,
+                    )
+                    return None
+                compressed_data = payload_bytes[4:]  # Skip the 4-byte size header
                 try:
                     payload_bytes = lz4.block.decompress(
                         compressed_data,
-                        uncompressed_size=99999,
+                        uncompressed_size=uncompressed_size,
                     )
-                except lz4.block.LZ4BlockError:
+                except lz4.block.LZ4BlockError as e:
+                    self.logger.error("LZ4 decompression failed: %s", e)
                     return None
             payload = msgpack.unpackb(payload_bytes, raw=False, strict_map_key=False)
 
@@ -115,6 +128,9 @@ Socket connections may be unstable, SSL issues are possible.
     """
             )
         self.logger.info("Connecting to socket %s:%s", self.host, self.port)
+        # Initialize socket lock if not already created
+        if self._socket_lock is None:
+            self._socket_lock = asyncio.Lock()
         loop = asyncio.get_running_loop()
         raw_sock = await loop.run_in_executor(
             None, lambda: socket.create_connection((self.host, self.port))
@@ -148,7 +164,10 @@ Socket connections may be unstable, SSL issues are possible.
             self.is_connected = False
             try:
                 sock.close()
-            except Exception:
+            except Exception as close_err:
+                self.logger.debug("Error closing socket in recv loop: %s", close_err)
+            finally:
+                self._socket = None
                 return None
 
         return header
@@ -171,17 +190,34 @@ Socket connections may be unstable, SSL issues are possible.
             remaining -= len(chunk)
 
         if remaining > 0:
-            self.logger.error("Incomplete payload received; skipping packet")
+            self.logger.error(
+                "Incomplete payload received; closing connection to resync"
+            )
+            # Close socket to prevent protocol desynchronization
+            self.is_connected = False
+            try:
+                sock.close()
+            except Exception as close_err:
+                self.logger.debug("Error closing socket after incomplete payload: %s", close_err)
+            finally:
+                self._socket = None
             return None
 
         raw = header + payload
         if len(raw) < 10 + payload_length:
             self.logger.error(
-                "Incomplete packet: expected %d bytes, got %d",
+                "Incomplete packet: expected %d bytes, got %d; closing connection to resync",
                 10 + payload_length,
                 len(raw),
             )
-            await asyncio.sleep(RECV_LOOP_BACKOFF_DELAY)
+            # Close socket to prevent protocol desynchronization
+            self.is_connected = False
+            try:
+                sock.close()
+            except Exception as close_err:
+                self.logger.debug("Error closing socket after incomplete packet: %s", close_err)
+            finally:
+                self._socket = None
             return None
 
         data = self._unpack_packet(raw)
@@ -282,11 +318,36 @@ Socket connections may be unstable, SSL issues are possible.
         except (ssl.SSLEOFError, ssl.SSLError, ConnectionError) as conn_err:
             self.logger.warning("Connection lost, reconnecting...")
             self.is_connected = False
+
+            # Prevent multiple simultaneous reconnections
+            if self._reconnecting:
+                self.logger.debug("Reconnection already in progress, skipping")
+                raise SocketNotConnectedError from conn_err
+
+            self._reconnecting = True
             try:
-                await self.connect(self.user_agent)
-            except Exception as exc:
-                self.logger.exception("Reconnect failed")
-                raise exc from conn_err
+                # Properly close the old socket before reconnecting
+                if self._socket is not None:
+                    try:
+                        self._socket.close()
+                        self.logger.debug("Old socket closed before reconnection")
+                    except Exception as close_err:
+                        self.logger.warning("Error closing socket during reconnect: %s", close_err)
+                    finally:
+                        self._socket = None
+                # Cancel all pending futures to prevent memory leak
+                for seq, pending_fut in list(self._pending.items()):
+                    if not pending_fut.done():
+                        pending_fut.cancel()
+                        self.logger.debug("Cancelled pending future for seq=%s during reconnect", seq)
+                self._pending.clear()
+                try:
+                    await self.connect(self.user_agent)
+                except Exception as exc:
+                    self.logger.exception("Reconnect failed")
+                    raise exc from conn_err
+            finally:
+                self._reconnecting = False
             raise SocketNotConnectedError from conn_err
         except asyncio.TimeoutError:
             self.logger.exception("Send and wait failed (opcode=%s, seq=%s)", opcode, msg["seq"])

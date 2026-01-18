@@ -50,6 +50,7 @@ class WebSocketMixin(BaseTransport):
             origin=WEBSOCKET_ORIGIN,
             user_agent_header=user_agent.header_user_agent,
             proxy=self.proxy,
+            ssl=self._ssl_context,
         )
         self.is_connected = True
         self._incoming = asyncio.Queue()

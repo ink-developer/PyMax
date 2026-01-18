@@ -87,7 +87,14 @@ class MessageMixin(ClientProtocol):
 
             loop = asyncio.get_running_loop()
             fut: asyncio.Future[dict] = loop.create_future()
-            self._file_upload_waiters[int(file_id)] = fut
+
+            file_id_int = int(file_id)
+
+            try:
+                self._file_upload_waiters[file_id_int] = fut
+            except Exception:
+                self.logger.exception("Failed to register file upload waiter")
+                return None
 
             async def file_generator():
                 bytes_sent = 0
@@ -141,33 +148,38 @@ class MessageMixin(ClientProtocol):
 
             self.logger.info("Starting file upload: %s", file.file_name)
 
-            async with (
-                ClientSession(connector=connector, timeout=timeout) as session,
-                session.post(url=url, headers=headers, data=data_to_send) as response,
-            ):
-                self.logger.debug("Server response status: %d", response.status)
-                if response.status != HTTPStatus.OK:
-                    self.logger.error("Upload failed with status %s", response.status)
-                    self._file_upload_waiters.pop(int(file_id), None)
-                    return None
+            try:
+                async with (
+                    ClientSession(connector=connector, timeout=timeout) as session,
+                    session.post(url=url, headers=headers, data=data_to_send) as response,
+                ):
+                    self.logger.debug("Server response status: %d", response.status)
+                    if response.status != HTTPStatus.OK:
+                        self.logger.error("Upload failed with status %s", response.status)
+                        # Cancel the future since upload failed
+                        if not fut.done():
+                            fut.cancel()
+                        return None
 
-                self.logger.debug(
-                    "File sent successfully. Waiting for server confirmation "
-                    "(timeout=%d seconds, fileId=%s)",
-                    DEFAULT_TIMEOUT,
-                    file_id,
-                )
-                try:
-                    await asyncio.wait_for(fut, timeout=DEFAULT_TIMEOUT)
-                    self.logger.info("File upload completed successfully (fileId=%s)", file_id)
-                    return Attach(_type=AttachType.FILE, file_id=file_id)
-                except asyncio.TimeoutError:
-                    self.logger.warning(
-                        "Timed out waiting for file processing notification for fileId=%s",
+                    self.logger.debug(
+                        "File sent successfully. Waiting for server confirmation "
+                        "(timeout=%d seconds, fileId=%s)",
+                        DEFAULT_TIMEOUT,
                         file_id,
                     )
-                    self._file_upload_waiters.pop(int(file_id), None)
-                    return None
+                    try:
+                        await asyncio.wait_for(fut, timeout=DEFAULT_TIMEOUT)
+                        self.logger.info("File upload completed successfully (fileId=%s)", file_id)
+                        return Attach(_type=AttachType.FILE, file_id=file_id)
+                    except asyncio.TimeoutError:
+                        self.logger.warning(
+                            "Timed out waiting for file processing notification for fileId=%s",
+                            file_id,
+                        )
+                        return None
+            finally:
+                # Always cleanup the waiter to prevent memory leak
+                self._file_upload_waiters.pop(file_id_int, None)
 
         except Exception:
             self.logger.exception("Upload file failed")
@@ -212,10 +224,13 @@ class MessageMixin(ClientProtocol):
 
             loop = asyncio.get_running_loop()
             fut: asyncio.Future[dict] = loop.create_future()
+            video_id_int = int(video_id)
+
             try:
-                self._file_upload_waiters[int(video_id)] = fut
+                self._file_upload_waiters[video_id_int] = fut
             except Exception:
                 self.logger.exception("Failed to register file upload waiter")
+                return None
 
             try:
                 async with ClientSession(connector=connector, timeout=timeout) as session:
@@ -226,7 +241,9 @@ class MessageMixin(ClientProtocol):
                     ) as response:
                         if response.status != HTTPStatus.OK:
                             self.logger.error("Upload failed with status %s", response.status)
-                            self._file_upload_waiters.pop(int(video_id), None)
+                            # Cancel the future since upload failed
+                            if not fut.done():
+                                fut.cancel()
                             return None
 
                         try:
@@ -237,15 +254,16 @@ class MessageMixin(ClientProtocol):
                                 "Timed out waiting for video processing notification for videoId=%s",
                                 video_id,
                             )
-                            self._file_upload_waiters.pop(int(video_id), None)
                             return None
-            except OSError as e:
-                if "malloc failure" in str(e) or "BUF" in str(e):
-                    self.logger.exception(
-                        "Memory error during video upload. File too large or insufficient memory. Try uploading smaller files or free up memory."
-                    )
-                    self._file_upload_waiters.pop(int(video_id), None)
-                raise
+            finally:
+                # Always cleanup the waiter to prevent memory leak
+                self._file_upload_waiters.pop(video_id_int, None)
+        except OSError as e:
+            if "malloc failure" in str(e) or "BUF" in str(e):
+                self.logger.exception(
+                    "Memory error during video upload. File too large or insufficient memory. Try uploading smaller files or free up memory."
+                )
+            raise
 
         except Exception:
             self.logger.exception("Upload video failed")

@@ -72,6 +72,15 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
     :type proxy: str | Literal[True] | None, optional
     :param reconnect: Флаг автоматического переподключения при потере соединения.
     :type reconnect: bool, optional
+    :param reconnect_delay: Начальная задержка между попытками переподключения в секундах. По умолчанию 1.0.
+        Задержка увеличивается экспоненциально при каждой неудачной попытке.
+    :type reconnect_delay: float, optional
+    :param max_reconnect_attempts: Максимальное количество попыток переподключения.
+        None (по умолчанию) означает бесконечное количество попыток.
+    :type max_reconnect_attempts: int | None, optional
+    :param verify_ssl: Флаг проверки SSL сертификатов. По умолчанию True.
+        Установите False для отключения проверки (не рекомендуется для production).
+    :type verify_ssl: bool, optional
 
     :raises InvalidPhoneError: Если формат номера телефона неверный.
     """
@@ -95,6 +104,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         logger: logging.Logger | None = None,
         reconnect: bool = True,
         reconnect_delay: float = 1.0,
+        max_reconnect_attempts: int | None = None,
+        verify_ssl: bool = True,
     ) -> None:
         self.logger = logger or logging.getLogger(f"{__name__}")
         self.uri: str = uri
@@ -109,6 +120,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self.proxy: str | Literal[True] | None = proxy
         self.reconnect: bool = reconnect
         self.reconnect_delay: float = reconnect_delay
+        self.max_reconnect_attempts: int | None = max_reconnect_attempts
+        self._reconnect_attempt: int = 0
 
         self.is_connected: bool = False
 
@@ -170,11 +183,20 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
 
         self._ssl_context = ssl.create_default_context()
         self._ssl_context.set_ciphers("DEFAULT")
-        self._ssl_context.check_hostname = True
-        self._ssl_context.verify_mode = ssl.CERT_REQUIRED
         self._ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-        self._ssl_context.load_default_certs()
+
+        if verify_ssl:
+            self._ssl_context.check_hostname = True
+            self._ssl_context.verify_mode = ssl.CERT_REQUIRED
+            self._ssl_context.load_default_certs()
+        else:
+            self.logger.warning("SSL certificate verification is disabled - this is insecure!")
+            self._ssl_context.check_hostname = False
+            self._ssl_context.verify_mode = ssl.CERT_NONE
+
         self._socket: socket.socket | None = None
+        self._socket_lock: asyncio.Lock | None = None
+        self._reconnecting: bool = False
         self._ws: websockets.ClientConnection | None = None
 
         self._setup_logger()
@@ -289,9 +311,17 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         :return: None
         :rtype: None
         """
-        self.logger.info("Client starting")
         while not self._stop_event.is_set():
             try:
+                if self._reconnect_attempt > 0:
+                    self.logger.info(
+                        "Client starting (reconnect attempt %d/%s)",
+                        self._reconnect_attempt,
+                        self.max_reconnect_attempts or "∞",
+                    )
+                else:
+                    self.logger.info("Client starting")
+
                 await self.connect(self.user_agent)
 
                 if self.registration:
@@ -308,6 +338,14 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                 await self._sync(self.user_agent)
                 await self._post_login_tasks(sync=False)
 
+                # Successfully connected - reset reconnect counter
+                if self._reconnect_attempt > 0:
+                    self.logger.info(
+                        "Successfully reconnected after %d attempts",
+                        self._reconnect_attempt,
+                    )
+                self._reconnect_attempt = 0
+
                 wait_task = asyncio.create_task(self._wait_forever())
                 stop_task = asyncio.create_task(self._stop_event.wait())
 
@@ -320,20 +358,63 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                     with contextlib.suppress(asyncio.CancelledError):
                         await task
 
+            except (InvalidPhoneError, ValueError) as e:
+                # Critical configuration errors - don't retry
+                self.logger.error("Fatal configuration error: %s", e)
+                raise
+
             except asyncio.CancelledError:
                 self.logger.info("Client task cancelled, stopping")
                 break
             except Exception as e:
-                self.logger.exception("Client start iteration failed")
+                # Network/temporary errors - attempt reconnect
+                self.logger.exception("Client start iteration failed: %s", e)
+                self._reconnect_attempt += 1
             finally:
-                await self._cleanup_client()
+                self.logger.debug("Cleaning up background tasks and pending futures")
+
+                try:
+                    await self._cleanup_client()
+                    # Verify cleanup was successful
+                    if self._recv_task is not None or self._outgoing_task is not None:
+                        self.logger.warning(
+                            "Cleanup incomplete: recv_task=%s, outgoing_task=%s",
+                            self._recv_task,
+                            self._outgoing_task,
+                        )
+                    if len(self._background_tasks) > 0:
+                        self.logger.warning(
+                            "Cleanup incomplete: %d background tasks still running",
+                            len(self._background_tasks),
+                        )
+                    self.logger.debug("Cleanup verification passed")
+                except Exception as cleanup_err:
+                    self.logger.error("Cleanup failed: %s", cleanup_err, exc_info=True)
 
             if not self.reconnect or self._stop_event.is_set():
                 self.logger.info("Reconnect disabled or stop requested — exiting start()")
                 break
 
-            self.logger.info("Reconnect enabled — restarting client")
-            await asyncio.sleep(self.reconnect_delay)
+            # Check max reconnect attempts
+            if (
+                self.max_reconnect_attempts is not None
+                and self._reconnect_attempt >= self.max_reconnect_attempts
+            ):
+                self.logger.error(
+                    "Max reconnect attempts (%d) reached, exiting",
+                    self.max_reconnect_attempts,
+                )
+                return
+
+            # Exponential backoff with cap at 60 seconds
+            delay = min(self.reconnect_delay * (2 ** (self._reconnect_attempt - 1)), 60.0)
+            self.logger.info(
+                "Reconnect enabled — restarting client in %.1f seconds (attempt %d/%s)",
+                delay,
+                self._reconnect_attempt + 1,
+                self.max_reconnect_attempts or "∞",
+            )
+            await asyncio.sleep(delay)
 
         self.logger.info("Client exited cleanly")
 
