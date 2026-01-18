@@ -211,8 +211,8 @@ class BaseTransport(ClientProtocol):
             except SocketNotConnectedError:
                 self.logger.debug("Socket disconnected, exiting ping loop")
                 break
-            except Exception:
-                self.logger.warning("Interactive ping failed")
+            except Exception as e:
+                self.logger.warning(f"Interactive ping failed: {e}", exc_info=True)
             await asyncio.sleep(DEFAULT_PING_INTERVAL)
 
     async def _handshake(self, user_agent: UserAgentPayload) -> dict[str, Any]:
