@@ -403,11 +403,14 @@ class BaseTransport(ClientProtocol):
                 self.logger.exception("Error in on_raw_receive_handler: %s", e)
 
     async def _dispatch_incoming(self, data: dict[str, Any]) -> None:
+        opcode = data.get("opcode")
+        self.logger.info(f">>> Dispatching incoming: opcode={opcode}")
         await self._handle_raw_receive(data)
         await self._handle_file_upload(data)
         await self._handle_message_notifications(data)
         await self._handle_reactions(data)
         await self._handle_chat_updates(data)
+        self.logger.info(f">>> Dispatch complete for opcode={opcode}")
 
     def _log_task_exception(self, fut: asyncio.Future[Any]) -> None:
         try:
