@@ -314,6 +314,16 @@ class BaseTransport(ClientProtocol):
         self.logger.info(f"=== END SOCKET DEBUG ===")
 
         msg = Message.from_dict(payload)
+
+        self.logger.info(f"=== PARSED MESSAGE DEBUG ===")
+        self.logger.info(f"msg is None: {msg is None}")
+        if msg:
+            self.logger.info(f"msg.id: {msg.id}")
+            self.logger.info(f"msg.chat_id: {msg.chat_id}")
+            self.logger.info(f"msg.sender: {msg.sender}")
+            self.logger.info(f"msg.text: {msg.text}")
+        self.logger.info(f"=== END PARSED MESSAGE DEBUG ===")
+
         if not msg:
             return
 
