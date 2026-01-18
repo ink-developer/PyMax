@@ -310,48 +310,39 @@ class BaseTransport(ClientProtocol):
     async def _send_notification_response_safe(self, chat_id: int, message_id: str) -> None:
         """Send notification response with error handling (for background tasks)"""
         try:
-            self.logger.info(f">>> [BG TASK] Starting notification send for chat={chat_id}, msg={message_id}")
             await self._send_notification_response(chat_id, message_id)
-            self.logger.info(f">>> [BG TASK] Notification sent successfully")
         except Exception as e:
-            self.logger.error(f">>> [BG TASK] Failed to send notification response: {e}", exc_info=True)
+            self.logger.error(f"Failed to send notification response: {e}", exc_info=True)
 
     async def _handle_message_notifications(self, data: dict) -> None:
         if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
             return
         payload = data.get("payload", {})
 
-        self.logger.info(f">>> Received NOTIF_MESSAGE, parsing...")
         msg = Message.from_dict(payload)
         if not msg:
             self.logger.warning("Failed to parse message from payload")
             return
 
-        self.logger.info(f">>> Parsed message: chat_id={msg.chat_id}, id={msg.id}, text={msg.text[:50] if msg.text else 'None'}, attaches={len(msg.attaches) if msg.attaches else 0}")
+        self.logger.debug(f"Received message: chat_id={msg.chat_id}, id={msg.id}, attaches={len(msg.attaches) if msg.attaches else 0}")
 
         # Send notification response in background IMMEDIATELY (fire-and-forget)
         # Don't wait for server response - just send the notification packet
         if msg.chat_id and msg.id:
-            self.logger.info(f">>> Sending notification response packet...")
             asyncio.create_task(self._send_notification_response_safe(msg.chat_id, str(msg.id)))
             # Give it a tiny moment to send the packet before processing
             await asyncio.sleep(0.001)
-            self.logger.info(f">>> Proceeding to handlers...")
 
         handlers_map = {
             MessageStatus.EDITED: self._on_message_edit_handlers,
             MessageStatus.REMOVED: self._on_message_delete_handlers,
         }
         if msg.status and msg.status in handlers_map:
-            self.logger.info(f">>> Calling {len(handlers_map[msg.status])} handlers for status {msg.status}")
             for handler, filter in handlers_map[msg.status]:
                 await self._process_message_handler(handler, filter, msg)
         if msg.status is None:
-            self.logger.info(f">>> Calling {len(self._on_message_handlers)} on_message handlers")
             for handler, filter in self._on_message_handlers:
                 await self._process_message_handler(handler, filter, msg)
-
-        self.logger.info(f">>> Finished handling message {msg.id}")
 
     async def _handle_reactions(self, data: dict):
         if data.get("opcode") != Opcode.NOTIF_MSG_REACTIONS_CHANGED:
@@ -410,14 +401,11 @@ class BaseTransport(ClientProtocol):
                 self.logger.exception("Error in on_raw_receive_handler: %s", e)
 
     async def _dispatch_incoming(self, data: dict[str, Any]) -> None:
-        opcode = data.get("opcode")
-        self.logger.info(f">>> Dispatching incoming: opcode={opcode}")
         await self._handle_raw_receive(data)
         await self._handle_file_upload(data)
         await self._handle_message_notifications(data)
         await self._handle_reactions(data)
         await self._handle_chat_updates(data)
-        self.logger.info(f">>> Dispatch complete for opcode={opcode}")
 
     def _log_task_exception(self, fut: asyncio.Future[Any]) -> None:
         try:
