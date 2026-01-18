@@ -312,6 +312,12 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         :return: None
         :rtype: None
         """
+        self.logger.debug(
+            "start() called: reconnect=%s, stop_event=%s, token=%s",
+            self.reconnect,
+            self._stop_event.is_set(),
+            "present" if self._token else "None"
+        )
         while not self._stop_event.is_set():
             try:
                 if self._reconnect_attempt > 0:
@@ -347,12 +353,14 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                     )
                 self._reconnect_attempt = 0
 
+                self.logger.debug("Entering wait loop: ws=%s, is_connected=%s", self._ws, self.is_connected)
                 wait_task = asyncio.create_task(self._wait_forever())
                 stop_task = asyncio.create_task(self._stop_event.wait())
 
                 done, pending = await asyncio.wait(
                     [wait_task, stop_task], return_when=asyncio.FIRST_COMPLETED
                 )
+                self.logger.debug("Wait loop completed: done=%s", done)
 
                 for task in pending:
                     task.cancel()
@@ -438,7 +446,11 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                     self.logger.error("Cleanup failed: %s", cleanup_err, exc_info=True)
 
             if not self.reconnect or self._stop_event.is_set():
-                self.logger.info("Reconnect disabled or stop requested — exiting start()")
+                self.logger.info(
+                    "Reconnect disabled or stop requested — exiting start() (reconnect=%s, stop_event=%s)",
+                    self.reconnect,
+                    self._stop_event.is_set()
+                )
                 break
 
             # Check max reconnect attempts
