@@ -302,6 +302,13 @@ class BaseTransport(ClientProtocol):
             "Sent NOTIF_MESSAGE_RECEIVED for chat_id=%s message_id=%s", chat_id, message_id
         )
 
+    async def _send_notification_response_safe(self, chat_id: int, message_id: str) -> None:
+        """Send notification response with error handling (for background tasks)"""
+        try:
+            await self._send_notification_response(chat_id, message_id)
+        except Exception as e:
+            self.logger.error(f"Failed to send notification response: {e}", exc_info=True)
+
     async def _handle_message_notifications(self, data: dict) -> None:
         if data.get("opcode") != Opcode.NOTIF_MESSAGE.value:
             return
@@ -311,11 +318,9 @@ class BaseTransport(ClientProtocol):
             return
 
         if msg.chat_id and msg.id:
-            try:
-                await self._send_notification_response(msg.chat_id, str(msg.id))
-            except Exception as e:
-                self.logger.error(f"Failed to send notification response: {e}", exc_info=True)
-                # Don't return - continue processing handlers even if notification fails
+            # Send notification response in background (non-blocking)
+            # This ensures handlers are called immediately without waiting for server response
+            asyncio.create_task(self._send_notification_response_safe(msg.chat_id, str(msg.id)))
 
         handlers_map = {
             MessageStatus.EDITED: self._on_message_edit_handlers,
