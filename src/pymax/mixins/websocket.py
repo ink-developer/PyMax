@@ -66,7 +66,7 @@ class WebSocketMixin(BaseTransport):
             self.logger.warning("Recv loop started without websocket instance")
             return
 
-        self.logger.debug("Receive loop started")
+        self.logger.info(">>> _recv_loop() STARTED")
         while True:
             try:
                 raw = await self._ws.recv()
@@ -102,6 +102,7 @@ class WebSocketMixin(BaseTransport):
                 self._ws = None
                 self._recv_task = None
 
+                self.logger.info(">>> _recv_loop() EXITING after ConnectionClosed")
                 break
             except Exception:
                 self.logger.exception("Error in recv_loop; backing off briefly")
