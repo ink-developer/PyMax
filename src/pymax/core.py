@@ -360,6 +360,12 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                 done, pending = await asyncio.wait(
                     [wait_task, stop_task], return_when=asyncio.FIRST_COMPLETED
                 )
+
+                # Log which task completed
+                if wait_task in done:
+                    self.logger.info("Wait loop exited: WebSocket closed or _wait_forever() completed")
+                if stop_task in done:
+                    self.logger.info("Wait loop exited: stop_event was set")
                 self.logger.debug("Wait loop completed: done=%s", done)
 
                 for task in pending:

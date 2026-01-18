@@ -62,7 +62,8 @@ class BaseClient(ClientProtocol):
             except Exception as e:
                 tb = traceback.format_exc()
                 self.logger.error(f"Unhandled exception in task {name or coro}: {e}\n{tb}")
-                raise
+                # Don't re-raise - this is a "safe" task that should not crash the event loop
+                return None
 
         task = asyncio.create_task(runner(), name=name)
         self._background_tasks.add(task)
