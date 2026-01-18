@@ -219,15 +219,16 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
             )
 
     async def _wait_forever(self) -> None:
-        self.logger.info("_wait_forever() started, waiting for WebSocket to close")
+        self.logger.info("_wait_forever() started, waiting for disconnect")
         try:
-            await self.ws.wait_closed()
-            self.logger.info("_wait_forever() exited: WebSocket was closed normally")
+            # Instead of wait_closed(), poll is_connected status
+            # This ensures _recv_loop has processed the close frame
+            while self.is_connected:
+                await asyncio.sleep(1)
+            self.logger.info("_wait_forever() exited: is_connected became False")
         except asyncio.CancelledError:
             self.logger.info("_wait_forever() cancelled")
             raise
-        except WebSocketNotConnectedError:
-            self.logger.info("_wait_forever() exited: WebSocket not connected (is_connected=False or _ws=None)")
         except Exception as e:
             self.logger.error(f"_wait_forever() exited with unexpected exception: {e}", exc_info=True)
 

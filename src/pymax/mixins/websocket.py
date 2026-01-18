@@ -67,12 +67,16 @@ class WebSocketMixin(BaseTransport):
             return
 
         self.logger.info(">>> _recv_loop() STARTED")
+        msg_count = 0
         while True:
             try:
                 if self._ws is None:
                     self.logger.error("!!! _ws became None during recv_loop!")
                     break
+                self.logger.debug(f"About to call recv() (msg #{msg_count})")
                 raw = await self._ws.recv()
+                msg_count += 1
+                self.logger.debug(f"Received message #{msg_count}, size={len(raw) if isinstance(raw, (str, bytes)) else 'unknown'}")
                 data = self._parse_json(raw)
 
                 if data is None:
