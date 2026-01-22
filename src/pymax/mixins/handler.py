@@ -1,6 +1,7 @@
 from collections.abc import Awaitable, Callable
 from typing import Any
 
+from pymax.exceptions import Error
 from pymax.filters import BaseFilter
 from pymax.protocols import ClientProtocol
 from pymax.types import Chat, Message, ReactionInfo
@@ -182,6 +183,21 @@ class HandlerMixin(ClientProtocol):
             return handler
 
         return decorator
+
+    def on_error(
+        self, handler: Callable[[Exception], Any | Awaitable[Any]]
+    ) -> Callable[[Exception], Any | Awaitable[Any]]:
+        """
+        Устанавливает обработчик ошибок.
+
+        :param handler: Функция или coroutine с аргументом (exception: Exception).
+        :type handler: Callable[[Exception], Any | Awaitable[Any]]
+        :return: Установленный обработчик.
+        :rtype: Callable[[Exception], Any | Awaitable[Any]]
+        """
+        self._on_error_handler = handler
+        self.logger.debug("on_error handler set: %r", handler)
+        return handler
 
     def add_message_handler(
         self,

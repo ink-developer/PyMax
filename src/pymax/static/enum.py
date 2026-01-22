@@ -30,6 +30,7 @@ class Opcode(int, Enum):
     CONTACT_MUTUAL = 38
     CONTACT_PHOTOS = 39
     CONTACT_SORT = 40
+    CONTACT_ADD_BY_PHONE = 41  # ✅
     CONTACT_VERIFY = 42
     REMOVE_CONTACT_PHOTO = 43
     CONTACT_INFO_BY_PHONE = 46  # ✅
@@ -143,6 +144,7 @@ class Opcode(int, Enum):
 
     GET_QR = 288  # ✅
     GET_QR_STATUS = 289  # ✅
+    AUTH_QR_APPROVE = 290  # ✅
     LOGIN_BY_QR = 291  # ✅
 
 
@@ -229,3 +231,12 @@ class Capability(int, Enum):
     SECOND_FACTOR_PASSWORD_ENABLED = 2
     SECOND_FACTOR_HAS_EMAIL = 3
     SECOND_FACTOR_HAS_HINT = 4
+
+
+class TypingType(str, Enum):
+    TEXT = "TEXT"
+    AUDIO = "AUDIO"
+    FILE = "FILE"
+    PHOTO = "PHOTO"
+    STICKER = "STICKER"
+    VIDEO = "VIDEO"

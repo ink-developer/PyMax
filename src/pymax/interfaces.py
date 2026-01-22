@@ -49,7 +49,19 @@ class BaseClient(ClientProtocol):
         try:
             return await coro
         except Exception as e:
-            self.logger.error(f"Unhandled exception in {context}: {e}\n{traceback.format_exc()}")
+            if self._on_error_handler:
+                try:
+                    result = self._on_error_handler(e)
+                    if asyncio.iscoroutine(result):
+                        await result
+                except Exception as eh:
+                    self.logger.exception(
+                        f"Error in on_error_handler while handling exception in {context}: {eh}\n{traceback.format_exc()}"
+                    )
+            else:
+                self.logger.exception(
+                    f"Unhandled exception in {context}: {e}\n{traceback.format_exc()}"
+                )
 
     def _create_safe_task(
         self, coro: Awaitable[Any], name: str | None = None
@@ -60,10 +72,20 @@ class BaseClient(ClientProtocol):
             except asyncio.CancelledError:
                 raise
             except Exception as e:
-                tb = traceback.format_exc()
-                self.logger.error(f"Unhandled exception in task {name or coro}: {e}\n{tb}")
-                # Don't re-raise - this is a "safe" task that should not crash the event loop
-                return None
+                if self._on_error_handler:
+                    try:
+                        result = self._on_error_handler(e)
+                        if asyncio.iscoroutine(result):
+                            await result
+                    except Exception as eh:
+                        tb = traceback.format_exc()
+                        self.logger.exception(
+                            f"Error in on_error_handler while handling exception in task {name or coro}: {eh}\n{tb}"
+                        )
+                else:
+                    tb = traceback.format_exc()
+                    self.logger.exception(f"Unhandled exception in task {name or coro}: {e}\n{tb}")
+                    raise
 
         task = asyncio.create_task(runner(), name=name)
         self._background_tasks.add(task)
@@ -194,7 +216,7 @@ class BaseTransport(ClientProtocol):
             ver=11,
             cmd=cmd,
             seq=self._seq,
-            opcode=opcode.value,
+            opcode=opcode,
             payload=payload,
         ).model_dump(by_alias=True)
 
@@ -214,7 +236,9 @@ class BaseTransport(ClientProtocol):
                 self.logger.debug("Socket disconnected, exiting ping loop")
                 break
             except Exception as e:
-                self.logger.warning(f"Interactive ping failed: {e}", exc_info=True)
+                self.logger.debug("Interactive ping failed: %s", e)
+                if not self.is_connected:
+                    break
             await asyncio.sleep(DEFAULT_PING_INTERVAL)
 
     async def _handshake(self, user_agent: UserAgentPayload) -> dict[str, Any]:
@@ -295,13 +319,12 @@ class BaseTransport(ClientProtocol):
                     self.logger.debug("Fulfilled file upload waiter for %s=%s", key, id_)
 
     async def _send_notification_response(self, chat_id: int, message_id: str) -> None:
-        if self._ws is None or not self.is_connected:
-            self.logger.warning("Cannot send notification response: not connected")
+        if self._socket is not None:
             return
-        await self._send_no_wait(
+        await self._queue_message(
             opcode=Opcode.NOTIF_MESSAGE,
             payload={"chatId": chat_id, "messageId": message_id},
-            cmd=1,  # CRITICAL: cmd=1 for notification response (not cmd=0)
+            cmd=1,
         )
         self.logger.debug(
             "Sent NOTIF_MESSAGE_RECEIVED for chat_id=%s message_id=%s", chat_id, message_id
@@ -515,7 +538,7 @@ class BaseTransport(ClientProtocol):
     async def _sync(self, user_agent: UserAgentPayload | None = None) -> None:
         self.logger.info("Starting initial sync")
 
-        if user_agent is None:
+        if user_agent is None or self.headers is None:
             user_agent = self.headers or UserAgentPayload()
 
         payload = SyncPayload(
@@ -523,17 +546,20 @@ class BaseTransport(ClientProtocol):
             token=self._token,
             chats_sync=0,
             contacts_sync=0,
-            presence_sync=0,
+            presence_sync=-1,
             drafts_sync=0,
             chats_count=40,
             user_agent=user_agent,
-        ).model_dump(by_alias=True)
+        ).model_dump(by_alias=True, exclude_none=True, exclude_unset=True)
         try:
             data = await self._send_and_wait(opcode=Opcode.LOGIN, payload=payload)
             raw_payload = data.get("payload", {})
 
             if error := raw_payload.get("error"):
                 MixinsUtils.handle_error(data)
+            chat_marker = raw_payload.get("chatMarker")
+            if chat_marker:
+                self.chat_marker = chat_marker
 
             # Очищаем списки перед sync, чтобы избежать дублирования при повторном вызове
             self.dialogs.clear()
@@ -571,7 +597,7 @@ class BaseTransport(ClientProtocol):
             )
 
         except Exception as e:
-            self.logger.exception("Sync failed")
+            self.logger.exception("Sync failed with error: %s", e)
             self.is_connected = False
             if self._ws:
                 await self._ws.close()

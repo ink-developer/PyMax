@@ -1,10 +1,13 @@
 import time
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
 from pymax.exceptions import Error
 from pymax.payloads import (
     ChangeGroupProfilePayload,
     ChangeGroupSettingsOptions,
     ChangeGroupSettingsPayload,
+    ChatSubscriptionPayload,
     CreateGroupAttach,
     CreateGroupMessage,
     CreateGroupPayload,
@@ -424,14 +427,14 @@ class GroupMixin(ClientProtocol):
         """
         await self.leave_group(chat_id)
 
-    async def fetch_chats(self, marker: int | None = None) -> list[Chat]:
+    async def fetch_chats(self, marker: int | None = None) -> tuple[list[Chat], int]:
         """
         Загружает список чатов
 
         :param marker: Маркер для пагинации, по умолчанию None
         :type marker: int | None
-        :return: Список объектов Chat
-        :rtype: list[Chat]
+        :return: Список объектов Chat и маркер
+        :rtype: tuple[list[Chat], int]
         """
         if marker is None:
             marker = int(time.time() * 1000)
@@ -445,6 +448,7 @@ class GroupMixin(ClientProtocol):
 
         chats_data = data["payload"].get("chats", [])
         chats: list[Chat] = []
+        marker = int(data["payload"].get("marker"))
         for chat_dict in chats_data:
             chat = Chat.from_dict(chat_dict)
             chats.append(chat)
@@ -455,4 +459,37 @@ class GroupMixin(ClientProtocol):
                 idx = self.chats.index(cached_chat)
                 self.chats[idx] = chat
 
-        return chats
+        return chats, marker
+
+    async def _subscribe_action(self, chat_id: int, subscribe: bool) -> None:
+        payload = ChatSubscriptionPayload(chat_id=chat_id, subscribe=subscribe).model_dump(
+            by_alias=True
+        )
+        print(payload)
+
+        data = await self._send_and_wait(opcode=Opcode.CHAT_SUBSCRIBE, payload=payload)
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+    @asynccontextmanager
+    async def chat_subscribe(self, *, chat_id: int) -> AsyncGenerator[None, None]:
+        """
+        Уведомляет сервер о том, что чат стал активным на клиенте.
+
+        Используется для синхронизации клиентского состояния
+
+        ⚠️ Не влияет на получение сообщений — сообщения доставляются независимо
+        от состояния подписки.
+
+        При выходе из контекста отправляется сигнал о деактивации чата.
+
+        :param chat_id: Идентификатор чата.
+        :type chat_id: int
+        :return: None
+        :rtype: AsyncGenerator[None, None]
+        """
+
+        await self._subscribe_action(chat_id, subscribe=True)
+        yield
+        await self._subscribe_action(chat_id, subscribe=False)

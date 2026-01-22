@@ -6,9 +6,10 @@ import logging
 import socket
 import ssl
 import time
+import traceback
 from collections.abc import Awaitable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 from uuid import UUID
 
 from typing_extensions import override
@@ -39,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 
 class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
-    allowed_device_types: set[str] = {"WEB"}
+    allowed_device_types: set[str] = {"WEB", "DESKTOP"}
     """
     Основной клиент для работы с WebSocket API сервиса Max.
 
@@ -73,15 +74,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
     :type proxy: str | Literal[True] | None, optional
     :param reconnect: Флаг автоматического переподключения при потере соединения.
     :type reconnect: bool, optional
-    :param reconnect_delay: Начальная задержка между попытками переподключения в секундах. По умолчанию 1.0.
-        Задержка увеличивается экспоненциально при каждой неудачной попытке.
-    :type reconnect_delay: float, optional
-    :param max_reconnect_attempts: Максимальное количество попыток переподключения.
-        None (по умолчанию) означает бесконечное количество попыток.
-    :type max_reconnect_attempts: int | None, optional
-    :param verify_ssl: Флаг проверки SSL сертификатов. По умолчанию True.
-        Установите False для отключения проверки (не рекомендуется для production).
-    :type verify_ssl: bool, optional
+    :param reconnect_delay: Задержка между переподключениями.
+    :type reconnect_delay: float
 
     :raises InvalidPhoneError: Если формат номера телефона неверный.
     """
@@ -105,8 +99,6 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         logger: logging.Logger | None = None,
         reconnect: bool = True,
         reconnect_delay: float = 1.0,
-        max_reconnect_attempts: int | None = None,
-        verify_ssl: bool = True,
     ) -> None:
         self.logger = logger or logging.getLogger(f"{__name__}")
         self.uri: str = uri
@@ -121,8 +113,6 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self.proxy: str | Literal[True] | None = proxy
         self.reconnect: bool = reconnect
         self.reconnect_delay: float = reconnect_delay
-        self.max_reconnect_attempts: int | None = max_reconnect_attempts
-        self._reconnect_attempt: int = 0
 
         self.is_connected: bool = False
 
@@ -131,13 +121,17 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self.channels: list[Channel] = []
         self.me: Me | None = None
         self.contacts: list[User] = []
+        self.chat_marker: int | None = None
         self._users: dict[int, User] = {}
 
         self._work_dir: str = work_dir
-        self._database_path: Path = Path(work_dir) / session_name
+        self._session_name: str = (
+            session_name if session_name.endswith(".db") else f"{session_name}.db"
+        )
+        self._database_path: Path = Path(work_dir) / self._session_name
         self._database_path.parent.mkdir(parents=True, exist_ok=True)
         self._database_path.touch(exist_ok=True)
-        self._database = Database(self._work_dir)
+        self._database = Database(self._work_dir, self._session_name)
 
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
         self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
@@ -147,8 +141,10 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._stop_event = asyncio.Event()
+        self._sock_lock = asyncio.Lock()
+        self._read_buffer = bytearray()
 
-        self._seq: int = 0
+        self._seq: int = -1
         self._error_count: int = 0
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
@@ -159,7 +155,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._token = self._database.get_auth_token() or token
         if headers is None:
             headers = self._default_headers()
-        self.user_agent = headers
+        self.headers = headers
         self._validate_device_type()
         self._send_fake_telemetry: bool = send_fake_telemetry
         self._session_id: int = int(time.time() * 1000)
@@ -180,24 +176,21 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._on_reaction_change_handlers: list[Callable[[str, int, ReactionInfo], Any]] = []
         self._on_chat_update_handlers: list[Callable[[Chat], Any | Awaitable[Any]]] = []
         self._on_raw_receive_handlers: list[Callable[[dict[str, Any]], Any | Awaitable[Any]]] = []
+        self._on_error_handler: Callable[[Exception], Any | Awaitable[Any]] | None = None
         self._scheduled_tasks: list[tuple[Callable[[], Any | Awaitable[Any]], float]] = []
 
         self._ssl_context = ssl.create_default_context()
-        self._ssl_context.set_ciphers("DEFAULT")
+        self._ssl_context.set_ciphers(
+            "DEFAULT:!aNULL:!eNULL:!MD5:!3DES:!DES:!RC4:!IDEA:!SEED:!aDSS:!SRP:!PSK"
+        )
+        self._ssl_context.check_hostname = True
+        self._ssl_context.verify_mode = ssl.CERT_REQUIRED
         self._ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
 
-        if verify_ssl:
-            self._ssl_context.check_hostname = True
-            self._ssl_context.verify_mode = ssl.CERT_REQUIRED
-            self._ssl_context.load_default_certs()
-        else:
-            self.logger.warning("SSL certificate verification is disabled - this is insecure!")
-            self._ssl_context.check_hostname = False
-            self._ssl_context.verify_mode = ssl.CERT_NONE
-
+        self._ssl_context.session_stats()
+        self._ssl_context.load_default_certs()
+        self._ssl_context.set_ciphers("DEFAULT")
         self._socket: socket.socket | None = None
-        self._socket_lock: asyncio.Lock | None = None
-        self._reconnecting: bool = False
         self._ws: websockets.ClientConnection | None = None
 
         self._setup_logger()
@@ -212,10 +205,10 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         return UserAgentPayload(device_type="WEB")
 
     def _validate_device_type(self) -> None:
-        if self.user_agent.device_type not in self.allowed_device_types:
+        if self.headers.device_type not in self.allowed_device_types:
             raise ValueError(
                 f"{self.__class__.__name__} does not support "
-                f"device_type={self.user_agent.device_type}"
+                f"device_type={self.headers.device_type}"
             )
 
     async def _wait_forever(self) -> None:
@@ -248,18 +241,15 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         if sync:
             await self._sync()
 
-        self.logger.debug("is_connected=%s before starting ping", self.is_connected)
-        ping_task = asyncio.create_task(self._send_interactive_ping())
-        ping_task.add_done_callback(self._log_task_exception)
-        self._background_tasks.add(ping_task)
-
-        start_scheduled_task = asyncio.create_task(self._start_scheduled_tasks())
-        start_scheduled_task.add_done_callback(self._log_task_exception)
-
+        start_scheaduled_task = self._create_safe_task(
+            self._start_scheduled_tasks(),
+            name="start_scheduled_tasks",
+        )
         if self._send_fake_telemetry:
-            telemetry_task = asyncio.create_task(self._start())
-            telemetry_task.add_done_callback(self._log_task_exception)
-            self._background_tasks.add(telemetry_task)
+            telemetry_task = self._create_safe_task(
+                self._start(),
+                name="fake_telemetry",
+            )
 
         if self._on_start_handler:
             self.logger.debug("Calling on_start handler")
@@ -267,7 +257,9 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
             if asyncio.iscoroutine(result):
                 await self._safe_execute(result, context="on_start handler")
 
-    async def login_with_code(self, temp_token: str, code: str, start: bool = False) -> None:
+    async def login_with_code(
+        self, temp_token: str, code: str, start: bool = False, password: str | None = None
+    ) -> None:
         """
         Завершает кастомный login flow: отправляет код, сохраняет токен и запускает пост-логин задачи.
 
@@ -277,6 +269,8 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         :type code: str
         :param start: Флаг запуска пост-логин задач и ожидания навсегда. Если False, только сохраняет токен.
         :type start: bool, optional
+        :param password: Пароль, если требуется 2FA.
+        :type password: str
         :return: None
         :rtype: None
         """
@@ -286,7 +280,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         password_challenge = resp.get("passwordChallenge")
 
         if password_challenge and not login_attrs:
-            token = await self._two_factor_auth(password_challenge)
+            token = await self._two_factor_auth(password_challenge, password)
         else:
             token = login_attrs.get("token")
 
@@ -326,16 +320,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         )
         while not self._stop_event.is_set():
             try:
-                if self._reconnect_attempt > 0:
-                    self.logger.info(
-                        "Client starting (reconnect attempt %d/%s)",
-                        self._reconnect_attempt,
-                        self.max_reconnect_attempts or "∞",
-                    )
-                else:
-                    self.logger.info("Client starting")
-
-                await self.connect(self.user_agent)
+                await self.connect(self.headers)
 
                 if self.registration:
                     if not self.first_name:
@@ -348,18 +333,9 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                 if self._token is None:
                     await self._login()
 
-                await self._sync(self.user_agent)
+                await self._sync(self.headers)
                 await self._post_login_tasks(sync=False)
 
-                # Successfully connected - reset reconnect counter
-                if self._reconnect_attempt > 0:
-                    self.logger.info(
-                        "Successfully reconnected after %d attempts",
-                        self._reconnect_attempt,
-                    )
-                self._reconnect_attempt = 0
-
-                self.logger.debug("Entering wait loop: ws=%s, is_connected=%s", self._ws, self.is_connected)
                 wait_task = asyncio.create_task(self._wait_forever())
                 stop_task = asyncio.create_task(self._stop_event.wait())
 
@@ -367,127 +343,39 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
                     [wait_task, stop_task], return_when=asyncio.FIRST_COMPLETED
                 )
 
-                # Log which task completed
-                if wait_task in done:
-                    self.logger.info("Wait loop exited: WebSocket closed or _wait_forever() completed")
-                if stop_task in done:
-                    self.logger.info("Wait loop exited: stop_event was set")
-                self.logger.debug("Wait loop completed: done=%s", done)
-
                 for task in pending:
                     task.cancel()
                     with contextlib.suppress(asyncio.CancelledError):
                         await task
-
-            except (InvalidPhoneError, ValueError) as e:
-                # Critical configuration errors - don't retry
-                self.logger.error("Fatal configuration error: %s", e)
-                raise
-
-            except Error as auth_err:
-                # Authentication errors - clear token and stop reconnect
-                error_code = getattr(auth_err, 'error', '')
-
-                # Список кодов ошибок авторизации, при которых не нужен reconnect
-                auth_error_codes = [
-                    "FAIL_LOGIN_TOKEN",
-                    "FAIL_WRONG_PASSWORD",
-                    "FAIL_LOGOUT_ALL",
-                    "FAIL_FORBIDDEN"
-                ]
-
-                if any(code in str(auth_err) for code in auth_error_codes):
-                    self.logger.error(
-                        "Authentication error detected: %s - clearing token and stopping",
-                        error_code or str(auth_err)
-                    )
-
-                    # Очищаем токен из памяти и базы данных
-                    self._token = None
+            except Error as e:
+                self.logger.exception(f"Client stopped with error: {e}")
+                if self._on_error_handler:
                     try:
-                        self._database.update_auth_token(self._device_id, None)
-                        self.logger.info("Token cleared from database")
-                    except Exception as db_err:
-                        self.logger.error("Failed to clear token from database: %s", db_err)
-
-                    # Останавливаем reconnect loop
-                    self.reconnect = False
-                    self.logger.warning("Reconnect disabled due to authentication failure")
-
-                    # Вызываем пользовательский обработчик, если есть
-                    if hasattr(self, '_on_error_handler') and self._on_error_handler:
-                        try:
-                            result = self._on_error_handler(auth_err)
-                            if asyncio.iscoroutine(result):
-                                await result
-                        except Exception as handler_err:
-                            self.logger.error("Error handler failed: %s", handler_err)
-
-                    break  # Выходим из reconnect loop
+                        result = self._on_error_handler(e)
+                        if asyncio.iscoroutine(result):
+                            await self._safe_execute(result, context="on_error handler")
+                    except Exception:
+                        self.logger.exception("Unhandled exception in on_error handler")
+                        raise
                 else:
-                    # Другие ошибки Error - пробуем reconnect
-                    self.logger.exception("Non-auth Error occurred: %s", e)
-                    self._reconnect_attempt += 1
-
+                    tb = traceback.format_exc()
+                    self.logger.error(f"Traceback:\n{tb}")
             except asyncio.CancelledError:
                 self.logger.info("Client task cancelled, stopping")
                 break
-            except Exception as e:
-                # Network/temporary errors - attempt reconnect
-                self.logger.exception("Client start iteration failed: %s", e)
-                self._reconnect_attempt += 1
+            except Exception:
+                if not self.reconnect:
+                    self.logger.exception("Client start iteration failed, no reconnect configured")
+                raise
             finally:
-                self.logger.warning(
-                    f"!!! Entering finally block - WHY? is_connected={self.is_connected}, "
-                    f"_ws={self._ws is not None}, reconnect={self.reconnect}"
-                )
-
-                try:
-                    await self._cleanup_client()
-                    # Verify cleanup was successful
-                    if self._recv_task is not None or self._outgoing_task is not None:
-                        self.logger.warning(
-                            "Cleanup incomplete: recv_task=%s, outgoing_task=%s",
-                            self._recv_task,
-                            self._outgoing_task,
-                        )
-                    if len(self._background_tasks) > 0:
-                        self.logger.warning(
-                            "Cleanup incomplete: %d background tasks still running",
-                            len(self._background_tasks),
-                        )
-                    self.logger.debug("Cleanup verification passed")
-                except Exception as cleanup_err:
-                    self.logger.error("Cleanup failed: %s", cleanup_err, exc_info=True)
+                await self._cleanup_client()
 
             if not self.reconnect or self._stop_event.is_set():
-                self.logger.info(
-                    "Reconnect disabled or stop requested — exiting start() (reconnect=%s, stop_event=%s)",
-                    self.reconnect,
-                    self._stop_event.is_set()
-                )
+                self.logger.info("Reconnect disabled or stop requested — exiting start()")
                 break
 
-            # Check max reconnect attempts
-            if (
-                self.max_reconnect_attempts is not None
-                and self._reconnect_attempt >= self.max_reconnect_attempts
-            ):
-                self.logger.error(
-                    "Max reconnect attempts (%d) reached, exiting",
-                    self.max_reconnect_attempts,
-                )
-                return
-
-            # Exponential backoff with cap at 60 seconds
-            delay = min(self.reconnect_delay * (2 ** (self._reconnect_attempt - 1)), 60.0)
-            self.logger.info(
-                "Reconnect enabled — restarting client in %.1f seconds (attempt %d/%s)",
-                delay,
-                self._reconnect_attempt + 1,
-                self.max_reconnect_attempts or "∞",
-            )
-            await asyncio.sleep(delay)
+            self.logger.info("Reconnecting after %.1f seconds", self.reconnect_delay)
+            await asyncio.sleep(self.reconnect_delay)
 
         self.logger.info("Client exited cleanly")
 

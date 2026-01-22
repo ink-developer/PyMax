@@ -4,6 +4,7 @@ from collections.abc import Awaitable, Callable
 from logging import Logger
 from typing import TYPE_CHECKING, Any, Literal
 
+from pymax.exceptions import Error
 from pymax.payloads import UserAgentPayload
 from pymax.static.constant import DEFAULT_TIMEOUT
 from pymax.static.enum import Opcode
@@ -44,6 +45,7 @@ class ClientProtocol(ABC):
         self.channels: list[Channel] = []
         self.contacts: list[User] = []
         self.me: Me | None = None
+        self.chat_marker: int | None = None
         self.host: str
         self.port: int
         self.proxy: str | Literal[True] | None
@@ -55,6 +57,7 @@ class ClientProtocol(ABC):
         self.reconnect: bool
         self.headers: UserAgentPayload
         self._database_path: Path
+        self.reconnect_delay: float
         self._ws: websockets.ClientConnection | None = None
         self._seq: int = 0
         self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
@@ -68,6 +71,8 @@ class ClientProtocol(ABC):
         self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
         self._outgoing_task: asyncio.Task[Any] | None = None
         self._error_count: int = 0
+        self._sock_lock: asyncio.Lock = asyncio.Lock()
+        self._read_buffer: bytearray = bytearray()
         self._circuit_breaker: bool = False
         self._last_error_time: float = 0.0
         self._session_id: int
@@ -87,6 +92,7 @@ class ClientProtocol(ABC):
         self._on_raw_receive_handlers: list[Callable[[dict[str, Any]], Any | Awaitable[Any]]] = []
         self._scheduled_tasks: list[tuple[Callable[[], Any | Awaitable[Any]], float]] = []
         self._on_start_handler: Callable[[], Any | Awaitable[Any]] | None = None
+        self._on_error_handler: Callable[[Exception], Any | Awaitable[Any]] | None = None
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._ssl_context: ssl.SSLContext
         self._socket: socket.socket | None = None
@@ -120,4 +126,8 @@ class ClientProtocol(ABC):
     def _create_safe_task(
         self, coro: Awaitable[Any], name: str | None = None
     ) -> asyncio.Task[Any]:
+        pass
+
+    @abstractmethod
+    async def _send_only(self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0) -> None:
         pass

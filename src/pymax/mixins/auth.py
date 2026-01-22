@@ -8,6 +8,7 @@ import qrcode
 
 from pymax.exceptions import Error
 from pymax.payloads import (
+    ApproveQrLoginPayload,
     Capability,
     CheckPasswordChallengePayload,
     CreateTrackPayload,
@@ -30,7 +31,47 @@ class AuthMixin(ClientProtocol):
     def _check_phone(self) -> bool:
         return bool(re.match(PHONE_REGEX, self.phone))
 
-    async def request_code(self, phone: str, language: str = "ru") -> str:
+    def _split_phone(self, phone: str) -> str:
+        placeholder = ""
+        result = ""
+        digit_index = 0
+        if phone.startswith("+7"):
+            result = "+7 "
+            placeholder = "000 000 00 00"
+        if phone.startswith("+375"):
+            result = "+375 "
+            placeholder = "00 000 00 00"
+        if phone.startswith("+994"):
+            result = "+994 "
+            placeholder = "00 000 00 00"
+        if phone.startswith("+374"):
+            result = "+374 "
+            placeholder = "00 000 000"
+        if phone.startswith("+995"):
+            result = "+995 "
+            placeholder = "000 00 00 00"
+        if phone.startswith("+996"):
+            result = "+996 "
+            placeholder = "000 000 000"
+        if phone.startswith("+373"):
+            result = "+373 "
+            placeholder = "0000 0000"
+        if phone.startswith("+992"):
+            result = "+992 "
+            placeholder = "00 000 0000"
+        if phone.startswith("+998"):
+            result = "+998 "
+            placeholder = "00 000 00 00"
+        phone = phone[len(result) - 1 :]
+        for char in placeholder:
+            if char == "0" and digit_index < len(phone):
+                result += phone[digit_index]
+                digit_index += 1
+            elif char == " ":
+                result += " "
+        return result
+
+    async def request_code(self, phone: str) -> str:
         """
         Запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.
 
@@ -39,8 +80,6 @@ class AuthMixin(ClientProtocol):
 
         :param phone: Номер телефона в международном формате.
         :type phone: str
-        :param language: Язык для сообщения с кодом. По умолчанию "ru".
-        :type language: str
         :return: Временный токен для дальнейшей аутентификации.
         :rtype: str
         :raises ValueError: Если полученные данные имеют неверный формат.
@@ -52,7 +91,7 @@ class AuthMixin(ClientProtocol):
         self.logger.info("Requesting auth code")
 
         payload = RequestCodePayload(
-            phone=phone, type=AuthType.START_AUTH, language=language
+            phone=self._split_phone(phone), type=AuthType.START_AUTH
         ).model_dump(by_alias=True)
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)
@@ -72,14 +111,12 @@ class AuthMixin(ClientProtocol):
             self.logger.error("Invalid payload data received")
             raise ValueError("Invalid payload data received")
 
-    async def resend_code(self, phone: str, language: str = "ru") -> str:
+    async def resend_code(self, phone: str) -> str:
         """
         Повторно запрашивает код аутентификации для указанного номера телефона и возвращает временный токен.
 
         :param phone: Номер телефона в международном формате.
         :type phone: str
-        :param language: Язык для сообщения с кодом. По умолчанию "ru".
-        :type language: str
         :return: Временный токен для дальнейшей аутентификации.
         :rtype: str
         :raises ValueError: Если полученные данные имеют неверный формат.
@@ -88,7 +125,7 @@ class AuthMixin(ClientProtocol):
         self.logger.info("Resending auth code")
 
         payload = RequestCodePayload(
-            phone=phone, type=AuthType.RESEND, language=language
+            phone=self._split_phone(phone), type=AuthType.RESEND
         ).model_dump(by_alias=True)
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_REQUEST, payload=payload)
@@ -186,8 +223,8 @@ class AuthMixin(ClientProtocol):
     async def _login(self) -> None:
         self.logger.info("Starting login flow")
 
-        if self.user_agent.device_type == DeviceType.WEB.value and self._ws:
-            if not self._validate_version(self.user_agent.app_version, "25.12.13"):
+        if self.headers.device_type == DeviceType.WEB.value and self._ws:
+            if not self._validate_version(self.headers.app_version, "25.12.13"):
                 self.logger.error("Your app version is too old")
                 raise ValueError("Your app version is too old")
 
@@ -208,9 +245,16 @@ class AuthMixin(ClientProtocol):
 
         password_challenge = login_resp.get("passwordChallenge")
         login_attrs = login_resp.get("tokenAttrs", {}).get("LOGIN", {})
+        reg_attrs = login_resp.get("tokenAttrs", {}).get("REGISTER", {})
+
+        if reg_attrs:
+            self.logger.info(
+                "Account requires registration. Setup registration info in client parameters."
+            )
+            raise RuntimeError("Account requires registration")
 
         if password_challenge and not login_attrs:
-            token = await self._two_factor_auth(password_challenge)
+            token = await self._two_factor_auth(password_challenge, None)
         else:
             token = login_attrs.get("token")
 
@@ -399,13 +443,39 @@ class AuthMixin(ClientProtocol):
             return None
         return token_attrs
 
-    async def _two_factor_auth(self, password_challenge: dict[str, Any]) -> None:
+    def _get_token_from_attrs(self, token_attrs: dict[str, Any]) -> str | None:
+        if not token_attrs:
+            self.logger.critical("Provided password is incorrect")
+            raise ValueError("Provided password is incorrect")
+
+        login_attrs = token_attrs.get("LOGIN", {})
+        if login_attrs:
+            token = login_attrs.get("token")
+            if not token:
+                self.logger.critical("Login response did not contain tokenAttrs.LOGIN.token")
+                raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
+            return token
+        return None
+
+    async def _two_factor_auth(
+        self, password_challenge: dict[str, Any], password: str | None
+    ) -> str:
         self.logger.info("Starting two-factor authentication flow")
 
         track_id = password_challenge.get("trackId")
         if not track_id:
             self.logger.critical("Password challenge missing track ID")
             raise ValueError("Password challenge missing track ID")
+
+        if password is not None:
+            token_attrs = await self._check_password(password, track_id)
+            if token_attrs:
+                token = self._get_token_from_attrs(token_attrs)
+                if token:
+                    return token
+                else:
+                    self.logger.critical("Login response did not contain tokenAttrs.LOGIN.token")
+                    raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
 
         hint = password_challenge.get("hint", "No hint provided")
 
@@ -422,13 +492,11 @@ class AuthMixin(ClientProtocol):
                 self.logger.error("Incorrect password, please try again")
                 continue
 
-            login_attrs = token_attrs.get("LOGIN", {})
-            if login_attrs:
-                token = login_attrs.get("token")
-                if not token:
-                    self.logger.critical("Login response did not contain tokenAttrs.LOGIN.token")
-                    raise ValueError("Login response did not contain tokenAttrs.LOGIN.token")
+            token = self._get_token_from_attrs(token_attrs)
+            if token:
                 return token
+            else:
+                self.logger.error("Incorrect password, please try again")
 
     async def _set_password(self, password: str, track_id: str) -> bool:
         payload = SetPasswordPayload(
@@ -438,6 +506,7 @@ class AuthMixin(ClientProtocol):
 
         data = await self._send_and_wait(opcode=Opcode.AUTH_VALIDATE_PASSWORD, payload=payload)
         payload = data.get("payload", {})
+
         return not payload
 
     async def _set_hint(self, hint: str, track_id: str) -> bool:
@@ -491,7 +560,7 @@ class AuthMixin(ClientProtocol):
     async def set_password(
         self,
         password: str,
-        email: str | None = None,
+        email: str | None | _Unset = UNSET,
         hint: str | None | _Unset = UNSET,
     ):
         """
@@ -517,7 +586,7 @@ class AuthMixin(ClientProtocol):
             opcode=Opcode.AUTH_CREATE_TRACK,
             payload=payload,
         )
-        print(data)
+
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
 
@@ -525,6 +594,9 @@ class AuthMixin(ClientProtocol):
         if not track_id:
             self.logger.critical("Failed to create password track: track ID missing")
             raise ValueError("Failed to create password track")
+
+        has_hint = False
+        has_email = False
 
         while True:
             if not password:
@@ -554,30 +626,40 @@ class AuthMixin(ClientProtocol):
             success = await self._set_hint(hint, track_id)
             if success:
                 self.logger.info("Password hint set successfully")
+                has_hint = True
                 break
             else:
                 self.logger.error("Failed to set password hint, please try again")
 
         while True:
-            if not email:
+            if hint is UNSET:
                 email = await asyncio.to_thread(
-                    lambda: input("Введите email для восстановления пароля: ").strip()
+                    lambda: input(
+                        "Введите email для восстановления пароля (пустой - пропустить): "
+                    ).strip()
                 )
                 if not email:
-                    self.logger.warning("Email is empty, please try again")
-                    continue
+                    break
+
+            if email is None:
+                break
 
             success = await self._set_email(email, track_id)
             if success:
+                has_email = True
                 self.logger.info("Recovery email set successfully")
                 break
 
+        expected_capabilities = [Capability.DEFAULT]
+
+        if has_hint:
+            expected_capabilities.append(Capability.SECOND_FACTOR_HAS_HINT)
+
+        if has_email:
+            expected_capabilities.append(Capability.SECOND_FACTOR_HAS_EMAIL)
+
         payload = SetTwoFactorPayload(
-            expected_capabilities=[
-                Capability.DEFAULT,
-                Capability.SECOND_FACTOR_HAS_HINT,
-                Capability.SECOND_FACTOR_HAS_EMAIL,
-            ],
+            expected_capabilities=expected_capabilities,
             track_id=track_id,
             password=password,
             hint=hint if isinstance(hint, (str, type(None))) else None,
@@ -591,4 +673,34 @@ class AuthMixin(ClientProtocol):
         if payload and payload.get("error"):
             MixinsUtils.handle_error(data)
 
+        return True
+
+    async def approve_qr_login(self, qr_link: str) -> bool:
+        """
+        Подтверждает вход по QR-коду, используя предоставленную ссылку.
+
+        :param qr_link: Ссылка на QR-код для подтверждения входа.
+        :type qr_link: str
+        :return: True, если вход успешно подтвержден, иначе выбрасывается исключение.
+        :rtype: bool
+        """
+        self.logger.info("Approving QR login")
+
+        payload = ApproveQrLoginPayload(
+            qr_link=qr_link,
+        ).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(
+            opcode=Opcode.AUTH_QR_APPROVE,
+            payload=payload,
+        )
+        payload = data.get("payload", {})
+        if payload and payload.get("error"):
+            MixinsUtils.handle_error(data)
+
+        self.logger.debug(
+            "QR login approval response opcode=%s seq=%s",
+            data.get("opcode"),
+            data.get("seq"),
+        )
         return True

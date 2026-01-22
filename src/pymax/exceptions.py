@@ -35,8 +35,11 @@ class SocketSendError(Exception):
     Исключение, вызываемое при ошибке отправки данных через сокет.
     """
 
-    def __init__(self) -> None:
-        super().__init__("Send and wait failed (socket)")
+    def __init__(self, message: str | None = None) -> None:
+        if not message:
+            super().__init__("Send and wait failed (socket)")
+        else:
+            super().__init__(message)
 
 
 class ResponseError(Exception):

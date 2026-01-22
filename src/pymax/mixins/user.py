@@ -1,14 +1,19 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from typing import Any, Literal
 
 from pymax.exceptions import Error, ResponseError, ResponseStructureError
 from pymax.payloads import (
+    AddContactByPhonePayload,
     ContactActionPayload,
+    ContactPresencePayload,
     FetchContactsPayload,
     SearchByPhonePayload,
+    SetTypingPayload,
 )
 from pymax.protocols import ClientProtocol
-from pymax.static.enum import ContactAction, Opcode
-from pymax.types import Contact, Session, User
+from pymax.static.enum import ContactAction, Opcode, TypingType
+from pymax.types import Contact, Presence, Session, User
 from pymax.utils import MixinsUtils
 
 
@@ -190,6 +195,34 @@ class UserMixin(ClientProtocol):
             return Contact.from_dict(contact_dict)
         raise ResponseStructureError("Wrong contact structure in response")
 
+    async def add_contact_by_phone(self, phone: str, first_name: str) -> Contact:
+        """
+        Добавляет контакт в список контактов по номеру телефона
+
+        :param phone: Номер телефона контакта
+        :type phone: str
+        :param first_name: Имя контакта
+        :type first_name: str
+        :return: Объект контакта
+        :rtype: Contact
+        :raises ResponseStructureError: Если структура ответа неверна
+
+        """
+
+        payload = AddContactByPhonePayload(phone=phone, first_name=first_name).model_dump(
+            by_alias=True
+        )
+
+        data = await self._send_and_wait(
+            opcode=Opcode.CONTACT_ADD_BY_PHONE,
+            payload=payload,
+        )
+
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        return Contact.from_dict(data["payload"]["contact"])
+
     async def remove_contact(self, contact_id: int) -> Literal[True]:
         """
         Удаляет контакт из списка контактов
@@ -217,3 +250,48 @@ class UserMixin(ClientProtocol):
         :rtype: int
         """
         return first_user_id ^ second_user_id
+
+    async def get_contact_presence(self, contact_ids: list[int]) -> list[Presence]:
+        """
+        Получение информации о присутствии контактов в сети.
+
+        :param contact_ids: Список идентификаторов контактов.
+        :type contact_ids: list[int]
+        """
+        payload = ContactPresencePayload(contact_ids=contact_ids).model_dump(by_alias=True)
+
+        data = await self._send_and_wait(opcode=Opcode.CONTACT_PRESENCE, payload=payload)
+        if data.get("payload", {}).get("error"):
+            MixinsUtils.handle_error(data)
+
+        presence = data["payload"].get("presence", {})
+
+        return [
+            Presence(user_id=int(contact_id), last_seen=info.get("seen"))
+            for contact_id, info in presence.items()
+        ]
+
+    @asynccontextmanager
+    async def typing(
+        self, *, chat_id: int, typing_type: TypingType = TypingType.TEXT
+    ) -> AsyncGenerator[None, Any]:
+        """
+        Устанавливает состояние "печатает" для указанного чата.
+
+        :param chat_id: ID чата.
+        :type chat_id: int
+        :param typing_type: Тип состояния "печатает".
+        :type typing_type: TypingType
+        :yields: None
+        :rtype: None
+        """
+        self.logger.debug("Set typing for chat %s", chat_id)
+
+        payload = SetTypingPayload(
+            chat_id=chat_id,
+            type=typing_type,
+        ).model_dump(by_alias=True)
+        await self._send_only(opcode=Opcode.MSG_TYPING, payload=payload)
+        self.logger.debug("Set typing for chat %s success (maybe?)", chat_id)
+        yield
+        self.logger.debug("Set typing for chat %s done", chat_id)

@@ -15,7 +15,14 @@ from pymax.static.constant import (
     DEFAULT_TIMEZONE,
     DEFAULT_USER_AGENT,
 )
-from pymax.static.enum import AttachType, AuthType, Capability, ContactAction, ReadAction
+from pymax.static.enum import (
+    AttachType,
+    AuthType,
+    Capability,
+    ContactAction,
+    ReadAction,
+    TypingType,
+)
 
 
 def to_camel(string: str) -> str:
@@ -56,7 +63,6 @@ class UserAgentPayload(CamelModel):
 class RequestCodePayload(CamelModel):
     phone: str
     type: AuthType = AuthType.START_AUTH
-    language: str = "ru"
 
 
 class SendCodePayload(CamelModel):
@@ -70,7 +76,7 @@ class SyncPayload(CamelModel):
     token: str
     chats_sync: int = 0
     contacts_sync: int = 0
-    presence_sync: int = 0
+    presence_sync: int = -1
     drafts_sync: int = 0
     chats_count: int = 40
     user_agent: UserAgentPayload = Field(
@@ -401,3 +407,26 @@ class RequestEmailCodePayload(CamelModel):
 class SendEmailCodePayload(CamelModel):
     track_id: str
     verify_code: str
+
+
+class AddContactByPhonePayload(CamelModel):
+    phone: str
+    first_name: str
+
+
+class ContactPresencePayload(CamelModel):
+    contact_ids: list[int]
+
+
+class ApproveQrLoginPayload(CamelModel):
+    qr_link: str
+
+
+class SetTypingPayload(CamelModel):
+    chat_id: int
+    typing_type: TypingType = Field(default=TypingType.TEXT, alias="type")
+
+
+class ChatSubscriptionPayload(CamelModel):
+    chat_id: int
+    subscribe: bool

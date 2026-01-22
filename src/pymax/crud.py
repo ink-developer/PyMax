@@ -9,17 +9,18 @@ from .static.enum import DeviceType
 
 
 class Database:
-    def __init__(self, workdir: str) -> None:
+    def __init__(self, workdir: str, session_name: str) -> None:
         self.workdir = workdir
-        self.engine = self.get_engine(workdir)
+        self.session_name = session_name
+        self.engine = self.get_engine(workdir, session_name)
         self.create_all()
         self._ensure_single_auth()
 
     def create_all(self) -> None:
         SQLModel.metadata.create_all(self.engine)
 
-    def get_engine(self, workdir: str) -> Engine:
-        return create_engine(f"sqlite:///{workdir}/session.db")
+    def get_engine(self, workdir: str, session_name: str) -> Engine:
+        return create_engine(f"sqlite:///{workdir}/{session_name}")
 
     def get_session(self) -> Session:
         return Session(bind=self.engine)

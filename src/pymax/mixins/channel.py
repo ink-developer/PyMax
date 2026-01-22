@@ -30,6 +30,7 @@ class ChannelMixin(ClientProtocol):
         ).model_dump(by_alias=True)
 
         data = await self._send_and_wait(opcode=Opcode.LINK_INFO, payload=payload)
+
         if data.get("payload", {}).get("error"):
             MixinsUtils.handle_error(data)
 
