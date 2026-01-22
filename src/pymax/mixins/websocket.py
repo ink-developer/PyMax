@@ -203,8 +203,24 @@ class WebSocketMixin(BaseTransport):
                 return chat
         return None
 
-    async def _send_only(self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0) -> None:
+    async def _send_no_wait(
+        self,
+        opcode: Opcode,
+        payload: dict[str, Any],
+        cmd: int = 0,
+    ) -> None:
+        """Send message without waiting for response (fire-and-forget)"""
+        ws = self.ws
         msg = self._make_message(opcode, payload, cmd)
-        packet = json.dumps(msg)
 
-        asyncio.create_task(self.ws.send(packet))
+        self.logger.debug(
+            "Sending frame (no wait) opcode=%s cmd=%s seq=%s",
+            opcode,
+            cmd,
+            msg["seq"],
+        )
+        await ws.send(json.dumps(msg))
+
+    async def _send_only(self, opcode: Opcode, payload: dict[str, Any], cmd: int = 0) -> None:
+        """Send message in background without waiting (fire-and-forget)"""
+        asyncio.create_task(self._send_no_wait(opcode, payload, cmd))

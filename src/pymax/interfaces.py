@@ -321,7 +321,7 @@ class BaseTransport(ClientProtocol):
     async def _send_notification_response(self, chat_id: int, message_id: str) -> None:
         if self._socket is not None:
             return
-        await self._queue_message(
+        await self._send_only(
             opcode=Opcode.NOTIF_MESSAGE,
             payload={"chatId": chat_id, "messageId": message_id},
             cmd=1,
