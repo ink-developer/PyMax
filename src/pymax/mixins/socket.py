@@ -274,8 +274,9 @@ Socket connections may be unstable, SSL issues are possible.
             raise
 
         for fut in list(self._pending.values()):
-            if not fut.done():
-                fut.set_exception(SocketNotConnectedError())
+            old_fut = fut[0]
+            if not old_fut.done():
+                old_fut.set_exception(SocketNotConnectedError())
         self._pending.clear()
 
         self.is_connected = True
@@ -419,8 +420,9 @@ Socket connections may be unstable, SSL issues are possible.
                 self.is_connected = False
 
                 for fut in list(self._pending.values()):
-                    if not fut.done():
-                        fut.set_exception(SocketNotConnectedError())
+                    old_fut = fut[0]
+                    if not old_fut.done():
+                        old_fut.set_exception(SocketNotConnectedError())
 
                 self._pending.clear()
 
@@ -513,8 +515,9 @@ Socket connections may be unstable, SSL issues are possible.
             self.logger.warning("Connection lost while sending: %s", conn_err)
             self.is_connected = False
             for pending_fut in list(self._pending.values()):
-                if not pending_fut.done():
-                    pending_fut.set_exception(SocketNotConnectedError())
+                old_fut = pending_fut[0]
+                if not old_fut.done():
+                    old_fut.set_exception(SocketNotConnectedError())
             self._pending.clear()
 
             if not fut.done():

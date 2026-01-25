@@ -49,12 +49,18 @@ class WebSocketMixin(BaseTransport):
             self.uri,
             origin=WEBSOCKET_ORIGIN,
             user_agent_header=user_agent.header_user_agent,
+            compression="deflate",
+            ping_interval=None,
+            open_timeout=10,
+            close_timeout=10,
             proxy=self.proxy,
+            max_size=None,
         )
 
         for fut in list(self._pending.values()):
-            if not fut.done():
-                fut.set_exception(WebSocketNotConnectedError())
+            old_fut = fut[0]
+            if not old_fut.done():
+                old_fut.set_exception(WebSocketNotConnectedError())
         self._pending.clear()
 
         self.is_connected = True
@@ -68,12 +74,11 @@ class WebSocketMixin(BaseTransport):
             self._outgoing_loop(), name="outgoing_loop websocket task"
         )
         self.logger.debug("is_connected=%s before starting ping", self.is_connected)
-        ping_task = self._create_safe_task(
-            self._send_interactive_ping(),
-            name="interactive_ping",
-        )
+
         self.logger.info("WebSocket connected, starting handshake")
-        return await self._handshake(user_agent)
+        resp = await self._handshake(user_agent)
+
+        return resp
 
     async def _recv_loop(self) -> None:
         if self._ws is None:
@@ -101,9 +106,10 @@ class WebSocketMixin(BaseTransport):
                 self.logger.exception(
                     f"WebSocket connection closed with error: {e.code}, {e.reason}; exiting recv loop"
                 )
-                for fut in self._pending.values():
+                for pending in self._pending.values():
+                    fut = pending[0]
                     if not fut.done():
-                        fut.set_exception(WebSocketNotConnectedError)
+                        fut.set_exception(WebSocketNotConnectedError())
                 self._pending.clear()
 
                 self.is_connected = False
@@ -130,11 +136,13 @@ class WebSocketMixin(BaseTransport):
         fut: asyncio.Future[dict[str, Any]] = loop.create_future()
         seq_key = msg["seq"]
 
-        old_fut = self._pending.get(seq_key)
-        if old_fut and not old_fut.done():
-            old_fut.cancel()
+        old = self._pending.get(seq_key)
+        if old:
+            old_fut = old[0]
+            if not old_fut.done():
+                old_fut.cancel()
 
-        self._pending[seq_key] = fut
+        self._pending[seq_key] = (fut, 1, int(opcode))
 
         try:
             self.logger.debug(

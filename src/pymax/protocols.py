@@ -60,7 +60,7 @@ class ClientProtocol(ABC):
         self.reconnect_delay: float
         self._ws: websockets.ClientConnection | None = None
         self._seq: int = 0
-        self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
+        self._pending: dict[int, tuple[asyncio.Future[dict[str, Any]], int, int | None]] = {}
         self._recv_task: asyncio.Task[Any] | None = None
         self._incoming: asyncio.Queue[dict[str, Any]] | None = None
         self._file_upload_waiters: dict[

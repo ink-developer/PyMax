@@ -137,7 +137,7 @@ class MaxClient(ApiMixin, WebSocketMixin, BaseClient):
         self._outgoing: asyncio.Queue[dict[str, Any]] | None = None
         self._recv_task: asyncio.Task[Any] | None = None
         self._outgoing_task: asyncio.Task[Any] | None = None
-        self._pending: dict[int, asyncio.Future[dict[str, Any]]] = {}
+        self._pending: dict[int, tuple[asyncio.Future[dict[str, Any]], int, int | None]] = {}
         self._file_upload_waiters: dict[int, asyncio.Future[dict[str, Any]]] = {}
         self._background_tasks: set[asyncio.Task[Any]] = set()
         self._stop_event = asyncio.Event()
@@ -414,8 +414,9 @@ class SocketMaxClient(SocketMixin, MaxClient):
             self._outgoing_task = None
 
         for fut in self._pending.values():
-            if not fut.done():
-                fut.set_exception(SocketNotConnectedError())
+            old_fut = fut[0]
+            if not old_fut.done():
+                old_fut.set_exception(SocketNotConnectedError())
         self._pending.clear()
 
         if self._socket:
