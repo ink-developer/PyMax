@@ -140,8 +140,8 @@ async def handle_start() -> None:
 # Обработчик сообщений из Telegram
 @dp.message()
 async def handle_tg_message(message: types.Message, bot: Bot) -> None:
-    max_id = chats_telegram[message.chat.id]
     try:
+        max_id = chats_telegram[message.chat.id]
         await max_client.send_message(
             chat_id=max_id,
             text=f"{message.from_user.first_name}: {message.text}", # pyright: ignore[reportOptionalMemberAccess]
