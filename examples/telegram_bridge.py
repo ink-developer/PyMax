@@ -1,179 +1,153 @@
-# Всякая всячина
-import asyncio
-
-# Библиотека для работы с файлами
-from io import BytesIO
-
-import aiohttp
-
-# Импорты библиотеки aiogram для TG-бота
-from aiogram import Bot, Dispatcher, types
+# УСТАНОВИТЬ ЗАВИСИМОСТИ - pip install maxapi-python aiogram==3.22.0
+import asyncio # Для асинхронности
+import aiohttp # Для асинхронных реквестов
+from io import BytesIO # Для хранения ответов файлом в RAM
+from aiogram import Bot, Dispatcher, types # Для ТГ
 
 # Импорты библиотеки PyMax
-from pymax import MaxClient, Message, Photo
+from pymax import MaxClient, Message
 from pymax.types import FileAttach, PhotoAttach, VideoAttach
 
-# УСТАНОВИТЬ ЗАВИСИМОСТИ - pip install maxapi-python aiogram==3.22.0
-
-
-# Настройки ботов
 PHONE = "+79998887766"  # Номер телефона Max
 telegram_bot_TOKEN = "token"  # Токен TG-бота
 
-chats = {  # В формате айди чата в Max: айди чата в Telegram (айди чата Max можно узнать из ссылки на чат в веб версии web.max.ru)
+# Формат: id чата в Max: id чата в Tg
+# (Id чата в Max можно узнать из ссылки на чат в веб версии web.max.ru)
+chats = {
     -68690734055662: -1003177746657,
 }
 
-
-# Создаём зеркальный массив для отправки из Telegram в Max
+# Создаём зеркальный словарь для отправки из Telegram в Max
 chats_telegram = {value: key for key, value in chats.items()}
 
+max_client = MaxClient(phone=PHONE, work_dir="cache", reconnect=True) # Инициализация клиента Max
 
-# Инициализация клиента MAX
-client = MaxClient(phone=PHONE, work_dir="cache", reconnect=True)
-
-
-# Инициализация TG-бота
-telegram_bot = Bot(token=telegram_bot_TOKEN)
+telegram_bot = Bot(token=telegram_bot_TOKEN) # Инициализация TG-бота
 dp = Dispatcher()
 
+async def download_file_bytes(url: str) -> BytesIO:
+    """Загружает файл по URL и возвращает его в виде BytesIO."""
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            response.raise_for_status() # Кидаем exception в случае ошибки HTTP
+            file_bytes = BytesIO(await response.read()) # Читаем ответ в файлоподобный объект
+            file_bytes.name = response.headers.get("X-File-Name") # Ставим "файлу" имя из заголовков ответа
+            return file_bytes
 
 # Обработчик входящих сообщений MAX
-@client.on_message()
+@max_client.on_message()
 async def handle_message(message: Message) -> None:
     try:
-        tg_id = chats[message.chat_id]
+        tg_id = chats[message.chat_id]  # pyright: ignore[reportArgumentType]
     except KeyError:
         return
 
-    sender = await client.get_user(user_id=message.sender)
+    sender = await max_client.get_user(user_id=message.sender) # pyright: ignore[reportArgumentType]
 
-    if message.attaches:
-        for attach in message.attaches:
-            # Проверка на видео
-            if isinstance(attach, VideoAttach):
-                async with aiohttp.ClientSession() as session:
-                    try:
-                        # Получаем видео по айди
-                        video = await client.get_video_by_id(
-                            chat_id=message.chat_id,
-                            message_id=message.id,
-                            video_id=attach.video_id,
-                        )
+    if message.attaches: # Проверка на наличие вложений
+        for attach in message.attaches: # Перебор всех вложений
+            if isinstance(attach, VideoAttach): # Проверка на видео
+                try:
+                    # Получаем видео из max по айди
+                    video = await max_client.get_video_by_id(
+                        chat_id=message.chat_id, # pyright: ignore[reportArgumentType]
+                        message_id=message.id,
+                        video_id=attach.video_id
+                    )
+                        
+                    # Загружаем видео по URL
+                    video_bytes = await download_file_bytes(video.url) # pyright: ignore[reportOptionalMemberAccess]
 
-                        # Загружаем видео по URL
-                        async with session.get(video.url) as response:
-                            response.raise_for_status()  # Проверка на ошибки HTTP
-                            video_bytes = BytesIO(await response.read())
-                            video_bytes.name = response.headers.get("X-File-Name")
+                    # Отправляем видео через тг
+                    await telegram_bot.send_video(
+                        chat_id=tg_id,
+                        caption=f"{sender.names[0].name}: {message.text}", # pyright: ignore[reportOptionalMemberAccess]
+                        video=types.BufferedInputFile(video_bytes.getvalue(), filename=video_bytes.name)
+                    )
 
-                        # Отправляем видео через телеграм бота
-                        await telegram_bot.send_video(
-                            chat_id=tg_id,
-                            caption=f"{sender.names[0].name}: {message.text}",
-                            video=types.BufferedInputFile(
-                                video_bytes.getvalue(), filename=video_bytes.name
-                            ),
-                        )
+                    video_bytes.close() # Удаляем видео из памяти
 
-                        # Очищаем память
-                        video_bytes.close()
+                except aiohttp.ClientError as e:
+                    print(f"Ошибка при загрузке видео: {e}")
+                except Exception as e:
+                    print(f"Ошибка при отправке видео: {e}")
 
-                    except aiohttp.ClientError as e:
-                        print(f"Ошибка при загрузке видео: {e}")
-                    except Exception as e:
-                        print(f"Ошибка при отправке видео: {e}")
+            elif isinstance(attach, PhotoAttach): # Проверка на фото
+                try:
+                    # Загружаем изображение по URL
+                    photo_bytes = await download_file_bytes(attach.base_url) # pyright: ignore[reportOptionalMemberAccess]
 
-            # Проверка на изображение
-            elif isinstance(attach, PhotoAttach):
-                async with aiohttp.ClientSession() as session:
-                    try:
-                        # Загружаем изображение по URL
-                        async with session.get(attach.base_url) as response:
-                            response.raise_for_status()  # Проверка на ошибки HTTP
-                            photo_bytes = BytesIO(await response.read())
-                            photo_bytes.name = response.headers.get("X-File-Name")
+                    # Отправляем фото через тг бота
+                    await telegram_bot.send_photo(
+                        chat_id=tg_id,
+                        caption=f"{sender.names[0].name}: {message.text}", # pyright: ignore[reportOptionalMemberAccess]
+                        photo=types.BufferedInputFile(photo_bytes.getvalue(), filename=photo_bytes.name)
+                    )
 
-                        # Отправляем фото через телеграм бота
-                        await telegram_bot.send_photo(
-                            chat_id=tg_id,
-                            caption=f"{sender.names[0].name}: {message.text}",
-                            photo=types.BufferedInputFile(
-                                photo_bytes.getvalue(), filename=photo_bytes.name
-                            ),
-                        )
+                    photo_bytes.close() # Удаляем фото из памяти
 
-                        # Очищаем память
-                        photo_bytes.close()
+                except aiohttp.ClientError as e:
+                    print(f"Ошибка при загрузке изображения: {e}")
+                except Exception as e:
+                    print(f"Ошибка при отправке фото: {e}")
 
-                    except aiohttp.ClientError as e:
-                        print(f"Ошибка при загрузке изображения: {e}")
-                    except Exception as e:
-                        print(f"Ошибка при отправке фото: {e}")
+            elif isinstance(attach, FileAttach): # Проверка на файл
+                try:
+                    # Получаем файл по айди
+                    file = await max_client.get_file_by_id(
+                        chat_id=message.chat_id, # pyright: ignore[reportArgumentType]
+                        message_id=message.id,
+                        file_id=attach.file_id
+                    )
 
-            # Проверка на файл
-            elif isinstance(attach, FileAttach):
-                async with aiohttp.ClientSession() as session:
-                    try:
-                        # Получаем файл по айди
-                        file = await client.get_file_by_id(
-                            chat_id=message.chat_id,
-                            message_id=message.id,
-                            file_id=attach.file_id,
-                        )
+                    # Загружаем файл по URL
+                    file_bytes = await download_file_bytes(file.url) # pyright: ignore[reportOptionalMemberAccess]
 
-                        # Загружаем файл по URL
-                        async with session.get(file.url) as response:
-                            response.raise_for_status()  # Проверка на ошибки HTTP
-                            file_bytes = BytesIO(await response.read())
-                            file_bytes.name = response.headers.get("X-File-Name")
+                    # Отправляем файл через тг бота
+                    await telegram_bot.send_document(
+                        chat_id=tg_id,
+                        caption=f"{sender.names[0].name}: {message.text}", # pyright: ignore[reportOptionalMemberAccess]
+                        document=types.BufferedInputFile(file_bytes.getvalue(), filename=file_bytes.name)
+                    )
 
-                        # Отправляем файл через телеграм бота
-                        await telegram_bot.send_document(
-                            chat_id=tg_id,
-                            caption=f"{sender.names[0].name}: {message.text}",
-                            document=types.BufferedInputFile(
-                                file_bytes.getvalue(), filename=file_bytes.name
-                            ),
-                        )
+                    file_bytes.close() # Удаляем файл из памяти
 
-                        # Очищаем память
-                        file_bytes.close()
-
-                    except aiohttp.ClientError as e:
-                        print(f"Ошибка при загрузке файла: {e}")
-                    except Exception as e:
-                        print(f"Ошибка при отправке файла: {e}")
+                except aiohttp.ClientError as e:
+                    print(f"Ошибка при загрузке файла: {e}")
+                except Exception as e:
+                    print(f"Ошибка при отправке файла: {e}")
     else:
         await telegram_bot.send_message(
-            chat_id=tg_id, text=f"{sender.names[0].name}: {message.text}"
+            chat_id=tg_id, 
+            text=f"{sender.names[0].name}: {message.text}" # pyright: ignore[reportOptionalMemberAccess]
         )
 
 
 # Обработчик запуска клиента, функция выводит все сообщения из чата "Избранное"
-@client.on_start
+@max_client.on_start
 async def handle_start() -> None:
     print("Клиент запущен")
 
     # Получение истории сообщений
-    history = await client.fetch_history(chat_id=0)
+    history = await max_client.fetch_history(chat_id=0)
     if history:
         for message in history:
-            user = await client.get_user(message.sender)
+            user = await max_client.get_user(message.sender) # pyright: ignore[reportArgumentType]
             if user:
                 print(f"{user.names[0].name}: {message.text}")
 
 
-# Обработчик сообщений Telegram
+# Обработчик сообщений из Telegram
 @dp.message()
 async def handle_tg_message(message: types.Message, bot: Bot) -> None:
-    max_id = chats_telegram[message.chat.id]
-    await client.send_message(
-        chat_id=max_id,
-        text=f"{message.from_user.first_name}: {message.text}",
-        notify=True,
-    )
-
+    try:
+        max_id = chats_telegram[message.chat.id]
+        await max_client.send_message(
+            chat_id=max_id,
+            text=f"{message.from_user.first_name}: {message.text}", # pyright: ignore[reportOptionalMemberAccess]
+        )
+    except KeyError:
+        return
 
 # Раннер ботов
 async def main() -> None:
@@ -181,9 +155,9 @@ async def main() -> None:
     telegram_bot_task = asyncio.create_task(dp.start_polling(telegram_bot))
 
     try:
-        await client.start()
+        await max_client.start()
     finally:
-        await client.close()
+        await max_client.close()
         telegram_bot_task.cancel()
 
 
